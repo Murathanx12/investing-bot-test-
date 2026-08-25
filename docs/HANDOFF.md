@@ -7,7 +7,11 @@ Previous handoff text is in git history (`2561449`); this one supersedes it.
 ## NIGHT SESSION 4 (25→26 Aug, autonomous) — `docs/ROADMAP_2026-08-25_NIGHT.md` has the chunk status
 
 **RESULT IMPROVEMENT: one more idea killed before it cost money, two live-book defects
-fixed, the 4 Sep trade frozen.** The RELAY is refuted on 290 real relay legs (mean −4.2%,
+fixed, the 4 Sep trade frozen. P&L: NEGATIVE on the day** — dev $96,160 (−$3,834
+unrealised, 22 legs), exp1 $97,779 (−$2,215, 15 legs); a quiet Tuesday bled every long
+straddle and the NVDA condors sit on pre-print IV lift. At equal risk across all marked
+worlds, no brain was positive (vol_gap −3.7% of risk, attention −6.8% at 16% hit); the
+refusal gate carried +0.8%. The NVDA print on 26 Aug is the first grade that matters. The RELAY is refuted on 290 real relay legs (mean −4.2%,
 hit 34%, t −2.0; the ratio does not sort — `docs/FINDING_2026-08-26_RELAY_REFUTED.md`), so the
 afternoon's ARM/TSM ranking stays shadow. Reading the live book found that one-position-per-
 symbol was per PASS (dev re-bought QQQ x4→x8, a second NVDA condor) and that two loops on one

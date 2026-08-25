@@ -8,7 +8,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done with receipt
 
 ## Chunk 0 — validate session 3 (before building on it)
 - [x] 0.1 `tests_smoke.py` ALL PASS; both loops alive; `account_role` stamped on rows from 16:03 UTC.
-- [ ] 0.2 Grade the live day at the 20:00 UTC close (loops run counterfactual hourly; read `brain_scoreboard` + fills after).
+- [x] 0.2 **Close 25 Aug graded.** dev (champion) equity $96,160, unrealised **−$3,834** on 22 legs (TSLA −1,775, NVDA condors −981, QQQ −416); exp1 (challenger) $97,779, **−$2,215** on 15 legs (QQQ −707, SPY −573, IWM −480, NVDA −437). A quiet session bled every long straddle; the NVDA condors are down on pre-print IV lift, which is the position, not the outcome. Counterfactual at equal risk, all worlds: vol_gap −3.7% of risk (hit 27%), narrative −3.8%, options_attention **−6.8% (hit 16%)**, relay −9.0%; refusal edge +0.8% ("the gate is selecting"). Both loops crashed their 20:00 counterfactual on lock contention → ledger tail-read + 120 s wait (1f4b264).
 - [x] 0.3 NVDA 2026-05-21 strip reproduced by hand: σ_f 1.00, σ_b 0.56, a 0.123, √J 6.95%, butterfly +88%.
 - [x] 0.4 **Found and fixed two defects by reading the live book**: one-position-per-symbol was per PASS (dev re-bought QQQ x4→x8 and a second NVDA condor; now per BOOK, tested) and two loops wrote one hash chain unlocked (broke at line 1203, six interleaved lines; now an O_EXCL lock, malformed lines counted not rewritten, tested).
 
