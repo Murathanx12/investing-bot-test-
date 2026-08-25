@@ -69,6 +69,14 @@ MAX_EXPIRY_SLACK_DAYS = 0.0
 #: the originator AND a relay leg, not enough to be the whole book.
 EVENT_NODE_CAP = 0.25
 
+#: EVENT RESERVE. Premium kept free for a scheduled event so that ordinary
+#: passes cannot spend the whole aggregate cap before it arrives. On 25 Aug the
+#: dev book reached the 50% ceiling on a Tuesday; the jobs report on 4 Sep is
+#: the one event with a positive historical receipt and it would have found an
+#: empty budget. Ordinary forecasts see the cap LESS the reserve; a forecast
+#: whose own event_date is the reserved date sees the full cap.
+EVENT_RESERVE: dict[str, float] = {"2026-09-04": 0.10}
+
 
 def event_node(forecast: Forecast) -> str | None:
     """The scheduled event this forecast exists because of, or None."""
@@ -272,6 +280,9 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     committed = 0.0
     node_committed: dict[str, float] = {}
     held = held_underlyings(client)
+    today = datetime.now(timezone.utc).date().isoformat()
+    reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
+    reserve_total = sum(reserve_for.values())
     for symbol, group in by_symbol.items():
         if symbol in held:
             # ONE POSITION PER SYMBOL is a property of the BOOK, not of a pass.
@@ -290,9 +301,11 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
             result.considered += 1
             decision_id = ledger.new_decision_id(forecast.symbol, forecast.brain)
             try:
+                own_event = (forecast.evidence or {}).get("event_date")
+                reserve = reserve_total - reserve_for.get(own_event, 0.0)
                 structure, verdict, snapshot, alternatives = evaluate(
                     client, forecast, state=state, expiry=expiry,
-                    risk_profile=risk_profile, open_risk=risk + committed,
+                    risk_profile=risk_profile, open_risk=risk + committed + reserve,
                 )
             except Exception as exc:                                    # noqa: BLE001
                 result.errors += 1

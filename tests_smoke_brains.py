@@ -228,6 +228,28 @@ _os.utime(lock_path, (0, 0))
 ledger.record(ledger.Decision("lk", "t", "X", "b", None, "i", "", None, None, None, None, None, {}, "refused", "r", 0.0, 0.0, None))
 check("stale ledger lock is broken and released", not lock_path.exists())
 
+# ------------------------------------------------------------ event reserve
+print("\n-- event reserve: ordinary passes cannot spend the scheduled event's budget")
+seen = {}
+
+
+def recording_evaluate(client, forecast, *, state, expiry, risk_profile=None, open_risk=None):
+    seen[forecast.brain] = open_risk
+    return fake_evaluate(client, forecast, state=state, expiry=expiry, risk_profile=risk_profile, open_risk=open_risk)
+
+
+runner.evaluate = recording_evaluate
+_saved = runner.EVENT_RESERVE
+runner.EVENT_RESERVE = {"2099-01-01": 0.10}
+ordinary = Forecast("vol_gap", "R1", 3, 0.0, 0.02, 1.0, "", "tail", {"last_close": 100})
+reserved = Forecast("nfp_event", "R2", 1, 0.0, 0.012, 1.0, "", "tail", {"last_close": 100, "event_date": "2099-01-01"})
+runner.run_pass(FakeClient(), [ordinary, reserved], expiry="2099-01-01", dry_run=True, shadow_brains=())
+runner.EVENT_RESERVE = _saved
+runner.evaluate = fake_evaluate
+check("ordinary forecast sees the cap less the reserve", abs(seen.get("vol_gap", 0) - 0.10) < 1e-9, str(seen))
+# the reserved event's forecast carries only what the pass already committed (0.02 from R1), never the reserve
+check("the reserved event's own forecast sees the full cap", abs(seen.get("nfp_event", 1) - 0.02) < 1e-6, str(seen))
+
 # ------------------------------------------------------------------ relay map
 print("\n-- relay: who relays whom, and the node it lands in")
 from alpha.brains import relay, BRAINS
