@@ -204,15 +204,34 @@ def main() -> int:
         ("What the crowd believes", belief_section()),
     ]
     body = "".join(f"<section><h2>{esc(t)}</h2>{c}</section>" for t, c in sections)
-    page = f"""<!doctype html><html><head><meta charset="utf-8"><title>Aegis Alpha Terminal — {now}Z</title>
-<style>body{{font:14px/1.4 system-ui,sans-serif;max-width:1200px;margin:2rem auto;padding:0 1rem;color:#222}}
-h1{{font-size:1.4rem}} h2{{font-size:1.15rem;border-bottom:1px solid #ddd;margin-top:2rem}} h3{{font-size:1rem;margin:1rem 0 .3rem}}
-table{{border-collapse:collapse;width:100%;font-size:13px}} th,td{{border:1px solid #e3e3e3;padding:3px 6px;text-align:left;vertical-align:top}}
-th{{background:#f5f5f5}} .muted{{color:#888}} pre{{background:#fafafa;border:1px solid #eee;padding:.5rem;overflow:auto;font-size:12px}}</style></head>
-<body><h1>Aegis Alpha Terminal — as of {now}Z</h1>
-<p>Every number on this page is a view over a receipt in <code>state/</code>. Refusals and shadow decisions are shown because
-they are the product: the agent's job is to say which trades NOT to make, with the alternative priced.</p>
-{body}</body></html>"""
+    page = f"""<title>Aegis Alpha Terminal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{{--bg:#eef1f3;--panel:#ffffff;--ink:#17232b;--ink-2:#4d5c66;--line:#d3dbe0;--accent:#0f6e73;--accent-ink:#ffffff;--good:#2f7d4f;--bad:#b23a3a;--code:#f4f7f8}}
+@media (prefers-color-scheme: dark){{:root:not([data-theme="light"]){{--bg:#111a1f;--panel:#182229;--ink:#e6edf0;--ink-2:#9fb0b9;--line:#2a3941;--accent:#4fb3b8;--accent-ink:#0d1518;--good:#6fc48f;--bad:#e07a7a;--code:#0f171b}}}}
+:root[data-theme="dark"]{{--bg:#111a1f;--panel:#182229;--ink:#e6edf0;--ink-2:#9fb0b9;--line:#2a3941;--accent:#4fb3b8;--accent-ink:#0d1518;--good:#6fc48f;--bad:#e07a7a;--code:#0f171b}}
+body{{background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;margin:0;padding:2.5rem 1.25rem 4rem}}
+.wrap{{max-width:1080px;margin:0 auto;display:grid;gap:2rem}}
+header h1{{font:600 2rem/1.15 "IBM Plex Serif",Georgia,serif;margin:0 0 .35rem;text-wrap:balance}}
+header p{{margin:0;color:var(--ink-2);max-width:65ch}}
+.stamp{{font:500 .78rem/1 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}}
+section{{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:1.25rem 1.5rem}}
+h2{{font:600 1.05rem/1.3 "IBM Plex Serif",Georgia,serif;margin:0 0 .75rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent)}}
+h3{{font:600 .95rem/1.3 "IBM Plex Sans",sans-serif;margin:1.1rem 0 .4rem}} h4{{font:500 .8rem/1 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin:1rem 0 .3rem}}
+.tbl{{overflow-x:auto}} table{{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}}
+th,td{{border-bottom:1px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}}
+th{{font:500 .72rem/1.2 "IBM Plex Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}}
+td{{font-family:"IBM Plex Mono",monospace;font-size:.82rem}} td:first-child{{font-family:"IBM Plex Sans",sans-serif;font-size:.88rem}}
+.muted{{color:var(--ink-2)}} pre{{background:var(--code);border:1px solid var(--line);border-radius:4px;padding:.6rem .75rem;overflow:auto;font:.78rem/1.45 "IBM Plex Mono",monospace;color:var(--ink)}}
+ul{{padding-left:1.1rem;max-width:80ch}} li{{margin:.35rem 0}} code{{font-family:"IBM Plex Mono",monospace;font-size:.85em}}
+a{{color:var(--accent)}} :focus-visible{{outline:2px solid var(--accent);outline-offset:2px}}
+</style>
+<div class="wrap">
+<header><div class="stamp">paper · as of {now}Z</div><h1>Aegis Alpha Terminal</h1>
+<p>Every number here is a view over a receipt in <code>state/</code>. Refusals and shadow decisions are shown because they are the product:
+the agent's job is to say which trades <em>not</em> to make, with the alternative priced.</p></header>
+{body}</div>"""
+    page = page.replace("<table>", "<div class='tbl'><table>").replace("</table>", "</table></div>")
     out = STATE + "dashboard.html"
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(page)
