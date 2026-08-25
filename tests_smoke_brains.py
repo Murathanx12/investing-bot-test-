@@ -180,6 +180,17 @@ check("slippage usd scales by 100 x qty", abs(a.slippage_usd - 75.0) < 1e-6)
 check("slippage stated as a fraction of expected edge", a.slippage_over_edge is not None and a.slippage_over_edge > 0)
 check("mark exits at the bid", abs(a.mark["exit_per_unit_at_bid"] - 12.0) < 1e-9)
 
+print("\n-- counterfactual: a defined-risk mark cannot exceed its max loss")
+from alpha import counterfactual as cf
+dec = {"decision_id": "z", "symbol": "PANW", "instrument": "bear_call_spread", "action": "refused",
+       "legs": [["S", "sell", 1], ["L", "buy", 1]], "entry_cost_per_unit": -100.0, "max_loss_per_unit": 400.0,
+       "ts_utc": "2026-08-25T00:00:00Z"}
+bad = cf.mark(dec, {"S": {"bid": 30, "ask": 60}, "L": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
+check("mark below max loss is UNMARKABLE, not a saved loss", bad.mark_source == "unmarkable" and bad.pnl_usd == 0.0,
+      bad.detail.get("why", ""))
+ok_ = cf.mark(dec, {"S": {"bid": 1.0, "ask": 1.2}, "L": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
+check("ordinary mark still prices", ok_.mark_source == "chain")
+
 print("\nALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":
     raise SystemExit(1 if fails else 0)
