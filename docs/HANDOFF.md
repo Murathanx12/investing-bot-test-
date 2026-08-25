@@ -4,6 +4,20 @@
 of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
 
+## NIGHT SESSION 4 (25→26 Aug, autonomous) — `docs/ROADMAP_2026-08-25_NIGHT.md` has the chunk status
+
+**RESULT IMPROVEMENT: one more idea killed before it cost money, two live-book defects
+fixed, the 4 Sep trade frozen.** The RELAY is refuted on 290 real relay legs (mean −4.2%,
+hit 34%, t −2.0; the ratio does not sort — `docs/FINDING_2026-08-26_RELAY_REFUTED.md`), so the
+afternoon's ARM/TSM ranking stays shadow. Reading the live book found that one-position-per-
+symbol was per PASS (dev re-bought QQQ x4→x8, a second NVDA condor) and that two loops on one
+unlocked hash chain broke it at line 1203 — both fixed and tested, corrupt lines counted not
+rewritten. Dev then hit the 50% cap on a Tuesday → `EVENT_RESERVE` keeps 10% for 4 Sep.
+Built: `scripts/nfp_trade.py` (frozen contract, two gates, entry window enforced),
+`scripts/dashboard.py` → `state/dashboard.html`, `scripts/belief_recorder.py` (hourly crowd
+series), `scripts/attention_vol_basis.py` (result below when it lands), `Dockerfile` +
+`railway.toml` (prepared, **not deployed** — your call: keys to a cloud host, one role per host).
+
 ## SESSION 3 IN ONE PARAGRAPH (read `docs/FINDING_2026-08-25_SURFACE_AND_STRIP.md`)
 
 The review's priority list was executed in order and most of it came back
