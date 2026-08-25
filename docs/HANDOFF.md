@@ -14,7 +14,8 @@ symbol was per PASS (dev re-bought QQQ x4→x8, a second NVDA condor) and that t
 unlocked hash chain broke it at line 1203 — both fixed and tested, corrupt lines counted not
 rewritten. Dev then hit the 50% cap on a Tuesday → `EVENT_RESERVE` keeps 10% for 4 Sep.
 Built: `scripts/nfp_trade.py` (frozen contract, two gates, entry window enforced),
-`scripts/dashboard.py` → `state/dashboard.html`, `scripts/belief_recorder.py` (hourly crowd
+`scripts/dashboard.py` → `state/dashboard.html` (published privately at
+https://claude.ai/code/artifact/36440187-1bf4-4230-b116-b1c3782a65e9 — rebuild + republish to refresh), `scripts/belief_recorder.py` (hourly crowd
 series), `scripts/attention_vol_basis.py` (result below when it lands), `Dockerfile` +
 `railway.toml` (prepared, **not deployed** — your call: keys to a cloud host, one role per host).
 
