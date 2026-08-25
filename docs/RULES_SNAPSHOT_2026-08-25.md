@@ -129,12 +129,22 @@ From `alpaca.markets/data`:
 | API rate limit | 200/min | unlimited |
 | Websocket symbols | **30** | unlimited |
 
-This repo's sizing rule (`alpha/engine/sizing.py`) computes a **minimum
-detectable move** from the real bid and ask. On an *indicative* feed that
-computation is fiction, the 30-symbol websocket cap rules out a scanner, and
-15-minute-delayed equity quotes cannot support an event agent. **Buy it before
-28 Aug.** Note the irony that the social prize awards this subscription — too
-late to be useful, so it is not a reason to wait.
+**MEASURED 2026-08-25 on `PA32Q5IW7TAS`, and the first draft of this section
+was wrong.** It said the indicative feed made the minimum-detectable-move
+computation "fiction". It does not. The free feed returned 1000 SPY contracts,
+**100% with both a bid and an ask**, 46% with greeks, median relative spread
+5.3%. The feed is not missing — it is **late**, by about fifteen minutes.
+
+`alpha/data/chain.py` handles that explicitly: stale quotes are carried forward
+with delta and gamma against a real-time underlying, a staleness penalty widens
+the assumed execution price in proportion to the carry, missing greeks are
+computed from Black-Scholes, and anything past ~25 minutes of *market-time*
+staleness is refused rather than adjusted.
+
+What it costs is real and is stated in the module: **the agent cannot trade
+reactions.** It positions ahead of scheduled catalysts instead. Buy the $99 if
+measured fill slippage exceeds ~15% of expected edge, or if we commit to the
+Friday jobs-report trade. See `docs/HANDOFF.md` for the decision rule.
 
 ## Options on a paper account
 
