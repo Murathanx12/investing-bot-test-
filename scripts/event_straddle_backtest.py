@@ -56,7 +56,7 @@ def option_bars(client, symbols: list[str], start: str, end: str) -> dict:
 
 
 def one_event(client, symbol: str, bars_by_day: dict[str, float], days: list[str],
-              event_day: str, move: float) -> dict | None:
+              event_day: str, move: float, date_source: str = "?") -> dict | None:
     i = days.index(event_day)
     if i < 2 or i + 1 >= len(days):
         return None
@@ -89,6 +89,7 @@ def one_event(client, symbol: str, bars_by_day: dict[str, float], days: list[str
                 "signed_move": round(move, 4), "straddle_return": round(exit_ / entry - 1.0, 4),
                 "cleared_breakeven": abs(move) > entry / spot,
                 "volume_entry": int(cd[entry_day].get("v", 0) + pd[entry_day].get("v", 0)),
+                "date_source": date_source,
             }
     return None
 
@@ -110,14 +111,13 @@ def main() -> int:
             continue
         days = [b["t"][:10] for b in bars]
         by_day = {b["t"][:10]: float(b["c"]) for b in bars}
-        served = [x["period"] for x in finnhub.earnings_periods(sym, limit=12) if x.get("period")]
-        periods = event_move.extend_periods(served, years=3)
-        inferred = event_move.event_days_inferred(bars, periods)
+        inferred, date_source = event_move.event_days(bars, sym)
+        print(f"{sym}: {len(inferred)} prints, dates from {date_source}")
         got = 0
         for e in inferred:
             if e["event_day"] < "2024-02-20":
                 continue
-            row = one_event(client, sym, by_day, days, e["event_day"], e["move"])
+            row = one_event(client, sym, by_day, days, e["event_day"], e["move"], date_source)
             if row:
                 events.append(row)
                 got += 1

@@ -46,7 +46,8 @@ from typing import Any
 
 from alpha.brains.base import Forecast
 from alpha.brains.vol_gap import _daily_bars, _ewma_sd
-from alpha.sources import finnhub
+from alpha.sources import finnhub, sec
+from alpha.sources.http import SourceRefusal
 
 MIN_EVENTS = 4
 WINDOW_AFTER_PERIOD = (15, 75)   # trading-calendar days after fiscal period end
@@ -79,6 +80,44 @@ def event_days_inferred(bars: list[dict], period_ends: list[str]) -> list[dict[s
                         "date_source": "inferred_max_abs_return_in_window"})
     out.sort(key=lambda e: e["event_day"])
     return out
+
+
+def event_days_from_sec(bars: list[dict], symbol: str) -> list[dict[str, Any]]:
+    """EXACT prints from SEC 8-K Item 2.02 filings: the first close that reflects
+    the release (same day for bmo, next trading day for amc/intraday), and the
+    close-to-close move across it. Refuses for foreign filers (6-K, no items)."""
+    days = [b["t"][:10] for b in bars]
+    closes = [float(b["c"]) for b in bars]
+    idx = {d: i for i, d in enumerate(days)}
+    out = []
+    for r in sec.earnings_releases(symbol):
+        d = r["date"]
+        if r["session"] == "bmo":
+            target = d
+        else:
+            later = [x for x in days if x > d]
+            if not later:
+                continue
+            target = later[0]
+        if target not in idx or idx[target] == 0:
+            continue
+        i = idx[target]
+        out.append({"period_end": None, "event_day": target, "release_date": d, "session": r["session"],
+                    "move": math.log(closes[i] / closes[i - 1]), "date_source": r["date_source"]})
+    out.sort(key=lambda e: e["event_day"])
+    return out
+
+
+def event_days(bars: list[dict], symbol: str) -> tuple[list[dict[str, Any]], str]:
+    """SEC first; price-based inference only when SEC has nothing for the name."""
+    try:
+        ev = event_days_from_sec(bars, symbol)
+        if len(ev) >= MIN_EVENTS:
+            return ev, "sec_8k_item_2.02"
+    except SourceRefusal:
+        pass
+    served = [p["period"] for p in finnhub.earnings_periods(symbol, limit=12) if p.get("period")]
+    return event_days_inferred(bars, extend_periods(served, years=3)), "inferred_max_abs_return_in_window"
 
 
 def extend_periods(served: list[str], *, years: int = 3) -> list[str]:
@@ -116,9 +155,7 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
     bars = _daily_bars(client, symbol, lookback_days)
     if len(bars) < 120:
         raise NotApplicable(f"{symbol}: {len(bars)} bars, need a history to read events from")
-    served = [p["period"] for p in finnhub.earnings_periods(symbol, limit=12) if p.get("period")]
-    periods = extend_periods(served, years=3)
-    events = event_days_inferred(bars, periods)
+    events, date_source = event_days(bars, symbol)
     if len(events) < MIN_EVENTS:
         raise NotApplicable(f"{symbol}: only {len(events)} inferable past prints (need {MIN_EVENTS})")
 
@@ -150,13 +187,13 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
         conviction=conviction,
         rationale=(
             f"{symbol} prints {event_date} {event_hour or '?'}. Last {len(events)} prints moved "
-            f"mean {mean_abs:.1%} / median {med_abs:.1%} close-to-close (event days inferred). "
+            f"mean {mean_abs:.1%} / median {med_abs:.1%} close-to-close (dates: {date_source}). "
             f"Event sd {sd_event:.1%} + {ordinary_days:.0f} ordinary days at {daily_sd:.2%}/day "
             f"= {sd:.1%} over {horizon_days:.1f}d. Centre 0: a print is not a direction."
         ),
         signal_shape="tail",
         evidence={
-            "event_date": event_date, "event_hour": event_hour,
+            "event_date": event_date, "event_hour": event_hour, "date_source": date_source,
             "event_days": events, "mean_abs_event_move": mean_abs,
             "median_abs_event_move": med_abs, "event_dispersion": disp,
             "sd_event": sd_event, "sd_ordinary": sd_ordinary, "daily_sd_ordinary": daily_sd,
