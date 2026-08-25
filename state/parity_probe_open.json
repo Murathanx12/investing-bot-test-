@@ -1,0 +1,34 @@
+[
+ {
+  "symbol": "NVDA",
+  "spot": 210.67,
+  "spot_ts": "2026-08-25T13:33:11.419892+00:00",
+  "market_open": true,
+  "median_quote_age_s": 3.391172,
+  "parity": {
+   "strike": 210.0,
+   "implied_spot": 210.822,
+   "spot": 210.67,
+   "gap": 0.00072
+  },
+  "implied_move": 0.05021241752503917,
+  "liquid": 83,
+  "n": 162
+ },
+ {
+  "symbol": "TSLA",
+  "spot": 351.65,
+  "spot_ts": "2026-08-25T13:33:15.195170+00:00",
+  "market_open": true,
+  "median_quote_age_s": 3.691465,
+  "parity": {
+   "strike": 352.5,
+   "implied_spot": 351.5843,
+   "spot": 351.65,
+   "gap": -0.00019
+  },
+  "implied_move": 0.031423290203327174,
+  "liquid": 148,
+  "n": 270
+ }
+]

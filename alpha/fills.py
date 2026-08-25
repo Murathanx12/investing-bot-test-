@@ -74,6 +74,13 @@ def audit(client, decision: dict, *, now: datetime | None = None) -> FillAudit:
     snap = decision.get("quote_snapshot") or {}
     legs_seen = {l["symbol"]: l for l in snap.get("legs", [])}
     struct_legs = [tuple(l) for l in decision.get("legs") or []]
+    if not struct_legs:
+        # Rows written before leg capture: reconstruct from the order payload.
+        order_legs = (decision.get("order") or {}).get("legs") or []
+        struct_legs = [(l["symbol"], l["side"], int(l.get("ratio_qty") or 1)) for l in order_legs]
+        if not struct_legs and (decision.get("order") or {}).get("symbol"):
+            o = decision["order"]
+            struct_legs = [(o["symbol"], o["side"], 1)]
 
     dec_ask = sum((legs_seen[s]["ask"] if side == "buy" else -legs_seen[s]["bid"]) * r
                   for s, side, r in struct_legs if s in legs_seen)

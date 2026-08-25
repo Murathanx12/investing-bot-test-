@@ -21,7 +21,7 @@ active independent brains       4 of 4 planned: vol_gap · event_move · options
 independent DATA sources        price/chain (Alpaca) · fiscal calendar (Finnhub) · option tape (Alpaca bars)
                                 · news + LLM (Benzinga/DeepSeek) · attention (Wikipedia/HN/Mastodon)
                                 · belief (Polymarket/Kalshi) · positioning (CBOE)
-options trades / win-loss       1 filled / 0-0 (open)
+options trades / win-loss       1 filled (TSLA straddle x3 @13.35, slippage 0) / 0-0 (open, -$105 @ +17m)
 max drawdown                    n/a
 LLM calls / spend               ~6 / ~$0.004   ($0.0007 per NARRATIVE_SHOCK extraction, 2.4s)
 execution failures              0
@@ -37,10 +37,23 @@ COMPETITION RESULT IMPROVEMENT  THREE INDEPENDENT BRAINS NOW FORECAST LIVE, AND 
 
 ### THE FILL (the measurement that decides the $99)
 
-See `state/fill_audit_open.log` and `state/fills.jsonl` (written at the open).
-Decision quote at 19:59 ET Monday: call ask 6.25 + put ask 7.10 = **13.35**
-limit, indicative feed, 15h-old quotes carried at zero penalty because the
-market was closed. Fill and marks: **[filled in below after 09:31 ET]**.
+`state/fills.jsonl`, `state/fill_audit_open.log`, `state/parity_probe_open.json`.
+
+| | |
+|---|---|
+| decision quote (Mon 19:59 ET, indicative, 15h old, market closed) | call ask 6.25 + put ask 7.10 = **13.35** |
+| order | TSLA 350 straddle ×3, limit 13.35, `mleg`, day |
+| fill | **09:30:02 ET Tue, 13.35** — call 6.85 + put 6.50 (TSLA opened +0.8%, the venue re-split the legs at the limit) |
+| package slippage | **0.00 / unit, $0, 0% of expected edge** (n = 1, a limit fill AT the limit) |
+| mark +17 min | exit at bid 13.00 → **−$105 on $4,005** (−2.6% ≈ the round-trip spread) |
+
+**And the feed is not fifteen minutes late.** Measured at 09:33 ET with the
+market open: NVDA chain **median quote age 3.4 s**, TSLA **3.7 s**; put-call
+parity gap **+0.07% / −0.02%**. The −1.34% gap in the NVDA card was the stale
+after-hours snapshot, not the live feed. A 30-minute quote-age sampler runs in
+`state/quote_age_probe.json`; if it holds at seconds, `chain.py`'s "reactions
+cannot be traded" caveat and the staleness penalty are over-cautious and the
+`$99` question is closed at "no" on measured evidence rather than on hope.
 
 ---
 
