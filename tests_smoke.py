@@ -86,6 +86,40 @@ raw = p.read_text().splitlines(); raw[0] = raw[0].replace('"AVGO"','"TSLA"')
 p.write_text("\n".join(raw)+"\n")
 ok2, msg2 = ledger.verify_chain(); check("tamper detected", not ok2, msg2[:80])
 
+print("\n-- official tooling (the LLM has no order verb)")
+from alpha import tooling
+os.environ["AAT_DEV_KEY_ID"] = "PKFAKEFAKEFAKEFAKE"
+os.environ["AAT_DEV_SECRET_KEY"] = "fake-secret-never-used"
+os.environ["ALPACA_API_KEY_ID"] = "live-key-from-parent"       # the hazard
+os.environ["AAT_SMOKE_CANARY"] = "should-not-reach-the-child"
+check("`trading` withheld from LLM toolsets", "trading" not in tooling.LLM_SAFE_TOOLSETS)
+env = tooling.official_env("dev", toolsets=tooling.LLM_SAFE_TOOLSETS)
+check("child env drops parent live keys",
+      not any(n in env for n in config._FORBIDDEN_INHERITED))
+check("child env is built, not inherited", "AAT_SMOKE_CANARY" not in env)
+check("child env forces paper",
+      env["ALPACA_PAPER_TRADE"] == "true" and env["ALPACA_LIVE_TRADE"] == "false")
+check("ALPACA_TOOLSETS is set from the allowlist",
+      env["ALPACA_TOOLSETS"] == ",".join(tooling.LLM_SAFE_TOOLSETS))
+try:
+    tooling._assert_clean({"ALPACA_LIVE_TRADE": "true", "ALPACA_PAPER_TRADE": "true"})
+    check("live-routed env refused", False)
+except tooling.ToolingRefusal:
+    check("live-routed env refused", True)
+try:
+    tooling._assert_clean({"ALPACA_API_KEY_ID": "x", "ALPACA_LIVE_TRADE": "false",
+                           "ALPACA_PAPER_TRADE": "true"})
+    check("forbidden name in child env refused", False)
+except tooling.ToolingRefusal:
+    check("forbidden name in child env refused", True)
+spec = tooling.redacted_mcp_spec("dev")
+check("spec leaks no secret",
+      "fake-secret-never-used" not in repr(spec) and "PKFAKEFAKEFAKEFAKE" not in repr(spec))
+check("spec declares the model cannot trade", spec["model_can_place_an_order"] is False)
+check("spec names what was withheld", "trading" in spec["withheld_toolsets"])
+for v in ["AAT_DEV_KEY_ID","AAT_DEV_SECRET_KEY","ALPACA_API_KEY_ID","AAT_SMOKE_CANARY"]:
+    os.environ.pop(v, None)
+
 print("\n-- credential refusals")
 for v in ["AAT_ACCOUNT_ROLE","AAT_DEV_KEY_ID","AAT_DEV_SECRET_KEY"]: os.environ.pop(v, None)
 try: config.role(); check("unset role refuses", False)
