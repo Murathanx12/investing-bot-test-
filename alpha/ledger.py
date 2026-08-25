@@ -102,14 +102,26 @@ def _path(name: str = "decisions") -> Path:
 def _last_hash(path: Path) -> str:
     if not path.exists():
         return GENESIS
-    last = None
-    with path.open("rb") as fh:
-        for line in fh:
-            if line.strip():
-                last = line
-    if last is None:
+    # Read only the TAIL. Scanning the whole file on every append made the
+    # counterfactual ledger quadratic: two loops recording ~5,000 marks each at
+    # the same hour held the lock past its timeout (26 Aug 04:00 HK).
+    size = path.stat().st_size
+    if size == 0:
         return GENESIS
-    return hashlib.sha256(last).hexdigest()
+    with path.open("rb") as fh:
+        chunk = 1 << 16
+        while True:
+            start = max(size - chunk, 0)
+            fh.seek(start)
+            data = fh.read(size - start)
+            lines = [l for l in data.split(b"\n") if l.strip()]
+            # need the full last line: either we reached the file start, or the
+            # chunk holds at least two line breaks so the last line is complete
+            if start == 0 or data.count(b"\n") >= 2:
+                if not lines:
+                    return GENESIS
+                return hashlib.sha256(lines[-1] + b"\n").hexdigest()
+            chunk *= 4
 
 
 class _Lock:
@@ -127,22 +139,23 @@ class _Lock:
         self.lock = path.with_suffix(path.suffix + ".lock")
 
     def __enter__(self):
-        deadline = time.monotonic() + 10.0
+        deadline = time.monotonic() + 120.0
         while True:
             try:
                 fd = os.open(self.lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
                 os.write(fd, str(os.getpid()).encode())
                 os.close(fd)
                 return self
-            except FileExistsError:
+            except (FileExistsError, PermissionError):
+                # Windows reports a contested O_EXCL create as EACCES, not EEXIST.
                 try:
                     if time.time() - self.lock.stat().st_mtime > self.STALE_S:
                         self.lock.unlink(missing_ok=True)
                         continue
-                except FileNotFoundError:
+                except OSError:
                     continue
                 if time.monotonic() > deadline:
-                    raise TimeoutError(f"ledger lock {self.lock} held for >10s")
+                    raise TimeoutError(f"ledger lock {self.lock} held for >120s")
                 time.sleep(0.05)
 
     def __exit__(self, *exc):
