@@ -12,9 +12,12 @@ measured, not inferred from a causal graph. The forecast carries O's
 `event_date` in its evidence so the runner's EVENT_NODE_CAP treats O + every
 relay leg as ONE bet.
 
-SHADOW by default. `scripts/relay_backtest.py` grades whether relay legs paid
-on real closes; until that receipt says so, this brain proposes and the ledger
-records what it would have done.
+SHADOW, and after `scripts/relay_backtest.py` (2026-08-26) SHADOW WITH A REASON:
+on 290 relay legs at real closes the peer straddle lost (mean -4.2%, hit 34%,
+t -2.0) and the history/implied ratio did not sort the outcome -- the peers'
+chains already widen for the originator's date, by more than the peers then
+move (docs/FINDING_2026-08-26_RELAY_REFUTED.md). This brain keeps proposing so
+the live ratio can be graded against that table; it does not execute.
 """
 
 from __future__ import annotations

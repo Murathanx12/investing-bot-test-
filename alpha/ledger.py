@@ -169,8 +169,24 @@ def read_all(name: str = "decisions") -> list[dict[str, Any]]:
     path = _path(name)
     if not path.exists():
         return []
+    out, bad = [], []
     with path.open(encoding="utf-8") as fh:
-        return [json.loads(l) for l in fh if l.strip()]
+        for i, l in enumerate(fh, start=1):
+            if not l.strip():
+                continue
+            try:
+                out.append(json.loads(l))
+            except ValueError:
+                bad.append(i)
+    if bad:
+        # Lines interleaved by two unlocked writers on 25 Aug. The file is never
+        # rewritten (tamper-evidence); the damage is COUNTED and surfaced.
+        MALFORMED[name] = bad
+    return out
+
+
+#: name -> line numbers that could not be parsed on the last read_all().
+MALFORMED: dict[str, list[int]] = {}
 
 
 def verify_chain(name: str = "decisions") -> tuple[bool, str]:
@@ -183,7 +199,10 @@ def verify_chain(name: str = "decisions") -> tuple[bool, str]:
         for i, raw in enumerate(fh, start=1):
             if not raw.strip():
                 continue
-            row = json.loads(raw)
+            try:
+                row = json.loads(raw)
+            except ValueError:
+                return False, f"chain breaks at line {i}: the line is not JSON (interleaved write)."
             if row.get("_prev") != prev:
                 return False, (
                     f"chain breaks at line {i} (decision_id="

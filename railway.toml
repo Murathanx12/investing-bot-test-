@@ -1,0 +1,9 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+restartPolicyType = "ALWAYS"
+restartPolicyMaxRetries = 0
+# The loop is the process; there is no HTTP surface to health-check. A crash
+# restarts it and the next cycle re-reads the venue (agent_loop docstring).
