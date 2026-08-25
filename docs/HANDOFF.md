@@ -100,15 +100,14 @@ cannot be traded" caveat and the staleness penalty are over-cautious and the
 | Brain | Reads | Says | Status |
 |---|---|---|---|
 | `vol_gap` | daily bars | EWMA realised vs implied; damped drift | executable |
-| **`event_move`** | Finnhub fiscal periods + bars | this name's OWN print history vs the chain. NVDA 12 prints mean **8.7%**, AVGO **11.1%**, PANW **9.2%** close-to-close. Centre 0. | executable |
+| **`event_move`** | SEC 8-K Item 2.02 dates (+ Finnhub/inference fallback) + bars | this name's OWN last-8-print history vs the chain. Recent mean: NVDA **3.8%**, AVGO **10.7%**, PANW **5.0%** close-to-close. Centre 0. Two-sided: narrower than the chain → the sizer picks short premium. | executable |
 | **`options_attention`** | Alpaca option daily bars | unsigned volume on SEASONED contracts vs trailing median; NVDA **3.49x** into the print. Widens sigma, never tilts. | shadow-only |
 | **`narrative_dispersion`** | Alpaca/Benzinga news → DeepSeek → `NARRATIVE_SHOCK_v1` axes + Wikipedia attention | truth · belief · impact · already-priced → **belief-gap case**; disagreement + truth-uncertainty widen sigma. LLM emits axes, never a trade. | shadow-only |
 
-Event dates are **inferred** (largest |return| in the [+15,+75]d window after
-each fiscal quarter end, quarters extrapolated back 3y because Finnhub free
-serves only ~4). Every inferred date is printed in `evidence["event_days"]`;
-NVDA's list contains 2025-01-27 (the DeepSeek selloff, not a print) — the
-documented failure mode, visible because the dates are printed.
+Event dates come from **SEC 8-K Item 2.02** filings (exact, with release time).
+The morning version inferred them from price and padded NVDA's list with the
+2025-01-27 DeepSeek selloff — caught because the dates are printed on every
+forecast. Inference remains only for 6-K filers (NIO).
 
 **Why two brains are shadow-only:** the sizer rewards disagreement with the
 chain, and on long premium a WIDER sigma is a bigger disagreement. A brain that
@@ -122,13 +121,14 @@ override once they have.
 `state/cards/NVDA_2026-08-25.json` (`python -m scripts.event_card NVDA --expiry 2026-08-28 --query nvidia`):
 
 - **`vol_gap`** (realised 3.8% < implied 5.1%) chose an **IRON CONDOR** this morning.
-- **`event_move`** (event prior 11.3% > implied 5.4%, breakeven 6.4%, +23pp edge) chose a **LONG STRADDLE** at 18.5% risk.
+- **`event_move`** (morning version: event prior 11.3% > implied 5.4%) chose a **LONG STRADDLE** at 18.5% risk — **WITHDRAWN in the afternoon** once the real-option backtest showed NVDA straddles 0/8 on recent prints; the corrected brain (recent mean 3.8%, sd 5.7% vs 5.0% implied) now REFUSES it.
 - **Polymarket** prices Q2 gross margin 74–76% at 93% and Data Center >$80B at 94% — the crowd sees a low-surprise print.
 - **Attention**: Wikipedia pageviews velocity 1.49 (z 1.55), HN 26 stories/33 comments in 48h, option volume 3.49x.
 - **Parity gap −1.34%** on the 212.5 straddle at the stale close: the IEX print and the indicative quotes disagreed by $2.8 — the open tells which was stale.
 
-Same chain, opposite instruments, both written before the print. Whichever
-loses, the shadow ledger says so. That card IS the write-up's worked example.
+Same chain, opposite instruments, both written before the print — and then one
+of them was withdrawn on evidence before the print, which is a better story
+than either winning. The shadow ledger still grades both.
 
 ### 3. Sources — measured today (`docs/SOURCES.md`)
 
