@@ -154,6 +154,19 @@ fc = ledger.read_all("forecasts")
 check("every brain's forecast recorded before pricing", len(fc) == 3, str(len(fc)))
 check("ledger chain intact", ledger.verify_chain()[0] and ledger.verify_chain("forecasts")[0])
 
+# event cluster risk: four names, one print, 8% each -> the fourth breaches the 25% node cap
+print("\n-- event node cap: correlated expressions of one event are one bet")
+node_fs = [Forecast("event_move", sym, 3, 0.0, 0.08, 1.0, "print", "tail",
+                    {"last_close": 100, "event_date": "2026-08-26"}) for sym in ("N1", "N2", "N3", "N4")]
+free_f = Forecast("vol_gap", "Q1", 3, 0.0, 0.08, 1.0, "quiet", "tail", {"last_close": 100})
+res2 = runner.run_pass(FakeClient(), node_fs + [free_f], expiry="2026-08-28", dry_run=False, shadow_brains=())
+rows2 = ledger.read_all()
+node_refused = [r for r in rows2 if r["action"] == "refused" and "event node" in (r.get("refusal_reason") or "")]
+check("three of four node members execute, the fourth is refused by the node cap",
+      res2.submitted == 4 and len(node_refused) == 1, f"submitted={res2.submitted} node_refused={len(node_refused)}")
+check("a forecast with no event is outside every node", any(r["symbol"] == "Q1" and r["action"] == "submitted" for r in rows2))
+check("node refusal names the node", node_refused and "print:2026-08-26" in node_refused[0]["refusal_reason"])
+
 # -------------------------------------------------------------------- fills
 print("\n-- fills: slippage arithmetic")
 from alpha import fills

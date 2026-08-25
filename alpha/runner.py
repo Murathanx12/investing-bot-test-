@@ -44,6 +44,7 @@ selection, not discovered on the last morning.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -59,6 +60,24 @@ KICKOFF = datetime.fromisoformat(config.COMPETITION["kickoff_utc"].replace("Z", 
 DEADLINE = datetime.fromisoformat(config.COMPETITION["deadline_utc"].replace("Z", "+00:00"))
 
 MAX_EXPIRY_SLACK_DAYS = 0.0
+
+#: EVENT CLUSTER RISK. NVDA, AVGO and SMH structures that all exist because of
+#: one NVDA print are ONE bet wearing three tickers. Position risk is capped per
+#: symbol by the sizer; this caps the sum across every position that cites the
+#: same scheduled event (event_move's `event_date`, or a narrative `theme`).
+#: 25% of equity per event node -- enough for an aggressive expression through
+#: the originator AND a relay leg, not enough to be the whole book.
+EVENT_NODE_CAP = 0.25
+
+
+def event_node(forecast: Forecast) -> str | None:
+    """The scheduled event this forecast exists because of, or None."""
+    ev = forecast.evidence or {}
+    if ev.get("event_date"):
+        return f"print:{ev['event_date']}"
+    if ev.get("theme"):
+        return f"theme:{ev['theme']}"
+    return None
 
 
 @dataclass
@@ -239,6 +258,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         by_symbol.setdefault(f.symbol, []).append(f)
 
     committed = 0.0
+    node_committed: dict[str, float] = {}
     for symbol, group in by_symbol.items():
         evaluated = []
         for forecast in group:
@@ -284,7 +304,21 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                     reason=why)
         if champion is None:
             continue
+        node = event_node(champion[1])
+        if node is not None:
+            already = node_committed.get(node, 0.0)
+            if already + champion[3].risk_fraction > EVENT_NODE_CAP:
+                result.refused += 1
+                _record(champion[0], champion[1], champion[2], champion[3], champion[4], state,
+                        action="refused",
+                        reason=(f"event node {node} already carries {already:.1%} this pass; adding "
+                                f"{champion[3].risk_fraction:.1%} would exceed the {EVENT_NODE_CAP:.0%} "
+                                "node cap. Correlated expressions of one event are one bet."))
+                continue
+        before = committed
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run)
+        if node is not None:
+            node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
 
 
@@ -393,6 +427,7 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         entry_cost_per_unit=structure.entry_cost if structure else None,
         max_loss_per_unit=structure.max_loss if structure else None,
         legs=tuple(structure.legs) if structure else (),
+        account_role=os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None,
         tournament_state={
             "equity": state.equity, "return": state.total_return,
             "phase": state.phase.value,

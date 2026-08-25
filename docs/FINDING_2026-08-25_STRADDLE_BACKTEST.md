@@ -107,5 +107,14 @@ Opposite sign to the single-name prints: the index straddle into the jobs
 report has a positive mean at closes, carried by a few tail days (Aug 2024,
 Apr 2025, Jun 2026) on a near-zero median — a TAIL payoff, to be bought narrow
 with bounded premium, never sized as if the median were the mean. SPY 9 of the
-last 12 positive. This is the one variance bet for 4 Sep, and it is bounded by
-construction: the premium is the max loss and the position is flat by 10:45.
+last 12 positive. This is our **strongest currently observed long-vol macro
+candidate** for 4 Sep -- not "the one tail worth buying": the Fed's daily-option
+work (IFDP, macro-uncertainty pricing) finds CPI/FOMC/NFP-spanning options carry
+an explicit event-insurance premium, and 28 releases cannot overrule that. It is
+bounded by construction (premium = max loss, flat by 10:45), and it is sized as a
+candidate, not a conviction. `scripts/event_contract_basis.py` adds the second
+endpoint: the Kalshi payrolls ladder mapped through the historical headline ->
+SPY response. First run: **the direction channel is dead** (surprise vs 10:45
+move, corr 0.03 in-sample, -0.57 walk-forward -- the sign of "good news" flips
+by regime), so the crowd's ladder can only inform the WIDTH of the trade, never
+its side.

@@ -12,6 +12,18 @@ Cadence (all in market time, read from the venue clock, never from the laptop):
     belief vs chain  every 60 min while open, graded after resolution
     fill audit       every 15 min while an order is open
 
+TWO ACCOUNTS, TWO CHAMPIONS. The second paper account is not a duplicate risk
+profile; it runs the strongest CHALLENGER so the two produce competing fill and
+P&L evidence on the same sessions:
+
+    AAT_ACCOUNT_ROLE=dev  python -m scripts.agent_loop --expiry ... --live
+        (champion: vol_gap + event_move execute; attention/narrative shadow)
+    AAT_ACCOUNT_ROLE=exp1 python -m scripts.agent_loop --expiry ... --live         --brains vol_gap,event_move,options_attention,narrative_dispersion --shadow vol_gap,event_move
+        (challenger: the two shadow brains execute; the champion pair is shadowed)
+
+Both write to the same ledgers with the account role on every row, so
+`scripts.counterfactual` grades them against each other at equal risk.
+
 A crash mid-cycle is safe: decision ids are minute-derived so a restart inside
 the same minute collides at the broker, and every cycle re-reads the venue.
 Nothing here holds state between cycles except the ledgers on disk.
@@ -45,6 +57,10 @@ def main() -> int:
     p.add_argument("--entry-minutes", type=int, default=30)
     p.add_argument("--exit-minutes", type=int, default=5)
     p.add_argument("--once", action="store_true", help="one cycle, then exit")
+    p.add_argument("--brains", default=None, help="comma list passed to run_pass (the account's CHAMPION set)")
+    p.add_argument("--shadow", default=None, help="comma list passed to run_pass (recorded, never executed)")
+    p.add_argument("--profile", default=None, help="risk profile passed to run_pass")
+    p.add_argument("--universe", nargs="*", default=None, help="symbols passed to run_pass")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
     config.load_env()
@@ -63,7 +79,16 @@ def main() -> int:
         if is_open and now - last["exit"] >= args.exit_minutes * 60:
             _run("scripts.manage", live=args.live); last["exit"] = now
         if is_open and now - last["entry"] >= args.entry_minutes * 60:
-            _run("scripts.run_pass", "--expiry", args.expiry, live=args.live); last["entry"] = now
+            extra: list[str] = []
+            if args.brains is not None:
+                extra += ["--brains", args.brains]
+            if args.shadow is not None:
+                extra += ["--shadow", args.shadow]
+            if args.profile:
+                extra += ["--profile", args.profile]
+            if args.universe:
+                extra += ["--universe", *args.universe]
+            _run("scripts.run_pass", "--expiry", args.expiry, *extra, live=args.live); last["entry"] = now
         if now - last["cf"] >= 3600:
             _run("scripts.counterfactual", "--record", live=False); last["cf"] = now
         if is_open and now - last["belief"] >= 3600:

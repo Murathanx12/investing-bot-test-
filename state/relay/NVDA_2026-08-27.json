@@ -1,0 +1,1037 @@
+{
+ "generated_utc": "2026-08-25T15:20:31.582568+00:00",
+ "originator": "NVDA",
+ "event": "2026-08-27",
+ "expiry": "2026-08-28",
+ "print_days_used": [
+  "2024-08-29",
+  "2024-11-21",
+  "2025-02-27",
+  "2025-05-29",
+  "2025-08-28",
+  "2025-11-20",
+  "2026-02-26",
+  "2026-05-21"
+ ],
+ "rows": [
+  {
+   "symbol": "NVDA",
+   "n": 8,
+   "cond_jump_sd": 0.0475,
+   "cond_mean_abs": 0.0384,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.06552
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.0052
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.08964
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.0318
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": -0.00781
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.03143
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.05767
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": -0.01813
+    }
+   ],
+   "surface": {
+    "underlying": "NVDA",
+    "spot": 210.405,
+    "term_front_minus_back": 0.1995,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.7987,
+     "iv_back": 0.5992,
+     "ambient_annual_var": 0.08016,
+     "ambient_daily_sd": 0.01784,
+     "market_jump_sd": 0.06771,
+     "event_share_of_front_var": 0.874,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 210.0,
+      "atm_iv": 0.7987,
+      "implied_move": 0.0491,
+      "wing_dollars": 15.23,
+      "iv_call_up": 0.8319,
+      "iv_put_down": 0.8003,
+      "skew": 0.0316,
+      "curvature": 0.0175,
+      "wing_strikes": [
+       195.0,
+       225.0
+      ],
+      "curvature_2sd": 0.0655,
+      "shape": "convex"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 210.0,
+      "atm_iv": 0.5992,
+      "implied_move": 0.0521,
+      "wing_dollars": 16.16,
+      "iv_call_up": 0.6027,
+      "iv_put_down": 0.5933,
+      "skew": 0.0094,
+      "curvature": -0.0012,
+      "wing_strikes": [
+       195.0,
+       225.0
+      ],
+      "curvature_2sd": 0.0578,
+      "shape": "flat"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 210.0,
+    "atm_iv": 0.7987,
+    "implied_move": 0.0491,
+    "wing_dollars": 15.23,
+    "iv_call_up": 0.8319,
+    "iv_put_down": 0.8003,
+    "skew": 0.0316,
+    "curvature": 0.0175,
+    "wing_strikes": [
+     195.0,
+     225.0
+    ],
+    "curvature_2sd": 0.0655,
+    "shape": "convex"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0677,
+   "relay_ratio": 0.702
+  },
+  {
+   "symbol": "AMD",
+   "n": 8,
+   "cond_jump_sd": 0.0362,
+   "cond_mean_abs": 0.0234,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.00548
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": -0.0004
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.05116
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00164
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.009
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.08096
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.03469
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.00421
+    }
+   ],
+   "surface": {
+    "underlying": "AMD",
+    "spot": 478.77,
+    "term_front_minus_back": 0.1196,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.6421,
+     "iv_back": 0.5225,
+     "ambient_annual_var": 0.13372,
+     "ambient_daily_sd": 0.02304,
+     "market_jump_sd": 0.04785,
+     "event_share_of_front_var": 0.676,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 480.0,
+      "atm_iv": 0.6421,
+      "implied_move": 0.0395,
+      "wing_dollars": 27.87,
+      "iv_call_up": 0.6454,
+      "iv_put_down": 0.6485,
+      "skew": -0.0031,
+      "curvature": 0.0049,
+      "wing_strikes": [
+       452.5,
+       507.5
+      ],
+      "curvature_2sd": 0.0496,
+      "shape": "flat"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 480.0,
+      "atm_iv": 0.5225,
+      "implied_move": 0.0455,
+      "wing_dollars": 32.07,
+      "iv_call_up": 0.5322,
+      "iv_put_down": 0.5332,
+      "skew": -0.001,
+      "curvature": 0.0102,
+      "wing_strikes": [
+       447.5,
+       512.5
+      ],
+      "curvature_2sd": 0.0504,
+      "shape": "convex"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 480.0,
+    "atm_iv": 0.6421,
+    "implied_move": 0.0395,
+    "wing_dollars": 27.87,
+    "iv_call_up": 0.6454,
+    "iv_put_down": 0.6485,
+    "skew": -0.0031,
+    "curvature": 0.0049,
+    "wing_strikes": [
+     452.5,
+     507.5
+    ],
+    "curvature_2sd": 0.0496,
+    "shape": "flat"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0478,
+   "relay_ratio": 0.757
+  },
+  {
+   "symbol": "AVGO",
+   "n": 8,
+   "cond_jump_sd": 0.0321,
+   "cond_mean_abs": 0.0232,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.0075
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.00316
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.07548
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.01019
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.02796
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.02117
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.03269
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": -0.00766
+    }
+   ],
+   "surface": {
+    "underlying": "AVGO",
+    "spot": 360.115,
+    "term_front_minus_back": 0.0902,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.4769,
+     "iv_back": 0.3867,
+     "ambient_annual_var": 0.07164,
+     "ambient_daily_sd": 0.01686,
+     "market_jump_sd": 0.03578,
+     "event_share_of_front_var": 0.685,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 360.0,
+      "atm_iv": 0.4769,
+      "implied_move": 0.0293,
+      "wing_dollars": 15.57,
+      "iv_call_up": 0.4856,
+      "iv_put_down": 0.488,
+      "skew": -0.0024,
+      "curvature": 0.0099,
+      "wing_strikes": [
+       345.0,
+       375.0
+      ],
+      "curvature_2sd": 0.0477,
+      "shape": "flat"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 360.0,
+      "atm_iv": 0.3867,
+      "implied_move": 0.0336,
+      "wing_dollars": 17.85,
+      "iv_call_up": 0.3898,
+      "iv_put_down": 0.4021,
+      "skew": -0.0123,
+      "curvature": 0.0093,
+      "wing_strikes": [
+       342.5,
+       377.5
+      ],
+      "curvature_2sd": 0.0586,
+      "shape": "flat"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 360.0,
+    "atm_iv": 0.4769,
+    "implied_move": 0.0293,
+    "wing_dollars": 15.57,
+    "iv_call_up": 0.4856,
+    "iv_put_down": 0.488,
+    "skew": -0.0024,
+    "curvature": 0.0099,
+    "wing_strikes": [
+     345.0,
+     375.0
+    ],
+    "curvature_2sd": 0.0477,
+    "shape": "flat"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0358,
+   "relay_ratio": 0.896
+  },
+  {
+   "symbol": "MU",
+   "n": 8,
+   "cond_jump_sd": 0.0535,
+   "cond_mean_abs": 0.0426,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": 0.00772
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.04338
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.06306
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00603
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.03484
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.11492
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.0314
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.03975
+    }
+   ],
+   "surface": {
+    "underlying": "MU",
+    "spot": 930.145,
+    "term_front_minus_back": 0.1259,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.7328,
+     "iv_back": 0.6069,
+     "ambient_annual_var": 0.19966,
+     "ambient_daily_sd": 0.02815,
+     "market_jump_sd": 0.05266,
+     "event_share_of_front_var": 0.628,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 930.0,
+      "atm_iv": 0.7328,
+      "implied_move": 0.045,
+      "wing_dollars": 61.8,
+      "iv_call_up": 0.7301,
+      "iv_put_down": 0.749,
+      "skew": -0.0189,
+      "curvature": 0.0068,
+      "wing_strikes": [
+       870.0,
+       990.0
+      ],
+      "curvature_2sd": 0.0828,
+      "shape": "flat"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 930.0,
+      "atm_iv": 0.6069,
+      "implied_move": 0.0527,
+      "wing_dollars": 72.38,
+      "iv_call_up": 0.6054,
+      "iv_put_down": 0.619,
+      "skew": -0.0136,
+      "curvature": 0.0053,
+      "wing_strikes": [
+       860.0,
+       1000.0
+      ],
+      "curvature_2sd": 0.0705,
+      "shape": "flat"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 930.0,
+    "atm_iv": 0.7328,
+    "implied_move": 0.045,
+    "wing_dollars": 61.8,
+    "iv_call_up": 0.7301,
+    "iv_put_down": 0.749,
+    "skew": -0.0189,
+    "curvature": 0.0068,
+    "wing_strikes": [
+     870.0,
+     990.0
+    ],
+    "curvature_2sd": 0.0828,
+    "shape": "flat"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0527,
+   "relay_ratio": 1.017
+  },
+  {
+   "symbol": "SMH",
+   "n": 8,
+   "cond_jump_sd": 0.0308,
+   "cond_mean_abs": 0.0232,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.01186
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.01464
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.06353
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00705
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.00397
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.0442
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.03395
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.00612
+    }
+   ],
+   "surface": {
+    "underlying": "SMH",
+    "spot": 553.36,
+    "term_front_minus_back": 0.0932,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.4734,
+     "iv_back": 0.3802,
+     "ambient_annual_var": 0.065,
+     "ambient_daily_sd": 0.01606,
+     "market_jump_sd": 0.03616,
+     "event_share_of_front_var": 0.71,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 552.5,
+      "atm_iv": 0.4734,
+      "implied_move": 0.0291,
+      "wing_dollars": 23.75,
+      "iv_call_up": 0.4671,
+      "iv_put_down": 0.5192,
+      "skew": -0.0521,
+      "curvature": 0.0197,
+      "wing_strikes": [
+       527.5,
+       577.5
+      ],
+      "curvature_2sd": 0.0635,
+      "shape": "convex"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 552.5,
+      "atm_iv": 0.3802,
+      "implied_move": 0.0331,
+      "wing_dollars": 26.98,
+      "iv_call_up": 0.3799,
+      "iv_put_down": 0.4236,
+      "skew": -0.0436,
+      "curvature": 0.0215,
+      "wing_strikes": [
+       525.0,
+       580.0
+      ],
+      "curvature_2sd": 0.0596,
+      "shape": "convex"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 552.5,
+    "atm_iv": 0.4734,
+    "implied_move": 0.0291,
+    "wing_dollars": 23.75,
+    "iv_call_up": 0.4671,
+    "iv_put_down": 0.5192,
+    "skew": -0.0521,
+    "curvature": 0.0197,
+    "wing_strikes": [
+     527.5,
+     577.5
+    ],
+    "curvature_2sd": 0.0635,
+    "shape": "convex"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0362,
+   "relay_ratio": 0.852
+  },
+  {
+   "symbol": "SOXX",
+   "n": 8,
+   "cond_jump_sd": 0.0307,
+   "cond_mean_abs": 0.0223,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.00318
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.01663
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.06118
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00328
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.00446
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.04934
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.03087
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.00946
+    }
+   ],
+   "surface": {
+    "underlying": "SOXX",
+    "spot": 513.41,
+    "term_front_minus_back": 0.0786,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-09-04",
+     "iv_front": 0.5198,
+     "iv_back": 0.4412,
+     "ambient_annual_var": 0.16229,
+     "ambient_daily_sd": 0.02538,
+     "market_jump_sd": 0.02978,
+     "event_share_of_front_var": 0.399,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 512.5,
+      "atm_iv": 0.5198,
+      "implied_move": 0.032,
+      "wing_dollars": 24.19,
+      "iv_call_up": 0.4894,
+      "iv_put_down": 0.5709,
+      "skew": -0.0815,
+      "curvature": 0.0104,
+      "wing_strikes": [
+       487.5,
+       537.5
+      ],
+      "curvature_2sd": 0.0456,
+      "shape": "convex"
+     },
+     "back_geometry": {
+      "expiry": "2026-09-04",
+      "days": 10,
+      "atm_strike": 512.5,
+      "atm_iv": 0.4412,
+      "implied_move": 0.0495,
+      "wing_dollars": 37.49,
+      "iv_call_up": 0.4223,
+      "iv_put_down": 0.4835,
+      "skew": -0.0611,
+      "curvature": 0.0117,
+      "wing_strikes": [
+       475.0,
+       550.0
+      ],
+      "curvature_2sd": 0.0631,
+      "shape": "convex"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 512.5,
+    "atm_iv": 0.5198,
+    "implied_move": 0.032,
+    "wing_dollars": 24.19,
+    "iv_call_up": 0.4894,
+    "iv_put_down": 0.5709,
+    "skew": -0.0815,
+    "curvature": 0.0104,
+    "wing_strikes": [
+     487.5,
+     537.5
+    ],
+    "curvature_2sd": 0.0456,
+    "shape": "convex"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0298,
+   "relay_ratio": 1.031
+  },
+  {
+   "symbol": "TSM",
+   "n": 8,
+   "cond_jump_sd": 0.0291,
+   "cond_mean_abs": 0.0195,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": 0.00036
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.01543
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.07215
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00478
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": -0.00456
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.01703
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.02866
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.01305
+    }
+   ],
+   "surface": {
+    "underlying": "TSM",
+    "spot": 415.44,
+    "term_front_minus_back": 0.0411,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-09-04",
+     "iv_front": 0.3973,
+     "iv_back": 0.3562,
+     "ambient_annual_var": 0.11361,
+     "ambient_daily_sd": 0.02123,
+     "market_jump_sd": 0.01907,
+     "event_share_of_front_var": 0.28,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 415.0,
+      "atm_iv": 0.3973,
+      "implied_move": 0.0244,
+      "wing_dollars": 14.96,
+      "iv_call_up": 0.4076,
+      "iv_put_down": 0.4203,
+      "skew": -0.0128,
+      "curvature": 0.0166,
+      "wing_strikes": [
+       400.0,
+       430.0
+      ],
+      "curvature_2sd": 0.0554,
+      "shape": "convex"
+     },
+     "back_geometry": {
+      "expiry": "2026-09-04",
+      "days": 10,
+      "atm_strike": 415.0,
+      "atm_iv": 0.3562,
+      "implied_move": 0.04,
+      "wing_dollars": 24.5,
+      "iv_call_up": 0.3597,
+      "iv_put_down": 0.3728,
+      "skew": -0.0131,
+      "curvature": 0.01,
+      "wing_strikes": [
+       390.0,
+       440.0
+      ],
+      "curvature_2sd": 0.0483,
+      "shape": "flat"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 415.0,
+    "atm_iv": 0.3973,
+    "implied_move": 0.0244,
+    "wing_dollars": 14.96,
+    "iv_call_up": 0.4076,
+    "iv_put_down": 0.4203,
+    "skew": -0.0128,
+    "curvature": 0.0166,
+    "wing_strikes": [
+     400.0,
+     430.0
+    ],
+    "curvature_2sd": 0.0554,
+    "shape": "convex"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0191,
+   "relay_ratio": 1.525
+  },
+  {
+   "symbol": "ARM",
+   "n": 8,
+   "cond_jump_sd": 0.0649,
+   "cond_mean_abs": 0.0487,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": 0.05159
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": -0.00337
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.06403
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": -0.05615
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.01377
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.03342
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.01846
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.14865
+    }
+   ],
+   "surface": {
+    "underlying": "ARM",
+    "spot": 243.46,
+    "term_front_minus_back": 0.0884,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-09-04",
+     "iv_front": 0.8011,
+     "iv_back": 0.7127,
+     "ambient_annual_var": 0.45059,
+     "ambient_daily_sd": 0.04229,
+     "market_jump_sd": 0.03964,
+     "event_share_of_front_var": 0.298,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 242.5,
+      "atm_iv": 0.8011,
+      "implied_move": 0.0492,
+      "wing_dollars": 17.68,
+      "iv_call_up": 0.8424,
+      "iv_put_down": 0.8124,
+      "skew": 0.0301,
+      "curvature": 0.0263,
+      "wing_strikes": [
+       225.0,
+       260.0
+      ],
+      "curvature_2sd": 0.1227,
+      "shape": "convex"
+     },
+     "back_geometry": {
+      "expiry": "2026-09-04",
+      "days": 10,
+      "atm_strike": 242.5,
+      "atm_iv": 0.7127,
+      "implied_move": 0.0798,
+      "wing_dollars": 28.72,
+      "iv_call_up": 0.7489,
+      "iv_put_down": 0.7141,
+      "skew": 0.0348,
+      "curvature": 0.0188,
+      "wing_strikes": [
+       215.0,
+       270.0
+      ],
+      "curvature_2sd": 0.0957,
+      "shape": "convex"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 242.5,
+    "atm_iv": 0.8011,
+    "implied_move": 0.0492,
+    "wing_dollars": 17.68,
+    "iv_call_up": 0.8424,
+    "iv_put_down": 0.8124,
+    "skew": 0.0301,
+    "curvature": 0.0263,
+    "wing_strikes": [
+     225.0,
+     260.0
+    ],
+    "curvature_2sd": 0.1227,
+    "shape": "convex"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0396,
+   "relay_ratio": 1.637
+  },
+  {
+   "symbol": "QQQ",
+   "n": 8,
+   "cond_jump_sd": 0.0139,
+   "cond_mean_abs": 0.0097,
+   "moves": [
+    {
+     "event_day": "2024-08-29",
+     "move": -0.00097
+    },
+    {
+     "event_day": "2024-11-21",
+     "move": 0.00376
+    },
+    {
+     "event_day": "2025-02-27",
+     "move": -0.02792
+    },
+    {
+     "event_day": "2025-05-29",
+     "move": 0.00184
+    },
+    {
+     "event_day": "2025-08-28",
+     "move": 0.00608
+    },
+    {
+     "event_day": "2025-11-20",
+     "move": -0.02357
+    },
+    {
+     "event_day": "2026-02-26",
+     "move": -0.01197
+    },
+    {
+     "event_day": "2026-05-21",
+     "move": 0.00188
+    }
+   ],
+   "surface": {
+    "underlying": "QQQ",
+    "spot": 710.08,
+    "term_front_minus_back": 0.04,
+    "strip": {
+     "front": "2026-08-28",
+     "back": "2026-08-31",
+     "iv_front": 0.2228,
+     "iv_back": 0.1828,
+     "ambient_annual_var": 0.01719,
+     "ambient_daily_sd": 0.00826,
+     "market_jump_sd": 0.01633,
+     "event_share_of_front_var": 0.654,
+     "front_geometry": {
+      "expiry": "2026-08-28",
+      "days": 3,
+      "atm_strike": 710.0,
+      "atm_iv": 0.2228,
+      "implied_move": 0.0137,
+      "wing_dollars": 14.34,
+      "iv_call_up": 0.2054,
+      "iv_put_down": 0.2476,
+      "skew": -0.0422,
+      "curvature": 0.0037,
+      "wing_strikes": [
+       696.0,
+       724.0
+      ],
+      "curvature_2sd": 0.0225,
+      "shape": "flat"
+     },
+     "back_geometry": {
+      "expiry": "2026-08-31",
+      "days": 6,
+      "atm_strike": 710.0,
+      "atm_iv": 0.1828,
+      "implied_move": 0.0159,
+      "wing_dollars": 16.64,
+      "iv_call_up": 0.1639,
+      "iv_put_down": 0.2084,
+      "skew": -0.0445,
+      "curvature": 0.0033,
+      "wing_strikes": [
+       693.0,
+       727.0
+      ],
+      "curvature_2sd": 0.0197,
+      "shape": "flat"
+     }
+    }
+   },
+   "front": {
+    "expiry": "2026-08-28",
+    "days": 3,
+    "atm_strike": 710.0,
+    "atm_iv": 0.2228,
+    "implied_move": 0.0137,
+    "wing_dollars": 14.34,
+    "iv_call_up": 0.2054,
+    "iv_put_down": 0.2476,
+    "skew": -0.0422,
+    "curvature": 0.0037,
+    "wing_strikes": [
+     696.0,
+     724.0
+    ],
+    "curvature_2sd": 0.0225,
+    "shape": "flat"
+   },
+   "market_source": "variance_strip",
+   "market_jump_sd": 0.0163,
+   "relay_ratio": 0.849
+  }
+ ],
+ "rank": [
+  "ARM",
+  "TSM",
+  "SOXX",
+  "MU",
+  "AVGO",
+  "SMH",
+  "QQQ",
+  "AMD",
+  "NVDA"
+ ]
+}

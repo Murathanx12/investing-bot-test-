@@ -1,8 +1,30 @@
 # HANDOFF — read this first
 
-**Updated 2026-08-25, sandbox session 2 (Fable).** Competition derivative of
-the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
-Previous handoff text is in git history (`63c4937`); this one supersedes it.
+**Updated 2026-08-25 evening, sandbox session 3 (Fable).** Competition derivative
+of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
+Previous handoff text is in git history (`2561449`); this one supersedes it.
+
+## SESSION 3 IN ONE PARAGRAPH (read `docs/FINDING_2026-08-25_SURFACE_AND_STRIP.md`)
+
+The review's priority list was executed in order and most of it came back
+NEGATIVE, which is the point. Walk-forward on 112 real prints: **stripping the
+event variance did not beat the naive comparison** (raw implied predicts
+realised size at corr 0.33; the stripped jump 0.18; our own history 0.29 — the
+chain knows more than the name's last eight prints); **no short structure is a
+free lunch** (iron butterfly +5%, t 0.7; the condor wins 63% and loses money);
+the morning's conditional sort **survives weakly and on the SHORT side** (n=46,
++15%, hit 61%, t 1.41 — bottom-tercile butterfly +21%); **skew predicts nothing**
+(45%); concave surfaces reproduce the RoF 2025 direction weakly. The
+**UNCERTAINTY RELAY** produced its first ranking for tomorrow's NVDA print: NVDA
+itself is the most expensive place to own it (ratio 0.70), ARM 1.64 and TSM 1.52
+the cheapest. The **NFP event-contract basis is built and its direction channel
+is dead** (surprise→SPY corr 0.03, −0.57 walk-forward); Kalshi can inform width,
+never side. In code: `alpha/surface.py` (geometry + strip, tested on a planted
+jump), `EVENT_NODE_CAP` 25% per scheduled event in the runner (tested), the loop
+takes `--brains/--shadow` so **dev runs the champion and exp1 the challenger —
+both loops are LIVE on paper as of 15:30 UTC** (`state/loop_dev.log`,
+`state/loop_exp1.log`), and one full unattended cycle was proven before that.
+NFP is now "our strongest observed long-vol macro candidate", not "the one tail".
 
 ---
 
@@ -25,7 +47,10 @@ options trades / win-loss       1 filled (TSLA straddle x3 @13.35, slippage 0) /
 max drawdown                    n/a
 LLM calls / spend               ~6 / ~$0.004   ($0.0007 per NARRATIVE_SHOCK extraction, 2.4s)
 execution failures              0
-service uptime                  not deployed; `scripts/agent_loop.py` exists, unproven
+service uptime                  not deployed; `scripts/agent_loop.py` PROVEN for one full cycle
+                                (--once) and running LIVE on both paper accounts since 15:30 UTC
+                                25 Aug from this laptop (nohup; dies with the laptop -- Railway
+                                is still the gap). dev = champion set, exp1 = challenger set.
 MCP / CLI requirement           the rule is MCP **OR** CLI. We ship BOTH because the MCP side is a
                                 risk gate (44 tools exposed, no order verb). Neither is mandatory alone.
 counterfactual worlds marked    136 (session 1) + today's dry-run families; brain scoreboard added

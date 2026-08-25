@@ -77,6 +77,10 @@ class Decision:
     """Model, tokens and cost for any LLM reasoning behind this row. Spend that
     is not attributed to a decision is spend nobody can evaluate."""
     tournament_state: dict[str, Any] = field(default_factory=dict)
+    account_role: str | None = None
+    """Which paper account made this decision. Two accounts run champion vs
+    challenger against the same sessions; without this field their rows are
+    indistinguishable and the comparison is impossible."""
 
     entry_cost_per_unit: float | None = None
     max_loss_per_unit: float | None = None
