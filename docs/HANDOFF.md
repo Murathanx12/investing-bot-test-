@@ -1,6 +1,6 @@
 # HANDOFF — read this first
 
-**Updated 2026-08-25, ~07:30 ET.** Competition derivative of the Aegis-Finance
+**Updated 2026-08-25, ~09:00 ET.** Competition derivative of the Aegis-Finance
 research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 
 ---
@@ -21,8 +21,12 @@ unused buying power             $400,000 (dev)
 LLM calls / spend               0 / $0
 execution failures              0
 service uptime                  not deployed
-submission readiness            engine + exits work end-to-end; no dashboard, no MCP/CLI, no writeup
-COMPETITION RESULT IMPROVEMENT  FIRST ORDER PLACED, EXIT LOGIC BUILT. Untested against a fill.
+MCP / CLI requirement           BOTH WORKING. CLI v0.0.13 resolves PA32Q5IW7TAS;
+                                MCP exposes 44 tools with `trading` withheld (72 unrestricted)
+counterfactual worlds marked    136 across 39 decision families
+submission readiness            engine + exits + MCP/CLI + counterfactual; no dashboard, no writeup
+COMPETITION RESULT IMPROVEMENT  REQUIREMENT #2 MET AND THE ABSTENTION SCREEN EXISTS.
+                                Still zero fills, so still zero P&L evidence.
 ```
 
 ---
@@ -190,9 +194,18 @@ judge, and it is one screen.
    generator, converting the tail we paid for into an average outcome.
    *Still to wire: run it on a schedule, and a thesis-invalidation check that
    re-runs the brain against the open position.*
-3. **MCP + CLI.** Both are competition requirements and neither is done. CLI as
-   the deterministic JSON audit path; MCP as the "why did you make this trade?"
-   demo surface. Do not route the tick loop through MCP.
+3. ~~MCP + CLI~~ — **DONE**, and the MCP side is a risk gate rather than a
+   checkbox. `ALPACA_TOOLSETS` is a documented server-side filter, so a model
+   connected with `trading` withheld has **no order-placing tool to call** --
+   not "is told not to", not "is checked before it does". Measured on the
+   running server: **44 tools restricted vs 72 unrestricted**, and the 16 in
+   the gap include `place_option_order`, `place_stock_order`,
+   `place_crypto_order`, `close_all_positions` and `exercise_options_position`.
+   `python -m scripts.tooling_probe --census` is the evidence; it starts the
+   server and asks it, because a safety claim checked against our own config is
+   a claim checked against itself.
+   *Still to do: point Claude Code at the restricted server and record the
+   model failing to place an order. That screenshot is the demo.*
 4. **Shadow arena.** N virtual $100k books off the same frozen decision state.
    `exp1` already gives one real second account for a second risk profile.
 5. **Dashboard.** Judging criterion 4. The screen that matters most is the
@@ -203,6 +216,31 @@ judge, and it is one screen.
    calendar and is real-time and free.
 8. **Railway deploy.** The agent must not need the laptop.
 9. **First social post.** Separate $500 prize, engagement cannot be back-filled.
+
+## What the field looks like, and what a judge said
+
+Full research with sources: **`docs/FIELD_2026-08-25.md`**. The three facts that
+should change decisions:
+
+1. **2,270 participants, 555 teams, 0 submissions.** Every "competitor project"
+   visible now is a registration blurb. **VolAlpha declares our vol_gap brain
+   almost word for word**; **midas-gate independently reached "deterministic
+   envelope before the AI is called"**. Neither of those is our differentiator
+   any more -- shape-to-instrument and the capability boundary are.
+
+2. **The P&L bar is low.** The previous winner's headline was **+$19.18 over 10
+   trades, and it was a backtest** because live was blocked. Second place ran
+   **+0.58%** live. Criterion 1 is winnable, which means criteria 2-4 decide the
+   ranking.
+
+3. **A judge praised the winner's admission of failure** -- the transparency note
+   "separates this from teams that pretend everything worked" -- and marked a
+   competitor down for "generating plausible financial narratives after the
+   fact", asking to see "why ARM was chosen over five other correlated
+   companies, and whether the trade ended up being right".
+
+   So: the write-up leads with what did not work, and the dashboard leads with
+   the refused candidates. Both are cheap and neither can be back-filled.
 
 ## Do NOT
 
