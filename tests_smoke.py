@@ -86,6 +86,79 @@ raw = p.read_text().splitlines(); raw[0] = raw[0].replace('"AVGO"','"TSLA"')
 p.write_text("\n".join(raw)+"\n")
 ok2, msg2 = ledger.verify_chain(); check("tamper detected", not ok2, msg2[:80])
 
+print("\n-- counterfactual marking (grading the roads not taken)")
+from alpha import counterfactual as cf
+Q = {"L": {"bid": 3.0, "ask": 3.4}, "S": {"bid": 1.0, "ask": 1.4}}
+# A long leg leaves at the BID, a short leg is bought back at the ASK. Marking
+# both at the mid would gift half a spread per leg, and gift it hardest to the
+# four-leg structures -- which is how a condor beats a call on arithmetic alone.
+check("long leg exits at the bid", cf.exit_value_per_unit([("L","buy",1)], Q) == 300.0)
+check("short leg exits at the ask", cf.exit_value_per_unit([("S","sell",1)], Q) == -140.0)
+check("spread exits at both crossed sides",
+      cf.exit_value_per_unit([("L","buy",1),("S","sell",1)], Q) == 160.0)
+try:
+    cf.exit_value_per_unit([("MISSING","buy",1)], Q); check("missing quote refuses", False)
+except cf.Unmarkable: check("missing quote refuses", True)
+
+def _w(ident, kind, action, cost, loss, legs, reason=None):
+    return {"decision_id": ident, "symbol": "TSLA", "instrument": kind, "action": action,
+            "refusal_reason": reason, "entry_cost_per_unit": cost,
+            "max_loss_per_unit": loss, "legs": legs}
+
+# Per-unit economics are in DOLLARS per contract (structures.py multiplies by
+# 100 at construction), which is the same scale `exit_value_per_unit` returns.
+# Mixing premium-per-share with dollars-per-contract is a silent 100x.
+# Same $1,000 of risk, two structures with different per-unit risk: the cheaper
+# one buys more units. Equal RISK, not equal size -- otherwise the comparison is
+# between two different bets rather than between two shapes.
+taken = cf.mark(_w("d1","long_call","submitted",200.0,200.0,[("L","buy",1)]),
+                Q, risk_budget_usd=1000)          # 5 units, exit 300 -> +500
+alt   = cf.mark(_w("d1:alt0","debit_spread","refused",100.0,100.0,
+                   [("L","buy",1),("S","sell",1)], "edge below 5pp"),
+                Q, risk_budget_usd=1000)          # 10 units, exit 160 -> +600
+check("equal risk, not equal size", taken.units == 5.0 and alt.units == 10.0)
+check("marked from the chain", taken.mark_source == "chain")
+check("pnl is exit minus entry", taken.pnl_usd == 500.0 and alt.pnl_usd == 600.0)
+null = cf.mark(cf.null_world("d1","TSLA"), Q, risk_budget_usd=1000)
+check("the null pays exactly zero", null.pnl_usd == 0.0 and null.mark_source == "null")
+gone = cf.mark(_w("d1:alt1","straddle","refused",100.0,100.0,[("GONE","buy",1)]), Q,
+               risk_budget_usd=1000)
+check("unpriceable world is unmarkable, not zero", gone.mark_source == "unmarkable")
+
+rep = cf.report([taken, alt, null, gone])
+check("unmarkable excluded from the comparison",
+      rep["worlds_marked"] == 3 and rep["unmarkable"] == 1)
+check("best available identified", rep["best_available"]["kind"] == "debit_spread")
+check("false refusal counted", rep["false_refusals"] == 1)
+check("opportunity capture is taken over best", rep["opportunity_capture"] == 0.8333)
+check("negative refusal edge is reported as such",
+      rep["refusal_edge_on_risk"] < 0 and "discarding edge" in rep["refusal_verdict"])
+
+# Every world under water: a capture ratio against a non-positive denominator
+# reads well and means nothing, so it is refused and the null is named instead.
+loser = cf.mark(_w("d2","long_call","submitted",400.0,400.0,[("L","buy",1)]),
+                Q, risk_budget_usd=1000)          # 2.5 units, exit 300 -> -250
+sunk  = cf.mark(_w("d2:alt0","debit_spread","refused",400.0,400.0,
+                   [("L","buy",1),("S","sell",1)], "spread too wide"),
+                Q, risk_budget_usd=1000)          # 2.5 units, exit 160 -> -600
+rep2 = cf.report([loser, sunk, cf.mark(cf.null_world("d2","TSLA"), Q, risk_budget_usd=1000)])
+check("no capture ratio against a loss", rep2["opportunity_capture"] is None)
+check("says abstaining won", "abstaining won" in rep2.get("capture_note",""))
+check("saved losses counted", rep2["saved_losses"] == 1)
+check("positive refusal edge is reported as such",
+      rep2["refusal_edge_on_risk"] > 0 and "selecting" in rep2["refusal_verdict"])
+check("empty report is an absence, not a zero",
+      cf.report([gone])["status"] == "nothing markable")
+# A same-instant mark returns exactly minus the spread. A report full of those
+# is a spread measurement, and must say so rather than read as vindicated caution.
+check("fresh all-negative report carries the spread caveat",
+      "bid-ask round trip" in rep2.get("caveat", ""))
+check("a report with a winner carries no caveat", "caveat" not in rep)
+check("families group by prefix",
+      len(cf.worlds_for([_w("d1","long_call","submitted",2,2,[]),
+                         _w("d1:alt0","straddle","refused",1,1,[]),
+                         _w("zz","x","refused",1,1,[])], "d1")) == 3)
+
 print("\n-- official tooling (the LLM has no order verb)")
 from alpha import tooling
 os.environ["AAT_DEV_KEY_ID"] = "PKFAKEFAKEFAKEFAKE"

@@ -154,8 +154,8 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             f"{len(rejected)} structures enumerated at {expiry}, none cleared the gates. "
             + (rejected[0][1].reason if rejected else "chain produced nothing tradeable."),
         )
-        return None, why, snapshot
-    return best[0], best[1], snapshot
+        return None, why, snapshot, rejected
+    return best[0], best[1], snapshot, rejected
 
 
 def build_order(structure: sizing.Structure, contracts: int) -> dict:
@@ -222,7 +222,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         result.considered += 1
         decision_id = ledger.new_decision_id(forecast.symbol, forecast.brain)
         try:
-            structure, verdict, snapshot = evaluate(
+            structure, verdict, snapshot, alternatives = evaluate(
                 client, forecast, state=state, expiry=expiry,
                 risk_profile=risk_profile, open_risk=risk + committed,
             )
@@ -232,6 +232,14 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                     action="error", reason=f"{type(exc).__name__}: {exc}")
             logger.warning("%s: %s", forecast.symbol, exc)
             continue
+
+        # The roads not taken, written down at the moment they were not taken.
+        # Recorded BEFORE the chosen one so that a crash between the two leaves
+        # a ledger that over-states what we declined rather than what we did.
+        for i, (alt, alt_verdict) in enumerate(alternatives):
+            _record(f"{decision_id}:alt{i}", forecast, alt, alt_verdict, snapshot, state,
+                    action="refused" if not alt_verdict.approved else "alternative",
+                    reason=alt_verdict.reason)
 
         if structure is None:
             result.refused += 1
@@ -335,6 +343,11 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         max_loss_usd=(structure.max_loss * contracts) if structure else 0.0,
         order=order,
         alpaca_order_id=alpaca_order_id,
+        # Unit-scale economics on EVERY row, taken or refused, so the decision
+        # can be priced forward later at a risk budget it never actually got.
+        entry_cost_per_unit=structure.entry_cost if structure else None,
+        max_loss_per_unit=structure.max_loss if structure else None,
+        legs=tuple(structure.legs) if structure else (),
         tournament_state={
             "equity": state.equity, "return": state.total_return,
             "phase": state.phase.value,

@@ -78,6 +78,16 @@ class Decision:
     is not attributed to a decision is spend nobody can evaluate."""
     tournament_state: dict[str, Any] = field(default_factory=dict)
 
+    entry_cost_per_unit: float | None = None
+    max_loss_per_unit: float | None = None
+    legs: tuple = ()
+    """The structure at UNIT scale, recorded on every row including refusals.
+
+    `max_loss_usd` is the position we sized; these three are the thing itself.
+    Without them a refused candidate cannot be priced forward later, and a
+    refusal nobody can price is a claim of prudence rather than a measurement of
+    one -- see `alpha/counterfactual.py`."""
+
 
 def _path(name: str = "decisions") -> Path:
     LEDGER_DIR.mkdir(parents=True, exist_ok=True)

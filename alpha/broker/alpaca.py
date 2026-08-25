@@ -158,6 +158,25 @@ class AlpacaPaper:
                 ) from exc
             raise
 
+    def option_quotes(self, symbols: list[str]) -> dict[str, Any]:
+        """Latest quotes for specific OCC contracts.
+
+        The chain endpoint answers "what is available around this strike"; this
+        answers "what is THIS contract worth now", which is the question a
+        counterfactual asks about a leg it never bought. Batched in hundreds
+        because the URL is the limit, not the plan.
+        """
+        out: dict[str, Any] = {}
+        for i in range(0, len(symbols), 100):
+            batch = symbols[i:i + 100]
+            page = self._request(
+                "GET", "/v1beta1/options/quotes/latest",
+                base=config.data_url(),
+                params={"symbols": ",".join(batch), "feed": config.options_feed()},
+            )
+            out.update(page.get("quotes") or {})
+        return out
+
     def stock_quote(self, symbols: list[str]) -> dict[str, Any]:
         return self._request(
             "GET", "/v2/stocks/quotes/latest",
