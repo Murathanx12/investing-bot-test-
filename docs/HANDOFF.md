@@ -61,7 +61,9 @@ COMPETITION RESULT IMPROVEMENT  A LOSING TRADE WAS WITHDRAWN BEFORE IT WAS PLACE
    pre-earnings straddles are dead net (−9.1%, BSIC); **NFP-day index straddles
    were underpriced 10/12 recently** — the 4 Sep 08:30→10:45 window is the one
    trade to spend variance on; `scripts/nfp_straddle_backtest.py` grades it on
-   2024–26 0DTE minute bars (result in `state/nfp_straddle_backtest.json`).
+   2024–26 0DTE minute bars: **SPY mean +16.8%, median +6.8%, 57% hit, 9 of the
+   last 12 positive; QQQ mean +17.1%, median −2.6%.** A tail payoff — buy narrow,
+   bounded premium, flat by 10:45 (addendum in the FINDING doc).
    Kalshi is calibrated with favourite-longshot bias. NVDA→AVGO IV spillover
    (Guttormsen 2026) is being watched: `state/iv_spillover_watch.jsonl` has the
    pre-print baseline. Crypto weekend sleeve: skipped on evidence.

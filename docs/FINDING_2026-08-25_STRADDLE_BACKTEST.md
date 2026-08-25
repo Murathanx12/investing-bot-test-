@@ -86,3 +86,26 @@ trade, not the straddle.
   Item 2.02 filings; they are genuine scheduled events and are kept.
 - Every name's rows and dates are in the receipt. Print the dates before
   trusting the statistic.
+
+## Addendum — the OTHER kind of event: NFP day, index 0DTE straddles
+
+`scripts/nfp_straddle_backtest.py`, receipt `state/nfp_straddle_backtest.json`.
+28 Employment Situation releases (FRED release 50, Mar 2024 → Aug 2026), ATM
+0DTE straddle bought at the prior close, marked at **10:45 ET** from minute bars
+— our exact 4 Sep window.
+
+| | SPY | QQQ |
+|---|---|---|
+| n | 28 | 28 |
+| mean return | **+16.8%** | +17.1% |
+| median return | +6.8% | −2.6% |
+| hit rate | 57% | 46% |
+| worst / best | −40% / +169% | −40% / +144% |
+| median implied vs realised to 10:45 | 0.77% vs 0.71% | 1.06% vs 0.95% |
+
+Opposite sign to the single-name prints: the index straddle into the jobs
+report has a positive mean at closes, carried by a few tail days (Aug 2024,
+Apr 2025, Jun 2026) on a near-zero median — a TAIL payoff, to be bought narrow
+with bounded premium, never sized as if the median were the mean. SPY 9 of the
+last 12 positive. This is the one variance bet for 4 Sep, and it is bounded by
+construction: the premium is the max loss and the position is flat by 10:45.
