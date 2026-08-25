@@ -50,6 +50,14 @@ from alpha.sources import finnhub, sec
 from alpha.sources.http import SourceRefusal
 
 MIN_EVENTS = 4
+#: Only the most recent prints set the width. The 2024-26 backtest on real
+#: option prices (docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md) found NVDA's
+#: recent realised moves at a median 3.2% against a 7.0% implied -- and a
+#: 14-print history reaching back to 2023 said 6.6%, which would have bought
+#: the straddle that lost on all eight of the last prints. A print
+#: distribution is not stationary across a regime; the last two years are
+#: the evidence, the older prints are context.
+RECENT_EVENTS = 8
 WINDOW_AFTER_PERIOD = (15, 75)   # trading-calendar days after fiscal period end
 
 
@@ -159,7 +167,9 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
     if len(events) < MIN_EVENTS:
         raise NotApplicable(f"{symbol}: only {len(events)} inferable past prints (need {MIN_EVENTS})")
 
-    abs_moves = [abs(e["move"]) for e in events]
+    all_abs = [abs(e["move"]) for e in events]
+    events_recent = events[-RECENT_EVENTS:]
+    abs_moves = [abs(e["move"]) for e in events_recent]
     mean_abs = sum(abs_moves) / len(abs_moves)
     med_abs = sorted(abs_moves)[len(abs_moves) // 2]
     disp = (max(abs_moves) - min(abs_moves)) / mean_abs if mean_abs else 9.0
@@ -176,7 +186,7 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
     sd = math.sqrt(sd_event ** 2 + sd_ordinary ** 2)
 
     # Confidence: more prints, tighter distribution -> more.
-    conviction = max(0.3, min(1.0, 0.5 + 0.05 * len(events) - 0.15 * max(disp - 1.0, 0.0)))
+    conviction = max(0.3, min(1.0, 0.5 + 0.05 * len(events_recent) - 0.15 * max(disp - 1.0, 0.0)))
 
     return Forecast(
         brain="event_move",
@@ -186,7 +196,7 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
         sd=sd,
         conviction=conviction,
         rationale=(
-            f"{symbol} prints {event_date} {event_hour or '?'}. Last {len(events)} prints moved "
+            f"{symbol} prints {event_date} {event_hour or '?'}. Last {len(events_recent)} prints moved "
             f"mean {mean_abs:.1%} / median {med_abs:.1%} close-to-close (dates: {date_source}). "
             f"Event sd {sd_event:.1%} + {ordinary_days:.0f} ordinary days at {daily_sd:.2%}/day "
             f"= {sd:.1%} over {horizon_days:.1f}d. Centre 0: a print is not a direction."
@@ -195,6 +205,7 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
         evidence={
             "event_date": event_date, "event_hour": event_hour, "date_source": date_source,
             "event_days": events, "mean_abs_event_move": mean_abs,
+            "n_recent": len(events_recent), "mean_abs_all_prints": sum(all_abs) / len(all_abs),
             "median_abs_event_move": med_abs, "event_dispersion": disp,
             "sd_event": sd_event, "sd_ordinary": sd_ordinary, "daily_sd_ordinary": daily_sd,
             "n_events": len(events), "last_close": closes[-1],
