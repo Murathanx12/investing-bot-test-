@@ -110,6 +110,18 @@ def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = Non
     )
 
 
+def held_underlyings(client: AlpacaPaper) -> dict[str, int]:
+    """Underlyings with an open OPTION position in this account -> leg count."""
+    out: dict[str, int] = {}
+    for pos in client.positions():
+        if (pos.get("asset_class") or "") != "us_option":
+            continue
+        sym = pos.get("symbol") or ""
+        if len(sym) > 15:
+            out[sym[:-15]] = out.get(sym[:-15], 0) + 1
+    return out
+
+
 def open_convex_risk(client: AlpacaPaper) -> float:
     """Premium currently at risk, as a fraction of equity -- from the BROKER's book."""
     acct = client.account()
@@ -259,7 +271,20 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
 
     committed = 0.0
     node_committed: dict[str, float] = {}
+    held = held_underlyings(client)
     for symbol, group in by_symbol.items():
+        if symbol in held:
+            # ONE POSITION PER SYMBOL is a property of the BOOK, not of a pass.
+            # Without this the loop re-buys the same straddle every thirty
+            # minutes until the aggregate cap binds -- which it did on 25 Aug
+            # (QQQ straddle x4 became x8, a second NVDA condor at new strikes).
+            for forecast in group:
+                result.considered += 1
+                result.refused += 1
+                _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None, None, state,
+                        action="refused", reason=f"{symbol} already positioned in this book ({held[symbol]} legs); "
+                                                 "exits decide when it is free again, not entries")
+            continue
         evaluated = []
         for forecast in group:
             result.considered += 1

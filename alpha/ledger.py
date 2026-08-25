@@ -32,6 +32,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -111,15 +112,56 @@ def _last_hash(path: Path) -> str:
     return hashlib.sha256(last).hexdigest()
 
 
+class _Lock:
+    """Exclusive cross-process lock on a ledger: O_EXCL create of a side file,
+    retried; a lock older than STALE_S is assumed abandoned by a dead writer.
+
+    Two loops (dev and exp1) appended to the same chain on 25 Aug and it broke
+    at line 1203: writer A read the last hash, writer B appended, writer A
+    appended with the wrong `_prev`. A hash chain assumes one writer; this
+    makes that true instead of assuming it.
+    """
+    STALE_S = 30.0
+
+    def __init__(self, path: Path):
+        self.lock = path.with_suffix(path.suffix + ".lock")
+
+    def __enter__(self):
+        deadline = time.monotonic() + 10.0
+        while True:
+            try:
+                fd = os.open(self.lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, str(os.getpid()).encode())
+                os.close(fd)
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - self.lock.stat().st_mtime > self.STALE_S:
+                        self.lock.unlink(missing_ok=True)
+                        continue
+                except FileNotFoundError:
+                    continue
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f"ledger lock {self.lock} held for >10s")
+                time.sleep(0.05)
+
+    def __exit__(self, *exc):
+        try:
+            self.lock.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
 def record(decision: Decision, *, name: str = "decisions") -> str:
     """Append one row and return its hash. Never modifies an existing line."""
     path = _path(name)
     row = asdict(decision)
-    row["_prev"] = _last_hash(path)
-    row["_written_utc"] = datetime.now(timezone.utc).isoformat()
-    line = json.dumps(row, sort_keys=True, separators=(",", ":"), default=str)
-    with path.open("a", encoding="utf-8") as fh:
-        fh.write(line + "\n")
+    with _Lock(path):
+        row["_prev"] = _last_hash(path)
+        row["_written_utc"] = datetime.now(timezone.utc).isoformat()
+        line = json.dumps(row, sort_keys=True, separators=(",", ":"), default=str)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
     return hashlib.sha256((line + "\n").encode()).hexdigest()
 
 

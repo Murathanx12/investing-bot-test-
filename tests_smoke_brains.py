@@ -204,6 +204,40 @@ check("mark below max loss is UNMARKABLE, not a saved loss", bad.mark_source == 
 ok_ = cf.mark(dec, {"S": {"bid": 1.0, "ask": 1.2}, "L": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
 check("ordinary mark still prices", ok_.mark_source == "chain")
 
+# --------------------------------------------- one position per symbol per BOOK
+print("\n-- a symbol already positioned in the book is refused, not re-bought")
+
+
+class HeldClient(FakeClient):
+    def positions(self):
+        return [{"asset_class": "us_option", "symbol": "X260828C00100000", "qty": "4", "cost_basis": "800"}]
+
+
+res3 = runner.run_pass(HeldClient(), [f1, f2], expiry="2026-08-28", dry_run=False, shadow_brains=())
+rows3 = ledger.read_all()
+held_refusals = [r for r in rows3 if "already positioned" in (r.get("refusal_reason") or "")]
+check("no order on a symbol the book already holds", res3.submitted == 0 and len(held_refusals) == 2,
+      f"submitted={res3.submitted} refusals={len(held_refusals)}")
+check("held_underlyings decodes the OCC root", runner.held_underlyings(HeldClient()) == {"X": 1})
+
+# ledger lock: a stale lock file from a dead writer must not block forever
+lock_path = ledger._path().with_suffix(".jsonl.lock")
+lock_path.write_text("0")
+import os as _os
+_os.utime(lock_path, (0, 0))
+ledger.record(ledger.Decision("lk", "t", "X", "b", None, "i", "", None, None, None, None, None, {}, "refused", "r", 0.0, 0.0, None))
+check("stale ledger lock is broken and released", not lock_path.exists())
+
+# ------------------------------------------------------------------ relay map
+print("\n-- relay: who relays whom, and the node it lands in")
+from alpha.brains import relay, BRAINS
+check("ARM relays NVDA", "NVDA" in relay.originators_for("ARM"))
+check("nobody relays SPY", relay.originators_for("SPY") == [])
+check("relay registered as a brain", "relay" in BRAINS)
+check("relay is shadow by default", "relay" in __import__("scripts.run_pass", fromlist=["x"]).DEFAULT_SHADOW)
+rf = Forecast("relay", "ARM", 3, 0.0, 0.05, 1.0, "", "tail", {"originator": "NVDA", "event_date": "2026-08-26"})
+check("relay forecast lands in the originator print node", runner.event_node(rf) == "print:2026-08-26")
+
 print("\nALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":
     raise SystemExit(1 if fails else 0)

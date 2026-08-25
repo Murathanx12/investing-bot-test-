@@ -24,12 +24,12 @@ from alpha.broker.alpaca import AlpacaPaper
 UNIVERSE = ["SPY", "QQQ", "IWM", "NVDA", "AVGO", "AMD", "TSLA", "META",
             "AAPL", "MSFT", "GOOGL", "AMZN", "NIO", "PANW", "SMH"]
 
-DEFAULT_BRAINS = "vol_gap,event_move,options_attention,narrative_dispersion"
+DEFAULT_BRAINS = "vol_gap,event_move,options_attention,narrative_dispersion,relay"
 #: Brains that WIDEN sigma by construction win the MDM comparison by construction
 #: on long premium -- the sizer rewards disagreement, and a wider claim is a bigger
 #: disagreement. They earn execution by beating the others in the counterfactual
 #: ledger first, not by being loudest.
-DEFAULT_SHADOW = "options_attention,narrative_dispersion"
+DEFAULT_SHADOW = "options_attention,narrative_dispersion,relay"
 
 
 def main() -> int:

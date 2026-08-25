@@ -108,6 +108,7 @@ def main() -> int:
             for sym in ("NVDA", "TSLA", "SPY"):
                 subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain", sym, "--expiry", args.expiry])
             subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain_grade"])
+            subprocess.call([sys.executable, "-m", "scripts.belief_recorder"])   # the velocity series
             last["belief"] = now
         if is_open and now - last["fill"] >= 900:
             _run("scripts.fill_audit", "--record", live=False); last["fill"] = now
