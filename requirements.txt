@@ -1,0 +1,6 @@
+# The agent's core path uses only the Python standard library -- urllib for
+# transport, math for Black-Scholes. That is deliberate: fewer moving parts in
+# something that has to stay up unattended for a week.
+#
+# alpaca-py is used by the MCP/CLI surfaces and by anything streaming.
+alpaca-py>=0.33.0

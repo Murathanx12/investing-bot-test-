@@ -37,6 +37,43 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+def load_env(path: str | None = None) -> int:
+    """Load `.env` into the process if present. No dependency, no surprises.
+
+    Deliberately does NOT overwrite a variable that is already set: an explicit
+    export on the command line must win over a file, because the file is the
+    thing you forget you edited and the export is the thing you just typed.
+    """
+    import pathlib
+
+    target = pathlib.Path(path or pathlib.Path(__file__).resolve().parent.parent / ".env")
+    if not target.exists():
+        return 0
+    loaded = 0
+    for raw in target.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip("'\"")
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+            loaded += 1
+    return loaded
+
+
+#: The options data feed. `opra` is real-time and needs Algo Trader Plus; the
+#: free `indicative` feed is delayed ~15 minutes during market hours. Which one
+#: is live is a MEASURED fact recorded on every snapshot, never an assumption --
+#: see `alpha/data/chain.py`.
+def options_feed() -> str:
+    return os.getenv("AAT_OPTIONS_FEED", "indicative").strip().lower()
+
+
+def stock_feed() -> str:
+    return os.getenv("AAT_STOCK_FEED", "iex").strip().lower()
+
+
 #: Hosts this repo is permitted to talk to. `api.alpaca.markets` (the LIVE
 #: trading host) is deliberately absent and must stay absent.
 _ALLOWED_TRADING_HOSTS = frozenset({"paper-api.alpaca.markets"})
@@ -45,9 +82,21 @@ _ALLOWED_TRADING_HOSTS = frozenset({"paper-api.alpaca.markets"})
 #: an order. It is still allowlisted so a typo'd host fails loudly.
 _ALLOWED_DATA_HOSTS = frozenset({"data.alpaca.markets"})
 
-#: The two roles an account may hold. `competition` is the judged account and
-#: is created at kickoff; `dev` is everything before that.
-ROLES = ("dev", "competition")
+#: Reserved roles. `competition` is the judged account, created at kickoff and
+#: never touched before it; `dev` is the main rehearsal account. Any other
+#: lowercase alphanumeric name is allowed as an EXPERIMENT account -- `exp1`,
+#: `aggressive`, `condor` -- so several risk envelopes can run against real
+#: paper accounts at once instead of being argued about.
+#:
+#: An Alpaca account is ONE equity curve, so a variant needs its own account to
+#: be measured rather than reasoned about. This is the cheap version of the
+#: parent project's portfolio farm: real fills, real marks, no shared history.
+RESERVED_ROLES = ("dev", "competition")
+ROLES = RESERVED_ROLES  # back-compat alias; membership is no longer exhaustive
+
+
+def _valid_role(name: str) -> bool:
+    return bool(name) and name.replace("_", "").isalnum() and name == name.lower()
 
 #: Variables from the PARENT project that must never be read here. Named so the
 #: refusal message can say what it is protecting rather than "missing key".
@@ -99,9 +148,10 @@ def role() -> str:
             "unset variable choosing the judged account is the one mistake "
             "with no undo."
         )
-    if declared not in ROLES:
+    if not _valid_role(declared):
         raise CredentialRefusal(
-            f"AAT_ACCOUNT_ROLE={declared!r} is not one of {ROLES}."
+            f"AAT_ACCOUNT_ROLE={declared!r} is not a valid role name (lowercase "
+            "alphanumeric, underscores allowed)."
         )
     return declared
 
@@ -109,8 +159,8 @@ def role() -> str:
 def credentials(for_role: str | None = None) -> Credentials:
     """Paper credentials for the declared role, from this repo's namespace only."""
     resolved = for_role or role()
-    if resolved not in ROLES:
-        raise CredentialRefusal(f"Unknown role {resolved!r}; expected one of {ROLES}.")
+    if not _valid_role(resolved):
+        raise CredentialRefusal(f"Invalid role name {resolved!r}.")
 
     prefix = f"AAT_{resolved.upper()}"
     key_id = os.getenv(f"{prefix}_KEY_ID", "").strip()
@@ -159,6 +209,17 @@ def _require_host(url: str, allowed: frozenset[str], kind: str) -> None:
             "This repo has no live-trading path and this refusal is not "
             "configurable -- the only reason to override it is the reason it exists."
         )
+
+
+def known_roles() -> list[str]:
+    """Roles that actually have credentials in this environment."""
+    seen = set()
+    for key in os.environ:
+        if key.startswith("AAT_") and key.endswith("_KEY_ID"):
+            name = key[len("AAT_"):-len("_KEY_ID")].lower()
+            if _valid_role(name) and os.environ.get(key, "").strip():
+                seen.add(name)
+    return sorted(seen)
 
 
 #: The competition's own facts, snapshotted from the rules page on 2026-08-25.

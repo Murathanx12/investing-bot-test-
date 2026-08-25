@@ -123,24 +123,77 @@ class AlpacaPaper:
 
     # ------------------------------------------------------------- market data
     def option_chain(self, underlying: str, *, expiration_gte: str | None = None,
-                     expiration_lte: str | None = None) -> dict[str, Any]:
-        """Live chain snapshot: quotes, greeks and implied vol per contract."""
-        return self._request(
-            "GET", f"/v1beta1/options/snapshots/{underlying}",
-            base=config.data_url(),
-            params={
-                "feed": "opra",
-                "expiration_date_gte": expiration_gte,
-                "expiration_date_lte": expiration_lte,
-                "limit": 1000,
-            },
-        )
+                     expiration_lte: str | None = None, feed: str | None = None,
+                     strike_gte: float | None = None, strike_lte: float | None = None,
+                     limit: int = 1000) -> dict[str, Any]:
+        """Chain snapshot: quotes, greeks and implied vol per contract.
+
+        The feed is DECLARED by configuration rather than hardcoded. Asking for
+        `opra` without the Algo Trader Plus subscription returns 403 with the
+        message "OPRA agreement is not signed", which reads like a paperwork
+        problem and is actually a billing one -- so the refusal below says what
+        it really means rather than passing the venue's wording through.
+        """
+        try:
+            return self._request(
+                "GET", f"/v1beta1/options/snapshots/{underlying}",
+                base=config.data_url(),
+                params={
+                    "feed": feed or config.options_feed(),
+                    "expiration_date_gte": expiration_gte,
+                    "expiration_date_lte": expiration_lte,
+                    "strike_price_gte": strike_gte,
+                    "strike_price_lte": strike_lte,
+                    "limit": limit,
+                },
+            )
+        except BrokerRefusal as exc:
+            if "OPRA agreement" in str(exc):
+                raise BrokerRefusal(
+                    "Real-time OPRA option data was requested but this account is on "
+                    "the free plan. Alpaca reports this as \"OPRA agreement is not "
+                    "signed\"; it means the Algo Trader Plus subscription ($99/mo) is "
+                    "absent, and no agreement can be signed to avoid it. Set "
+                    "AAT_OPTIONS_FEED=indicative to use the delayed feed."
+                ) from exc
+            raise
 
     def stock_quote(self, symbols: list[str]) -> dict[str, Any]:
         return self._request(
             "GET", "/v2/stocks/quotes/latest",
             base=config.data_url(),
-            params={"symbols": ",".join(symbols), "feed": "sip"},
+            params={"symbols": ",".join(symbols), "feed": config.stock_feed()},
+        )
+
+    def latest_trade(self, symbols: list[str]) -> dict[str, Any]:
+        """Last trade print. The PRIMARY source for a live underlying price.
+
+        Preferred over the quote because on the free IEX feed a quote is often
+        one-sided -- measured on this account, AVGO came back with a bid and an
+        ask of exactly zero while SPY was clean. A trade has no sides.
+        """
+        return self._request(
+            "GET", "/v2/stocks/trades/latest",
+            base=config.data_url(),
+            params={"symbols": ",".join(symbols), "feed": config.stock_feed()},
+        )
+
+    def stock_bars(self, symbol: str, *, start: str, timeframe: str = "1Day",
+                   adjustment: str = "all", limit: int = 1000) -> dict[str, Any]:
+        """Historical bars. `adjustment="all"` is not optional -- see vol_gap."""
+        return self._request(
+            "GET", "/v2/stocks/bars",
+            base=config.data_url(),
+            params={"symbols": symbol, "start": start, "timeframe": timeframe,
+                    "adjustment": adjustment, "limit": limit, "feed": config.stock_feed()},
+        )
+
+    def crypto_quote(self, symbols: list[str]) -> dict[str, Any]:
+        """Crypto is real-time and free, and it is the ONLY market open on the
+        weekend of 29-30 August -- two of the competition's eight days."""
+        return self._request(
+            "GET", "/v1beta3/crypto/us/latest/quotes",
+            base=config.data_url(), params={"symbols": ",".join(symbols)},
         )
 
     # ----------------------------------------------------------------- ordering

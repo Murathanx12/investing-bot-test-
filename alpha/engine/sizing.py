@@ -32,8 +32,9 @@ distribution does:
 If `edge` is small, the trade is a coin flip with a fee, however confident the
 thesis sounds. This is the same discipline as the MDE gate, and it costs one
 subtraction. Almost nobody does it, because the spread is invisible unless you
-go and read the quote -- which is also why the free "indicative" options feed is
-useless for this agent and the paid OPRA feed is not a luxury.
+go and read the quote -- which is why the quality of the option feed matters so
+much here, and why `alpha/data/chain.py` charges an explicit staleness penalty
+when it has to carry a delayed quote forward rather than pretending it is live.
 
 The MDM is computed from REAL QUOTES, never from a mid-price. A mid-price
 break-even is a break-even you cannot trade.
@@ -135,12 +136,33 @@ class Structure:
 
     symbol: str
     kind: str                 # long_call, debit_spread, long_straddle, credit_spread...
-    entry_cost: float         # per unit, at the ASK (debit) or credit received
-    max_loss: float           # per unit, > 0
-    breakeven_move: float     # |underlying move| at which the unit returns zero, as a fraction
-    implied_move: float       # the option market's own expected move over the life, as a fraction
-    quote_spread_pct: float   # (ask-bid)/mid on the structure, at decision time
-    days_to_expiry: float
+    direction: str = "both"
+    """Which region of the underlying's distribution this structure PAYS in.
+
+    "up" / "down" for directional structures, "both" for a straddle or strangle,
+    "inside" for defined-risk short premium, which wins when the move stays
+    SMALLER than the break-even.
+
+    This is not decoration. Scoring a long call against a two-sided probability
+    credits it for a crash -- the position would be sized up by the very outcome
+    that makes it expire worthless. Every probability in this module routes
+    through `direction`, so the mistake is not expressible."""
+    entry_cost: float = 0.0   # per unit, at the ASK (debit) or credit received
+    max_loss: float = 0.0     # per unit, > 0
+    breakeven_move: float = 0.0
+    """The underlying move at which this unit returns zero, as a fraction of spot.
+
+    SIGNED for "up"/"down" structures (a bull put spread's break-even is usually
+    negative -- below today's price); a MAGNITUDE for "both"/"inside"."""
+    implied_move: float = 0.0 # the option market's own expected move over the life
+    quote_spread_pct: float = 0.0   # (ask-bid)/mid on the structure, at decision time
+    days_to_expiry: float = 1.0
+    max_gain: float | None = None
+    legs: tuple = ()
+    staleness_penalty: float = 0.0
+    """How much of `entry_cost` is our own charge for carrying a delayed quote
+    forward. Recorded so a post-mortem can separate 'the thesis was wrong' from
+    'we paid for stale data'."""
 
     def __post_init__(self) -> None:
         if self.max_loss <= 0:
@@ -158,13 +180,44 @@ class Structure:
 #: option spread is exactly that.
 MAX_SPREAD_TO_MAXLOSS = 0.25
 
-#: Ceiling on premium-at-risk for a single thesis, before tournament scaling.
-BASE_RISK_PER_THESIS = 0.05
+#: RISK ENVELOPES, declared rather than argued about.
+#:
+#: The instruction for this competition is to go aggressive, and `aggressive` is
+#: the default. What does NOT scale with the profile is the requirement that
+#: every worst case be BOUNDED -- that is a property of the structures, not of
+#: the size, and `maximum` is a much bigger bet rather than an unbounded one.
+#:
+#: Several profiles can run simultaneously against separate paper accounts (see
+#: `config.known_roles()`), which turns "how aggressive should we be" from an
+#: argument into a measurement with five days of real fills behind it.
+PROFILES = {
+    "conservative": {"per_thesis": 0.03, "aggregate": 0.20, "edge_scale_cap": 1.5},
+    "aggressive":   {"per_thesis": 0.08, "aggregate": 0.50, "edge_scale_cap": 2.5},
+    "maximum":      {"per_thesis": 0.15, "aggregate": 0.75, "edge_scale_cap": 3.5},
+}
+
+DEFAULT_PROFILE = "aggressive"
+
+
+def profile(name: str | None = None) -> dict:
+    import os
+
+    key = (name or os.getenv("AAT_RISK_PROFILE", DEFAULT_PROFILE)).strip().lower()
+    if key not in PROFILES:
+        raise ValueError(f"unknown risk profile {key!r}; have {sorted(PROFILES)}")
+    return PROFILES[key]
+
+
+#: Kept as module constants for the smoke tests and for anything that wants the
+#: default envelope without threading a profile through.
+BASE_RISK_PER_THESIS = PROFILES[DEFAULT_PROFILE]["per_thesis"]
 
 #: Hard ceiling on TOTAL premium at risk across all open convex positions. The
 #: complement is what guarantees the agent is still alive on Friday morning to
-#: trade the jobs report.
-MAX_AGGREGATE_CONVEX_RISK = 0.35
+#: trade the jobs report -- being fully deployed on Tuesday and unable to touch
+#: the biggest catalyst of the week is a way to lose that has nothing to do with
+#: being wrong.
+MAX_AGGREGATE_CONVEX_RISK = PROFILES[DEFAULT_PROFILE]["aggregate"]
 
 
 @dataclass(frozen=True)
@@ -177,7 +230,8 @@ class SizingVerdict:
     reason: str
 
 
-def implied_probability_beyond(move: float, implied_move: float) -> float:
+def implied_probability_beyond(move: float, implied_move: float,
+                               direction: str = "both") -> float:
     """The option market's own probability that |return| exceeds `move`.
 
     The market's expected absolute move over the life maps to a lognormal sigma
@@ -193,11 +247,11 @@ def implied_probability_beyond(move: float, implied_move: float) -> float:
     if implied_move <= 0:
         return 0.0
     sigma = implied_move * math.sqrt(math.pi / 2.0)
-    z = abs(move) / sigma
-    return 2.0 * (1.0 - _norm_cdf(z))
+    return _tail_mass(move, 0.0, sigma, direction)
 
 
-def model_probability_beyond(move: float, predicted_move: float, predicted_sd: float) -> float:
+def model_probability_beyond(move: float, predicted_move: float, predicted_sd: float,
+                             direction: str = "both") -> float:
     """Our probability that |return| exceeds `move`, from the agent's forecast.
 
     `predicted_move` is the CENTRE of the forecast (signed), `predicted_sd` its
@@ -210,9 +264,35 @@ def model_probability_beyond(move: float, predicted_move: float, predicted_sd: f
             "predicted_sd must be positive. A forecast with no stated uncertainty "
             "is an assertion of certainty and will size itself to the ceiling."
         )
-    upper = 1.0 - _norm_cdf((move - predicted_move) / predicted_sd)
-    lower = _norm_cdf((-move - predicted_move) / predicted_sd)
-    return upper + lower
+    return _tail_mass(move, predicted_move, predicted_sd, direction)
+
+
+def _tail_mass(move: float, centre: float, sd: float, direction: str) -> float:
+    """Probability the outcome lands in the region this structure PAYS in.
+
+    `move` is read differently per direction, and the difference is load-bearing:
+
+      "up" / "down"   a SIGNED break-even return. A bull put spread whose
+                      break-even sits BELOW the current price wins across most
+                      of the distribution, and its threshold is negative. Taking
+                      an absolute value here would flip that into a demand that
+                      the stock RISE by the same amount -- turning the safest
+                      structure on the board into the most demanding one.
+      "both"/"inside" a MAGNITUDE. A straddle does not care which way.
+    """
+    if sd <= 0:
+        return 0.0
+    if direction == "up":
+        return 1.0 - _norm_cdf((move - centre) / sd)
+    if direction == "down":
+        return _norm_cdf((move - centre) / sd)
+    m = abs(move)
+    outside = (1.0 - _norm_cdf((m - centre) / sd)) + _norm_cdf((-m - centre) / sd)
+    if direction == "both":
+        return outside
+    if direction == "inside":
+        return max(0.0, 1.0 - outside)
+    raise ValueError(f"unknown direction {direction!r}")
 
 
 def size(
@@ -223,8 +303,10 @@ def size(
     *,
     open_convex_risk: float = 0.0,
     conviction: float = 1.0,
+    risk_profile: str | None = None,
 ) -> SizingVerdict:
     """How much defined risk this structure earns, or why it earns none."""
+    env = profile(risk_profile)
 
     # -- Gate 1: can we even trade the quote we are looking at? -----------------
     spread_cost = structure.quote_spread_pct * structure.entry_cost
@@ -237,8 +319,10 @@ def size(
         )
 
     # -- Gate 2: the MDM power check ------------------------------------------
-    p_model = model_probability_beyond(structure.breakeven_move, predicted_move, predicted_sd)
-    p_implied = implied_probability_beyond(structure.breakeven_move, structure.implied_move)
+    p_model = model_probability_beyond(structure.breakeven_move, predicted_move,
+                                       predicted_sd, structure.direction)
+    p_implied = implied_probability_beyond(structure.breakeven_move, structure.implied_move,
+                                           structure.direction)
     edge = p_model - p_implied
 
     if edge <= 0.0:
@@ -265,17 +349,19 @@ def size(
     # Base risk scales with the probability edge, capped. An edge of 20pp is a
     # strong disagreement with a liquid market and is already near the ceiling;
     # anything larger usually means our forecast is wrong, not that the market is.
-    base = BASE_RISK_PER_THESIS * min(edge / 0.10, 2.0) * max(0.0, min(conviction, 1.5))
+    base = (env["per_thesis"]
+            * min(edge / 0.10, env["edge_scale_cap"])
+            * max(0.0, min(conviction, 1.5)))
 
     multiplier, phase_note = _tournament_multiplier(state)
     risk = base * multiplier
 
-    headroom = MAX_AGGREGATE_CONVEX_RISK - open_convex_risk
+    headroom = env["aggregate"] - open_convex_risk
     if headroom <= 0:
         return SizingVerdict(
             False, 0.0, edge,
             f"aggregate convex risk is already {open_convex_risk:.0%} of equity "
-            f"(ceiling {MAX_AGGREGATE_CONVEX_RISK:.0%}). Refused so the agent is still "
+            f"(ceiling {env['aggregate']:.0%}). Refused so the agent is still "
             "solvent for the catalysts that have not happened yet.",
         )
     risk = min(risk, headroom)

@@ -58,7 +58,11 @@ check("behind+late sizes UP", behind.risk_fraction > edge.risk_fraction,
       f"{edge.risk_fraction:.2%} -> {behind.risk_fraction:.2%}")
 check("ahead+late sizes DOWN", ahead.risk_fraction < edge.risk_fraction,
       f"{edge.risk_fraction:.2%} -> {ahead.risk_fraction:.2%}")
-check("aggregate cap binds", not size(s,0.06,0.05,st_early,open_convex_risk=0.35).approved)
+from alpha.engine.sizing import profile as riskprofile
+cap = riskprofile()["aggregate"]
+check("aggregate cap binds", not size(s,0.06,0.05,st_early,open_convex_risk=cap).approved, f"cap={cap:.0%}")
+check("profiles escalate", riskprofile("maximum")["per_thesis"] > riskprofile("aggressive")["per_thesis"] > riskprofile("conservative")["per_thesis"])
+check("maximum still bounded", all(p["aggregate"] <= 1.0 for p in __import__("alpha.engine.sizing",fromlist=["x"]).PROFILES.values()))
 try:
     Structure("X","naked_put",entry_cost=1.0,max_loss=0.0,breakeven_move=0.01,
               implied_move=0.05,quote_spread_pct=0.05,days_to_expiry=1)
