@@ -81,6 +81,18 @@ class NarrativeShock:
     llm: dict[str, Any]
     """model, prompt_hash, tokens, cost_usd, latency_s -- so spend is attributed."""
     notes: str = ""
+    theme: str = "none"
+    """An `alpha.narrative.exposure` theme, or "none". The LLM classifies; the
+    graph (written before the outcome) says which OTHER names are exposed."""
+
+    @property
+    def exposure_siblings(self) -> list[dict[str, Any]]:
+        from alpha.narrative import exposure
+
+        if self.theme == "none":
+            return []
+        return [{"symbol": e.symbol, "sign": e.sign, "uncertainty": e.uncertainty, "why": e.why}
+                for e in exposure.exposures(self.theme) if e.symbol != self.symbol]
 
     @property
     def belief_gap(self) -> dict[str, Any]:
@@ -108,6 +120,7 @@ class NarrativeShock:
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["belief_gap"] = self.belief_gap
+        d["exposure_siblings"] = self.exposure_siblings
         return d
 
 

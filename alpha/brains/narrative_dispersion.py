@@ -32,7 +32,7 @@ from typing import Any
 from alpha.brains.base import Forecast
 from alpha.brains.vol_gap import _daily_bars, _ewma_sd
 from alpha.narrative import extract, schema
-from alpha.sources import attention
+from alpha.sources import attention, belief
 from alpha.sources.http import SourceRefusal
 
 DIRECTION_DAMPING = 0.25
@@ -97,6 +97,13 @@ def forecast(client, symbol: str, horizon_days: float, *, shocks: list[schema.Na
     elif gap["case"] == "false_believed_fully_priced":
         centre = -lead_shock.axes["expected_direction"] * lead_shock.axes["expected_move"] * DIRECTION_DAMPING * 0.5
 
+    # The crowd's belief as a PRICE, beside the LLM's estimate. Not merged: when
+    # they disagree the disagreement is the finding.
+    try:
+        markets = belief.polymarket_search(symbol, limit=5)[:5]
+    except SourceRefusal:
+        markets = []
+
     a = lead_shock.axes
     conviction = max(0.3, min(1.0, 0.4 + 0.3 * a["source_credibility"] + 0.3 * (1 - a["habituation"])))
     refuse_note = " REFUSE-CASE: chain likely already priced it." if gap["case"] == "true_believed_priced" else ""
@@ -112,6 +119,8 @@ def forecast(client, symbol: str, horizon_days: float, *, shocks: list[schema.Na
         signal_shape="tail",
         evidence={
             "shocks": [s.to_dict() for s in shocks], "attention": att, "daily_sd": daily_sd,
+            "prediction_markets": markets, "theme": lead_shock.theme,
+            "exposure_siblings": lead_shock.exposure_siblings,
             "widen": widen, "belief_gap": gap, "n_items": len(items), "last_close": closes[-1],
             "llm_cost_usd": round(sum(s.llm.get("cost_usd", 0.0) for s in shocks), 6),
         },

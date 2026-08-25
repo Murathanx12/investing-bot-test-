@@ -32,11 +32,16 @@ CBOE = "https://cdn.cboe.com"
 def polymarket_search(q: str, *, limit: int = 20) -> list[dict[str, Any]]:
     """Open markets matching a phrase, with outcome prices."""
     data, _ = get_json(f"{GAMMA}/public-search", {"q": q, "limit_per_type": limit})
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     out = []
     for ev in (data or {}).get("events") or []:
         for m in ev.get("markets") or []:
-            out.append(_pm_row(m, ev.get("title")))
-    return [r for r in out if r]
+            row = _pm_row(m, ev.get("title"))
+            # Resolved markets price at 0/1 and read as certainty about the
+            # past; only OPEN markets with a future end date are belief.
+            if row and not row["closed"] and (row["end_date"] or "9999") >= today:
+                out.append(row)
+    return sorted(out, key=lambda r: (r["end_date"] or "9999", -r["volume_24h"]))
 
 
 def polymarket_top(*, limit: int = 100) -> list[dict[str, Any]]:

@@ -21,7 +21,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
-from alpha.narrative import schema
+from alpha.narrative import exposure, schema
 from alpha.sources.http import SourceRefusal, post_json
 
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
@@ -95,6 +95,7 @@ def extract(symbol: str, headline: str, body: str, sources: list[dict[str, Any]]
         affected_entities=[str(x).upper() for x in (raw.get("affected_entities") or [])][:12],
         affected_sectors=[str(x) for x in (raw.get("affected_sectors") or [])][:8],
         event_type=str(raw.get("event_type", "other")),
+        theme=str(raw.get("theme") or "none") if str(raw.get("theme") or "none") in exposure.THEMES else "none",
         llm={"model": MODEL, "prompt_hash": schema.prompt_hash(SYSTEM + prompt),
              "prompt_tokens": usage.get("prompt_tokens"), "completion_tokens": usage.get("completion_tokens"),
              "cost_usd": round(cost, 6), "latency_s": round(dt, 2)},
