@@ -1,0 +1,3281 @@
+{
+ "symbol": "NVDA",
+ "as_of_utc": "2026-08-25T12:53:38.404341+00:00",
+ "expiry": "2026-08-28",
+ "what_happened": [
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T12:30:24Z",
+   "headline": "This Chip Stock Could Overtake Intel by 2027\u2014Wall Street Sees 40% Upside as AI Agents Reshape the CPU Market",
+   "url": "https://www.benzinga.com/markets/tech/26/08/61405744/this-chip-stock-could-overtake-intel-by-2027-wall-street-sees-40-upside-as-ai-agents-reshape-the-cpu-market"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T12:10:02Z",
+   "headline": "Nvidia Earnings Could Trigger a Chilling Reality Check For $1 Trillion AI Boom, Says Analyst: 'Biggest Thing I Am Watching...' (UPDATED)",
+   "url": "https://www.benzinga.com/markets/tech/26/08/61401219/top-analyst-says-nvidia-earnings-could-reveal-if-ai-infrastructure-boom-has-finally-peaked-the-biggest-thing-i-am-watching"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T12:09:35Z",
+   "headline": "Cisco Partners With With Super Micro Computer To Expand Its Secure AI Factory With Nvidia",
+   "url": "https://www.benzinga.com/news/26/08/61405234/cisco-partners-super-micro-computer-expand-its-secure-ai-factory-nvidia"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T11:37:25Z",
+   "headline": "Nvidia To Rally More Than 8%? Here Are 10 Top Analyst Forecasts For Tuesday",
+   "url": "https://www.benzinga.com/news/26/08/61404324/nvidia-to-rally-more-than-8-here-are-10-top-analyst-forecasts-for-tuesday"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T10:39:18Z",
+   "headline": "NVIDIA May Raise Its Already Staggering AI Growth Outlook",
+   "url": "https://www.benzinga.com/analyst-stock-ratings/analyst-color/26/08/61402943/nvidia-may-raise-its-already-staggering-ai-growth-outlook"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T10:03:54Z",
+   "headline": "Raymond James Maintains Strong Buy on NVIDIA, Raises Price Target to $352",
+   "url": "https://www.benzinga.com/news/26/08/61402239/raymond-james-maintains-strong-buy-nvidia-raises-price-target-352"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T09:58:25Z",
+   "headline": "Performance Comparison: NVIDIA And Competitors In Semiconductors &amp; Semiconductor Equipment Industry",
+   "url": "https://www.benzinga.com/news/26/08/61402010/performance-comparison-nvidia-and-competitors-semiconductors-amp-semiconductor-equipment-industry"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T09:56:43Z",
+   "headline": "Bitcoin Beats Nvidia to Become Top-Performing Major Asset Over 10 Years as BTC Surges Above $80,000",
+   "url": "https://www.benzinga.com/crypto/cryptocurrency/26/08/61401997/bitcoin-nvidia-10-year-returns"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T09:15:26Z",
+   "headline": "Nvidia Manager Named \u2018Key Figure\u2019 in Alleged B300 GPU Smuggling to China, 8 Others Indicted in Taiwan Probe",
+   "url": "https://www.benzinga.com/markets/tech/26/08/61401674/nvidia-manager-named-key-figure-in-alleged-b300-gpu-smuggling-to-china-8-others-indicted-in-taiwan-probe"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T07:06:32Z",
+   "headline": "Elon Musk Reveals Why SpaceX Launched Tesla\u2019s Roadster Into Orbit: \u2018We Didn\u2019t Want to Risk Anything Valuable\u2019",
+   "url": "https://www.benzinga.com/markets/tech/26/08/61400750/elon-musk-reveals-why-spacex-launched-teslas-roadster-into-orbit-we-didnt-want-to-risk-anything-valuable"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T06:10:55Z",
+   "headline": "Stock Market: Will S&P 500 Open Up or Down Today?",
+   "url": "https://www.benzinga.com/markets/prediction-markets/26/08/61400464/stock-market-will-sp-500-open-up-or-down-today-23"
+  },
+  {
+   "source": "benzinga",
+   "created_at": "2026-08-25T04:24:33Z",
+   "headline": "Elon Musk Says SpaceX Targeting Q4 2027 Launch for Nvidia-Powered AI System\u2014Touts \u2018Lower Cost, Denser and Lighter\u2019 Design",
+   "url": "https://www.benzinga.com/markets/tech/26/08/61400018/elon-musk-says-spacex-targeting-q4-2027-launch-for-nvidia-powered-ai-system-touts-lower-cost-denser-and-lighter-design"
+  }
+ ],
+ "what_the_llm_read": {
+  "headline": "This Chip Stock Could Overtake Intel by 2027\u2014Wall Street Sees 40% Upside as AI Agents Reshape the CPU Market",
+  "summary": "Raymond James upgrades AMD, predicting it will overtake Intel by 2027, a story that may indirectly affect NVDA sentiment but is not directly about NVDA.",
+  "event_type": "other",
+  "axes": {
+   "truth_probability": 0.7,
+   "source_credibility": 0.6,
+   "novelty": 0.4,
+   "salience": 0.7,
+   "arousal": 0.5,
+   "repetition": 0.3,
+   "habituation": 0.4,
+   "social_proof": 0.5,
+   "disagreement": 0.3,
+   "surprise": 0.4,
+   "sentiment": 0.2,
+   "sentiment_dispersion": 0.3,
+   "cross_platform_disagreement": 0.2,
+   "market_belief": 0.6,
+   "market_impact_probability": 0.4,
+   "expected_direction": 0.2,
+   "expected_move": 0.03,
+   "expected_half_life_days": 2.0,
+   "already_priced_fraction": 0.3
+  },
+  "belief_gap": {
+   "case": "indeterminate",
+   "reading": "no clean gap; contributes uncertainty only",
+   "truth": 0.7,
+   "belief": 0.6,
+   "priced": 0.3
+  },
+  "llm": {
+   "model": "deepseek-chat",
+   "prompt_hash": "8b9cab17988a",
+   "prompt_tokens": 1338,
+   "completion_tokens": 295,
+   "cost_usd": 0.000686,
+   "latency_s": 1.94
+  }
+ },
+ "what_the_crowd_believes": {
+  "polymarket": [
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) Q2 adjusted gross margin (non-GAAP)?",
+    "question": "NVIDIA (NVDA) Q2 adjusted gross margin <72%?",
+    "slug": "nvidia-nvda-q2-adjusted-gross-margin-72-20260803225818671",
+    "belief": {
+     "Yes": 0.0205,
+     "No": 0.9795
+    },
+    "volume_24h": 15.0,
+    "liquidity": 577.33995,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) Q2 adjusted gross margin (non-GAAP)?",
+    "question": "NVIDIA (NVDA) Q2 adjusted gross margin 72%-74%?",
+    "slug": "nvidia-nvda-q2-adjusted-gross-margin-72-74-20260803225818672",
+    "belief": {
+     "Yes": 0.038,
+     "No": 0.962
+    },
+    "volume_24h": 18.19,
+    "liquidity": 133.45742,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) Q2 adjusted gross margin (non-GAAP)?",
+    "question": "NVIDIA (NVDA) Q2 adjusted gross margin 74%-76%?",
+    "slug": "nvidia-nvda-q2-adjusted-gross-margin-74-76-20260803225818673",
+    "belief": {
+     "Yes": 0.93,
+     "No": 0.07
+    },
+    "volume_24h": 1885.99,
+    "liquidity": 2166.6031,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) Q2 adjusted gross margin (non-GAAP)?",
+    "question": "NVIDIA (NVDA) Q2 adjusted gross margin 76%-78%?",
+    "slug": "nvidia-nvda-q2-adjusted-gross-margin-76-78-20260803225818674",
+    "belief": {
+     "Yes": 0.031,
+     "No": 0.969
+    },
+    "volume_24h": 33.04,
+    "liquidity": 168.22623,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) Q2 adjusted gross margin (non-GAAP)?",
+    "question": "NVIDIA (NVDA) Q2 adjusted gross margin 78%+?",
+    "slug": "nvidia-nvda-q2-adjusted-gross-margin-78-20260803225818675",
+    "belief": {
+     "Yes": 0.0145,
+     "No": 0.9855
+    },
+    "volume_24h": 15.0,
+    "liquidity": 194.78382,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) Q2 Data Center Revenue be above __?",
+    "question": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $80B?",
+    "slug": "will-nvidia-nvda-q2-data-center-revenue-be-above-80b-20260803225408745",
+    "belief": {
+     "Yes": 0.9425,
+     "No": 0.0575
+    },
+    "volume_24h": 91.09,
+    "liquidity": 235.1085,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) Q2 Data Center Revenue be above __?",
+    "question": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $85B?",
+    "slug": "will-nvidia-nvda-q2-data-center-revenue-be-above-85b-20260803225408746",
+    "belief": {
+     "Yes": 0.785,
+     "No": 0.215
+    },
+    "volume_24h": 0.0,
+    "liquidity": 131.2902,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) Q2 Data Center Revenue be above __?",
+    "question": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $90B?",
+    "slug": "will-nvidia-nvda-q2-data-center-revenue-be-above-90b-20260803225408747",
+    "belief": {
+     "Yes": 0.225,
+     "No": 0.775
+    },
+    "volume_24h": 0.0,
+    "liquidity": 41.5679,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) Q2 Data Center Revenue be above __?",
+    "question": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $95B?",
+    "slug": "will-nvidia-nvda-q2-data-center-revenue-be-above-95b-20260803225408748",
+    "belief": {
+     "Yes": 0.055,
+     "No": 0.945
+    },
+    "volume_24h": 0.0,
+    "liquidity": 193.3932,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) Q2 Data Center Revenue be above __?",
+    "question": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $100B?",
+    "slug": "will-nvidia-nvda-q2-data-center-revenue-be-above-100b-20260803225408749",
+    "belief": {
+     "Yes": 0.0675,
+     "No": 0.9325
+    },
+    "volume_24h": 0.0,
+    "liquidity": 119.92231,
+    "end_date": "2026-08-26T21:00:00Z",
+    "closed": false
+   },
+   {
+    "source": "polymarket",
+    "event": "Will Google or NVIDIA be worth more on March 1?",
+    "question": "Will Google or NVIDIA be worth more on March 1?",
+    "slug": "will-google-or-nvidia-be-worth-more-on-march-1",
+    "belief": {
+     "Google": 0.0,
+     "NVIDIA": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2024-03-01T00:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $155?",
+    "slug": "nvda-above-155-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $160?",
+    "slug": "nvda-above-160-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $165?",
+    "slug": "nvda-above-165-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $170?",
+    "slug": "nvda-above-170-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $175?",
+    "slug": "nvda-above-175-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $180?",
+    "slug": "nvda-above-180-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $185?",
+    "slug": "nvda-above-185-on-january-23-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $190?",
+    "slug": "nvda-above-190-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $195?",
+    "slug": "nvda-above-195-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $200?",
+    "slug": "nvda-above-200-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $205?",
+    "slug": "nvda-above-205-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $210?",
+    "slug": "nvda-above-210-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 19 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 19 above $215?",
+    "slug": "nvda-above-215-on-january-23-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-23T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $130 end of February?",
+    "slug": "nvda-above-130-on-february-27-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $140 end of February?",
+    "slug": "nvda-above-140-on-february-27-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $150 end of February?",
+    "slug": "nvda-above-150-on-february-27-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $160 end of February?",
+    "slug": "nvda-above-160-on-february-27-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $170 end of February?",
+    "slug": "nvda-above-170-on-february-27-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $180 end of February?",
+    "slug": "nvda-above-180-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $190 end of February?",
+    "slug": "nvda-above-190-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $200 end of February?",
+    "slug": "nvda-above-200-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $210 end of February?",
+    "slug": "nvda-above-210-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $220 end of February?",
+    "slug": "nvda-above-220-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $230 end of February?",
+    "slug": "nvda-above-230-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $240 end of February?",
+    "slug": "nvda-above-240-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of February?",
+    "question": "Will NVIDIA (NVDA) close above $250 end of February?",
+    "slug": "nvda-above-250-on-february-27-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-27T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $130 end of January?",
+    "slug": "nvda-above-130-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $140 end of January?",
+    "slug": "nvda-above-140-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $150 end of January?",
+    "slug": "nvda-above-150-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $160 end of January?",
+    "slug": "nvda-above-160-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $170 end of January?",
+    "slug": "nvda-above-170-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $180 end of January?",
+    "slug": "nvda-above-180-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $190 end of January?",
+    "slug": "nvda-above-190-on-january-30-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $200 end of January?",
+    "slug": "nvda-above-200-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $210 end of January?",
+    "slug": "nvda-above-210-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $220 end of January?",
+    "slug": "nvda-above-220-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $230 end of January?",
+    "slug": "nvda-above-230-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $240 end of January?",
+    "slug": "nvda-above-240-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) close above ___ end of January?",
+    "question": "Will NVIDIA (NVDA) close above $250 end of January?",
+    "slug": "nvda-above-250-on-january-30-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-30T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA largest company before June 15?",
+    "question": "NVIDIA largest company before June 15?",
+    "slug": "nvidia-largest-company-by-june-30",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2024-06-14T12:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $272 in February?",
+    "slug": "will-nvda-reach-272-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $252 in February?",
+    "slug": "will-nvda-reach-252-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $236 in February?",
+    "slug": "will-nvda-reach-236-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $220 in February?",
+    "slug": "will-nvda-reach-220-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $208 in February?",
+    "slug": "will-nvda-reach-208-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $200 in February?",
+    "slug": "will-nvda-reach-200-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA reach $192 in February?",
+    "slug": "will-nvda-reach-192-in-february",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $184 in February?",
+    "slug": "will-nvda-dip-to-184-in-february",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $176 in February?",
+    "slug": "will-nvda-dip-to-176-in-february",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $168 in February?",
+    "slug": "will-nvda-dip-to-168-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $156 in February?",
+    "slug": "will-nvda-dip-to-156-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $144 in February?",
+    "slug": "will-nvda-dip-to-144-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $128 in February?",
+    "slug": "will-nvda-dip-to-128-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in February 2026?",
+    "question": "Will NVIDIA dip to $108 in February?",
+    "slug": "will-nvda-dip-to-108-in-february",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-03-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "DeepSeek confirmed to have used banned Nvidia chips?",
+    "question": "DeepSeek confirmed to have used banned Nvidia chips?",
+    "slug": "deepseek-confirmed-to-have-used-banned-nvidia-chips",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-02-28T12:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $165?",
+    "slug": "nvda-above-165-on-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $170?",
+    "slug": "nvda-above-170-on-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $175?",
+    "slug": "nvda-above-175-on-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $180?",
+    "slug": "nvda-above-180-on-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $185?",
+    "slug": "nvda-above-185-on-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $190?",
+    "slug": "nvda-above-190-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $195?",
+    "slug": "nvda-above-195-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $200?",
+    "slug": "nvda-above-200-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $205?",
+    "slug": "nvda-above-205-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $210?",
+    "slug": "nvda-above-210-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $215?",
+    "slug": "nvda-above-215-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $220?",
+    "slug": "nvda-above-220-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of February 2 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of February 2 above $225?",
+    "slug": "nvda-above-225-on-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $272 in January?",
+    "slug": "will-nvda-reach-272-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $252 in January?",
+    "slug": "will-nvda-reach-252-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $236 in January?",
+    "slug": "will-nvda-reach-236-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $220 in January?",
+    "slug": "will-nvda-reach-220-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $208 in January?",
+    "slug": "will-nvda-reach-208-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $200 in January?",
+    "slug": "will-nvda-reach-200-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA reach $192 in January?",
+    "slug": "will-nvda-reach-192-in-january",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $184 in January?",
+    "slug": "will-nvda-dip-to-184-in-january",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $176 in January?",
+    "slug": "will-nvda-dip-to-176-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $168 in January?",
+    "slug": "will-nvda-dip-to-168-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $156 in January?",
+    "slug": "will-nvda-dip-to-156-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $144 in January?",
+    "slug": "will-nvda-dip-to-144-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $128 in January?",
+    "slug": "will-nvda-dip-to-128-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "What will NVIDIA (NVDA) hit in January 2026?",
+    "question": "Will NVIDIA dip to $108 in January?",
+    "slug": "will-nvda-dip-to-108-in-january",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-01T04:59:59.999Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) beat quarterly earnings?",
+    "question": "Will NVIDIA (NVDA) beat quarterly earnings?",
+    "slug": "nvda-quarterly-earnings-nongaap-eps-05-20-2026-1pt77",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-05-20T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at <$165 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-below-165-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $165-$170 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-165-and-170-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $170-$175 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-170-and-175-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $175-$180 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-175-and-180-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $180-$185 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-180-and-185-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $185-$190 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-185-and-190-week-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $190-$195 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-190-and-195-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $195-$200 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-195-and-200-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $200-$205 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-200-and-205-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $205-$210 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-between-205-and-210-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 12 at ___?",
+    "question": "Will NVIDIA (NVDA) close at >$210 on the final day of trading of the week of Jan 12 \u2013 Jan 16?",
+    "slug": "will-nvda-close-above-210-week-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at <$150 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-below-150-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $150-$155 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-150-and-155-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $155-$160 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-155-and-160-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $160-$165 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-160-and-165-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $165-$170 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-165-and-170-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $170-$175 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-170-and-175-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $175-$180 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-175-and-180-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $180-$185 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-180-and-185-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $185-$190 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-185-and-190-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $190-$195 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-between-190-and-195-week-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Dec 22 at ___?",
+    "question": "Will NVIDIA (NVDA) close at >$195 on the final day of trading of the week of Dec 22 \u2013 Dec 26?",
+    "slug": "will-nvda-close-above-195-week-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at <$165 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-below-165-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $165-$170 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-165-and-170-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $170-$175 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-170-and-175-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $175-$180 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-175-and-180-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $180-$185 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-180-and-185-week-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $185-$190 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-185-and-190-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $190-$195 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-190-and-195-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $195-$200 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-195-and-200-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $200-$205 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-200-and-205-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $205-$210 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-between-205-and-210-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Jan 5 at ___?",
+    "question": "Will NVIDIA (NVDA) close at >$210 on the final day of trading of the week of Jan 5 \u2013 Jan 9?",
+    "slug": "will-nvda-close-above-210-week-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $155?",
+    "slug": "nvda-above-155-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $160?",
+    "slug": "nvda-above-160-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $165?",
+    "slug": "nvda-above-165-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $170?",
+    "slug": "nvda-above-170-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $175?",
+    "slug": "nvda-above-175-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $180?",
+    "slug": "nvda-above-180-on-january-9-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $185?",
+    "slug": "nvda-above-185-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $190?",
+    "slug": "nvda-above-190-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $195?",
+    "slug": "nvda-above-195-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $200?",
+    "slug": "nvda-above-200-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $205?",
+    "slug": "nvda-above-205-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $210?",
+    "slug": "nvda-above-210-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 5 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 5 above $215?",
+    "slug": "nvda-above-215-on-january-9-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-09T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $145?",
+    "slug": "nvda-above-145-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $150?",
+    "slug": "nvda-above-150-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $155?",
+    "slug": "nvda-above-155-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $160?",
+    "slug": "nvda-above-160-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $165?",
+    "slug": "nvda-above-165-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $170?",
+    "slug": "nvda-above-170-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $175?",
+    "slug": "nvda-above-175-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $180?",
+    "slug": "nvda-above-180-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $185?",
+    "slug": "nvda-above-185-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $190?",
+    "slug": "nvda-above-190-on-december-26-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $195?",
+    "slug": "nvda-above-195-on-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $200?",
+    "slug": "nvda-above-200-on-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 22 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 22 above $205?",
+    "slug": "nvda-above-205-on-december-26-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-26T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at <$170 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-below-170-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $170-$175 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-170-and-175-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $175-$180 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-175-and-180-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $180-$185 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-180-and-185-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $185-$190 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-185-and-190-week-february-6-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $190-$195 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-190-and-195-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $195-$200 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-195-and-200-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $200-$205 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-200-and-205-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $205-$210 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-205-and-210-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at $210-$215 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-between-210-and-215-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "NVIDIA (NVDA) closes week of Feb 2 at ___?",
+    "question": "Will NVIDIA (NVDA) close at >$215 on the final day of trading of the week of Feb 2 \u2013 Feb 6?",
+    "slug": "will-nvda-close-above-215-week-february-6-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-02-06T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $155?",
+    "slug": "nvda-above-155-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $160?",
+    "slug": "nvda-above-160-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $165?",
+    "slug": "nvda-above-165-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $170?",
+    "slug": "nvda-above-170-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $175?",
+    "slug": "nvda-above-175-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $180?",
+    "slug": "nvda-above-180-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $185?",
+    "slug": "nvda-above-185-on-january-16-2026",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $190?",
+    "slug": "nvda-above-190-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $195?",
+    "slug": "nvda-above-195-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $200?",
+    "slug": "nvda-above-200-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $205?",
+    "slug": "nvda-above-205-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $210?",
+    "slug": "nvda-above-210-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of January 12 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of January 12 above $215?",
+    "slug": "nvda-above-215-on-january-16-2026",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2026-01-16T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $155?",
+    "slug": "nvda-above-155-on-december-12-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $160?",
+    "slug": "nvda-above-160-on-december-12-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $165?",
+    "slug": "nvda-above-165-on-december-12-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $170?",
+    "slug": "nvda-above-170-on-december-12-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $175?",
+    "slug": "nvda-above-175-on-december-12-2025",
+    "belief": {
+     "Yes": 1.0,
+     "No": 0.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $180?",
+    "slug": "nvda-above-180-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $185?",
+    "slug": "nvda-above-185-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $190?",
+    "slug": "nvda-above-190-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $195?",
+    "slug": "nvda-above-195-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $200?",
+    "slug": "nvda-above-200-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $205?",
+    "slug": "nvda-above-205-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $210?",
+    "slug": "nvda-above-210-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   },
+   {
+    "source": "polymarket",
+    "event": "Will NVIDIA (NVDA) finish week of December 8 above___?",
+    "question": "Will NVIDIA (NVDA) finish week of December 8 above $215?",
+    "slug": "nvda-above-215-on-december-12-2025",
+    "belief": {
+     "Yes": 0.0,
+     "No": 1.0
+    },
+    "volume_24h": 0.0,
+    "liquidity": 0.0,
+    "end_date": "2025-12-12T21:00:00Z",
+    "closed": true
+   }
+  ],
+  "vix_term_structure": {
+   "source": "cboe",
+   "VIX9D": {
+    "date": "08/24/2026",
+    "close": 14.07
+   },
+   "VIX": {
+    "date": "08/24/2026",
+    "close": 15.85
+   },
+   "VIX3M": {
+    "date": "08/24/2026",
+    "close": 18.56
+   },
+   "slope_9d_over_3m": 0.7580818965517242,
+   "regime": "contango"
+  },
+  "cboe_put_call": {
+   "source": "cboe",
+   "date": "2026-08-24",
+   "ratios": {
+    "TOTAL PUT/CALL RATIO": 0.91,
+    "INDEX PUT/CALL RATIO": 1.0,
+    "EXCHANGE TRADED PRODUCTS PUT/CALL RATIO": 1.12,
+    "EQUITY PUT/CALL RATIO": 0.68,
+    "CBOE VOLATILITY INDEX (VIX) PUT/CALL RATIO": 0.27,
+    "SPX + SPXW PUT/CALL RATIO": 1.14,
+    "OEX PUT/CALL RATIO": 1.0,
+    "MRUT PUT/CALL RATIO": 5.53,
+    "MXEA PUT/CALL RATIO": 0.0,
+    "MXEF PUT/CALL RATIO": 0.0,
+    "MXACW PUT/CALL RATIO": 0.0,
+    "MXWLD PUT/CALL RATIO": 0.0,
+    "MXUSA PUT/CALL RATIO": 0.0,
+    "CBTX PUT/CALL RATIO": 7.86,
+    "MBTX PUT/CALL RATIO": 1.64,
+    "SPEQX PUT/CALL RATIO": 0.0,
+    "SPEQW PUT/CALL RATIO": 0.0,
+    "MGTN PUT/CALL RATIO": 8.29,
+    "MGTNW PUT/CALL RATIO": 0.84,
+    "DJX PUT/CALL RATIO": 15.33,
+    "DJXW PUT/CALL RATIO": 0.77,
+    "XSPBX PUT/CALL RATIO": 0.0,
+    "XSPBW PUT/CALL RATIO": 0.75
+   }
+  }
+ },
+ "attention": {
+  "wikipedia": {
+   "source": "wikipedia_pageviews",
+   "symbol": "NVDA",
+   "latest_day": "20260824",
+   "latest_views": 9129,
+   "trailing_median": 6122.5,
+   "velocity": 1.4910575745202124,
+   "acceleration": 0.5801551653736219,
+   "z": 1.5471937909964517,
+   "n_days": 31,
+   "lag_note": "daily aggregate, ~1 day late"
+  },
+  "hacker_news": {
+   "source": "hn_algolia",
+   "query": "nvidia",
+   "hours": 48,
+   "stories": 26,
+   "comments": 33,
+   "points": 161,
+   "top": [
+    {
+     "title": "Some of Russia's A.I. Drones Are Powered by Nvidia",
+     "points": 18,
+     "url": "https://www.nytimes.com/2026/08/24/world/europe/ukraine-war-nvidia-ai-autonomous-drones.html"
+    },
+    {
+     "title": "Show HN: I built a lite LPU that can do inference on Karpathy's MicroGPT",
+     "points": 16,
+     "url": "https://www.lpulite.com"
+    },
+    {
+     "title": "Nvidia Groq 3 LPX Unlocks Ultrafast Interactivity at Long Context",
+     "points": 14,
+     "url": "https://developer.nvidia.com/blog/how-nvidia-groq-3-lpx-unlocks-ultrafast-interactivity-at-long-context-on-nvidia-vera-rubin/"
+    },
+    {
+     "title": "Nvidia customers notified about AI-related price hikes above 15%",
+     "points": 13,
+     "url": "https://www.reuters.com/business/nvidia-customers-notified-about-ai-related-price-hikes-above-15-bloomberg-news-2026-08-22/"
+    },
+    {
+     "title": "What Nvidia's first Groq 3 LPU benchmarks tell us about its $20B gamble",
+     "points": 10,
+     "url": "https://www.theregister.com/systems/2026/08/24/what-nvidias-first-groq-3-lpu-benchmarks-do-and-dont-tell-us-about-its-20b-gamble/5291880"
+    }
+   ]
+  },
+  "option_volume": {
+   "source": "alpaca_option_bars",
+   "symbol": "NVDA",
+   "latest_day": "2026-08-24",
+   "n_days": 22,
+   "contracts": 162,
+   "contracts_seasoned": 56,
+   "latest_volume": 488743.0,
+   "trailing_median_volume": 65121.0,
+   "volume_ratio": 7.505151947912347,
+   "trade_ratio": 6.998011209546195,
+   "call_share": 0.6863996006080906,
+   "near_term_share": 1.0,
+   "otm_share": 0.6899065562064316,
+   "note": "unsigned volume: attention, not informed direction",
+   "daily_sd": 0.02172986171857542,
+   "widen": 1.3628061479988345,
+   "last_close": 208.47
+  }
+ },
+ "forecasts": [
+  {
+   "brain": "vol_gap",
+   "centre": -0.006907464172650678,
+   "sd": 0.037637224538018585,
+   "conviction": 0.6118871130529153,
+   "rationale": "EWMA realised vol 34.5% annualised (2.17%/day, half-life 10d) implies a 3.76% move over 3.0 days. Trailing 5-day drift -7.67%, damped to a -0.69% tilt because momentum is a cross-sectional tail signal, not a single-name point forecast."
+  },
+  {
+   "brain": "event_move",
+   "centre": 0.0,
+   "sd": 0.11341302805442331,
+   "conviction": 0.9992742402549777,
+   "rationale": "NVDA prints 2026-08-26 amc. Last 12 prints moved mean 8.7% / median 7.5% close-to-close (event days inferred). Event sd 10.9% + 2 ordinary days at 2.16%/day = 11.3% over 3.0d. Centre 0: a print is not a direction."
+  },
+  {
+   "brain": "options_attention",
+   "centre": 0.0,
+   "sd": 0.05129224099402432,
+   "conviction": 0.8031179422209274,
+   "rationale": "option volume 488743 vs trailing median 65121 (7.51x); calls 69%, near-term 100%, OTM 69%. Attention widens sigma x1.36; no direction claimed."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "centre": 0.0,
+   "sd": 0.04636736121458308,
+   "conviction": 0.76,
+   "rationale": "'This Chip Stock Could Overtake Intel by 2027\u2014Wall Street Sees 40% Upside as AI Agents Resh' -- truth 0.70, belief 0.60, impact 0.40, priced 0.30 => indeterminate: no clean gap; contributes uncertainty only. impact 0.28 x disagreement 0.28 x truth-uncertainty 0.60 + attention log-velocity 0.40 -> sigma x1.23."
+  }
+ ],
+ "declined": [],
+ "chain_expectation": {
+  "spot": 211.28,
+  "spot_source": "trade",
+  "feed": "indicative",
+  "implied_move": 0.0535876561908368,
+  "parity_gap": {
+   "strike": 212.5,
+   "implied_spot": 208.4455,
+   "spot": 211.28,
+   "gap": -0.01342
+  },
+  "median_quote_age_s": 60818.64792,
+  "contracts": 162,
+  "liquid_contracts": 62
+ },
+ "chosen": [
+  {
+   "decision_id": "20260825T1104:vol_gap:NVDA",
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "dry_run",
+   "risk_fraction": 0.11952107915490987,
+   "max_loss_usd": 11544.000000000002,
+   "mdm_edge": 0.2441648888439938,
+   "implied_move": 0.05115004557010601,
+   "breakeven_move": 0.0495035256871492
+  },
+  {
+   "decision_id": "20260825T1105:vol_gap:NVDA",
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "dry_run",
+   "risk_fraction": 0.02753492008738119,
+   "max_loss_usd": 2664.0000000000005,
+   "mdm_edge": 0.2441648888439938,
+   "implied_move": 0.05115004557010601,
+   "breakeven_move": 0.0495035256871492
+  },
+  {
+   "decision_id": "20260825T1106:vol_gap:NVDA",
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "dry_run",
+   "risk_fraction": 0.11952107915490987,
+   "max_loss_usd": 11544.000000000002,
+   "mdm_edge": 0.2441648888439938,
+   "implied_move": 0.05115004557010601,
+   "breakeven_move": 0.0495035256871492
+  },
+  {
+   "decision_id": "20260825T1106:vol_gap:NVDA",
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "dry_run",
+   "risk_fraction": 0.224102023415456,
+   "max_loss_usd": 22200.000000000004,
+   "mdm_edge": 0.2441648888439938,
+   "implied_move": 0.05115004557010601,
+   "breakeven_move": 0.0495035256871492
+  },
+  {
+   "decision_id": "20260825T1215:vol_gap:NVDA",
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "dry_run",
+   "risk_fraction": 0.11952107915490987,
+   "max_loss_usd": 11544.000000000002,
+   "mdm_edge": 0.2441648888439938,
+   "implied_move": 0.05115004557010601,
+   "breakeven_move": 0.0495035256871492
+  },
+  {
+   "decision_id": "20260825T1250:event_move:NVDA",
+   "brain": "event_move",
+   "instrument": "long_straddle",
+   "action": "dry_run",
+   "risk_fraction": 0.18532509994907534,
+   "max_loss_usd": 17563.000000000004,
+   "mdm_edge": 0.23182462391628755,
+   "implied_move": 0.0535876561908368,
+   "breakeven_move": 0.06394358197652406
+  }
+ ],
+ "alternatives": [
+  {
+   "brain": "vol_gap",
+   "instrument": "long_call",
+   "action": "refused",
+   "mdm_edge": -0.14034234533598888,
+   "refusal_reason": "minimum detectable move is 5.81%; our forecast puts 4.2% of mass beyond it against the market's 18.2%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "long_put",
+   "action": "refused",
+   "mdm_edge": -0.087871688036813,
+   "refusal_reason": "minimum detectable move is -4.66%; our forecast puts 14.6% of mass beyond it against the market's 23.4%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bull_call_spread",
+   "action": "refused",
+   "mdm_edge": -0.15369674375825637,
+   "refusal_reason": "minimum detectable move is 4.89%; our forecast puts 6.9% of mass beyond it against the market's 22.3%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bear_put_spread",
+   "action": "refused",
+   "mdm_edge": -0.06025620843334889,
+   "refusal_reason": "minimum detectable move is -3.33%; our forecast puts 24.1% of mass beyond it against the market's 30.2%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "long_straddle",
+   "action": "refused",
+   "mdm_edge": -0.23076971728703816,
+   "refusal_reason": "minimum detectable move is 6.08%; our forecast puts 11.2% of mass beyond it against the market's 34.3%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bull_put_spread",
+   "action": "alternative",
+   "mdm_edge": 0.09112875993035896,
+   "refusal_reason": "MDM -4.95%: model 87.1% vs chain 78.0% = +9.1% edge. Early: sizing normally to survive to the known catalysts. Risking 4.5% of equity, max loss bounded."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bear_call_spread",
+   "action": "alternative",
+   "mdm_edge": 0.11123843496952668,
+   "refusal_reason": "MDM 7.27%: model 98.3% vs chain 87.2% = +11.1% edge. Early: sizing normally to survive to the known catalysts. Risking 5.4% of equity, max loss bounded."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "long_call",
+   "action": "refused",
+   "mdm_edge": -0.16808779206900726,
+   "refusal_reason": "minimum detectable move is 4.40%; our forecast puts 8.8% of mass beyond it against the market's 25.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "long_put",
+   "action": "refused",
+   "mdm_edge": -0.10667991576699692,
+   "refusal_reason": "minimum detectable move is -5.93%; our forecast puts 8.2% of mass beyond it against the market's 18.9%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bull_call_spread",
+   "action": "refused",
+   "mdm_edge": -0.16837155819851135,
+   "refusal_reason": "minimum detectable move is 3.50%; our forecast puts 13.3% of mass beyond it against the market's 30.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bear_put_spread",
+   "action": "refused",
+   "mdm_edge": -0.0975068841607582,
+   "refusal_reason": "minimum detectable move is -4.62%; our forecast puts 14.8% of mass beyond it against the market's 24.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "long_straddle",
+   "action": "refused",
+   "mdm_edge": -0.24633846751211358,
+   "refusal_reason": "minimum detectable move is 6.39%; our forecast puts 9.5% of mass beyond it against the market's 34.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bull_put_spread",
+   "action": "alternative",
+   "mdm_edge": 0.10630320756083755,
+   "refusal_reason": "MDM -6.21%: model 92.9% vs chain 82.3% = +10.6% edge. Early: sizing normally to survive to the known catalysts. Risking 5.2% of equity, max loss bounded."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "bear_call_spread",
+   "action": "alternative",
+   "mdm_edge": 0.15091233141824079,
+   "refusal_reason": "MDM 5.84%: model 95.9% vs chain 80.8% = +15.1% edge. Early: sizing normally to survive to the known catalysts. Risking 7.4% of equity, max loss bounded."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "long_call",
+   "action": "alternative",
+   "mdm_edge": 0.0928567532632788,
+   "refusal_reason": "MDM 4.40%: model 34.9% vs chain 25.6% = +9.3% edge. Early: sizing normally to survive to the known catalysts. Risking 7.4% of equity, max loss bounded."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "bull_call_spread",
+   "action": "alternative",
+   "mdm_edge": 0.07762955862991106,
+   "refusal_reason": "MDM 3.50%: model 37.9% vs chain 30.1% = +7.8% edge. Early: sizing normally to survive to the known catalysts. Risking 6.2% of equity, max loss bounded."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "bear_put_spread",
+   "action": "alternative",
+   "mdm_edge": 0.09610188966206351,
+   "refusal_reason": "MDM -4.62%: model 34.2% vs chain 24.6% = +9.6% edge. Early: sizing normally to survive to the known catalysts. Risking 7.7% of equity, max loss bounded."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "long_put",
+   "action": "alternative",
+   "mdm_edge": 0.111903135893342,
+   "refusal_reason": "MDM -5.93%: model 30.1% vs chain 18.9% = +11.2% edge. Early: sizing normally to survive to the known catalysts. Risking 8.9% of equity, max loss bounded."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "bull_put_spread",
+   "action": "refused",
+   "mdm_edge": -0.11445659989108681,
+   "refusal_reason": "minimum detectable move is -6.21%; our forecast puts 70.8% of mass beyond it against the market's 82.3%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "bear_call_spread",
+   "action": "refused",
+   "mdm_edge": -0.11102940756203661,
+   "refusal_reason": "minimum detectable move is 5.84%; our forecast puts 69.7% of mass beyond it against the market's 80.8%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "event_move",
+   "instrument": "iron_condor",
+   "action": "refused",
+   "mdm_edge": -0.22205881512407322,
+   "refusal_reason": "minimum detectable move is 5.84%; our forecast puts 39.3% of mass beyond it against the market's 61.5%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "long_call",
+   "action": "refused",
+   "mdm_edge": -0.060708779742467245,
+   "refusal_reason": "minimum detectable move is 4.40%; our forecast puts 19.5% of mass beyond it against the market's 25.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "long_put",
+   "action": "refused",
+   "mdm_edge": -0.06481883663998944,
+   "refusal_reason": "minimum detectable move is -5.93%; our forecast puts 12.4% of mass beyond it against the market's 18.9%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "bull_call_spread",
+   "action": "refused",
+   "mdm_edge": -0.053612774299914734,
+   "refusal_reason": "minimum detectable move is 3.50%; our forecast puts 24.8% of mass beyond it against the market's 30.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "bear_put_spread",
+   "action": "refused",
+   "mdm_edge": -0.061890886611594864,
+   "refusal_reason": "minimum detectable move is -4.62%; our forecast puts 18.4% of mass beyond it against the market's 24.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "long_straddle",
+   "action": "refused",
+   "mdm_edge": -0.12853265064887814,
+   "refusal_reason": "minimum detectable move is 6.39%; our forecast puts 21.3% of mass beyond it against the market's 34.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "bull_put_spread",
+   "action": "alternative",
+   "mdm_edge": 0.06457022672024837,
+   "refusal_reason": "MDM -6.21%: model 88.7% vs chain 82.3% = +6.5% edge. Early: sizing normally to survive to the known catalysts. Risking 4.1% of equity, max loss bounded."
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "bear_call_spread",
+   "action": "alternative",
+   "mdm_edge": 0.0648361943461997,
+   "refusal_reason": "MDM 5.84%: model 87.3% vs chain 80.8% = +6.5% edge. Early: sizing normally to survive to the known catalysts. Risking 4.2% of equity, max loss bounded."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "long_call",
+   "action": "refused",
+   "mdm_edge": -0.08304382990475634,
+   "refusal_reason": "minimum detectable move is 4.40%; our forecast puts 17.3% of mass beyond it against the market's 25.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "long_put",
+   "action": "refused",
+   "mdm_edge": -0.0864533829905128,
+   "refusal_reason": "minimum detectable move is -5.93%; our forecast puts 10.2% of mass beyond it against the market's 18.9%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "bull_call_spread",
+   "action": "refused",
+   "mdm_edge": -0.07421824413834666,
+   "refusal_reason": "minimum detectable move is 3.50%; our forecast puts 22.7% of mass beyond it against the market's 30.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "bear_put_spread",
+   "action": "refused",
+   "mdm_edge": -0.08438800785012579,
+   "refusal_reason": "minimum detectable move is -4.62%; our forecast puts 16.1% of mass beyond it against the market's 24.6%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "long_straddle",
+   "action": "refused",
+   "mdm_edge": -0.16993741442343419,
+   "refusal_reason": "minimum detectable move is 6.39%; our forecast puts 17.1% of mass beyond it against the market's 34.1%. We do not disagree with the chain -- we agree with it and would pay to say so."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "bull_put_spread",
+   "action": "alternative",
+   "mdm_edge": 0.08566567022500626,
+   "refusal_reason": "MDM -6.21%: model 90.8% vs chain 82.3% = +8.6% edge. Early: sizing normally to survive to the known catalysts. Risking 4.8% of equity, max loss bounded."
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "bear_call_spread",
+   "action": "alternative",
+   "mdm_edge": 0.08661887650813316,
+   "refusal_reason": "MDM 5.84%: model 89.4% vs chain 80.8% = +8.7% edge. Early: sizing normally to survive to the known catalysts. Risking 4.9% of equity, max loss bounded."
+  },
+  {
+   "brain": "vol_gap",
+   "instrument": "iron_condor",
+   "action": "shadow",
+   "mdm_edge": 0.25755351562453477,
+   "refusal_reason": "out-ranked by event_move at 18.53% vs 12.24% on the same symbol"
+  },
+  {
+   "brain": "options_attention",
+   "instrument": "iron_condor",
+   "action": "shadow",
+   "mdm_edge": 0.1296723886923994,
+   "refusal_reason": "out-ranked by event_move at 18.53% vs 8.33% on the same symbol"
+  },
+  {
+   "brain": "narrative_dispersion",
+   "instrument": "iron_condor",
+   "action": "shadow",
+   "mdm_edge": 0.17323775301626632,
+   "refusal_reason": "out-ranked by event_move at 18.53% vs 9.70% on the same symbol"
+  }
+ ],
+ "result_so_far": []
+}

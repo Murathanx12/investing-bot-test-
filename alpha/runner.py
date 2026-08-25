@@ -19,13 +19,26 @@ traded or not. A pass that opens nothing still produces a full record of what it
 looked at and why it declined, which is the difference between an agent that was
 thinking and an agent that was down.
 
+SEVERAL BRAINS, ONE POSITION PER SYMBOL, NOTHING AVERAGED
+=========================================================
+Several brains may forecast the same name. Every brain's enumeration is
+recorded in full under its own decision id -- refused and alternative rows
+included -- and the one that is EXECUTED is the brain whose approved structure
+carries the largest risk fraction (the sizer's own measure of disagreement with
+the chain). The others are written as `shadow`: the structure that brain would
+have opened, priced at the same crossed quotes, so the counterfactual can grade
+brain against brain and not only structure against structure. Nothing is
+averaged: the parent project's diagnosed bottleneck was ten books that averaged
+everything into one signal. And every forecast is written to `forecasts.jsonl`
+BEFORE any structure is priced, so a brain that never wins still leaves a
+gradeable centre and spread on every pass.
+
 THE DEADLINE IS A FIRST-CLASS INPUT
 ===================================
 Judging happens at 11:00 ET on 4 September -- ninety minutes after the opening
 bell, not at a close. So `must_close_by` is threaded through every entry: a
 structure whose expiry or thesis needs time we do not have is refused at
-selection, not discovered on the last morning. An agent holding an unclosable
-position into a deadline is not aggressive, it is unfinished.
+selection, not discovered on the last morning.
 """
 
 from __future__ import annotations
@@ -45,10 +58,6 @@ logger = logging.getLogger(__name__)
 KICKOFF = datetime.fromisoformat(config.COMPETITION["kickoff_utc"].replace("Z", "+00:00"))
 DEADLINE = datetime.fromisoformat(config.COMPETITION["deadline_utc"].replace("Z", "+00:00"))
 
-#: Never open a structure whose expiry lands after the judging deadline unless
-#: it can be sold before it. In practice: expiry on or before the deadline date,
-#: because an option still has time value at 10:45 and can be closed, whereas a
-#: thesis that needs next week cannot be scored at all.
 MAX_EXPIRY_SLACK_DAYS = 0.0
 
 
@@ -57,6 +66,7 @@ class PassResult:
     considered: int = 0
     submitted: int = 0
     refused: int = 0
+    shadow: int = 0
     errors: int = 0
     decisions: list[str] = None
 
@@ -82,14 +92,7 @@ def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = Non
 
 
 def open_convex_risk(client: AlpacaPaper) -> float:
-    """Premium currently at risk, as a fraction of equity.
-
-    Computed from what the BROKER says we hold, not from our own tally of what
-    we sent. An order that filled differently, partially, or not at all is
-    exactly the case where an internal counter and reality diverge, and the
-    aggregate ceiling is the guard that stops the agent over-committing before
-    the biggest catalysts of the week.
-    """
+    """Premium currently at risk, as a fraction of equity -- from the BROKER's book."""
     acct = client.account()
     equity = float(acct.get("equity") or 0.0)
     if equity <= 0:
@@ -100,27 +103,20 @@ def open_convex_risk(client: AlpacaPaper) -> float:
             continue
         qty = float(pos.get("qty") or 0.0)
         cost = abs(float(pos.get("cost_basis") or 0.0))
-        # A long option's risk is what we paid. A short leg inside a spread is
-        # capped by its partner, and `cost_basis` already nets across the pair.
         at_risk += cost if qty > 0 else 0.0
     return at_risk / equity
 
 
 def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.TournamentState,
              expiry: str, risk_profile: str | None = None,
-             open_risk: float | None = None) -> tuple[sizing.Structure | None, sizing.SizingVerdict, object]:
+             open_risk: float | None = None):
     """Enumerate every structure at this expiry and return the best approved one.
 
-    "Best" is the largest approved risk fraction, which is the sizer's own
-    expression of how far our distribution departs from the chain's. It is NOT
-    the highest expected return -- a structure can have a huge payoff and a tiny
-    probability edge, and sizing on payoff rather than on edge is how an options
-    book quietly becomes a lottery ticket.
+    "Best" is the largest approved risk fraction -- the sizer's own expression of
+    how far our distribution departs from the chain's. NOT the highest expected
+    return: sizing on payoff rather than on edge is how an options book quietly
+    becomes a lottery ticket.
     """
-    # Strikes are bounded to a band around spot scaled by the forecast's OWN
-    # width. A 1000-contract page limit truncates a full SPY chain arbitrarily
-    # (by symbol order, so it silently keeps low strikes), and a band keeps the
-    # part of the chain any of our structures could actually reach.
     band = max(4.0 * forecast.sd, 0.06)
     spot_hint = forecast.evidence.get("last_close")
     lo = hi = None
@@ -132,9 +128,8 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     )
 
     risk = open_risk if open_risk is not None else open_convex_risk(client)
-    best: tuple[sizing.Structure, sizing.SizingVerdict] | None = None
-    rejected: list[tuple[sizing.Structure, sizing.SizingVerdict]] = []
-
+    best = None
+    rejected = []
     for structure in structures.enumerate_all(snapshot, expiry):
         verdict = sizing.size(
             structure, forecast.centre, forecast.sd, state,
@@ -159,22 +154,10 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
 
 
 def build_order(structure: sizing.Structure, contracts: int) -> dict:
-    """Alpaca order payload. Single-leg or `mleg`, always a LIMIT.
-
-    Never a market order. Alpaca's paper engine does not model order size
-    against displayed NBBO quantity, so a market order in a thin option can fill
-    at a price that never existed -- which would flatter the P&L and poison the
-    evidence at the same time. A limit at our computed executable price gets a
-    fill we can defend or no fill at all, and no fill is a fine outcome.
-    """
+    """Alpaca order payload. Single-leg or `mleg`, always a LIMIT, never market."""
     if contracts < 1:
         raise ValueError("refusing a zero-contract order")
-
-    # Alpaca prices a multi-leg order at the NET: positive is a debit we pay,
-    # negative is a credit we receive. Single-leg orders take an absolute price
-    # with the direction carried by `side`.
     net_price = round(structure.entry_cost / structures.MULT, 2)
-
     if len(structure.legs) == 1:
         symbol, side, _ratio = structure.legs[0]
         return {
@@ -182,7 +165,6 @@ def build_order(structure: sizing.Structure, contracts: int) -> dict:
             "type": "limit", "limit_price": f"{abs(net_price):.2f}",
             "time_in_force": "day",
         }
-
     return {
         "order_class": "mleg", "qty": str(contracts), "type": "limit",
         "limit_price": f"{net_price:.2f}", "time_in_force": "day",
@@ -195,107 +177,165 @@ def build_order(structure: sizing.Structure, contracts: int) -> dict:
 
 
 def contracts_for(structure: sizing.Structure, risk_fraction: float, equity: float) -> int:
-    """How many units the approved risk buys, floored at zero.
-
-    Uses `max_loss`, never `entry_cost`. For a credit structure the cash
-    received is small and the exposure is the width of the spread -- sizing on
-    the credit would buy roughly seven times too many.
-    """
+    """How many units the approved risk buys, floored at zero. Uses max_loss, never entry_cost."""
     budget = risk_fraction * equity
     if structure.max_loss <= 0:
         return 0
     return int(budget // structure.max_loss)
 
 
+def record_forecasts(forecasts: list[Forecast], *, note: str = "") -> int:
+    """Every brain's forecast, written BEFORE any structure is priced.
+
+    The shadow record: a brain that never wins the enumeration still leaves a
+    centre and a spread on every symbol every pass, so its calibration can be
+    graded against realised moves whether or not it ever traded. Without this,
+    "three independent brains" is a claim about code, not about forecasts.
+    """
+    n = 0
+    for f in forecasts:
+        ledger.record(ledger.Decision(
+            decision_id=f"{ledger.new_decision_id(f.symbol, f.brain)}:forecast",
+            ts_utc=datetime.now(timezone.utc).isoformat(), symbol=f.symbol, brain=f.brain,
+            signal_shape=f.signal_shape, instrument="forecast", thesis=f.rationale,
+            predicted_move=f.centre, predicted_sd=f.sd, implied_move=None, breakeven_move=None,
+            mdm_edge=None, quote_snapshot={}, action="forecast", refusal_reason=None,
+            risk_fraction=0.0, max_loss_usd=0.0, order=None,
+            outcome={"horizon_days": f.horizon_days, "conviction": f.conviction,
+                     "evidence": _compact(f.evidence), "note": note},
+        ), name="forecasts")
+        n += 1
+    return n
+
+
+def _compact(evidence: dict) -> dict:
+    out = {}
+    for k, v in evidence.items():
+        if k in ("shocks", "event_days"):
+            out[k] = f"<{len(v)} items>" if isinstance(v, list) else str(v)[:200]
+        else:
+            out[k] = v
+    return out
+
+
 def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
              risk_profile: str | None = None, dry_run: bool = True,
-             field_leader_estimate: float | None = None) -> PassResult:
-    """One full decision pass over a list of forecasts."""
+             field_leader_estimate: float | None = None,
+             shadow_brains: tuple[str, ...] = ()) -> PassResult:
+    """One full decision pass over forecasts from one or several brains.
+
+    `shadow_brains` never execute regardless of ranking -- a brain earns its
+    first live order by beating the others in shadow first.
+    """
     result = PassResult()
     state = tournament_state(client, field_leader_estimate=field_leader_estimate)
     risk = open_convex_risk(client)
     logger.info("pass: equity $%s, %.0f%% of window left, %.1f%% already at risk",
                 f"{state.equity:,.0f}", state.fraction_of_window_remaining * 100, risk * 100)
+    record_forecasts(forecasts, note=f"pass expiry={expiry} dry_run={dry_run}")
+
+    by_symbol: dict[str, list[Forecast]] = {}
+    for f in forecasts:
+        by_symbol.setdefault(f.symbol, []).append(f)
 
     committed = 0.0
-    for forecast in forecasts:
-        result.considered += 1
-        decision_id = ledger.new_decision_id(forecast.symbol, forecast.brain)
-        try:
-            structure, verdict, snapshot, alternatives = evaluate(
-                client, forecast, state=state, expiry=expiry,
-                risk_profile=risk_profile, open_risk=risk + committed,
-            )
-        except Exception as exc:                                    # noqa: BLE001
-            result.errors += 1
-            _record(decision_id, forecast, None, None, None, state,
-                    action="error", reason=f"{type(exc).__name__}: {exc}")
-            logger.warning("%s: %s", forecast.symbol, exc)
+    for symbol, group in by_symbol.items():
+        evaluated = []
+        for forecast in group:
+            result.considered += 1
+            decision_id = ledger.new_decision_id(forecast.symbol, forecast.brain)
+            try:
+                structure, verdict, snapshot, alternatives = evaluate(
+                    client, forecast, state=state, expiry=expiry,
+                    risk_profile=risk_profile, open_risk=risk + committed,
+                )
+            except Exception as exc:                                    # noqa: BLE001
+                result.errors += 1
+                _record(decision_id, forecast, None, None, None, state,
+                        action="error", reason=f"{type(exc).__name__}: {exc}")
+                logger.warning("%s/%s: %s", forecast.symbol, forecast.brain, exc)
+                continue
+            # Roads not taken, written BEFORE the chosen one: a crash between the
+            # two leaves a ledger that over-states what we declined, never what we did.
+            for i, (alt, alt_verdict) in enumerate(alternatives):
+                _record(f"{decision_id}:alt{i}", forecast, alt, alt_verdict, snapshot, state,
+                        action="refused" if not alt_verdict.approved else "alternative",
+                        reason=alt_verdict.reason)
+            if structure is None:
+                result.refused += 1
+                _record(decision_id, forecast, None, verdict, snapshot, state,
+                        action="refused", reason=verdict.reason)
+                continue
+            evaluated.append((decision_id, forecast, structure, verdict, snapshot))
+
+        if not evaluated:
             continue
-
-        # The roads not taken, written down at the moment they were not taken.
-        # Recorded BEFORE the chosen one so that a crash between the two leaves
-        # a ledger that over-states what we declined rather than what we did.
-        for i, (alt, alt_verdict) in enumerate(alternatives):
-            _record(f"{decision_id}:alt{i}", forecast, alt, alt_verdict, snapshot, state,
-                    action="refused" if not alt_verdict.approved else "alternative",
-                    reason=alt_verdict.reason)
-
-        if structure is None:
-            result.refused += 1
-            _record(decision_id, forecast, None, verdict, snapshot, state,
-                    action="refused", reason=verdict.reason)
+        executable = [e for e in evaluated if e[1].brain not in shadow_brains]
+        champion = max(executable, key=lambda e: e[3].risk_fraction) if executable else None
+        for e in evaluated:
+            if e is champion:
+                continue
+            d_id, forecast, structure, verdict, snapshot = e
+            why = ("shadow-only brain" if forecast.brain in shadow_brains else
+                   f"out-ranked by {champion[1].brain} at {champion[3].risk_fraction:.2%} "
+                   f"vs {verdict.risk_fraction:.2%} on the same symbol")
+            result.shadow += 1
+            _record(d_id, forecast, structure, verdict, snapshot, state, action="shadow",
+                    reason=why)
+        if champion is None:
             continue
-
-        # The aggregate ceiling has to bind WITHIN a pass, not just across
-        # passes. Sizing every candidate against the risk level at the START of
-        # the loop lets six positions each pass a 50% test and total 300% -- the
-        # ceiling reads as enforced and is not. `risk` accumulates as we commit.
-        n = contracts_for(structure, verdict.risk_fraction, state.equity)
-        if n < 1:
-            result.refused += 1
-            _record(decision_id, forecast, structure, verdict, snapshot, state,
-                    action="refused",
-                    reason=(f"approved {verdict.risk_fraction:.2%} of ${state.equity:,.0f} "
-                            f"= ${verdict.risk_fraction * state.equity:,.0f}, but one unit of "
-                            f"{structure.kind} risks ${structure.max_loss:,.0f}. Rounds to zero "
-                            "contracts -- refused rather than rounded UP, which is how a risk "
-                            "ceiling becomes a suggestion."))
-            continue
-
-        order = build_order(structure, n)
-        if dry_run:
-            result.refused += 1
-            _record(decision_id, forecast, structure, verdict, snapshot, state,
-                    action="dry_run", reason="dry run: order built and not sent", order=order,
-                    contracts=n)
-            logger.info("DRY  %s %s x%d  risk %.2f%%  (cumulative %.1f%%)",
-                        forecast.symbol, structure.kind, n,
-                        verdict.risk_fraction * 100, (risk + committed) * 100)
-            committed += (structure.max_loss * n) / state.equity if state.equity else 0.0
-            continue
-
-        try:
-            placed = client.submit(
-                order, decision_id=decision_id,
-                quote_snapshot=_quote_snapshot(structure, snapshot),
-            )
-            result.submitted += 1
-            result.decisions.append(decision_id)
-            _record(decision_id, forecast, structure, verdict, snapshot, state,
-                    action="submitted", reason=verdict.reason, order=order, contracts=n,
-                    alpaca_order_id=placed.get("id"))
-            committed += (structure.max_loss * n) / state.equity if state.equity else 0.0
-            logger.info("SENT %s %s x%d id=%s  (cumulative risk %.1f%%)",
-                        forecast.symbol, structure.kind, n, placed.get("id"),
-                        (risk + committed) * 100)
-        except BrokerRefusal as exc:
-            result.errors += 1
-            _record(decision_id, forecast, structure, verdict, snapshot, state,
-                    action="rejected", reason=str(exc), order=order, contracts=n)
-            logger.warning("REJECTED %s: %s", forecast.symbol, exc)
-
+        committed = _execute(client, result, *champion, state, committed, dry_run=dry_run)
     return result
+
+
+def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
+             structure: sizing.Structure, verdict: sizing.SizingVerdict, snapshot,
+             state: sizing.TournamentState, committed: float, *, dry_run: bool) -> float:
+    """Size, build and (unless dry) send the champion. Returns updated `committed`.
+
+    The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
+    candidates cannot each pass a 50% test and total 300%.
+    """
+    n = contracts_for(structure, verdict.risk_fraction, state.equity)
+    if n < 1:
+        result.refused += 1
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="refused",
+                reason=(f"approved {verdict.risk_fraction:.2%} of ${state.equity:,.0f} "
+                        f"= ${verdict.risk_fraction * state.equity:,.0f}, but one unit of "
+                        f"{structure.kind} risks ${structure.max_loss:,.0f}. Rounds to zero "
+                        "contracts -- refused rather than rounded UP, which is how a risk "
+                        "ceiling becomes a suggestion."))
+        return committed
+
+    order = build_order(structure, n)
+    add = (structure.max_loss * n) / state.equity if state.equity else 0.0
+    if dry_run:
+        result.refused += 1
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="dry_run", reason="dry run: order built and not sent", order=order,
+                contracts=n)
+        logger.info("DRY  %s %s %s x%d  risk %.2f%%", forecast.brain, forecast.symbol,
+                    structure.kind, n, verdict.risk_fraction * 100)
+        return committed + add
+
+    try:
+        placed = client.submit(order, decision_id=decision_id,
+                               quote_snapshot=_quote_snapshot(structure, snapshot))
+        result.submitted += 1
+        result.decisions.append(decision_id)
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="submitted", reason=verdict.reason, order=order, contracts=n,
+                alpaca_order_id=placed.get("id"))
+        logger.info("SENT %s %s %s x%d id=%s", forecast.brain, forecast.symbol,
+                    structure.kind, n, placed.get("id"))
+        return committed + add
+    except BrokerRefusal as exc:
+        result.errors += 1
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="rejected", reason=str(exc), order=order, contracts=n)
+        logger.warning("REJECTED %s: %s", forecast.symbol, exc)
+        return committed
 
 
 def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
@@ -315,8 +355,15 @@ def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
         "spot_source": snapshot.spot_source, "spot_ts": snapshot.spot_ts.isoformat(),
         "feed": snapshot.feed, "market_open": snapshot.market_open,
         "median_quote_age_s": round(snapshot.median_quote_age_seconds, 1),
+        "parity_gap": snapshot.parity_gap(_expiry_of_legs(structure)),
         "legs": legs,
     }
+
+
+def _expiry_of_legs(structure: sizing.Structure) -> str:
+    from alpha.data.chain import _decode_occ
+
+    return _decode_occ(structure.legs[0][0])[2] if structure.legs else ""
 
 
 def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
@@ -343,8 +390,6 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         max_loss_usd=(structure.max_loss * contracts) if structure else 0.0,
         order=order,
         alpaca_order_id=alpaca_order_id,
-        # Unit-scale economics on EVERY row, taken or refused, so the decision
-        # can be priced forward later at a risk budget it never actually got.
         entry_cost_per_unit=structure.entry_cost if structure else None,
         max_loss_per_unit=structure.max_loss if structure else None,
         legs=tuple(structure.legs) if structure else (),
@@ -353,5 +398,5 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             "phase": state.phase.value,
             "window_remaining": state.fraction_of_window_remaining,
         },
-        llm=None,
+        llm=(forecast.evidence.get("shocks") or [{}])[0].get("llm") if forecast.evidence.get("shocks") else None,
     ))

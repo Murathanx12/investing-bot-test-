@@ -184,6 +184,23 @@ class ChainSnapshot:
         # rule-of-thumb 0.85 multiplier converts price to expected move.
         return 0.85 * straddle / self.spot
 
+    def parity_gap(self, expiry: str, *, r: float = 0.045) -> dict[str, Any] | None:
+        """Spot implied by ATM put-call parity minus the spot we used, as a fraction.
+
+        C - P = S - K*exp(-rT). If the option quotes and the underlying print
+        disagree by more than a spread, one of them is stale -- and on a
+        15-minute-delayed feed with a real-time IEX print it is usually the
+        options. Measured on every snapshot; nothing refuses on it yet, because
+        a guard added before its failure is observed is a guard tuned to a guess.
+        """
+        call, put = self.atm(expiry, "C"), self.atm(expiry, "P")
+        if not call or not put or call.strike != put.strike or self.spot <= 0:
+            return None
+        t = call.years_to_expiry
+        implied_spot = call.mid - put.mid + call.strike * math.exp(-r * t)
+        return {"strike": call.strike, "implied_spot": round(implied_spot, 4),
+                "spot": self.spot, "gap": round((implied_spot - self.spot) / self.spot, 5)}
+
     def liquid(self, *, max_spread: float = MAX_RELATIVE_SPREAD,
                min_size: int = MIN_QUOTE_SIZE) -> list[Contract]:
         return [
