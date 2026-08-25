@@ -18,8 +18,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done with receipt
 - [x] 1.3 Smoke tests (map, registry, shadow default, node).
 
 ## Chunk 2 — ATTENTION_VOL_BASIS (review item 5)
-- [~] 2.1 `scripts/attention_vol_basis.py` running (12 names, spikes + every-5th control, ATM IV from expired bars). Verdict rule in the script: promotion only if basis t > 2.
-- [ ] 2.2 Record the verdict in the handoff.
+- [x] 2.1 `scripts/attention_vol_basis.py`: 383 spikes vs 1,023 controls, basis +0.069 IV-units, **t 1.62 < 2 → not promoted**. The chain is already ~10% wider on attention days; ΔIV is negative INTO the spike (pageviews lag the chain). `docs/FINDING_2026-08-26_ATTENTION_VOL_BASIS.md`.
+- [x] 2.2 Recorded in the handoff; write-up unchanged (its "attention widens" claim stands, its trade does not).
 
 ## Chunk 3 — belief velocity data (review item 6), collection only
 - [x] 3.1 `scripts/belief_recorder.py`: 350 markets per snapshot (Polymarket ×7 queries, Kalshi payrolls/Fed), hourly from the loop → `state/belief_series.jsonl`.

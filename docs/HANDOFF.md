@@ -16,7 +16,9 @@ rewritten. Dev then hit the 50% cap on a Tuesday → `EVENT_RESERVE` keeps 10% f
 Built: `scripts/nfp_trade.py` (frozen contract, two gates, entry window enforced),
 `scripts/dashboard.py` → `state/dashboard.html` (published privately at
 https://claude.ai/code/artifact/36440187-1bf4-4230-b116-b1c3782a65e9 — rebuild + republish to refresh), `scripts/belief_recorder.py` (hourly crowd
-series), `scripts/attention_vol_basis.py` (result below when it lands), `Dockerfile` +
+series), `scripts/attention_vol_basis.py` → **basis +0.07 IV-units, t 1.62 on 383 spikes: the chain is
+already 10% wider on attention days, attention brains stay shadow on dev**
+(`docs/FINDING_2026-08-26_ATTENTION_VOL_BASIS.md`), `Dockerfile` +
 `railway.toml` (prepared, **not deployed** — your call: keys to a cloud host, one role per host).
 
 ## SESSION 3 IN ONE PARAGRAPH (read `docs/FINDING_2026-08-25_SURFACE_AND_STRIP.md`)
