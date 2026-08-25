@@ -44,10 +44,21 @@ from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 log = logging.getLogger("loop")
 
 
+#: A pass that runs longer than this is killed and logged. The loop is
+#: sequential, so a 40-minute entry pass would starve the five-minute EXIT pass
+#: -- and exits are the one job that must never wait on an LLM call.
+TIMEOUTS_S = {"scripts.run_pass": 1500, "scripts.manage": 300, "scripts.counterfactual": 600,
+              "scripts.fill_audit": 300}
+
+
 def _run(mod: str, *args: str, live: bool) -> int:
     cmd = [sys.executable, "-m", mod, *args] + (["--live"] if live else [])
     log.info("run %s", " ".join(cmd[2:]))
-    return subprocess.call(cmd)
+    try:
+        return subprocess.call(cmd, timeout=TIMEOUTS_S.get(mod, 900))
+    except subprocess.TimeoutExpired:
+        log.error("%s exceeded %ss and was killed; the next cycle re-reads the venue", mod, TIMEOUTS_S.get(mod, 900))
+        return 124
 
 
 def main() -> int:

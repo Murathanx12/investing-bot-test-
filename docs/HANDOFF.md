@@ -190,20 +190,39 @@ taken + dry-run + shadow worlds at equal risk.
 ## Step by step — what Murat does, in order
 
 1. **Now — nothing on accounts.** Rotate the leaked LIVE keys (`AK32UD5…`, account 349598088) at app.alpaca.markets if not already done.
-2. **Wed 26 Aug, before 16:00 ET:** decide whether the dev account carries the NVDA straddle through the print (`AAT_ACCOUNT_ROLE=dev python -m scripts.run_pass --expiry 2026-08-28 --universe NVDA --live`). Either way, the shadow rows exist and get graded.
-3. **Thu 27 Aug:** read `python -m scripts.counterfactual` → `brain_scoreboard` after the print. Decide the $99 with the fill numbers below.
+2. **Wed 26 Aug:** the NVDA straddle is WITHDRAWN (event_move refuses it). What is live
+   instead, from the first champion/challenger pass at 15:30 UTC 25 Aug: **dev** holds
+   TSLA 350 straddle x3 + QQQ straddle (vol_gap, 5.3%); **exp1** holds SPY straddle
+   (narrative_dispersion, 12.1%), QQQ straddle (options_attention, 9.7%), IWM straddle
+   (narrative_dispersion, 10.0%). Same instrument on QQQ at twice the size on exp1 —
+   that is the comparison. Read `python -m scripts.uncertainty_relay NVDA --event
+   2026-08-27 --expiry 2026-08-28` before the print: ARM/TSM are where the print is cheap.
+3. **Thu 27 Aug:** `python -m scripts.counterfactual` → `brain_scoreboard`, split by
+   `account_role` (stamped on every decision row from this commit on). Re-run the
+   relay after the print for the IV-spillover grade (`state/iv_spillover_watch.jsonl`).
 4. **28 Aug, kickoff (15:00 UTC = 23:00 HK):** re-pull rules; create the brand-new $100k account; `AAT_COMPETITION_KEY_ID/SECRET`; `AAT_ACCOUNT_ROLE=competition python -m scripts.preflight`; **never a test order on it**.
 5. **First social post** the same day — separate $500 prize, engagement cannot be back-filled.
 
-## Next, in priority order
+## Next, in priority order (session 3 re-cut)
 
-1. **Grade the NVDA print** — the first brain-vs-brain result on a real event.
-2. **Dashboard** from the event cards (criterion 4). The refused/shadow screen is the one nobody else has.
-3. **Write-up** leading with what did not work: sources refused, the parity gap, the attention-brain ranking bias, one macro day inside an inferred print list.
-4. **Belief-gap trades**: wire `exposure.py` (theme → tickers) so a shock extracted on one name proposes forecasts on its exposure siblings; and record Polymarket/Kalshi belief beside the LLM's on every narrative row (currently on the card only).
-5. **Crypto sleeve** for 29–30 Aug — untouched.
-6. **Railway deploy** of `agent_loop` — the agent must not need the laptop.
-7. Re-probe Bluesky search and SEC EFTS from the deploy host (likely geo-blocks).
+1. **Grade the NVDA print** — brain-vs-brain AND account-vs-account, from `brain_scoreboard`
+   and `state/fills.jsonl`. Also the relay: did ARM/TSM move more per dollar of implied
+   than NVDA?
+2. **Railway deploy** of `agent_loop` — both loops run from this laptop under nohup and die
+   with it. This moved up: the loops are now the evidence engine.
+3. **ATTENTION_VOL_BASIS** (review item 5) — not built. `attention_backtest` stores only
+   summaries; it needs the ATM straddle close on each z>2 day (expired bars) to measure
+   Δimplied against Δrealised. Until then attention/narrative execute only on exp1.
+4. **RELAY as a brain**: `uncertainty_relay` is a script; to be sized it must emit a
+   `Forecast` on the peer (centre 0, sd = conditional jump sd) inside the originator's
+   event node so `EVENT_NODE_CAP` binds across NVDA + ARM + TSM.
+5. **NFP 4 Sep** — `event_contract_basis` before the 3 Sep close; take the 0DTE straddle at
+   the prior close only if the crowd's ladder is wide (two 15% tails today) AND the 0DTE
+   implied is at or below the 0.77% median; flat by 10:45. Width only; no side.
+6. **Dashboard** from event cards + surface `shape`; **write-up** leading with the negatives
+   (this session produced four).
+7. **Belief-velocity / rumour half-life** (review items 6–7): unbuilt; shadow-only if built.
+8. Crypto sleeve, Bluesky/EFTS re-probe from the deploy host — unchanged, low.
 
 ## Do NOT
 
