@@ -14,7 +14,7 @@ import logging
 import sys
 
 from alpha import config, fills, ledger
-from alpha.broker.alpaca import AlpacaPaper
+from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 
 def main() -> int:
@@ -26,13 +26,23 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper(role=args.role)
 
+    role = client._creds.role
+    # The ledger is shared by every account; an order id belongs to ONE of
+    # them. Rows stamped with another role are not ours; rows from before the
+    # stamp existed (25 Aug, pre-16:03 UTC) are tried and a 404 is skipped.
     submitted = [r for r in ledger.read_all() if r.get("action") == "submitted"
-                 and r.get("alpaca_order_id")]
+                 and r.get("alpaca_order_id") and r.get("account_role") in (None, role)]
     if not submitted:
         print("no submitted orders in the ledger -- nothing to audit (an absence, not a pass)")
         return 0
     for row in submitted:
-        a = fills.audit(client, row)
+        try:
+            a = fills.audit(client, row)
+        except BrokerRefusal as exc:
+            if "404" in str(exc):
+                print(f"skip {row['decision_id']}: not an order on account role {role!r}")
+                continue
+            raise
         print(fills.to_json(a))
         if args.record:
             fills.record(a)
