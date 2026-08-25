@@ -186,6 +186,18 @@ def mark(decision: dict, quotes: dict[str, dict], *,
 
     entry = per_unit_cost * units
     exit_usd = exit_pu * units
+    pnl_pu = exit_pu - per_unit_cost
+    # A DEFINED-RISK structure cannot lose more than its stated max loss. A mark
+    # below that floor is not a loss, it is an inconsistent quote (stale leg,
+    # one-sided book, crossed market) -- the first live run produced a refused
+    # bear-call spread at -292% of risk this way. Such a world is recorded as
+    # UNMARKABLE with the raw number kept, never as a loss the gate "saved".
+    if pnl_pu < -per_unit_loss * 1.05:
+        return Mark(units=units, entry_cost_usd=entry, exit_value_usd=exit_usd,
+                    pnl_usd=0.0, mark_source="unmarkable",
+                    detail={"why": "quote_inconsistent: mark below the structure's own max loss",
+                            "raw_pnl_per_unit": pnl_pu, "max_loss_per_unit": per_unit_loss},
+                    **common)
     return Mark(units=units, entry_cost_usd=entry, exit_value_usd=exit_usd,
                 pnl_usd=exit_usd - entry, mark_source="chain",
                 detail={"exit_per_unit": exit_pu, "legs": len(legs)}, **common)
