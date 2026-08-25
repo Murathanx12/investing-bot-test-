@@ -1,7 +1,8 @@
 # HANDOFF — read this first
 
-**Updated 2026-08-25, ~09:00 ET.** Competition derivative of the Aegis-Finance
-research project (`AEGIS_SOURCE_COMMIT=44c8352`).
+**Updated 2026-08-25, sandbox session 2 (Fable).** Competition derivative of
+the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
+Previous handoff text is in git history (`63c4937`); this one supersedes it.
 
 ---
 
@@ -9,265 +10,130 @@ research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 
 ```
 competition account equity      NOT YET CREATED (create at kickoff 28 Aug 15:00 UTC)
-dev account                     PA32Q5IW7TAS  $100,000  options level 3  crypto active
+dev account                     PA32Q5IW7TAS  $100,000  options level 3
 experiment account exp1         PA3AOJPJTSBW  $100,000  options level 3
 competition return              n/a
-best live strategy              vol_gap -> structure enumeration; ONE rehearsal order sent
-best shadow strategy            shadow arena NOT BUILT
-active independent brains       1 of 5 planned (vol_gap)
-options trades / win-loss       1 submitted (TSLA 350 straddle x3, queued) / 0-0
+best live strategy              none proven -- ONE rehearsal fill (TSLA 350 straddle x3), see FILL
+best shadow strategy            NOT YET GRADED -- shadow ledger started today, first marks land after
+                                the NVDA print (26 Aug amc)
+active independent brains       4 of 4 planned: vol_gap · event_move · options_attention · narrative_dispersion
+                                (2 executable, 2 shadow-only until they beat the others on the counterfactual)
+independent DATA sources        price/chain (Alpaca) · fiscal calendar (Finnhub) · option tape (Alpaca bars)
+                                · news + LLM (Benzinga/DeepSeek) · attention (Wikipedia/HN/Mastodon)
+                                · belief (Polymarket/Kalshi) · positioning (CBOE)
+options trades / win-loss       1 filled / 0-0 (open)
 max drawdown                    n/a
-unused buying power             $400,000 (dev)
-LLM calls / spend               0 / $0
+LLM calls / spend               ~6 / ~$0.004   ($0.0007 per NARRATIVE_SHOCK extraction, 2.4s)
 execution failures              0
-service uptime                  not deployed
-MCP / CLI requirement           BOTH WORKING. CLI v0.0.13 resolves PA32Q5IW7TAS;
-                                MCP exposes 44 tools with `trading` withheld (72 unrestricted)
-counterfactual worlds marked    136 across 39 decision families
-submission readiness            engine + exits + MCP/CLI + counterfactual; no dashboard, no writeup
-COMPETITION RESULT IMPROVEMENT  REQUIREMENT #2 MET AND THE ABSTENTION SCREEN EXISTS.
-                                Still zero fills, so still zero P&L evidence.
+service uptime                  not deployed; `scripts/agent_loop.py` exists, unproven
+MCP / CLI requirement           the rule is MCP **OR** CLI. We ship BOTH because the MCP side is a
+                                risk gate (44 tools exposed, no order verb). Neither is mandatory alone.
+counterfactual worlds marked    136 (session 1) + today's dry-run families; brain scoreboard added
+submission readiness            engine + 4 brains + exits + MCP/CLI + counterfactual + event card;
+                                no dashboard, no write-up, no social post
+COMPETITION RESULT IMPROVEMENT  THREE INDEPENDENT BRAINS NOW FORECAST LIVE, AND ONE REAL FILL IS
+                                MEASURED. Still zero P&L evidence -- the position is one day old.
 ```
+
+### THE FILL (the measurement that decides the $99)
+
+See `state/fill_audit_open.log` and `state/fills.jsonl` (written at the open).
+Decision quote at 19:59 ET Monday: call ask 6.25 + put ask 7.10 = **13.35**
+limit, indicative feed, 15h-old quotes carried at zero penalty because the
+market was closed. Fill and marks: **[filled in below after 09:31 ET]**.
+
+---
+
+## What changed today, and what each thing is for
+
+### 1. Three new brains — independent by DATA SOURCE, not by formula
+
+| Brain | Reads | Says | Status |
+|---|---|---|---|
+| `vol_gap` | daily bars | EWMA realised vs implied; damped drift | executable |
+| **`event_move`** | Finnhub fiscal periods + bars | this name's OWN print history vs the chain. NVDA 12 prints mean **8.7%**, AVGO **11.1%**, PANW **9.2%** close-to-close. Centre 0. | executable |
+| **`options_attention`** | Alpaca option daily bars | unsigned volume on SEASONED contracts vs trailing median; NVDA **3.49x** into the print. Widens sigma, never tilts. | shadow-only |
+| **`narrative_dispersion`** | Alpaca/Benzinga news → DeepSeek → `NARRATIVE_SHOCK_v1` axes + Wikipedia attention | truth · belief · impact · already-priced → **belief-gap case**; disagreement + truth-uncertainty widen sigma. LLM emits axes, never a trade. | shadow-only |
+
+Event dates are **inferred** (largest |return| in the [+15,+75]d window after
+each fiscal quarter end, quarters extrapolated back 3y because Finnhub free
+serves only ~4). Every inferred date is printed in `evidence["event_days"]`;
+NVDA's list contains 2025-01-27 (the DeepSeek selloff, not a print) — the
+documented failure mode, visible because the dates are printed.
+
+**Why two brains are shadow-only:** the sizer rewards disagreement with the
+chain, and on long premium a WIDER sigma is a bigger disagreement. A brain that
+widens by construction wins the enumeration by construction. Attention and
+narrative earn execution by beating the others on `brain_scoreboard` in
+`python -m scripts.counterfactual`, not by being loudest. Set `--shadow ''` to
+override once they have.
+
+### 2. The demo that fell out of it — NVDA into tomorrow's print
+
+`state/cards/NVDA_2026-08-25.json` (`python -m scripts.event_card NVDA --expiry 2026-08-28 --query nvidia`):
+
+- **`vol_gap`** (realised 3.8% < implied 5.1%) chose an **IRON CONDOR** this morning.
+- **`event_move`** (event prior 11.3% > implied 5.4%, breakeven 6.4%, +23pp edge) chose a **LONG STRADDLE** at 18.5% risk.
+- **Polymarket** prices Q2 gross margin 74–76% at 93% and Data Center >$80B at 94% — the crowd sees a low-surprise print.
+- **Attention**: Wikipedia pageviews velocity 1.49 (z 1.55), HN 26 stories/33 comments in 48h, option volume 3.49x.
+- **Parity gap −1.34%** on the 212.5 straddle at the stale close: the IEX print and the indicative quotes disagreed by $2.8 — the open tells which was stale.
+
+Same chain, opposite instruments, both written before the print. Whichever
+loses, the shadow ledger says so. That card IS the write-up's worked example.
+
+### 3. Sources — measured today (`docs/SOURCES.md`)
+
+Works without auth: Alpaca news/option bars/option trades, Finnhub free,
+**Polymarket**, **Kalshi**, **CBOE** put/call + VIX term structure, Wikipedia
+pageviews, HN Algolia, Mastodon, SEC submissions, DeepSeek. Refused: Reddit,
+StockTwits, GDELT, LunarCrush (paywall), Finnhub social, Bluesky search and SEC
+full-text (403 from HK — retest from a US host).
+
+Two consequences: **public belief is now a PRICE** (prediction markets) rather
+than an LLM guess, recorded beside the LLM's `market_belief` so their
+disagreement is a finding; and **social sentiment proper is closed from here**,
+so the narrative brain reads news and lets the LLM estimate dispersion — an
+admitted substitute for the Twitter/StockTwits corpus the literature used.
+
+### 4. Runner: several brains, one position per symbol, nothing averaged
+
+`alpha/runner.py`: every brain's enumeration recorded under its own decision
+id; the champion is the largest approved risk among EXECUTABLE brains; losers
+written as `action=shadow` naming the winner; every forecast written to
+`state/forecasts.jsonl` BEFORE any structure is priced. `counterfactual.report`
+now carries `brain_scoreboard` (n, pnl, mean return on risk, hit rate) over
+taken + dry-run + shadow worlds at equal risk.
+
+### 5. Fill audit, parity gap, event card, loop
+
+- `python -m scripts.fill_audit --record` — decision ask vs fill vs mark at the bid, slippage as a fraction of expected edge (n=1 stated as n=1).
+- `ChainSnapshot.parity_gap(expiry)` on every ledger row. Diagnostic only; a guard comes after a measured failure, not before.
+- `python -m scripts.event_card SYMBOL --expiry …` — the dashboard-readable record a judge asked for.
+- `python -m scripts.agent_loop --expiry … [--live]` — exits/5m, entries/30m, counterfactual/60m, fill audit/15m, clock from the venue. **Unproven overnight.**
 
 ---
 
 ## Step by step — what Murat does, in order
 
-**1. Now — nothing.** The dev account (`PA32Q5IW7TAS`) and experiment account
-(`exp1`, `PA3AOJPJTSBW`) are wired and working. Keys are in a gitignored `.env`.
-
-**2. Rotate the leaked LIVE keys.** The first pair pasted into chat
-(`AK32UD5...`) were **live-host keys**, account `349598088` — not paper. Equity
-was $0 so nothing could happen, but they are now in a chat log and were briefly
-in a local file. Delete them at `app.alpaca.markets` → API keys. The repo's
-guard caught them independently (`_verify_paper` refuses any account number
-without a `PA` prefix), which is the guard doing its job on its first real
-input.
-
-**3. 28 Aug, at kickoff (15:00 UTC = 23:00 Hong Kong, Friday evening):**
-   - re-pull the rules page and diff it against `docs/RULES_SNAPSHOT_2026-08-25.md`;
-   - create a **brand-new** paper account, balance exactly **$100,000**;
-   - generate keys, put them in `AAT_COMPETITION_KEY_ID` / `AAT_COMPETITION_SECRET_KEY`;
-   - run `AAT_ACCOUNT_ROLE=competition python -m scripts.preflight` — it checks
-     paper status, the $100k, **freshness** (zero orders, zero positions),
-     options level and the data feed;
-   - **never place a test order on it.** Freshness is the one property that
-     cannot be repaired: resetting the account is itself a reuse.
-
-**4. Optional, decide 27 Aug: buy Algo Trader Plus ($99).** See below — it is
-now a measured decision rather than a guess, and the answer is "not required".
-
----
-
-## The $99 question, answered with measurements
-
-**You do not have to buy it.** Here is the actual evidence.
-
-Asking for `feed=opra` on your account returns **403 "OPRA agreement is not
-signed"**. That message reads like paperwork and is not — Alpaca support
-confirms it means the Algo Trader Plus subscription is absent, and no agreement
-exists that avoids it. So the free plan means the `indicative` feed.
-
-Measured on `PA32Q5IW7TAS`, SPY, expiries within ten days:
-
-| | free `indicative` |
-|---|---|
-| contracts returned | 1000 (the page limit — coverage is not the problem) |
-| with **both** bid and ask | **1000 (100%)** |
-| with greeks / IV | 462 (46%) |
-| relative spread | median 5.3%, p25 1.5%, p75 18.2% |
-| contracts at ≤5% spread | 400 |
-
-**The free feed is not missing data. It is late** — roughly 15 minutes during
-market hours. That is a different problem and it has an engineering answer,
-which is now built:
-
-1. **Delta-adjusted quotes.** The underlying is real-time and free (IEX). A
-   stale option quote is carried forward with `mid + delta·dS + ½·gamma·dS²`.
-2. **A staleness penalty.** The bigger the carry-forward, the more the assumed
-   execution price is widened — so delayed data costs edge instead of being
-   silently treated as live.
-3. **Missing greeks are computed.** Black-Scholes from the recovered IV, and
-   `greeks_source` records whether a number came from the venue or from us
-   (measured: 461 from feed, 536 computed, 3 unrecoverable).
-4. **A hard refusal past ~25 minutes of market-time staleness.**
-5. **One-sided quotes refused.** AVGO came back with a bid and an ask of exactly
-   **zero** on IEX while SPY was clean. A mid from that is half the real price
-   and would flow silently into every delta adjustment, so the underlying price
-   comes from the last **trade** (which has no sides) and the quote is only a
-   fallback.
-
-**What this costs, stated plainly:** the agent **cannot trade reactions.** If
-AVGO gaps 8% on its Wednesday print, our chain shows the pre-print world for a
-quarter of an hour and no delta adjustment invents the volatility repricing.
-
-**Why that is survivable:** the entire strategy in `docs/STRATEGY.md` is
-**positioning ahead of scheduled catalysts**, not reacting to them. Buying an
-AVGO straddle at 14:00 ET for a 16:05 ET print is a question about whether the
-implied move is mispriced, and a 15-minute-old quote answers it fine.
-
-**Buy the $99 if, and only if, one of these becomes true:**
-- measured slippage between our computed executable price and actual fills
-  exceeds ~15% of expected edge (the rehearsal orders will tell us — that is
-  what the quote snapshots in the ledger are for);
-- we decide the Friday 4 Sep jobs-report trade (08:30 ET, deadline 11:00 ET) is
-  worth doing, which is a genuinely fast 75-minute window;
-- the scanner needs more than 30 streaming symbols.
-
-Decide on 27 Aug with the slippage numbers in hand, not before.
-
----
-
-## What now exists and is proven against a real account
-
-| File | State |
-|---|---|
-| `alpha/config.py` | credentials, allowlists, `.env` loader, arbitrary experiment roles |
-| `alpha/broker/alpaca.py` | paper-only client; account/positions/orders/chain/bars/trades/crypto |
-| `alpha/data/chain.py` | chain snapshot, BS greeks, delta carry-forward, staleness penalty |
-| `alpha/engine/shape.py` | **differentiator 1** — decile shape → instrument |
-| `alpha/engine/sizing.py` | **differentiator 2** — MDM gate, rank objective, 3 risk profiles |
-| `alpha/engine/structures.py` | 8 structures enumerated from a live chain, priced at the crossed side |
-| `alpha/brains/vol_gap.py` | first brain: EWMA realised vol vs implied, damped momentum tilt |
-| `alpha/runner.py` | the decision pass; ledger writes on every candidate |
-| `alpha/exits.py` | deadline liquidation, expiry, asymmetric targets/stops |
-| `scripts/manage.py` | `python -m scripts.manage --live` — run this OFTEN |
-| `alpha/ledger.py` | hash-chained append-only record, refusals included |
-| `scripts/run_pass.py` | `python -m scripts.run_pass --expiry 2026-08-28 --live` |
-| `scripts/preflight.py` | account verification |
-| `tests_smoke.py` | **34 checks**, no keys, no network |
-
-**Verified against the live broker, not asserted:**
-- multi-leg order accepted — TSLA 350 straddle ×3, limit $13.35, `accepted`;
-- replaying the same decision → **422 `client_order_id must be unique`**, so a
-  crash-restart cannot double a position;
-- an order without a quote snapshot → refused locally;
-- a non-`PA` account number → every subsequent call refused.
-
-### The enumeration is the demo
-
-Same code, same chain, three different forecasts:
-
-| Forecast | Winner | Edge |
-|---|---|---|
-| mild bull (μ +1.2%, σ 1.0%) | bull call spread | +38.7% |
-| big move (μ 0, σ 2.5%) | **long straddle** | +30.7% |
-| very quiet (μ 0, σ 0.3%) | **iron condor** | +29.8% |
-
-Nothing is hardcoded. The instrument falls out of the disagreement between our
-distribution and the chain's. That is the single best thing to put in front of a
-judge, and it is one screen.
-
-### Four bugs that running it found and reading it would not have
-
-1. A two-sided probability **credited a long call for a crash** — the position
-   would have been sized up by the outcome that makes it worthless. `direction`
-   is now a required property of every structure. And break-even is **signed**
-   for directional structures: a bull put spread's break-even sits *below* spot,
-   so an `abs()` turned the safest structure on the board into the most demanding.
-2. The aggregate risk ceiling **did not bind within a pass** — six candidates
-   each sized against the risk at the start of the loop, each passing a 50% test,
-   totalling 300%. It read as enforced and was not.
-3. The staleness guard **refused every structure while the market was closed**,
-   which is exactly when the next session gets planned. Age is now measured in
-   *market* time.
-4. A straight ramp **classified as a TAIL**, so the agent would have bought
-   convexity on every monotone signal.
-
----
+1. **Now — nothing on accounts.** Rotate the leaked LIVE keys (`AK32UD5…`, account 349598088) at app.alpaca.markets if not already done.
+2. **Wed 26 Aug, before 16:00 ET:** decide whether the dev account carries the NVDA straddle through the print (`AAT_ACCOUNT_ROLE=dev python -m scripts.run_pass --expiry 2026-08-28 --universe NVDA --live`). Either way, the shadow rows exist and get graded.
+3. **Thu 27 Aug:** read `python -m scripts.counterfactual` → `brain_scoreboard` after the print. Decide the $99 with the fill numbers below.
+4. **28 Aug, kickoff (15:00 UTC = 23:00 HK):** re-pull rules; create the brand-new $100k account; `AAT_COMPETITION_KEY_ID/SECRET`; `AAT_ACCOUNT_ROLE=competition python -m scripts.preflight`; **never a test order on it**.
+5. **First social post** the same day — separate $500 prize, engagement cannot be back-filled.
 
 ## Next, in priority order
 
-1. **Measure the fill.** The TSLA straddle fills at Tuesday's open. Compare the
-   actual fill against `quote_snapshot` in the ledger. That number decides the
-   $99 and it is the single most valuable measurement available this week.
-2. ~~Exit management~~ — **DONE.** `alpha/exits.py`, ten cases pinned in the
-   smoke test. Five reasons to close, most binding first: the **10:45 ET 4 Sep
-   deadline liquidation** (which outranks a winning thesis — a +90% position is
-   still flattened, because a position open at the cut is scored at whatever
-   mark the venue carries); **never hold through an expiry** (ITM auto-exercise
-   at $0.01 silently converts a $2k premium position into a $70k stock
-   position); asymmetric targets (long premium takes profit LATE at +100%,
-   short premium takes profit EARLY at 60% of credit); stops; invalidation.
-   Deliberately **no trailing stop** — over five sessions with 1-4 day options,
-   gamma makes the mark so noisy that a trailing stop is a random exit
-   generator, converting the tail we paid for into an average outcome.
-   *Still to wire: run it on a schedule, and a thesis-invalidation check that
-   re-runs the brain against the open position.*
-3. ~~MCP + CLI~~ — **DONE**, and the MCP side is a risk gate rather than a
-   checkbox. `ALPACA_TOOLSETS` is a documented server-side filter, so a model
-   connected with `trading` withheld has **no order-placing tool to call** --
-   not "is told not to", not "is checked before it does". Measured on the
-   running server: **44 tools restricted vs 72 unrestricted**, and the 16 in
-   the gap include `place_option_order`, `place_stock_order`,
-   `place_crypto_order`, `close_all_positions` and `exercise_options_position`.
-   `python -m scripts.tooling_probe --census` is the evidence; it starts the
-   server and asks it, because a safety claim checked against our own config is
-   a claim checked against itself.
-   *Still to do: point Claude Code at the restricted server and record the
-   model failing to place an order. That screenshot is the demo.*
-4. **Shadow arena.** N virtual $100k books off the same frozen decision state.
-   `exp1` already gives one real second account for a second risk profile.
-5. **Dashboard.** Judging criterion 4. The screen that matters most is the
-   **refused candidates** — nobody else will have it.
-6. **More brains.** `rev_dispersion` (analyst disagreement → straddle) is the
-   one most worth having: the signal and the instrument are the same statement.
-7. **Crypto sleeve.** 29–30 Aug have no equity market. Crypto is 25% of the
-   calendar and is real-time and free.
-8. **Railway deploy.** The agent must not need the laptop.
-9. **First social post.** Separate $500 prize, engagement cannot be back-filled.
-
-## What the field looks like, and what a judge said
-
-Full research with sources: **`docs/FIELD_2026-08-25.md`**. The three facts that
-should change decisions:
-
-1. **2,270 participants, 555 teams, 0 submissions.** Every "competitor project"
-   visible now is a registration blurb. **VolAlpha declares our vol_gap brain
-   almost word for word**; **midas-gate independently reached "deterministic
-   envelope before the AI is called"**. Neither of those is our differentiator
-   any more -- shape-to-instrument and the capability boundary are.
-
-2. **The P&L bar is low.** The previous winner's headline was **+$19.18 over 10
-   trades, and it was a backtest** because live was blocked. Second place ran
-   **+0.58%** live. Criterion 1 is winnable, which means criteria 2-4 decide the
-   ranking.
-
-3. **A judge praised the winner's admission of failure** -- the transparency note
-   "separates this from teams that pretend everything worked" -- and marked a
-   competitor down for "generating plausible financial narratives after the
-   fact", asking to see "why ARM was chosen over five other correlated
-   companies, and whether the trade ended up being right".
-
-   So: the write-up leads with what did not work, and the dashboard leads with
-   the refused candidates. Both are cheap and neither can be back-filled.
+1. **Grade the NVDA print** — the first brain-vs-brain result on a real event.
+2. **Dashboard** from the event cards (criterion 4). The refused/shadow screen is the one nobody else has.
+3. **Write-up** leading with what did not work: sources refused, the parity gap, the attention-brain ranking bias, one macro day inside an inferred print list.
+4. **Belief-gap trades**: wire `exposure.py` (theme → tickers) so a shock extracted on one name proposes forecasts on its exposure siblings; and record Polymarket/Kalshi belief beside the LLM's on every narrative row (currently on the card only).
+5. **Crypto sleeve** for 29–30 Aug — untouched.
+6. **Railway deploy** of `agent_loop` — the agent must not need the laptop.
+7. Re-probe Bluesky search and SEC EFTS from the deploy host (likely geo-blocks).
 
 ## Do NOT
 
-- **Do not build a bull/bear/risk debate.** A competitor already is, and the
-  parent project measured that specialist personas are correlated forecasters
-  in costume.
-- **Do not average mechanisms into one composite.** That is the parent
-  project's diagnosed bottleneck — ten books that all select on one signal
-  because everything was averaged. Each brain gets its own book, and a composite
-  is always checked against its own best component.
-- **Do not exploit the paper simulator.** Alpaca models neither market impact
-  nor order size against displayed NBBO. `chain.MIN_QUOTE_SIZE` and limit-only
-  orders are our own check. Fake P&L fails criterion 1 the moment a judge reads
-  the contracts.
-- **Do not use market orders.** A market order in a thin option fills at a price
-  that never existed.
-- **Do not continue the ordinary Aegis roadmap.**
-
-## The two ideas everything rests on
-
-**Shape decides the instrument.** A TAIL signal *is* an option — buy convexity,
-narrow. A STEP signal is a stock book — buy breadth, wide. `mom_12_1` and
-`rev_dispersion` are tails; `profit_roe` is a plateau and the agent **refuses**
-to buy calls on it despite it having the strongest statistical evidence in the
-whole programme. No prompt-based agent makes that refusal.
-
-**Ask whether the trade can resolve before asking whether it wins.** A structure
-bought at the ask and sold at the bid breaks even at a specific underlying move.
-Unless our forecast puts materially more probability beyond it than the chain
-does, we agree with the market and would pay to say so.
+- Do not let `options_attention` or `narrative_dispersion` execute before they lead `brain_scoreboard` on marks older than a session.
+- Do not average brains. Do not build a bull/bear debate. Do not use market orders. Do not exploit paper-fill mechanics.
+- Do not read the free feed's closing quotes as live: the parity gap says the options and the underlying can disagree by 1.3% at the close.
+- Do not continue the ordinary Aegis roadmap this week.

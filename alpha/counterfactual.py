@@ -94,6 +94,10 @@ class Mark:
     risk_budget_usd: float
     marked_at: str
     mark_source: str                 # "chain" | "null" | "unmarkable"
+    brain: str = ""
+    """Which brain proposed this world. Shadow rows carry the brain that LOST the
+    enumeration on that symbol, so the scoreboard grades brain against brain at
+    equal risk -- the comparison the multi-brain runner exists to make."""
     elapsed_hours: float = 0.0
     """Hours between the decision and the mark. Load-bearing: a world marked at
     zero elapsed time returns exactly MINUS its bid-ask spread, because it
@@ -158,6 +162,7 @@ def mark(decision: dict, quotes: dict[str, dict], *,
         risk_budget_usd=risk_budget_usd,
         marked_at=stamp,
         elapsed_hours=elapsed,
+        brain=str(decision.get("brain") or ""),
     )
 
     if kind == NO_TRADE:
@@ -252,6 +257,26 @@ def report(marks: list[Mark]) -> dict[str, Any]:
             "the best available action was to lose the least; abstaining won this "
             "window, so there is no opportunity to have captured a share of."
         )
+
+    # Brain against brain: every world a brain would have OPENED (taken, dry-run
+    # or shadow), at equal risk, through the same exit quotes. A brain that is
+    # shadow-only earns execution here or nowhere.
+    proposals = [m for m in usable if m.action in ("submitted", "dry_run", "shadow")
+                 and m.mark_source == "chain" and m.brain]
+    board: dict[str, dict[str, Any]] = {}
+    for m in proposals:
+        b = board.setdefault(m.brain, {"n": 0, "pnl_usd": 0.0, "ror": []})
+        b["n"] += 1
+        b["pnl_usd"] += m.pnl_usd
+        b["ror"].append(m.return_on_risk)
+    out["brain_scoreboard"] = {
+        k: {"n": v["n"], "pnl_usd": round(v["pnl_usd"], 2),
+            "mean_return_on_risk": round(statistics.mean(v["ror"]), 4),
+            "hit_rate": round(sum(1 for r in v["ror"] if r > 0) / v["n"], 3)}
+        for k, v in sorted(board.items(), key=lambda kv: -statistics.mean(kv[1]["ror"]))
+    }
+    if fresh:
+        out["brain_scoreboard_caveat"] = "fresh marks: this is spread, not skill"
 
     if taken and refused:
         edge = statistics.mean(m.return_on_risk for m in taken) - \

@@ -70,7 +70,10 @@ KALSHI_SERIES = {
 }
 
 
-def kalshi_markets(series_ticker: str, *, status: str = "open", limit: int = 100) -> list[dict[str, Any]]:
+def kalshi_markets(series_ticker: str, *, status: str = "open", limit: int = 100,
+                   closes_before: str | None = None) -> list[dict[str, Any]]:
+    """`closes_before` (ISO date) keeps only markets resolving by then -- the
+    August payrolls market closes 4 Sep, inside the window; November's does not."""
     data, _ = get_json(f"{KALSHI}/markets", {"series_ticker": series_ticker, "status": status, "limit": limit})
     rows = []
     for m in (data or {}).get("markets") or []:
@@ -84,7 +87,9 @@ def kalshi_markets(series_ticker: str, *, status: str = "open", limit: int = 100
             "volume": float(m.get("volume_fp") or m.get("volume") or 0.0),
             "close_time": m.get("close_time"),
         })
-    return rows
+    if closes_before:
+        rows = [r for r in rows if (r["close_time"] or "9999") <= closes_before + "T23:59:59Z"]
+    return sorted(rows, key=lambda r: (r["close_time"] or "", r["ticker"] or ""))
 
 
 # ------------------------------------------------------------------------ CBOE

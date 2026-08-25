@@ -1,0 +1,77 @@
+"""The unattended loop: exits often, entries on a cadence, counterfactuals hourly.
+
+    AAT_ACCOUNT_ROLE=dev python -m scripts.agent_loop --expiry 2026-08-28            # dry
+    AAT_ACCOUNT_ROLE=dev python -m scripts.agent_loop --expiry 2026-08-28 --live
+
+Cadence (all in market time, read from the venue clock, never from the laptop):
+
+    exits            every 5 min while the market is open     (deadline, expiry, targets)
+    entries          every 30 min while open, and once at 15:30 ET for the next session
+    counterfactual   every 60 min, market open or not          (marks need quotes; stale
+                                                                quotes mark as stale)
+    fill audit       every 15 min while an order is open
+
+A crash mid-cycle is safe: decision ids are minute-derived so a restart inside
+the same minute collides at the broker, and every cycle re-reads the venue.
+Nothing here holds state between cycles except the ledgers on disk.
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+
+from alpha import config
+from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
+
+log = logging.getLogger("loop")
+
+
+def _run(mod: str, *args: str, live: bool) -> int:
+    cmd = [sys.executable, "-m", mod, *args] + (["--live"] if live else [])
+    log.info("run %s", " ".join(cmd[2:]))
+    return subprocess.call(cmd)
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--expiry", required=True)
+    p.add_argument("--live", action="store_true")
+    p.add_argument("--entry-minutes", type=int, default=30)
+    p.add_argument("--exit-minutes", type=int, default=5)
+    p.add_argument("--once", action="store_true", help="one cycle, then exit")
+    args = p.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+    config.load_env()
+    client = AlpacaPaper()
+
+    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0}
+    while True:
+        now = time.time()
+        try:
+            clock = client.clock()
+            is_open = bool(clock.get("is_open"))
+        except BrokerRefusal as exc:
+            log.warning("clock unavailable: %s -- treating as closed", exc)
+            is_open = False
+
+        if is_open and now - last["exit"] >= args.exit_minutes * 60:
+            _run("scripts.manage", live=args.live); last["exit"] = now
+        if is_open and now - last["entry"] >= args.entry_minutes * 60:
+            _run("scripts.run_pass", "--expiry", args.expiry, live=args.live); last["entry"] = now
+        if now - last["cf"] >= 3600:
+            _run("scripts.counterfactual", "--record", live=False); last["cf"] = now
+        if is_open and now - last["fill"] >= 900:
+            _run("scripts.fill_audit", "--record", live=False); last["fill"] = now
+
+        if args.once:
+            return 0
+        time.sleep(60)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
