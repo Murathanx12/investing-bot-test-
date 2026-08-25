@@ -1,0 +1,172 @@
+"""Credentials, endpoints, and the refusals that make this repo safe to run.
+
+THREE REFUSALS, AND EACH ONE HAS A SPECIFIC CORPSE BEHIND IT
+============================================================
+
+1. **This repo never reads `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY`.**
+   Those variables exist on the development machine and they are attached to a
+   LIVE Alpaca account. A smoke test in the parent project once called `sync()`
+   against them and placed **twelve real sell orders**. A tournament bot that
+   inherits an ambient credential is one `os.getenv` away from repeating that,
+   so the inheritance is severed at the name: everything here is `AAT_*`, and
+   `credentials()` REFUSES if the caller tries to fall back.
+
+2. **The base URL must be the paper host.** Not "defaults to paper" -- a
+   default is a thing an env var can quietly override. `base_url()` matches the
+   host against an allowlist and raises otherwise. There is no flag that turns
+   this off, because the only reason to want one is the reason we are guarding.
+
+3. **The competition account is DECLARED, not discovered.** `ACCOUNT_ROLE`
+   is `dev` or `competition` and must be set explicitly. A run with no role set
+   refuses rather than assuming `dev`, because the failure mode we care about is
+   a rehearsal order landing in the judged account -- and that failure looks
+   exactly like a missing env var.
+
+WHY A SEPARATE NAMESPACE INSTEAD OF A SHARED ONE
+------------------------------------------------
+An Alpaca account is ONE account with ONE equity curve. The competition account
+is submitted for judging and its history is the deliverable. Sharing a variable
+name with anything else -- the parent project's lane mirror, the arena mirror, a
+teammate's shell -- means a single stale export can write a rehearsal into the
+judged record. There is no undo for that: the rules say a reused account is
+ineligible, and a reset is itself a disqualifying reuse.
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+#: Hosts this repo is permitted to talk to. `api.alpaca.markets` (the LIVE
+#: trading host) is deliberately absent and must stay absent.
+_ALLOWED_TRADING_HOSTS = frozenset({"paper-api.alpaca.markets"})
+
+#: Market data is read-only, so the live data host is fine -- it cannot place
+#: an order. It is still allowlisted so a typo'd host fails loudly.
+_ALLOWED_DATA_HOSTS = frozenset({"data.alpaca.markets"})
+
+#: The two roles an account may hold. `competition` is the judged account and
+#: is created at kickoff; `dev` is everything before that.
+ROLES = ("dev", "competition")
+
+#: Variables from the PARENT project that must never be read here. Named so the
+#: refusal message can say what it is protecting rather than "missing key".
+_FORBIDDEN_INHERITED = (
+    "ALPACA_API_KEY_ID",
+    "ALPACA_API_SECRET_KEY",
+    "ALPACA_ARENA_API_KEY_ID",
+    "ALPACA_ARENA_API_SECRET_KEY",
+)
+
+
+class CredentialRefusal(RuntimeError):
+    """A credential was missing, ambiguous, or inherited from the wrong place."""
+
+
+class EndpointRefusal(RuntimeError):
+    """A host that is not the paper trading host was requested."""
+
+
+@dataclass(frozen=True)
+class Credentials:
+    key_id: str
+    secret_key: str
+    role: str
+
+    @property
+    def headers(self) -> dict[str, str]:
+        return {
+            "APCA-API-KEY-ID": self.key_id,
+            "APCA-API-SECRET-KEY": self.secret_key,
+        }
+
+    def __repr__(self) -> str:  # never print a secret into a log or a ledger
+        return f"Credentials(role={self.role!r}, key_id={self.key_id[:4]}...)"
+
+
+def role() -> str:
+    """The DECLARED account role. Refuses rather than defaulting.
+
+    A default here would mean an unset variable silently selects an account,
+    and the whole point of the two roles is that selecting the wrong one is
+    unrecoverable.
+    """
+    declared = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower()
+    if not declared:
+        raise CredentialRefusal(
+            "AAT_ACCOUNT_ROLE is not set. Declare 'dev' (rehearsal account) or "
+            "'competition' (the judged account). This is not defaulted: an "
+            "unset variable choosing the judged account is the one mistake "
+            "with no undo."
+        )
+    if declared not in ROLES:
+        raise CredentialRefusal(
+            f"AAT_ACCOUNT_ROLE={declared!r} is not one of {ROLES}."
+        )
+    return declared
+
+
+def credentials(for_role: str | None = None) -> Credentials:
+    """Paper credentials for the declared role, from this repo's namespace only."""
+    resolved = for_role or role()
+    if resolved not in ROLES:
+        raise CredentialRefusal(f"Unknown role {resolved!r}; expected one of {ROLES}.")
+
+    prefix = f"AAT_{resolved.upper()}"
+    key_id = os.getenv(f"{prefix}_KEY_ID", "").strip()
+    secret = os.getenv(f"{prefix}_SECRET_KEY", "").strip()
+
+    if not key_id or not secret:
+        inherited = [name for name in _FORBIDDEN_INHERITED if os.getenv(name)]
+        hint = ""
+        if inherited:
+            hint = (
+                f" NOTE: {', '.join(inherited)} IS set in this environment and is "
+                "deliberately NOT used -- it belongs to a different account "
+                "(the parent project's, which has been live). Set "
+                f"{prefix}_KEY_ID / {prefix}_SECRET_KEY instead."
+            )
+        raise CredentialRefusal(
+            f"No credentials for role {resolved!r}: set {prefix}_KEY_ID and "
+            f"{prefix}_SECRET_KEY.{hint}"
+        )
+    return Credentials(key_id=key_id, secret_key=secret, role=resolved)
+
+
+def base_url() -> str:
+    """The paper trading host. Allowlisted, not defaulted."""
+    url = os.getenv("AAT_TRADING_BASE", "https://paper-api.alpaca.markets").rstrip("/")
+    _require_host(url, _ALLOWED_TRADING_HOSTS, "trading")
+    return url
+
+
+def data_url() -> str:
+    """The market data host. Read-only, still allowlisted."""
+    url = os.getenv("AAT_DATA_BASE", "https://data.alpaca.markets").rstrip("/")
+    _require_host(url, _ALLOWED_DATA_HOSTS, "market data")
+    return url
+
+
+def _require_host(url: str, allowed: frozenset[str], kind: str) -> None:
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    if parsed.scheme != "https":
+        raise EndpointRefusal(f"{kind} host must be https, got {url!r}.")
+    if parsed.hostname not in allowed:
+        raise EndpointRefusal(
+            f"Refusing {kind} host {parsed.hostname!r}. Allowed: {sorted(allowed)}. "
+            "This repo has no live-trading path and this refusal is not "
+            "configurable -- the only reason to override it is the reason it exists."
+        )
+
+
+#: The competition's own facts, snapshotted from the rules page on 2026-08-25.
+#: Kept here rather than in prose so a script can assert against them.
+COMPETITION = {
+    "kickoff_utc": "2026-08-28T15:00:00Z",
+    "deadline_utc": "2026-09-04T15:00:00Z",
+    "required_starting_equity": 100_000.0,
+    "source": "https://lablab.ai/ai-hackathons/alpaca-ai-trading-agents-hackathon",
+    "snapshot_date": "2026-08-25",
+}
