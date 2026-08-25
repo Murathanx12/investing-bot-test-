@@ -1,0 +1,46 @@
+{
+ "generated_utc": "2026-08-25T14:30:26.653899+00:00",
+ "symbols": [
+  "TSLA",
+  "NVDA",
+  "AVGO",
+  "AMD",
+  "AAPL",
+  "MSFT",
+  "META",
+  "AMZN",
+  "GOOGL",
+  "NIO",
+  "PANW",
+  "MU"
+ ],
+ "all": {
+  "n": 5844,
+  "mean_bp": 12.7,
+  "t": 3.19,
+  "mean_abs_bp": 206.9,
+  "hit_rate_up": 0.523
+ },
+ "z_gt_2": {
+  "n": 410,
+  "mean_bp": -7.9,
+  "t": -0.4,
+  "mean_abs_bp": 261.5,
+  "hit_rate_up": 0.459
+ },
+ "z_gt_3": {
+  "n": 212,
+  "mean_bp": -15.7,
+  "t": -0.56,
+  "mean_abs_bp": 270.4,
+  "hit_rate_up": 0.448
+ },
+ "z_lt_0": {
+  "n": 3649,
+  "mean_bp": 14.8,
+  "t": 3.15,
+  "mean_abs_bp": 194.9,
+  "hit_rate_up": 0.53
+ },
+ "note": "next-day log return after a Wikipedia pageview z-score vs trailing 30d; pageviews lag ~1 day"
+}

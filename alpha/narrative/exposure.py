@@ -47,7 +47,12 @@ EDGES: list[Edge] = [
     Edge("auto_tariffs", "F", -1, 0.2, "Canadian assembly"),
     Edge("auto_tariffs", "GM", -1, 0.2, "Canadian assembly"),
     Edge("auto_tariffs", "STLA", -1, 0.2, "Canadian assembly"),
-    Edge("auto_tariffs", "TSLA", +1, 0.6, "US-built, relative winner, weak"),
+    # GRADED 2026-08-24 (50% Canada auto tariff): F -3.4%, GM -1.1%, STLA -3.6%
+    # vs SPY -0.3% -- the three 0.2-uncertainty edges were right. TSLA was
+    # written +1 at 0.6 uncertainty and printed -3.9%. An edge whose sign we
+    # were that unsure of should never have carried one: sign 0, kept as the
+    # record of a wrong prior rather than deleted.
+    Edge("auto_tariffs", "TSLA", 0, 0.6, "US-built; was +1, graded WRONG on 2026-08-24"),
     # EV policy
     Edge("ev_policy", "TSLA", +1, 0.4, "credits / mandates"),
     Edge("ev_policy", "NIO", +1, 0.5, "US-listed China EV, indirect"),

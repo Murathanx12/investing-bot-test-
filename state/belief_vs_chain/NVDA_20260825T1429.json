@@ -1,0 +1,75 @@
+{
+ "generated_utc": "2026-08-25T14:29:33.526117+00:00",
+ "symbol": "NVDA",
+ "spot": 211.895,
+ "atm_iv": 0.8037,
+ "quote_age_s": 2.5,
+ "rows": [
+  {
+   "question": "Will NVIDIA (NVDA) close above $205 on August 25?",
+   "K": 205.0,
+   "resolves": "2026-08-25",
+   "p_crowd": 0.9895,
+   "p_chain": 0.9488,
+   "gap_crowd_minus_chain": 0.0407,
+   "volume_24h": 313.02,
+   "iv_used": 0.8037,
+   "spot": 211.895,
+   "chain_expiry": "2026-08-28",
+   "t_years": 0.00063
+  },
+  {
+   "question": "Will NVIDIA (NVDA) close above $210 on August 25?",
+   "K": 210.0,
+   "resolves": "2026-08-25",
+   "p_crowd": 0.645,
+   "p_chain": 0.669,
+   "gap_crowd_minus_chain": -0.024,
+   "volume_24h": 0.0,
+   "iv_used": 0.8037,
+   "spot": 211.895,
+   "chain_expiry": "2026-08-28",
+   "t_years": 0.00063
+  },
+  {
+   "question": "Will NVIDIA (NVDA) close above $215 on August 25?",
+   "K": 215.0,
+   "resolves": "2026-08-25",
+   "p_crowd": 0.4,
+   "p_chain": 0.2325,
+   "gap_crowd_minus_chain": 0.1675,
+   "volume_24h": 111.6,
+   "iv_used": 0.8037,
+   "spot": 211.895,
+   "chain_expiry": "2026-08-28",
+   "t_years": 0.00063
+  },
+  {
+   "question": "Will NVIDIA (NVDA) close above $220 on August 25?",
+   "K": 220.0,
+   "resolves": "2026-08-25",
+   "p_crowd": 0.135,
+   "p_chain": 0.0306,
+   "gap_crowd_minus_chain": 0.1044,
+   "volume_24h": 0.0,
+   "iv_used": 0.8037,
+   "spot": 211.895,
+   "chain_expiry": "2026-08-28",
+   "t_years": 0.00063
+  },
+  {
+   "question": "Will NVIDIA (NVDA) close above $225 on August 25?",
+   "K": 225.0,
+   "resolves": "2026-08-25",
+   "p_crowd": 0.027,
+   "p_chain": 0.0014,
+   "gap_crowd_minus_chain": 0.0256,
+   "volume_24h": 380.22,
+   "iv_used": 0.8037,
+   "spot": 211.895,
+   "chain_expiry": "2026-08-28",
+   "t_years": 0.00063
+  }
+ ],
+ "note": "P_chain is lognormal N(d2) at ATM IV time-scaled to the market's resolution; a vertical digital is the exact follow-up"
+}
