@@ -118,7 +118,7 @@ are required to submit alongside it.
 - *"Submissions must be original and MIT-compliant."*
 - Scale: the event page shows **2,236 registered participants**
 
-## Market data — the $99 is not optional
+## Market data — and what the free plan can actually do
 
 From `alpaca.markets/data`:
 

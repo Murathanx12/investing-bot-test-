@@ -21,8 +21,8 @@ unused buying power             $400,000 (dev)
 LLM calls / spend               0 / $0
 execution failures              0
 service uptime                  not deployed
-submission readiness            engine works end-to-end; no dashboard, no MCP/CLI, no writeup
-COMPETITION RESULT IMPROVEMENT  FIRST ORDER PLACED. Engine is live but untested against a fill.
+submission readiness            engine + exits work end-to-end; no dashboard, no MCP/CLI, no writeup
+COMPETITION RESULT IMPROVEMENT  FIRST ORDER PLACED, EXIT LOGIC BUILT. Untested against a fill.
 ```
 
 ---
@@ -126,10 +126,12 @@ Decide on 27 Aug with the slippage numbers in hand, not before.
 | `alpha/engine/structures.py` | 8 structures enumerated from a live chain, priced at the crossed side |
 | `alpha/brains/vol_gap.py` | first brain: EWMA realised vol vs implied, damped momentum tilt |
 | `alpha/runner.py` | the decision pass; ledger writes on every candidate |
+| `alpha/exits.py` | deadline liquidation, expiry, asymmetric targets/stops |
+| `scripts/manage.py` | `python -m scripts.manage --live` — run this OFTEN |
 | `alpha/ledger.py` | hash-chained append-only record, refusals included |
 | `scripts/run_pass.py` | `python -m scripts.run_pass --expiry 2026-08-28 --live` |
 | `scripts/preflight.py` | account verification |
-| `tests_smoke.py` | 24 checks, no keys, no network |
+| `tests_smoke.py` | **34 checks**, no keys, no network |
 
 **Verified against the live broker, not asserted:**
 - multi-leg order accepted — TSLA 350 straddle ×3, limit $13.35, `accepted`;
@@ -175,10 +177,19 @@ judge, and it is one screen.
 1. **Measure the fill.** The TSLA straddle fills at Tuesday's open. Compare the
    actual fill against `quote_snapshot` in the ledger. That number decides the
    $99 and it is the single most valuable measurement available this week.
-2. **Exit management.** There is currently **no exit logic** — the agent can
-   open and cannot close. Needs: profit target, stop, time stop, and the hard
-   **10:45 ET 4 Sep** liquidation deadline. This is the largest gap and it is
-   the one that turns a good week into a bad one.
+2. ~~Exit management~~ — **DONE.** `alpha/exits.py`, ten cases pinned in the
+   smoke test. Five reasons to close, most binding first: the **10:45 ET 4 Sep
+   deadline liquidation** (which outranks a winning thesis — a +90% position is
+   still flattened, because a position open at the cut is scored at whatever
+   mark the venue carries); **never hold through an expiry** (ITM auto-exercise
+   at $0.01 silently converts a $2k premium position into a $70k stock
+   position); asymmetric targets (long premium takes profit LATE at +100%,
+   short premium takes profit EARLY at 60% of credit); stops; invalidation.
+   Deliberately **no trailing stop** — over five sessions with 1-4 day options,
+   gamma makes the mark so noisy that a trailing stop is a random exit
+   generator, converting the tail we paid for into an average outcome.
+   *Still to wire: run it on a schedule, and a thesis-invalidation check that
+   re-runs the brain against the open position.*
 3. **MCP + CLI.** Both are competition requirements and neither is done. CLI as
    the deterministic JSON audit path; MCP as the "why did you make this trade?"
    demo surface. Do not route the tick loop through MCP.
