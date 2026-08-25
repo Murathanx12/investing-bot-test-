@@ -9,6 +9,7 @@ Cadence (all in market time, read from the venue clock, never from the laptop):
     entries          every 30 min while open, and once at 15:30 ET for the next session
     counterfactual   every 60 min, market open or not          (marks need quotes; stale
                                                                 quotes mark as stale)
+    belief vs chain  every 60 min while open, graded after resolution
     fill audit       every 15 min while an order is open
 
 A crash mid-cycle is safe: decision ids are minute-derived so a restart inside
@@ -49,7 +50,7 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper()
 
-    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0}
+    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0}
     while True:
         now = time.time()
         try:
@@ -65,6 +66,13 @@ def main() -> int:
             _run("scripts.run_pass", "--expiry", args.expiry, live=args.live); last["entry"] = now
         if now - last["cf"] >= 3600:
             _run("scripts.counterfactual", "--record", live=False); last["cf"] = now
+        if is_open and now - last["belief"] >= 3600:
+            # Crowd vs chain, recorded hourly and graded once resolved -- the
+            # belief-gap idea earns a trade from these grades, not from a prior.
+            for sym in ("NVDA", "TSLA", "SPY"):
+                subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain", sym, "--expiry", args.expiry])
+            subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain_grade"])
+            last["belief"] = now
         if is_open and now - last["fill"] >= 900:
             _run("scripts.fill_audit", "--record", live=False); last["fill"] = now
 
