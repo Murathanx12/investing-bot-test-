@@ -31,9 +31,43 @@ MCP / CLI requirement           the rule is MCP **OR** CLI. We ship BOTH because
 counterfactual worlds marked    136 (session 1) + today's dry-run families; brain scoreboard added
 submission readiness            engine + 4 brains + exits + MCP/CLI + counterfactual + event card;
                                 no dashboard, no write-up, no social post
-COMPETITION RESULT IMPROVEMENT  THREE INDEPENDENT BRAINS NOW FORECAST LIVE, AND ONE REAL FILL IS
-                                MEASURED. Still zero P&L evidence -- the position is one day old.
+COMPETITION RESULT IMPROVEMENT  A LOSING TRADE WAS WITHDRAWN BEFORE IT WAS PLACED. The NVDA
+                                straddle event_move planned at 18.5% risk lost on 0 of 8 real
+                                prints (docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md). Four
+                                brains live, one fill measured at zero slippage, feed is seconds
+                                late. Still zero P&L evidence; the evidence is now about what NOT
+                                to do, which is worth more this week.
 ```
+
+## THE AFTERNOON'S FINDINGS (25 Aug) — read before touching event_move
+
+1. **Real straddle backtest, 117 prints, 2024–26** (`scripts/event_straddle_backtest.py`,
+   expired option bars + SEC 8-K Item 2.02 dates): the chain OVERprices mega-cap
+   prints — median straddle **−18%**, 43% clear break-even, paired t −2.24.
+   **NVDA 0/8, median −46%.** AVGO the opposite (+32% mean, 5/8). The conditional
+   sort (name's own prior history − implied) is two-sided: top tercile +16%,
+   bottom −7%. `event_move` now weights the last 8 prints and **refuses NVDA**.
+2. **Exact print dates from SEC** (`alpha/sources/sec.py`, no auth): the inferred
+   dates had padded NVDA with the DeepSeek selloff. Inference is now the 6-K
+   fallback only.
+3. **Attention widens** (`scripts/attention_backtest.py`, receipt in
+   `state/attention_backtest.json`): Wikipedia z>2 → next-day |r| 262bp vs 195bp,
+   direction −8bp vs +15bp. The attention brains' shape (sigma up, no sign) has a number.
+4. **Exposure graph graded** on the 24 Aug tariff: F/GM/STLA right, the uncertain
+   TSLA edge wrong → sign zeroed. Uncertain edges carry no sign.
+5. **Belief vs chain** (`scripts/belief_vs_chain.py`): NVDA >$215 today, crowd 40%
+   vs chain 23%. Recorded hourly by the loop, graded by `belief_vs_chain_grade`.
+6. **Research sweep** (`docs/SOURCES.md` addendum below): unconditional
+   pre-earnings straddles are dead net (−9.1%, BSIC); **NFP-day index straddles
+   were underpriced 10/12 recently** — the 4 Sep 08:30→10:45 window is the one
+   trade to spend variance on; `scripts/nfp_straddle_backtest.py` grades it on
+   2024–26 0DTE minute bars (result in `state/nfp_straddle_backtest.json`).
+   Kalshi is calibrated with favourite-longshot bias. NVDA→AVGO IV spillover
+   (Guttormsen 2026) is being watched: `state/iv_spillover_watch.jsonl` has the
+   pre-print baseline. Crypto weekend sleeve: skipped on evidence.
+
+**The $99: NO.** Slippage 0.00 on the one fill; quote age 3–4 s all session.
+Buy it only if a reaction trade is ever wanted at the 08:30 print itself.
 
 ### THE FILL (the measurement that decides the $99)
 
