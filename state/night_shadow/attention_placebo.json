@@ -1,0 +1,2421 @@
+{
+ "move": 0.05,
+ "since": "2024-02-26",
+ "n_rows": 104675,
+ "cells": {
+  "DOWN_print": {
+   "overnight_gap_signed": {
+    "n": 5467,
+    "mean": -0.0013,
+    "t_iid": -4.38,
+    "t_issuer": -4.43,
+    "n_issuer": 1996,
+    "t_week": -1.0,
+    "n_week": 124,
+    "t_two_way_issuer_week": -1.0
+   },
+   "s1_open_close_signed": {
+    "n": 5467,
+    "mean": 0.00163,
+    "t_iid": 2.5,
+    "t_issuer": 2.46,
+    "n_issuer": 1996,
+    "t_week": 1.7,
+    "n_week": 124,
+    "t_two_way_issuer_week": 1.69
+   },
+   "raw_1": {
+    "n": 5467,
+    "mean": 0.00034,
+    "t_iid": 0.49,
+    "t_issuer": 0.47,
+    "n_issuer": 1996,
+    "t_week": 0.23,
+    "n_week": 124,
+    "t_two_way_issuer_week": 0.23
+   },
+   "raw_3": {
+    "n": 5467,
+    "mean": 0.00219,
+    "t_iid": 2.12,
+    "t_issuer": 2.17,
+    "n_issuer": 1996,
+    "t_week": 0.71,
+    "n_week": 124,
+    "t_two_way_issuer_week": 0.71
+   },
+   "raw_5": {
+    "n": 5467,
+    "mean": 0.00082,
+    "t_iid": 0.66,
+    "t_issuer": 0.67,
+    "n_issuer": 1996,
+    "t_week": 0.2,
+    "n_week": 124,
+    "t_two_way_issuer_week": 0.2
+   },
+   "raw_21": {
+    "n": 5467,
+    "mean": -0.0079,
+    "t_iid": -3.51,
+    "t_issuer": -3.52,
+    "n_issuer": 1996,
+    "t_week": -1.13,
+    "n_week": 124,
+    "t_two_way_issuer_week": -1.13
+   },
+   "exc_1": {
+    "n": 5467,
+    "mean": 0.00226,
+    "t_iid": 3.39,
+    "t_issuer": 3.32,
+    "n_issuer": 1996,
+    "t_week": 2.3,
+    "n_week": 124,
+    "t_two_way_issuer_week": 2.28
+   },
+   "exc_3": {
+    "n": 5467,
+    "mean": 0.00659,
+    "t_iid": 6.72,
+    "t_issuer": 6.66,
+    "n_issuer": 1996,
+    "t_week": 3.35,
+    "n_week": 124,
+    "t_two_way_issuer_week": 3.34
+   },
+   "exc_5": {
+    "n": 5467,
+    "mean": 0.007,
+    "t_iid": 5.93,
+    "t_issuer": 5.86,
+    "n_issuer": 1996,
+    "t_week": 2.49,
+    "n_week": 124,
+    "t_two_way_issuer_week": 2.48
+   },
+   "exc_21": {
+    "n": 5467,
+    "mean": 0.00557,
+    "t_iid": 2.59,
+    "t_issuer": 2.58,
+    "n_issuer": 1996,
+    "t_week": 1.14,
+    "n_week": 124,
+    "t_two_way_issuer_week": 1.14
+   },
+   "short_simple_net": {
+    "n": 5467,
+    "mean": -0.00241,
+    "t_iid": -2.18,
+    "t_issuer": -2.19,
+    "n_issuer": 1996,
+    "t_week": -1.07,
+    "n_week": 124,
+    "t_two_way_issuer_week": -1.07
+   },
+   "pair_iwm_net": {
+    "n": 5467,
+    "mean": -0.0007,
+    "t_iid": -0.65,
+    "t_issuer": -0.65,
+    "n_issuer": 1996,
+    "t_week": -0.39,
+    "n_week": 124,
+    "t_two_way_issuer_week": -0.38
+   },
+   "n": 5467,
+   "n_names": 1996
+  },
+  "DOWN_print_micro": {
+   "overnight_gap_signed": {
+    "n": 1138,
+    "mean": -0.00108,
+    "t_iid": -1.61,
+    "t_issuer": -1.54,
+    "n_issuer": 374,
+    "t_week": -0.72,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.71
+   },
+   "s1_open_close_signed": {
+    "n": 1138,
+    "mean": 0.00265,
+    "t_iid": 1.36,
+    "t_issuer": 1.32,
+    "n_issuer": 374,
+    "t_week": 1.4,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.35
+   },
+   "raw_1": {
+    "n": 1138,
+    "mean": 0.00157,
+    "t_iid": 0.78,
+    "t_issuer": 0.75,
+    "n_issuer": 374,
+    "t_week": 0.72,
+    "n_week": 117,
+    "t_two_way_issuer_week": 0.69
+   },
+   "raw_3": {
+    "n": 1138,
+    "mean": 0.00579,
+    "t_iid": 1.89,
+    "t_issuer": 1.84,
+    "n_issuer": 374,
+    "t_week": 1.19,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.17
+   },
+   "raw_5": {
+    "n": 1138,
+    "mean": 0.00465,
+    "t_iid": 1.33,
+    "t_issuer": 1.33,
+    "n_issuer": 374,
+    "t_week": 0.75,
+    "n_week": 117,
+    "t_two_way_issuer_week": 0.75
+   },
+   "raw_21": {
+    "n": 1138,
+    "mean": -0.00057,
+    "t_iid": -0.09,
+    "t_issuer": -0.09,
+    "n_issuer": 374,
+    "t_week": -0.06,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.06
+   },
+   "exc_1": {
+    "n": 1138,
+    "mean": 0.00327,
+    "t_iid": 1.66,
+    "t_issuer": 1.62,
+    "n_issuer": 374,
+    "t_week": 1.86,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.8
+   },
+   "exc_3": {
+    "n": 1138,
+    "mean": 0.00983,
+    "t_iid": 3.3,
+    "t_issuer": 3.17,
+    "n_issuer": 374,
+    "t_week": 2.64,
+    "n_week": 117,
+    "t_two_way_issuer_week": 2.57
+   },
+   "exc_5": {
+    "n": 1138,
+    "mean": 0.00969,
+    "t_iid": 2.85,
+    "t_issuer": 2.8,
+    "n_issuer": 374,
+    "t_week": 2.08,
+    "n_week": 117,
+    "t_two_way_issuer_week": 2.06
+   },
+   "exc_21": {
+    "n": 1138,
+    "mean": 0.01253,
+    "t_iid": 2.15,
+    "t_issuer": 2.03,
+    "n_issuer": 374,
+    "t_week": 1.83,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.75
+   },
+   "short_simple_net": {
+    "n": 1138,
+    "mean": -0.00173,
+    "t_iid": -0.48,
+    "t_issuer": -0.45,
+    "n_issuer": 374,
+    "t_week": -0.4,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.38
+   },
+   "pair_iwm_net": {
+    "n": 1138,
+    "mean": 9e-05,
+    "t_iid": 0.02,
+    "t_issuer": 0.02,
+    "n_issuer": 374,
+    "t_week": 0.02,
+    "n_week": 117,
+    "t_two_way_issuer_week": 0.02
+   },
+   "n": 1138,
+   "n_names": 374
+  },
+  "DOWN_print_small": {
+   "overnight_gap_signed": {
+    "n": 1801,
+    "mean": -0.00061,
+    "t_iid": -1.22,
+    "t_issuer": -1.28,
+    "n_issuer": 646,
+    "t_week": -0.44,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.45
+   },
+   "s1_open_close_signed": {
+    "n": 1801,
+    "mean": 0.00113,
+    "t_iid": 1.03,
+    "t_issuer": 1.04,
+    "n_issuer": 646,
+    "t_week": 0.82,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.83
+   },
+   "raw_1": {
+    "n": 1801,
+    "mean": 0.00052,
+    "t_iid": 0.46,
+    "t_issuer": 0.47,
+    "n_issuer": 646,
+    "t_week": 0.3,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.31
+   },
+   "raw_3": {
+    "n": 1801,
+    "mean": 0.00334,
+    "t_iid": 1.95,
+    "t_issuer": 2.17,
+    "n_issuer": 646,
+    "t_week": 1.06,
+    "n_week": 118,
+    "t_two_way_issuer_week": 1.09
+   },
+   "raw_5": {
+    "n": 1801,
+    "mean": 0.00157,
+    "t_iid": 0.74,
+    "t_issuer": 0.77,
+    "n_issuer": 646,
+    "t_week": 0.37,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.38
+   },
+   "raw_21": {
+    "n": 1801,
+    "mean": -0.00813,
+    "t_iid": -2.02,
+    "t_issuer": -2.14,
+    "n_issuer": 646,
+    "t_week": -1.0,
+    "n_week": 118,
+    "t_two_way_issuer_week": -1.02
+   },
+   "exc_1": {
+    "n": 1801,
+    "mean": 0.00238,
+    "t_iid": 2.16,
+    "t_issuer": 2.19,
+    "n_issuer": 646,
+    "t_week": 1.8,
+    "n_week": 118,
+    "t_two_way_issuer_week": 1.82
+   },
+   "exc_3": {
+    "n": 1801,
+    "mean": 0.00737,
+    "t_iid": 4.49,
+    "t_issuer": 4.78,
+    "n_issuer": 646,
+    "t_week": 3.16,
+    "n_week": 118,
+    "t_two_way_issuer_week": 3.25
+   },
+   "exc_5": {
+    "n": 1801,
+    "mean": 0.0068,
+    "t_iid": 3.32,
+    "t_issuer": 3.35,
+    "n_issuer": 646,
+    "t_week": 2.06,
+    "n_week": 118,
+    "t_two_way_issuer_week": 2.07
+   },
+   "exc_21": {
+    "n": 1801,
+    "mean": 0.00378,
+    "t_iid": 0.98,
+    "t_issuer": 1.04,
+    "n_issuer": 646,
+    "t_week": 0.56,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.58
+   },
+   "short_simple_net": {
+    "n": 1801,
+    "mean": -0.00171,
+    "t_iid": -0.98,
+    "t_issuer": -1.07,
+    "n_issuer": 646,
+    "t_week": -0.67,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.7
+   },
+   "pair_iwm_net": {
+    "n": 1801,
+    "mean": -0.00036,
+    "t_iid": -0.21,
+    "t_issuer": -0.22,
+    "n_issuer": 646,
+    "t_week": -0.16,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.17
+   },
+   "n": 1801,
+   "n_names": 646
+  },
+  "DOWN_print_mid": {
+   "overnight_gap_signed": {
+    "n": 1763,
+    "mean": -0.00196,
+    "t_iid": -3.63,
+    "t_issuer": -3.61,
+    "n_issuer": 686,
+    "t_week": -1.4,
+    "n_week": 117,
+    "t_two_way_issuer_week": -1.4
+   },
+   "s1_open_close_signed": {
+    "n": 1763,
+    "mean": 0.00189,
+    "t_iid": 1.96,
+    "t_issuer": 1.89,
+    "n_issuer": 686,
+    "t_week": 1.72,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.67
+   },
+   "raw_1": {
+    "n": 1763,
+    "mean": -8e-05,
+    "t_iid": -0.07,
+    "t_issuer": -0.07,
+    "n_issuer": 686,
+    "t_week": -0.04,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.04
+   },
+   "raw_3": {
+    "n": 1763,
+    "mean": -0.0001,
+    "t_iid": -0.07,
+    "t_issuer": -0.07,
+    "n_issuer": 686,
+    "t_week": -0.03,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.03
+   },
+   "raw_5": {
+    "n": 1763,
+    "mean": -0.00129,
+    "t_iid": -0.71,
+    "t_issuer": -0.7,
+    "n_issuer": 686,
+    "t_week": -0.32,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.32
+   },
+   "raw_21": {
+    "n": 1763,
+    "mean": -0.01017,
+    "t_iid": -3.02,
+    "t_issuer": -3.01,
+    "n_issuer": 686,
+    "t_week": -1.47,
+    "n_week": 117,
+    "t_two_way_issuer_week": -1.47
+   },
+   "exc_1": {
+    "n": 1763,
+    "mean": 0.00197,
+    "t_iid": 1.96,
+    "t_issuer": 1.83,
+    "n_issuer": 686,
+    "t_week": 1.56,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.5
+   },
+   "exc_3": {
+    "n": 1763,
+    "mean": 0.00483,
+    "t_iid": 3.41,
+    "t_issuer": 3.24,
+    "n_issuer": 686,
+    "t_week": 2.08,
+    "n_week": 117,
+    "t_two_way_issuer_week": 2.04
+   },
+   "exc_5": {
+    "n": 1763,
+    "mean": 0.0056,
+    "t_iid": 3.22,
+    "t_issuer": 3.12,
+    "n_issuer": 686,
+    "t_week": 1.74,
+    "n_week": 117,
+    "t_two_way_issuer_week": 1.72
+   },
+   "exc_21": {
+    "n": 1763,
+    "mean": 0.00348,
+    "t_iid": 1.06,
+    "t_issuer": 1.05,
+    "n_issuer": 686,
+    "t_week": 0.62,
+    "n_week": 117,
+    "t_two_way_issuer_week": 0.62
+   },
+   "short_simple_net": {
+    "n": 1763,
+    "mean": -0.00298,
+    "t_iid": -2.06,
+    "t_issuer": -2.09,
+    "n_issuer": 686,
+    "t_week": -1.26,
+    "n_week": 117,
+    "t_two_way_issuer_week": -1.26
+   },
+   "pair_iwm_net": {
+    "n": 1763,
+    "mean": -0.00104,
+    "t_iid": -0.74,
+    "t_issuer": -0.75,
+    "n_issuer": 686,
+    "t_week": -0.47,
+    "n_week": 117,
+    "t_two_way_issuer_week": -0.47
+   },
+   "n": 1763,
+   "n_names": 686
+  },
+  "DOWN_print_large": {
+   "overnight_gap_signed": {
+    "n": 644,
+    "mean": -0.0024,
+    "t_iid": -2.87,
+    "t_issuer": -3.14,
+    "n_issuer": 251,
+    "t_week": -2.11,
+    "n_week": 114,
+    "t_two_way_issuer_week": -2.21
+   },
+   "s1_open_close_signed": {
+    "n": 644,
+    "mean": 0.00075,
+    "t_iid": 0.51,
+    "t_issuer": 0.5,
+    "n_issuer": 251,
+    "t_week": 0.44,
+    "n_week": 114,
+    "t_two_way_issuer_week": 0.43
+   },
+   "raw_1": {
+    "n": 644,
+    "mean": -0.00165,
+    "t_iid": -0.98,
+    "t_issuer": -0.93,
+    "n_issuer": 251,
+    "t_week": -0.77,
+    "n_week": 114,
+    "t_two_way_issuer_week": -0.75
+   },
+   "raw_3": {
+    "n": 644,
+    "mean": -0.00104,
+    "t_iid": -0.41,
+    "t_issuer": -0.43,
+    "n_issuer": 251,
+    "t_week": -0.28,
+    "n_week": 114,
+    "t_two_way_issuer_week": -0.29
+   },
+   "raw_5": {
+    "n": 644,
+    "mean": -0.0014,
+    "t_iid": -0.45,
+    "t_issuer": -0.47,
+    "n_issuer": 251,
+    "t_week": -0.26,
+    "n_week": 114,
+    "t_two_way_issuer_week": -0.27
+   },
+   "raw_21": {
+    "n": 644,
+    "mean": -0.0107,
+    "t_iid": -1.9,
+    "t_issuer": -1.91,
+    "n_issuer": 251,
+    "t_week": -1.15,
+    "n_week": 114,
+    "t_two_way_issuer_week": -1.16
+   },
+   "exc_1": {
+    "n": 644,
+    "mean": 0.00078,
+    "t_iid": 0.49,
+    "t_issuer": 0.48,
+    "n_issuer": 251,
+    "t_week": 0.4,
+    "n_week": 114,
+    "t_two_way_issuer_week": 0.39
+   },
+   "exc_3": {
+    "n": 644,
+    "mean": 0.00402,
+    "t_iid": 1.83,
+    "t_issuer": 1.86,
+    "n_issuer": 251,
+    "t_week": 1.6,
+    "n_week": 114,
+    "t_two_way_issuer_week": 1.62
+   },
+   "exc_5": {
+    "n": 644,
+    "mean": 0.00681,
+    "t_iid": 2.45,
+    "t_issuer": 2.41,
+    "n_issuer": 251,
+    "t_week": 2.01,
+    "n_week": 114,
+    "t_two_way_issuer_week": 1.99
+   },
+   "exc_21": {
+    "n": 644,
+    "mean": 0.00526,
+    "t_iid": 1.05,
+    "t_issuer": 1.06,
+    "n_issuer": 251,
+    "t_week": 0.86,
+    "n_week": 114,
+    "t_two_way_issuer_week": 0.87
+   },
+   "short_simple_net": {
+    "n": 644,
+    "mean": -0.00351,
+    "t_iid": -1.44,
+    "t_issuer": -1.51,
+    "n_issuer": 251,
+    "t_week": -1.14,
+    "n_week": 114,
+    "t_two_way_issuer_week": -1.17
+   },
+   "pair_iwm_net": {
+    "n": 644,
+    "mean": -0.00129,
+    "t_iid": -0.56,
+    "t_issuer": -0.6,
+    "n_issuer": 251,
+    "t_week": -0.5,
+    "n_week": 114,
+    "t_two_way_issuer_week": -0.52
+   },
+   "n": 644,
+   "n_names": 251
+  },
+  "DOWN_nonprint": {
+   "overnight_gap_signed": {
+    "n": 46361,
+    "mean": 0.00032,
+    "t_iid": 1.38,
+    "t_issuer": 1.35,
+    "n_issuer": 2434,
+    "t_week": 0.13,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.13
+   },
+   "s1_open_close_signed": {
+    "n": 46361,
+    "mean": -0.00166,
+    "t_iid": -6.68,
+    "t_issuer": -5.6,
+    "n_issuer": 2434,
+    "t_week": -0.92,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.91
+   },
+   "raw_1": {
+    "n": 46361,
+    "mean": -0.00134,
+    "t_iid": -4.09,
+    "t_issuer": -4.28,
+    "n_issuer": 2434,
+    "t_week": -0.53,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.53
+   },
+   "raw_3": {
+    "n": 46361,
+    "mean": -0.00366,
+    "t_iid": -6.7,
+    "t_issuer": -5.47,
+    "n_issuer": 2434,
+    "t_week": -1.05,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.04
+   },
+   "raw_5": {
+    "n": 46361,
+    "mean": -0.00585,
+    "t_iid": -8.65,
+    "t_issuer": -6.5,
+    "n_issuer": 2434,
+    "t_week": -1.37,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.37
+   },
+   "raw_21": {
+    "n": 46361,
+    "mean": -0.02138,
+    "t_iid": -16.42,
+    "t_issuer": -8.53,
+    "n_issuer": 2434,
+    "t_week": -2.02,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.99
+   },
+   "exc_1": {
+    "n": 46361,
+    "mean": 0.00029,
+    "t_iid": 0.93,
+    "t_issuer": 0.96,
+    "n_issuer": 2434,
+    "t_week": 0.35,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.35
+   },
+   "exc_3": {
+    "n": 46361,
+    "mean": 7e-05,
+    "t_iid": 0.13,
+    "t_issuer": 0.1,
+    "n_issuer": 2434,
+    "t_week": 0.03,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.03
+   },
+   "exc_5": {
+    "n": 46361,
+    "mean": 0.00024,
+    "t_iid": 0.36,
+    "t_issuer": 0.27,
+    "n_issuer": 2434,
+    "t_week": 0.08,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.08
+   },
+   "exc_21": {
+    "n": 46361,
+    "mean": 0.00303,
+    "t_iid": 2.42,
+    "t_issuer": 1.24,
+    "n_issuer": 2434,
+    "t_week": 0.55,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.52
+   },
+   "short_simple_net": {
+    "n": 46361,
+    "mean": -0.0352,
+    "t_iid": -2.21,
+    "t_issuer": -1.57,
+    "n_issuer": 2434,
+    "t_week": -2.18,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.56
+   },
+   "pair_iwm_net": {
+    "n": 46361,
+    "mean": -0.03272,
+    "t_iid": -2.06,
+    "t_issuer": -1.46,
+    "n_issuer": 2434,
+    "t_week": -2.01,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.45
+   },
+   "n": 46361,
+   "n_names": 2434
+  },
+  "DOWN_nonprint_micro": {
+   "overnight_gap_signed": {
+    "n": 12245,
+    "mean": -0.00113,
+    "t_iid": -1.71,
+    "t_issuer": -1.61,
+    "n_issuer": 464,
+    "t_week": -0.61,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.6
+   },
+   "s1_open_close_signed": {
+    "n": 12245,
+    "mean": 0.001,
+    "t_iid": 1.83,
+    "t_issuer": 1.31,
+    "n_issuer": 464,
+    "t_week": 0.73,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.68
+   },
+   "raw_1": {
+    "n": 12245,
+    "mean": -0.00013,
+    "t_iid": -0.15,
+    "t_issuer": -0.15,
+    "n_issuer": 464,
+    "t_week": -0.07,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.07
+   },
+   "raw_3": {
+    "n": 12245,
+    "mean": -0.00127,
+    "t_iid": -0.9,
+    "t_issuer": -0.63,
+    "n_issuer": 464,
+    "t_week": -0.35,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.33
+   },
+   "raw_5": {
+    "n": 12245,
+    "mean": -0.00103,
+    "t_iid": -0.59,
+    "t_issuer": -0.39,
+    "n_issuer": 464,
+    "t_week": -0.21,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.2
+   },
+   "raw_21": {
+    "n": 12245,
+    "mean": 0.00103,
+    "t_iid": 0.33,
+    "t_issuer": 0.15,
+    "n_issuer": 464,
+    "t_week": 0.1,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.09
+   },
+   "exc_1": {
+    "n": 12245,
+    "mean": 0.00139,
+    "t_iid": 1.72,
+    "t_issuer": 1.67,
+    "n_issuer": 464,
+    "t_week": 1.16,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.14
+   },
+   "exc_3": {
+    "n": 12245,
+    "mean": 0.00168,
+    "t_iid": 1.2,
+    "t_issuer": 0.85,
+    "n_issuer": 464,
+    "t_week": 0.61,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.57
+   },
+   "exc_5": {
+    "n": 12245,
+    "mean": 0.00366,
+    "t_iid": 2.13,
+    "t_issuer": 1.41,
+    "n_issuer": 464,
+    "t_week": 0.91,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.87
+   },
+   "exc_21": {
+    "n": 12245,
+    "mean": 0.02057,
+    "t_iid": 6.74,
+    "t_issuer": 2.99,
+    "n_issuer": 464,
+    "t_week": 2.59,
+    "n_week": 126,
+    "t_two_way_issuer_week": 2.13
+   },
+   "short_simple_net": {
+    "n": 12245,
+    "mean": -0.09645,
+    "t_iid": -1.6,
+    "t_issuer": -1.14,
+    "n_issuer": 464,
+    "t_week": -1.59,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.14
+   },
+   "pair_iwm_net": {
+    "n": 12245,
+    "mean": -0.094,
+    "t_iid": -1.56,
+    "t_issuer": -1.11,
+    "n_issuer": 464,
+    "t_week": -1.54,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.11
+   },
+   "n": 12245,
+   "n_names": 464
+  },
+  "DOWN_nonprint_small": {
+   "overnight_gap_signed": {
+    "n": 15744,
+    "mean": 0.00016,
+    "t_iid": 0.54,
+    "t_issuer": 0.56,
+    "n_issuer": 800,
+    "t_week": 0.07,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.07
+   },
+   "s1_open_close_signed": {
+    "n": 15744,
+    "mean": -0.00185,
+    "t_iid": -4.27,
+    "t_issuer": -4.26,
+    "n_issuer": 800,
+    "t_week": -1.05,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.05
+   },
+   "raw_1": {
+    "n": 15744,
+    "mean": -0.00168,
+    "t_iid": -3.33,
+    "t_issuer": -3.56,
+    "n_issuer": 800,
+    "t_week": -0.69,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.69
+   },
+   "raw_3": {
+    "n": 15744,
+    "mean": -0.00303,
+    "t_iid": -3.75,
+    "t_issuer": -3.74,
+    "n_issuer": 800,
+    "t_week": -0.79,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.79
+   },
+   "raw_5": {
+    "n": 15744,
+    "mean": -0.00532,
+    "t_iid": -5.1,
+    "t_issuer": -4.72,
+    "n_issuer": 800,
+    "t_week": -1.14,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.15
+   },
+   "raw_21": {
+    "n": 15744,
+    "mean": -0.02371,
+    "t_iid": -10.99,
+    "t_issuer": -7.06,
+    "n_issuer": 800,
+    "t_week": -2.4,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.35
+   },
+   "exc_1": {
+    "n": 15744,
+    "mean": -0.00016,
+    "t_iid": -0.34,
+    "t_issuer": -0.36,
+    "n_issuer": 800,
+    "t_week": -0.19,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.2
+   },
+   "exc_3": {
+    "n": 15744,
+    "mean": -0.00014,
+    "t_iid": -0.18,
+    "t_issuer": -0.17,
+    "n_issuer": 800,
+    "t_week": -0.06,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.06
+   },
+   "exc_5": {
+    "n": 15744,
+    "mean": -0.00031,
+    "t_iid": -0.31,
+    "t_issuer": -0.28,
+    "n_issuer": 800,
+    "t_week": -0.09,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.09
+   },
+   "exc_21": {
+    "n": 15744,
+    "mean": -0.002,
+    "t_iid": -0.96,
+    "t_issuer": -0.59,
+    "n_issuer": 800,
+    "t_week": -0.34,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.32
+   },
+   "short_simple_net": {
+    "n": 15744,
+    "mean": -0.01103,
+    "t_iid": -12.71,
+    "t_issuer": -14.18,
+    "n_issuer": 800,
+    "t_week": -3.94,
+    "n_week": 126,
+    "t_two_way_issuer_week": -4.01
+   },
+   "pair_iwm_net": {
+    "n": 15744,
+    "mean": -0.00875,
+    "t_iid": -10.51,
+    "t_issuer": -11.5,
+    "n_issuer": 800,
+    "t_week": -3.7,
+    "n_week": 126,
+    "t_two_way_issuer_week": -3.79
+   },
+   "n": 15744,
+   "n_names": 800
+  },
+  "DOWN_nonprint_mid": {
+   "overnight_gap_signed": {
+    "n": 12608,
+    "mean": 0.00174,
+    "t_iid": 4.61,
+    "t_issuer": 5.27,
+    "n_issuer": 815,
+    "t_week": 0.57,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.57
+   },
+   "s1_open_close_signed": {
+    "n": 12608,
+    "mean": -0.00316,
+    "t_iid": -7.39,
+    "t_issuer": -7.18,
+    "n_issuer": 815,
+    "t_week": -1.34,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.34
+   },
+   "raw_1": {
+    "n": 12608,
+    "mean": -0.00142,
+    "t_iid": -2.57,
+    "t_issuer": -3.23,
+    "n_issuer": 815,
+    "t_week": -0.42,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.42
+   },
+   "raw_3": {
+    "n": 12608,
+    "mean": -0.00382,
+    "t_iid": -4.27,
+    "t_issuer": -4.35,
+    "n_issuer": 815,
+    "t_week": -0.96,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.97
+   },
+   "raw_5": {
+    "n": 12608,
+    "mean": -0.00627,
+    "t_iid": -5.71,
+    "t_issuer": -5.25,
+    "n_issuer": 815,
+    "t_week": -1.39,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.41
+   },
+   "raw_21": {
+    "n": 12608,
+    "mean": -0.02969,
+    "t_iid": -13.73,
+    "t_issuer": -8.96,
+    "n_issuer": 815,
+    "t_week": -2.5,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.47
+   },
+   "exc_1": {
+    "n": 12608,
+    "mean": 0.00042,
+    "t_iid": 0.83,
+    "t_issuer": 1.03,
+    "n_issuer": 815,
+    "t_week": 0.41,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.43
+   },
+   "exc_3": {
+    "n": 12608,
+    "mean": 0.00058,
+    "t_iid": 0.7,
+    "t_issuer": 0.66,
+    "n_issuer": 815,
+    "t_week": 0.24,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.24
+   },
+   "exc_5": {
+    "n": 12608,
+    "mean": 0.00079,
+    "t_iid": 0.76,
+    "t_issuer": 0.68,
+    "n_issuer": 815,
+    "t_week": 0.25,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.25
+   },
+   "exc_21": {
+    "n": 12608,
+    "mean": -0.00138,
+    "t_iid": -0.68,
+    "t_issuer": -0.42,
+    "n_issuer": 815,
+    "t_week": -0.24,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.23
+   },
+   "short_simple_net": {
+    "n": 12608,
+    "mean": -0.01375,
+    "t_iid": -8.47,
+    "t_issuer": -9.07,
+    "n_issuer": 815,
+    "t_week": -3.94,
+    "n_week": 126,
+    "t_two_way_issuer_week": -4.01
+   },
+   "pair_iwm_net": {
+    "n": 12608,
+    "mean": -0.0113,
+    "t_iid": -7.09,
+    "t_issuer": -7.36,
+    "n_issuer": 815,
+    "t_week": -3.03,
+    "n_week": 126,
+    "t_two_way_issuer_week": -3.05
+   },
+   "n": 12608,
+   "n_names": 815
+  },
+  "DOWN_nonprint_large": {
+   "overnight_gap_signed": {
+    "n": 4815,
+    "mean": 0.00094,
+    "t_iid": 1.95,
+    "t_issuer": 1.83,
+    "n_issuer": 312,
+    "t_week": 0.29,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.29
+   },
+   "s1_open_close_signed": {
+    "n": 4815,
+    "mean": -0.00379,
+    "t_iid": -5.38,
+    "t_issuer": -6.3,
+    "n_issuer": 312,
+    "t_week": -1.66,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.68
+   },
+   "raw_1": {
+    "n": 4815,
+    "mean": -0.00284,
+    "t_iid": -3.49,
+    "t_issuer": -3.98,
+    "n_issuer": 312,
+    "t_week": -0.88,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.89
+   },
+   "raw_3": {
+    "n": 4815,
+    "mean": -0.01025,
+    "t_iid": -7.59,
+    "t_issuer": -8.74,
+    "n_issuer": 312,
+    "t_week": -2.42,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.46
+   },
+   "raw_5": {
+    "n": 4815,
+    "mean": -0.01584,
+    "t_iid": -9.84,
+    "t_issuer": -9.85,
+    "n_issuer": 312,
+    "t_week": -2.89,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.93
+   },
+   "raw_21": {
+    "n": 4815,
+    "mean": -0.04241,
+    "t_iid": -12.86,
+    "t_issuer": -12.11,
+    "n_issuer": 312,
+    "t_week": -2.89,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.92
+   },
+   "exc_1": {
+    "n": 4815,
+    "mean": -0.00094,
+    "t_iid": -1.31,
+    "t_issuer": -1.5,
+    "n_issuer": 312,
+    "t_week": -0.7,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.72
+   },
+   "exc_3": {
+    "n": 4815,
+    "mean": -0.00359,
+    "t_iid": -3.11,
+    "t_issuer": -3.64,
+    "n_issuer": 312,
+    "t_week": -1.45,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.52
+   },
+   "exc_5": {
+    "n": 4815,
+    "mean": -0.00585,
+    "t_iid": -4.03,
+    "t_issuer": -3.85,
+    "n_issuer": 312,
+    "t_week": -1.82,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.86
+   },
+   "exc_21": {
+    "n": 4815,
+    "mean": -0.00847,
+    "t_iid": -2.93,
+    "t_issuer": -2.85,
+    "n_issuer": 312,
+    "t_week": -1.18,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.21
+   },
+   "short_simple_net": {
+    "n": 4815,
+    "mean": -0.0185,
+    "t_iid": -13.5,
+    "t_issuer": -14.76,
+    "n_issuer": 312,
+    "t_week": -3.44,
+    "n_week": 126,
+    "t_two_way_issuer_week": -3.47
+   },
+   "pair_iwm_net": {
+    "n": 4815,
+    "mean": -0.01514,
+    "t_iid": -12.02,
+    "t_issuer": -13.12,
+    "n_issuer": 312,
+    "t_week": -2.73,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.75
+   },
+   "n": 4815,
+   "n_names": 312
+  },
+  "UP_print": {
+   "overnight_gap_signed": {
+    "n": 5346,
+    "mean": 0.00142,
+    "t_iid": 4.82,
+    "t_issuer": 4.6,
+    "n_issuer": 2004,
+    "t_week": 1.65,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.64
+   },
+   "s1_open_close_signed": {
+    "n": 5346,
+    "mean": -0.00081,
+    "t_iid": -1.26,
+    "t_issuer": -1.31,
+    "n_issuer": 2004,
+    "t_week": -0.79,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.8
+   },
+   "raw_1": {
+    "n": 5346,
+    "mean": 0.00061,
+    "t_iid": 0.86,
+    "t_issuer": 0.87,
+    "n_issuer": 2004,
+    "t_week": 0.43,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.43
+   },
+   "raw_3": {
+    "n": 5346,
+    "mean": 0.00187,
+    "t_iid": 1.77,
+    "t_issuer": 1.81,
+    "n_issuer": 2004,
+    "t_week": 0.56,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.57
+   },
+   "raw_5": {
+    "n": 5346,
+    "mean": 0.00143,
+    "t_iid": 1.14,
+    "t_issuer": 1.15,
+    "n_issuer": 2004,
+    "t_week": 0.32,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.32
+   },
+   "raw_21": {
+    "n": 5346,
+    "mean": 0.00727,
+    "t_iid": 3.28,
+    "t_issuer": 3.33,
+    "n_issuer": 2004,
+    "t_week": 0.92,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.92
+   },
+   "exc_1": {
+    "n": 5346,
+    "mean": -0.00122,
+    "t_iid": -1.78,
+    "t_issuer": -1.81,
+    "n_issuer": 2004,
+    "t_week": -1.13,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.13
+   },
+   "exc_3": {
+    "n": 5346,
+    "mean": -0.00417,
+    "t_iid": -4.1,
+    "t_issuer": -4.22,
+    "n_issuer": 2004,
+    "t_week": -1.99,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.0
+   },
+   "exc_5": {
+    "n": 5346,
+    "mean": -0.00627,
+    "t_iid": -5.22,
+    "t_issuer": -5.3,
+    "n_issuer": 2004,
+    "t_week": -2.12,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.12
+   },
+   "exc_21": {
+    "n": 5346,
+    "mean": -0.00788,
+    "t_iid": -3.74,
+    "t_issuer": -3.73,
+    "n_issuer": 2004,
+    "t_week": -1.48,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.48
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 5346,
+   "n_names": 2004
+  },
+  "UP_print_micro": {
+   "overnight_gap_signed": {
+    "n": 979,
+    "mean": 0.00119,
+    "t_iid": 1.62,
+    "t_issuer": 1.47,
+    "n_issuer": 357,
+    "t_week": 1.03,
+    "n_week": 116,
+    "t_two_way_issuer_week": 0.99
+   },
+   "s1_open_close_signed": {
+    "n": 979,
+    "mean": -0.00308,
+    "t_iid": -1.63,
+    "t_issuer": -1.75,
+    "n_issuer": 357,
+    "t_week": -1.47,
+    "n_week": 116,
+    "t_two_way_issuer_week": -1.55
+   },
+   "raw_1": {
+    "n": 979,
+    "mean": -0.00189,
+    "t_iid": -0.93,
+    "t_issuer": -0.98,
+    "n_issuer": 357,
+    "t_week": -0.77,
+    "n_week": 116,
+    "t_two_way_issuer_week": -0.79
+   },
+   "raw_3": {
+    "n": 979,
+    "mean": -0.00072,
+    "t_iid": -0.23,
+    "t_issuer": -0.25,
+    "n_issuer": 357,
+    "t_week": -0.14,
+    "n_week": 116,
+    "t_two_way_issuer_week": -0.15
+   },
+   "raw_5": {
+    "n": 979,
+    "mean": -0.00261,
+    "t_iid": -0.75,
+    "t_issuer": -0.82,
+    "n_issuer": 357,
+    "t_week": -0.42,
+    "n_week": 116,
+    "t_two_way_issuer_week": -0.44
+   },
+   "raw_21": {
+    "n": 979,
+    "mean": -0.00021,
+    "t_iid": -0.03,
+    "t_issuer": -0.03,
+    "n_issuer": 357,
+    "t_week": -0.02,
+    "n_week": 116,
+    "t_two_way_issuer_week": -0.02
+   },
+   "exc_1": {
+    "n": 979,
+    "mean": -0.00337,
+    "t_iid": -1.71,
+    "t_issuer": -1.8,
+    "n_issuer": 357,
+    "t_week": -1.48,
+    "n_week": 116,
+    "t_two_way_issuer_week": -1.53
+   },
+   "exc_3": {
+    "n": 979,
+    "mean": -0.00574,
+    "t_iid": -1.91,
+    "t_issuer": -2.08,
+    "n_issuer": 357,
+    "t_week": -1.48,
+    "n_week": 116,
+    "t_two_way_issuer_week": -1.55
+   },
+   "exc_5": {
+    "n": 979,
+    "mean": -0.00877,
+    "t_iid": -2.59,
+    "t_issuer": -2.93,
+    "n_issuer": 357,
+    "t_week": -1.82,
+    "n_week": 116,
+    "t_two_way_issuer_week": -1.93
+   },
+   "exc_21": {
+    "n": 979,
+    "mean": -0.01527,
+    "t_iid": -2.56,
+    "t_issuer": -2.47,
+    "n_issuer": 357,
+    "t_week": -1.86,
+    "n_week": 116,
+    "t_two_way_issuer_week": -1.82
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 979,
+   "n_names": 357
+  },
+  "UP_print_small": {
+   "overnight_gap_signed": {
+    "n": 1735,
+    "mean": 0.00125,
+    "t_iid": 2.4,
+    "t_issuer": 2.4,
+    "n_issuer": 661,
+    "t_week": 1.26,
+    "n_week": 118,
+    "t_two_way_issuer_week": 1.26
+   },
+   "s1_open_close_signed": {
+    "n": 1735,
+    "mean": -0.00342,
+    "t_iid": -2.95,
+    "t_issuer": -2.97,
+    "n_issuer": 661,
+    "t_week": -2.52,
+    "n_week": 118,
+    "t_two_way_issuer_week": -2.53
+   },
+   "raw_1": {
+    "n": 1735,
+    "mean": -0.00217,
+    "t_iid": -1.68,
+    "t_issuer": -1.7,
+    "n_issuer": 661,
+    "t_week": -1.16,
+    "n_week": 118,
+    "t_two_way_issuer_week": -1.16
+   },
+   "raw_3": {
+    "n": 1735,
+    "mean": -0.00229,
+    "t_iid": -1.19,
+    "t_issuer": -1.22,
+    "n_issuer": 661,
+    "t_week": -0.6,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.6
+   },
+   "raw_5": {
+    "n": 1735,
+    "mean": -0.00155,
+    "t_iid": -0.67,
+    "t_issuer": -0.67,
+    "n_issuer": 661,
+    "t_week": -0.27,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.27
+   },
+   "raw_21": {
+    "n": 1735,
+    "mean": 0.00575,
+    "t_iid": 1.41,
+    "t_issuer": 1.44,
+    "n_issuer": 661,
+    "t_week": 0.57,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.57
+   },
+   "exc_1": {
+    "n": 1735,
+    "mean": -0.00429,
+    "t_iid": -3.38,
+    "t_issuer": -3.41,
+    "n_issuer": 661,
+    "t_week": -2.75,
+    "n_week": 118,
+    "t_two_way_issuer_week": -2.76
+   },
+   "exc_3": {
+    "n": 1735,
+    "mean": -0.00857,
+    "t_iid": -4.56,
+    "t_issuer": -4.65,
+    "n_issuer": 661,
+    "t_week": -3.36,
+    "n_week": 118,
+    "t_two_way_issuer_week": -3.39
+   },
+   "exc_5": {
+    "n": 1735,
+    "mean": -0.00974,
+    "t_iid": -4.3,
+    "t_issuer": -4.3,
+    "n_issuer": 661,
+    "t_week": -2.23,
+    "n_week": 118,
+    "t_two_way_issuer_week": -2.23
+   },
+   "exc_21": {
+    "n": 1735,
+    "mean": -0.00798,
+    "t_iid": -2.05,
+    "t_issuer": -2.03,
+    "n_issuer": 661,
+    "t_week": -1.01,
+    "n_week": 118,
+    "t_two_way_issuer_week": -1.01
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 1735,
+   "n_names": 661
+  },
+  "UP_print_mid": {
+   "overnight_gap_signed": {
+    "n": 1829,
+    "mean": 0.00228,
+    "t_iid": 4.92,
+    "t_issuer": 4.69,
+    "n_issuer": 676,
+    "t_week": 2.52,
+    "n_week": 118,
+    "t_two_way_issuer_week": 2.48
+   },
+   "s1_open_close_signed": {
+    "n": 1829,
+    "mean": 0.00091,
+    "t_iid": 0.92,
+    "t_issuer": 0.97,
+    "n_issuer": 676,
+    "t_week": 0.67,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.69
+   },
+   "raw_1": {
+    "n": 1829,
+    "mean": 0.00318,
+    "t_iid": 2.92,
+    "t_issuer": 2.92,
+    "n_issuer": 676,
+    "t_week": 1.86,
+    "n_week": 118,
+    "t_two_way_issuer_week": 1.86
+   },
+   "raw_3": {
+    "n": 1829,
+    "mean": 0.0047,
+    "t_iid": 2.95,
+    "t_issuer": 2.94,
+    "n_issuer": 676,
+    "t_week": 1.34,
+    "n_week": 118,
+    "t_two_way_issuer_week": 1.34
+   },
+   "raw_5": {
+    "n": 1829,
+    "mean": 0.00401,
+    "t_iid": 2.08,
+    "t_issuer": 2.03,
+    "n_issuer": 676,
+    "t_week": 0.94,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.94
+   },
+   "raw_21": {
+    "n": 1829,
+    "mean": 0.00677,
+    "t_iid": 1.95,
+    "t_issuer": 2.0,
+    "n_issuer": 676,
+    "t_week": 0.81,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.81
+   },
+   "exc_1": {
+    "n": 1829,
+    "mean": 0.00125,
+    "t_iid": 1.19,
+    "t_issuer": 1.21,
+    "n_issuer": 676,
+    "t_week": 0.94,
+    "n_week": 118,
+    "t_two_way_issuer_week": 0.95
+   },
+   "exc_3": {
+    "n": 1829,
+    "mean": -0.00161,
+    "t_iid": -1.05,
+    "t_issuer": -1.05,
+    "n_issuer": 676,
+    "t_week": -0.66,
+    "n_week": 118,
+    "t_two_way_issuer_week": -0.66
+   },
+   "exc_5": {
+    "n": 1829,
+    "mean": -0.00407,
+    "t_iid": -2.21,
+    "t_issuer": -2.16,
+    "n_issuer": 676,
+    "t_week": -1.43,
+    "n_week": 118,
+    "t_two_way_issuer_week": -1.42
+   },
+   "exc_21": {
+    "n": 1829,
+    "mean": -0.00913,
+    "t_iid": -2.84,
+    "t_issuer": -2.83,
+    "n_issuer": 676,
+    "t_week": -1.66,
+    "n_week": 118,
+    "t_two_way_issuer_week": -1.65
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 1829,
+   "n_names": 676
+  },
+  "UP_print_large": {
+   "overnight_gap_signed": {
+    "n": 690,
+    "mean": 0.00031,
+    "t_iid": 0.35,
+    "t_issuer": 0.33,
+    "n_issuer": 269,
+    "t_week": 0.29,
+    "n_week": 106,
+    "t_two_way_issuer_week": 0.28
+   },
+   "s1_open_close_signed": {
+    "n": 690,
+    "mean": 0.00308,
+    "t_iid": 2.26,
+    "t_issuer": 2.44,
+    "n_issuer": 269,
+    "t_week": 1.9,
+    "n_week": 106,
+    "t_two_way_issuer_week": 2.0
+   },
+   "raw_1": {
+    "n": 690,
+    "mean": 0.00339,
+    "t_iid": 2.22,
+    "t_issuer": 2.14,
+    "n_issuer": 269,
+    "t_week": 1.97,
+    "n_week": 106,
+    "t_two_way_issuer_week": 1.92
+   },
+   "raw_3": {
+    "n": 690,
+    "mean": 0.00652,
+    "t_iid": 2.96,
+    "t_issuer": 2.98,
+    "n_issuer": 269,
+    "t_week": 2.23,
+    "n_week": 106,
+    "t_two_way_issuer_week": 2.24
+   },
+   "raw_5": {
+    "n": 690,
+    "mean": 0.00577,
+    "t_iid": 2.21,
+    "t_issuer": 2.04,
+    "n_issuer": 269,
+    "t_week": 1.48,
+    "n_week": 106,
+    "t_two_way_issuer_week": 1.43
+   },
+   "raw_21": {
+    "n": 690,
+    "mean": 0.01919,
+    "t_iid": 3.8,
+    "t_issuer": 4.4,
+    "n_issuer": 269,
+    "t_week": 2.46,
+    "n_week": 106,
+    "t_two_way_issuer_week": 2.6
+   },
+   "exc_1": {
+    "n": 690,
+    "mean": 0.00185,
+    "t_iid": 1.32,
+    "t_issuer": 1.31,
+    "n_issuer": 269,
+    "t_week": 1.21,
+    "n_week": 106,
+    "t_two_way_issuer_week": 1.2
+   },
+   "exc_3": {
+    "n": 690,
+    "mean": 0.0005,
+    "t_iid": 0.24,
+    "t_issuer": 0.26,
+    "n_issuer": 269,
+    "t_week": 0.22,
+    "n_week": 106,
+    "t_two_way_issuer_week": 0.23
+   },
+   "exc_5": {
+    "n": 690,
+    "mean": -0.00191,
+    "t_iid": -0.8,
+    "t_issuer": -0.75,
+    "n_issuer": 269,
+    "t_week": -0.73,
+    "n_week": 106,
+    "t_two_way_issuer_week": -0.69
+   },
+   "exc_21": {
+    "n": 690,
+    "mean": 0.00386,
+    "t_iid": 0.84,
+    "t_issuer": 0.96,
+    "n_issuer": 269,
+    "t_week": 0.73,
+    "n_week": 106,
+    "t_two_way_issuer_week": 0.8
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 690,
+   "n_names": 269
+  },
+  "UP_nonprint": {
+   "overnight_gap_signed": {
+    "n": 47501,
+    "mean": 0.00146,
+    "t_iid": 8.13,
+    "t_issuer": 6.4,
+    "n_issuer": 2374,
+    "t_week": 1.31,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.3
+   },
+   "s1_open_close_signed": {
+    "n": 47501,
+    "mean": -0.00183,
+    "t_iid": -7.23,
+    "t_issuer": -7.35,
+    "n_issuer": 2374,
+    "t_week": -1.32,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.32
+   },
+   "raw_1": {
+    "n": 47501,
+    "mean": -0.00038,
+    "t_iid": -1.24,
+    "t_issuer": -1.33,
+    "n_issuer": 2374,
+    "t_week": -0.17,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.17
+   },
+   "raw_3": {
+    "n": 47501,
+    "mean": 0.00232,
+    "t_iid": 4.56,
+    "t_issuer": 4.77,
+    "n_issuer": 2374,
+    "t_week": 0.78,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.78
+   },
+   "raw_5": {
+    "n": 47501,
+    "mean": 0.00201,
+    "t_iid": 3.19,
+    "t_issuer": 2.93,
+    "n_issuer": 2374,
+    "t_week": 0.52,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.52
+   },
+   "raw_21": {
+    "n": 47501,
+    "mean": 0.00888,
+    "t_iid": 7.07,
+    "t_issuer": 4.39,
+    "n_issuer": 2374,
+    "t_week": 1.05,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.04
+   },
+   "exc_1": {
+    "n": 47501,
+    "mean": 8e-05,
+    "t_iid": 0.28,
+    "t_issuer": 0.3,
+    "n_issuer": 2374,
+    "t_week": 0.09,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.09
+   },
+   "exc_3": {
+    "n": 47501,
+    "mean": 0.00021,
+    "t_iid": 0.43,
+    "t_issuer": 0.45,
+    "n_issuer": 2374,
+    "t_week": 0.1,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.1
+   },
+   "exc_5": {
+    "n": 47501,
+    "mean": -0.00175,
+    "t_iid": -2.86,
+    "t_issuer": -2.59,
+    "n_issuer": 2374,
+    "t_week": -0.6,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.6
+   },
+   "exc_21": {
+    "n": 47501,
+    "mean": -0.01297,
+    "t_iid": -10.73,
+    "t_issuer": -6.51,
+    "n_issuer": 2374,
+    "t_week": -2.29,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.23
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 47501,
+   "n_names": 2374
+  },
+  "UP_nonprint_micro": {
+   "overnight_gap_signed": {
+    "n": 12211,
+    "mean": 0.00233,
+    "t_iid": 5.32,
+    "t_issuer": 4.18,
+    "n_issuer": 461,
+    "t_week": 2.67,
+    "n_week": 126,
+    "t_two_way_issuer_week": 2.5
+   },
+   "s1_open_close_signed": {
+    "n": 12211,
+    "mean": -0.00325,
+    "t_iid": -5.27,
+    "t_issuer": -5.35,
+    "n_issuer": 461,
+    "t_week": -2.4,
+    "n_week": 126,
+    "t_two_way_issuer_week": -2.39
+   },
+   "raw_1": {
+    "n": 12211,
+    "mean": -0.00092,
+    "t_iid": -1.26,
+    "t_issuer": -1.42,
+    "n_issuer": 461,
+    "t_week": -0.52,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.53
+   },
+   "raw_3": {
+    "n": 12211,
+    "mean": -0.00076,
+    "t_iid": -0.63,
+    "t_issuer": -0.68,
+    "n_issuer": 461,
+    "t_week": -0.23,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.24
+   },
+   "raw_5": {
+    "n": 12211,
+    "mean": -0.00157,
+    "t_iid": -1.07,
+    "t_issuer": -1.1,
+    "n_issuer": 461,
+    "t_week": -0.38,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.4
+   },
+   "raw_21": {
+    "n": 12211,
+    "mean": -0.01231,
+    "t_iid": -4.42,
+    "t_issuer": -2.75,
+    "n_issuer": 461,
+    "t_week": -1.37,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.32
+   },
+   "exc_1": {
+    "n": 12211,
+    "mean": -0.00097,
+    "t_iid": -1.34,
+    "t_issuer": -1.53,
+    "n_issuer": 461,
+    "t_week": -0.81,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.86
+   },
+   "exc_3": {
+    "n": 12211,
+    "mean": -0.0028,
+    "t_iid": -2.34,
+    "t_issuer": -2.56,
+    "n_issuer": 461,
+    "t_week": -0.95,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.0
+   },
+   "exc_5": {
+    "n": 12211,
+    "mean": -0.0052,
+    "t_iid": -3.57,
+    "t_issuer": -3.62,
+    "n_issuer": 461,
+    "t_week": -1.33,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.39
+   },
+   "exc_21": {
+    "n": 12211,
+    "mean": -0.02958,
+    "t_iid": -10.8,
+    "t_issuer": -6.47,
+    "n_issuer": 461,
+    "t_week": -4.08,
+    "n_week": 126,
+    "t_two_way_issuer_week": -3.79
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 12211,
+   "n_names": 461
+  },
+  "UP_nonprint_small": {
+   "overnight_gap_signed": {
+    "n": 16446,
+    "mean": 0.00093,
+    "t_iid": 3.05,
+    "t_issuer": 2.8,
+    "n_issuer": 792,
+    "t_week": 0.92,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.91
+   },
+   "s1_open_close_signed": {
+    "n": 16446,
+    "mean": -0.00178,
+    "t_iid": -4.41,
+    "t_issuer": -4.91,
+    "n_issuer": 792,
+    "t_week": -1.36,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.37
+   },
+   "raw_1": {
+    "n": 16446,
+    "mean": -0.00084,
+    "t_iid": -1.65,
+    "t_issuer": -2.0,
+    "n_issuer": 792,
+    "t_week": -0.42,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.42
+   },
+   "raw_3": {
+    "n": 16446,
+    "mean": 0.00334,
+    "t_iid": 3.88,
+    "t_issuer": 4.06,
+    "n_issuer": 792,
+    "t_week": 1.14,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.16
+   },
+   "raw_5": {
+    "n": 16446,
+    "mean": 0.00302,
+    "t_iid": 2.84,
+    "t_issuer": 2.5,
+    "n_issuer": 792,
+    "t_week": 0.83,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.84
+   },
+   "raw_21": {
+    "n": 16446,
+    "mean": 0.00798,
+    "t_iid": 3.75,
+    "t_issuer": 2.58,
+    "n_issuer": 792,
+    "t_week": 1.03,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.01
+   },
+   "exc_1": {
+    "n": 16446,
+    "mean": -0.00035,
+    "t_iid": -0.7,
+    "t_issuer": -0.85,
+    "n_issuer": 792,
+    "t_week": -0.35,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.37
+   },
+   "exc_3": {
+    "n": 16446,
+    "mean": 0.00145,
+    "t_iid": 1.72,
+    "t_issuer": 1.77,
+    "n_issuer": 792,
+    "t_week": 0.6,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.61
+   },
+   "exc_5": {
+    "n": 16446,
+    "mean": -0.00038,
+    "t_iid": -0.36,
+    "t_issuer": -0.32,
+    "n_issuer": 792,
+    "t_week": -0.11,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.11
+   },
+   "exc_21": {
+    "n": 16446,
+    "mean": -0.01178,
+    "t_iid": -5.69,
+    "t_issuer": -3.73,
+    "n_issuer": 792,
+    "t_week": -2.08,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.99
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 16446,
+   "n_names": 792
+  },
+  "UP_nonprint_mid": {
+   "overnight_gap_signed": {
+    "n": 12902,
+    "mean": 0.00117,
+    "t_iid": 4.25,
+    "t_issuer": 2.89,
+    "n_issuer": 789,
+    "t_week": 0.77,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.75
+   },
+   "s1_open_close_signed": {
+    "n": 12902,
+    "mean": -0.0015,
+    "t_iid": -3.49,
+    "t_issuer": -3.49,
+    "n_issuer": 789,
+    "t_week": -0.9,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.89
+   },
+   "raw_1": {
+    "n": 12902,
+    "mean": -0.00033,
+    "t_iid": -0.64,
+    "t_issuer": -0.65,
+    "n_issuer": 789,
+    "t_week": -0.11,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.11
+   },
+   "raw_3": {
+    "n": 12902,
+    "mean": 0.0022,
+    "t_iid": 2.63,
+    "t_issuer": 3.02,
+    "n_issuer": 789,
+    "t_week": 0.66,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.67
+   },
+   "raw_5": {
+    "n": 12902,
+    "mean": 0.00205,
+    "t_iid": 1.92,
+    "t_issuer": 1.74,
+    "n_issuer": 789,
+    "t_week": 0.45,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.45
+   },
+   "raw_21": {
+    "n": 12902,
+    "mean": 0.01573,
+    "t_iid": 7.18,
+    "t_issuer": 4.82,
+    "n_issuer": 789,
+    "t_week": 1.77,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.74
+   },
+   "exc_1": {
+    "n": 12902,
+    "mean": 0.00055,
+    "t_iid": 1.16,
+    "t_issuer": 1.19,
+    "n_issuer": 789,
+    "t_week": 0.48,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.48
+   },
+   "exc_3": {
+    "n": 12902,
+    "mean": -6e-05,
+    "t_iid": -0.08,
+    "t_issuer": -0.09,
+    "n_issuer": 789,
+    "t_week": -0.03,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.03
+   },
+   "exc_5": {
+    "n": 12902,
+    "mean": -0.0018,
+    "t_iid": -1.77,
+    "t_issuer": -1.59,
+    "n_issuer": 789,
+    "t_week": -0.62,
+    "n_week": 126,
+    "t_two_way_issuer_week": -0.62
+   },
+   "exc_21": {
+    "n": 12902,
+    "mean": -0.00875,
+    "t_iid": -4.21,
+    "t_issuer": -2.66,
+    "n_issuer": 789,
+    "t_week": -1.4,
+    "n_week": 126,
+    "t_two_way_issuer_week": -1.34
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 12902,
+   "n_names": 789
+  },
+  "UP_nonprint_large": {
+   "overnight_gap_signed": {
+    "n": 4887,
+    "mean": 0.00175,
+    "t_iid": 4.05,
+    "t_issuer": 2.6,
+    "n_issuer": 288,
+    "t_week": 1.12,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.07
+   },
+   "s1_open_close_signed": {
+    "n": 4887,
+    "mean": 0.00016,
+    "t_iid": 0.22,
+    "t_issuer": 0.22,
+    "n_issuer": 288,
+    "t_week": 0.08,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.07
+   },
+   "raw_1": {
+    "n": 4887,
+    "mean": 0.00191,
+    "t_iid": 2.33,
+    "t_issuer": 1.92,
+    "n_issuer": 288,
+    "t_week": 0.6,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.59
+   },
+   "raw_3": {
+    "n": 4887,
+    "mean": 0.00609,
+    "t_iid": 4.56,
+    "t_issuer": 4.03,
+    "n_issuer": 288,
+    "t_week": 1.49,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.49
+   },
+   "raw_5": {
+    "n": 4887,
+    "mean": 0.0062,
+    "t_iid": 3.69,
+    "t_issuer": 3.07,
+    "n_issuer": 288,
+    "t_week": 1.09,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.09
+   },
+   "raw_21": {
+    "n": 4887,
+    "mean": 0.03572,
+    "t_iid": 9.88,
+    "t_issuer": 6.79,
+    "n_issuer": 288,
+    "t_week": 2.79,
+    "n_week": 126,
+    "t_two_way_issuer_week": 2.74
+   },
+   "exc_1": {
+    "n": 4887,
+    "mean": 0.00243,
+    "t_iid": 3.27,
+    "t_issuer": 2.5,
+    "n_issuer": 288,
+    "t_week": 1.84,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.66
+   },
+   "exc_3": {
+    "n": 4887,
+    "mean": 0.00372,
+    "t_iid": 3.06,
+    "t_issuer": 2.63,
+    "n_issuer": 288,
+    "t_week": 1.44,
+    "n_week": 126,
+    "t_two_way_issuer_week": 1.43
+   },
+   "exc_5": {
+    "n": 4887,
+    "mean": 0.00155,
+    "t_iid": 1.02,
+    "t_issuer": 0.76,
+    "n_issuer": 288,
+    "t_week": 0.49,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.47
+   },
+   "exc_21": {
+    "n": 4887,
+    "mean": 0.0041,
+    "t_iid": 1.26,
+    "t_issuer": 0.84,
+    "n_issuer": 288,
+    "t_week": 0.52,
+    "n_week": 126,
+    "t_two_way_issuer_week": 0.5
+   },
+   "short_simple_net": {
+    "n": 0
+   },
+   "pair_iwm_net": {
+    "n": 0
+   },
+   "n": 4887,
+   "n_names": 288
+  }
+ },
+ "down_print_minus_nonprint": {
+  "overnight_gap_signed": {
+   "print": -0.0013,
+   "nonprint": 0.00032,
+   "diff": -0.00162,
+   "t_welch": -4.29
+  },
+  "s1_open_close_signed": {
+   "print": 0.00163,
+   "nonprint": -0.00166,
+   "diff": 0.0033,
+   "t_welch": 4.72
+  },
+  "raw_1": {
+   "print": 0.00034,
+   "nonprint": -0.00134,
+   "diff": 0.00168,
+   "t_welch": 2.2
+  },
+  "raw_3": {
+   "print": 0.00219,
+   "nonprint": -0.00366,
+   "diff": 0.00585,
+   "t_welch": 5.01
+  },
+  "raw_5": {
+   "print": 0.00082,
+   "nonprint": -0.00585,
+   "diff": 0.00667,
+   "t_welch": 4.75
+  },
+  "raw_21": {
+   "print": -0.0079,
+   "nonprint": -0.02138,
+   "diff": 0.01349,
+   "t_welch": 5.19
+  },
+  "exc_1": {
+   "print": 0.00226,
+   "nonprint": 0.00029,
+   "diff": 0.00197,
+   "t_welch": 2.68
+  },
+  "exc_3": {
+   "print": 0.00659,
+   "nonprint": 7e-05,
+   "diff": 0.00652,
+   "t_welch": 5.87
+  },
+  "exc_5": {
+   "print": 0.007,
+   "nonprint": 0.00024,
+   "diff": 0.00677,
+   "t_welch": 5.01
+  },
+  "exc_21": {
+   "print": 0.00557,
+   "nonprint": 0.00303,
+   "diff": 0.00254,
+   "t_welch": 1.02
+  },
+  "short_simple_net": {
+   "print": -0.00241,
+   "nonprint": -0.0352,
+   "diff": 0.03279,
+   "t_welch": 2.06
+  },
+  "pair_iwm_net": {
+   "print": -0.0007,
+   "nonprint": -0.03272,
+   "diff": 0.03202,
+   "t_welch": 2.01
+  }
+ }
+}

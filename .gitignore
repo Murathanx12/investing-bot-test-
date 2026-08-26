@@ -11,3 +11,5 @@ state/sec_cache/
 state/loop_*.err
 state/shadow_bars_*.json
 state/belief_vs_chain/
+state/night_shadow/bars_daily.json.gz
+state/night_shadow/*.log

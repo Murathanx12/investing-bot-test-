@@ -1,0 +1,278 @@
+{
+ "n": 5923,
+ "min_move": 0.05,
+ "entry": "next open, exit close of session 3",
+ "costs_bp": {
+  "stock_round_trip": 30.0,
+  "etf_round_trip": 4.0
+ },
+ "caveat": "ETF leg is close0->close3 (legs carry no ETF open); stock leg is open1->close3",
+ "headline": {
+  "short_simple": {
+   "n": 5923,
+   "mean": 0.00015,
+   "t_iid": 0.15,
+   "t_issuer": 0.15,
+   "n_issuer": 2038,
+   "t_week": 0.07,
+   "n_week": 128,
+   "t_quarter": 0.06,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 0.07
+  },
+  "short_simple_net": {
+   "n": 5923,
+   "mean": -0.00285,
+   "t_iid": -2.71,
+   "t_issuer": -2.72,
+   "n_issuer": 2038,
+   "t_week": -1.29,
+   "n_week": 128,
+   "t_quarter": -1.02,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": -1.29
+  },
+  "pair_iwm_1to1": {
+   "n": 5923,
+   "mean": 0.00291,
+   "t_iid": 2.86,
+   "t_issuer": 2.82,
+   "n_issuer": 2038,
+   "t_week": 1.71,
+   "n_week": 128,
+   "t_quarter": 1.61,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 1.71
+  },
+  "pair_iwm_1to1_net": {
+   "n": 5923,
+   "mean": -0.00049,
+   "t_iid": -0.49,
+   "t_issuer": -0.48,
+   "n_issuer": 2038,
+   "t_week": -0.29,
+   "n_week": 128,
+   "t_quarter": -0.27,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": -0.29
+  },
+  "pair_iwm_beta": {
+   "n": 5923,
+   "mean": 0.00261,
+   "t_iid": 2.58,
+   "t_issuer": 2.53,
+   "n_issuer": 2038,
+   "t_week": 1.73,
+   "n_week": 128,
+   "t_quarter": 1.46,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 1.72
+  },
+  "pair_qqq_1to1": {
+   "n": 5923,
+   "mean": 0.00618,
+   "t_iid": 5.98,
+   "t_issuer": 5.87,
+   "n_issuer": 2038,
+   "t_week": 2.93,
+   "n_week": 128,
+   "t_quarter": 3.1,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 2.92
+  },
+  "pair_spy_1to1": {
+   "n": 5923,
+   "mean": 0.00443,
+   "t_iid": 4.33,
+   "t_issuer": 4.28,
+   "n_issuer": 2038,
+   "t_week": 2.69,
+   "n_week": 128,
+   "t_quarter": 2.47,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 2.68
+  },
+  "pair_xbi_1to1": {
+   "n": 5923,
+   "mean": 0.00227,
+   "t_iid": 2.17,
+   "t_issuer": 2.16,
+   "n_issuer": 2038,
+   "t_week": 0.8,
+   "n_week": 128,
+   "t_quarter": 0.9,
+   "n_quarter": 11,
+   "t_two_way_issuer_week": 0.8
+  }
+ },
+ "by_quarter": {
+  "2024Q1": {
+   "n": 204,
+   "short_simple": 0.01,
+   "pair_iwm_1to1_net": 0.0093,
+   "pair_iwm_beta": 0.0119
+  },
+  "2024Q2": {
+   "n": 512,
+   "short_simple": -0.00568,
+   "pair_iwm_1to1_net": -0.0005,
+   "pair_iwm_beta": 0.00164
+  },
+  "2024Q3": {
+   "n": 512,
+   "short_simple": 0.00673,
+   "pair_iwm_1to1_net": -0.00831,
+   "pair_iwm_beta": 0.0001
+  },
+  "2024Q4": {
+   "n": 550,
+   "short_simple": 0.00829,
+   "pair_iwm_1to1_net": 0.01213,
+   "pair_iwm_beta": 0.01355
+  },
+  "2025Q1": {
+   "n": 635,
+   "short_simple": 0.01729,
+   "pair_iwm_1to1_net": 0.00288,
+   "pair_iwm_beta": 0.00881
+  },
+  "2025Q2": {
+   "n": 549,
+   "short_simple": -0.01539,
+   "pair_iwm_1to1_net": -0.00292,
+   "pair_iwm_beta": -0.00142
+  },
+  "2025Q3": {
+   "n": 595,
+   "short_simple": -0.00324,
+   "pair_iwm_1to1_net": 0.00196,
+   "pair_iwm_beta": 0.0063
+  },
+  "2025Q4": {
+   "n": 606,
+   "short_simple": 0.00132,
+   "pair_iwm_1to1_net": -0.00122,
+   "pair_iwm_beta": 0.00179
+  },
+  "2026Q1": {
+   "n": 646,
+   "short_simple": -0.00644,
+   "pair_iwm_1to1_net": -0.00986,
+   "pair_iwm_beta": -0.00634
+  },
+  "2026Q2": {
+   "n": 599,
+   "short_simple": 0.00078,
+   "pair_iwm_1to1_net": -0.00011,
+   "pair_iwm_beta": 0.00192
+  },
+  "2026Q3": {
+   "n": 515,
+   "short_simple": -0.00761,
+   "pair_iwm_1to1_net": -0.00233,
+   "pair_iwm_beta": -0.00387
+  }
+ },
+ "by_bucket": {
+  "micro": {
+   "n": 1226,
+   "mean": 0.001,
+   "t_iid": 0.3,
+   "t_issuer": 0.28,
+   "n_issuer": 382,
+   "t_week": 0.27,
+   "n_week": 121,
+   "t_two_way_issuer_week": 0.26
+  },
+  "small": {
+   "n": 1942,
+   "mean": 0.00032,
+   "t_iid": 0.2,
+   "t_issuer": 0.2,
+   "n_issuer": 657,
+   "t_week": 0.15,
+   "n_week": 122,
+   "t_two_way_issuer_week": 0.16
+  },
+  "mid": {
+   "n": 1925,
+   "mean": -0.0014,
+   "t_iid": -1.04,
+   "t_issuer": -1.06,
+   "n_issuer": 703,
+   "t_week": -0.67,
+   "n_week": 121,
+   "t_two_way_issuer_week": -0.68
+  },
+  "large": {
+   "n": 698,
+   "mean": -0.00243,
+   "t_iid": -1.08,
+   "t_issuer": -1.12,
+   "n_issuer": 255,
+   "t_week": -0.95,
+   "n_week": 118,
+   "t_two_way_issuer_week": -0.97
+  },
+  "mega": {
+   "n": 132,
+   "mean": -0.00296,
+   "t_iid": -0.62,
+   "t_issuer": -0.92,
+   "n_issuer": 41,
+   "t_week": -0.57,
+   "n_week": 67,
+   "t_two_way_issuer_week": -0.79
+  }
+ },
+ "by_band": {
+  "5-8.2%": {
+   "n": 2133,
+   "mean": 6e-05,
+   "t_iid": 0.04,
+   "t_issuer": 0.04,
+   "n_issuer": 1419,
+   "t_week": 0.03,
+   "n_week": 126,
+   "t_two_way_issuer_week": 0.03
+  },
+  "8.2-15%": {
+   "n": 2109,
+   "mean": -0.00327,
+   "t_iid": -1.86,
+   "t_issuer": -1.86,
+   "n_issuer": 1334,
+   "t_week": -1.48,
+   "n_week": 121,
+   "t_two_way_issuer_week": -1.47
+  },
+  ">15%": {
+   "n": 1681,
+   "mean": 0.00228,
+   "t_iid": 1.13,
+   "t_issuer": 1.12,
+   "n_issuer": 964,
+   "t_week": 0.92,
+   "n_week": 124,
+   "t_two_way_issuer_week": 0.91
+  }
+ },
+ "leave_one_quarter_out_pair_net": {
+  "2025Q1": -0.0009,
+  "2024Q4": -0.00179,
+  "2024Q2": -0.00049,
+  "2026Q1": 0.00065,
+  "2024Q3": 0.00024,
+  "2026Q3": -0.00032,
+  "2025Q3": -0.00077,
+  "2026Q2": -0.00054,
+  "2025Q4": -0.00041,
+  "2025Q2": -0.00025,
+  "2024Q1": -0.00084
+ },
+ "verdict": {
+  "quarters_negative_net": "7/11",
+  "pair_net_t_two_way": -0.29,
+  "pair_net_t_quarter": -0.27
+ }
+}
