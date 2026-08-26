@@ -76,6 +76,16 @@ Read the **SPY and QQQ rows** — their one-event MDE is ~1.4%, so "did the inde
 move beyond NVDA's ~7.8% mechanical share" is answerable on a single print.
 Per-node MDE runs 3.9%–20.8%; those rows **accumulate**, they do not conclude.
 
+**5b. Rank the expressions, shadow only.**
+```
+python -m scripts.anchor_to_torque --event 2026-08-27
+```
+The invariant is that NVIDIA is the SENSOR, not the trade. This ranks exposed x
+high-torque x under-covered names and says whether each has already repriced.
+Expect **no name to clear its own MDE** (they run 6.1%-16.6% against a ~5%
+anchor move) -- that is the instrument being honest, and the ranking accumulates
+across prints rather than concluding on one.
+
 **6. Grade the book.** The two iron condors carry $25,270 of max loss (25.9% of
 equity) into this print, and `docs/FINDING_2026-08-26_WHAT_THE_CONDORS_ARE_BETTING.md`
 records what they were betting *before* the outcome was known. Compare against

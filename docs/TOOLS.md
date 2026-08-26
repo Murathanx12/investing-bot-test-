@@ -28,6 +28,9 @@ reading code or eyeballing the venue, there is probably already a tool.
 | `python -m scripts.nvda_resolve --status \| --template \| --answers F [--read-move]` | Resolve a sealed state vector **from the release**, then read the price. The order is enforced in code. |
 | `python -m scripts.fame_bias` / `fame_bias_report` | Does revealing a ticker change the score of identical numbers? Each condition drawn twice, because a difference between conditions is meaningless without the model's own noise floor. |
 
+| `python -m scripts.elasticity --shock 1000` | **If this shock happens, who moves?** Elasticity = shock / revenue, so a $1bn revenue win is 328% for CORZ and 0.4% for NVDA. Ranking by market cap puts NVDA first. Non-USD reporters are excluded and NAMED, never FX-converted. |
+| `python -m scripts.anchor_to_torque --event YYYY-MM-DD` | **The mega-cap is the sensor; which name is the expression?** Composes contagion betas x elasticity x coverage x residual. Shadow only, and it prints its own MDE every run. |
+
 ## Is the evidence real?
 
 | command | answers |

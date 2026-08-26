@@ -112,6 +112,16 @@ pass **can never** starve" (that starvation *is* defect 4; it is now bounded at 
 corrected in `docs/WRITEUP.md` and `docs/STRATEGY.md`. A rubric that rewards admitted failure is not served by
 confident copy.
 
+**16. TWO MORE INVARIANT LANES NOW HAVE CODE.** `STATE_CHANGE_ELASTICITY` (`scripts/elasticity.py`) makes
+"smaller firms have more room" measurable: elasticity = shock / revenue, so $1bn of incremental revenue is
+**328% for CORZ and 0.4% for NVDA -- 578x** -- and ranking by market cap puts NVDA first. A data defect caught
+before shipping: Finnhub reports foreign issuers in HOME currency, so TSM came back in **TWD** and read as
+having no torque; P/S survived the error (TWD/TWD) which is why the row looked plausible. Non-USD reporters
+are excluded and **named**, never FX-converted.
+`ANCHOR_TO_TORQUE_v1` (`scripts/anchor_to_torque.py`) composes contagion betas x elasticity x coverage x
+residual. First run: **not one of ten names cleared its own one-event MDE** (6.1%-16.6% vs a ~5% anchor move),
+which is the power limit working. Shadow only.
+
 **CORRECTIONS I OWE FROM THIS BLOCK.** I said the hackathon LLM path was dead (170 calls, 0 successes) —
 **wrong twice**: my parser tested a field that does not exist so everything read False, and my own test call
 omitted the `Authorization` header that `extract.py` passes explicitly, producing a 401 that looked exactly
