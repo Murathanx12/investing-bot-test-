@@ -1,5 +1,65 @@
 # HANDOFF — read this first
 
+## SESSION 12 (26 Aug, ~07:30-08:30 ET, Opus day) — the audit patches, and a power check that arrived in time
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched and
+ALIVE (PIDs 3896 / 31428, CPU accruing, hourly counterfactual passes; verified by command line, not by
+process count). Independent selectors: unchanged. Candidates tested: 1 (the shock graph), 0 promoted,
+**1 instrument built and immediately bounded**. LLM spend: **$0.00**. **RESULT IMPROVEMENT: NONE in P&L.**
+
+**1. The three ranked audit patches are in and live-verified** (`83c7733`, `tests_smoke_protect.py`, 24 checks):
+
+- `alpha/protect.py` — GTC protective stops AT THE VENUE, sized to the qty the VENUE reports, cancelled
+  BEFORE every `close_position` and swept when orphaned. The dangerous half is the cancel: a sell-stop that
+  outlives its long has nothing to sell and the next trigger OPENS A SHORT. If the cancel fails the close is
+  WITHHELD. Only `aat-stop-` ids are ever cancelled, so a human order is never touched.
+  **CAVEAT: inert today.** Both books hold only options; `build_stop` returns None for `us_option` on purpose
+  (a venue stop on one leg of a spread leaves the other naked). It bites the moment a SHARE lane opens.
+- `alpha/daybreak.py` — daily-loss latch off `account.last_equity`, so it survives a restart with no state to
+  reload. Entries refuse at -3%; exits and stops unaffected. Fail-closed on an undeterminable drawdown.
+  **AND the sizer, which did the opposite**: `_tournament_multiplier` raised risk 1.6-2.0x when behind or
+  negative. Clamped to 1.0 whenever the return is negative; lean-in kept for behind-but-FLAT. `tests_smoke.py`
+  had PINNED the old behaviour and now pins the new contract in both directions.
+- `runner.open_order_underlyings` — a resting unfilled order counts as held. Our own stops are excluded so
+  they cannot block a re-entry; multileg OCC legs resolve to the underlying.
+
+  Live read-only check on both accounts: `last_equity` present and real (97,263 / 98,728), latch computes
+  (-1.14% / -0.97%, not tripped), 0 open orders, 0 orphans. Green tests are not a live verification.
+
+**2. NVDA sealed as an INFORMATION STATE before the print** (`8fa2817`), beside — never instead of —
+`PH:NVDA:2026-08-27:b29d506d`, which is the control. Thirteen typed fields, each with a vintage-stamped prior
+and a resolution rule written before the release existed. The RANK is the falsifiable claim:
+`q3_guide_surprise` first, `revenue_surprise` (the Q2 headline) **last of thirteen**. `reaction()` REFUSES to
+return the price move until every field is resolved or explicitly `UNAVAILABLE`.
+Implied move MEASURED from our own chain: **0.051** (the bundle carried 0.0558 from a preview; kept as a
+labelled cross-check). `--seal` refuses to run after the release.
+
+**3. THE POWER CHECK KILLED THE READING THE GRAPH WAS BUILT FOR, four hours before the event**
+(`docs/FINDING_2026-08-26_THE_SHOCK_GRAPH_CANNOT_RESOLVE_ONE_EVENT.md`, `--power`). Per-node one-event MDE
+runs **5.9% (TSM) to 24.0% (AAOI)** against a 5.1% implied move. Nothing tonight produces a resolvable
+residual. Grouping each edge barely helps and the reason is the finding: **the five optical/datacentre names
+carry a HIGHER group residual sd than several do individually — the residual is a SECTOR FACTOR, so adding
+names from one sector concentrates it instead of cancelling it.** The control belongs in the REGRESSION, not
+the sample size: with SMH beside NVDA, capacity 7.5% -> 3.8% (3.6 events for 2%), memory 12.4% -> 5.9%,
+custom silicon 7.3% -> 5.0%; optical and server-ODM barely move and need their own control.
+Also refuted: the pitch was that the market has not repriced the second-order names. **It has** — no node has
+high declared exposure AND beta < 0.5. Roadmap A2 amended: the graph is a REPEATED-measurement instrument,
+not a next-day trade generator.
+
+**4. `docs/ROADMAP_2026-08-26_INFORMATION_FIRST.md`** logs both review documents that arrived today — the
+twelve-item Aegis brief (A1-A12) and the Optimus cognitive-OS architecture (NVIDIA/NeMo/Hugging Face) — with
+the sequencing decision stated once: **everything in the Optimus document except one embedding prototype is
+AFTER 4 Sep.** The failure mode being guarded against is a session that spends the last nine days building a
+cognitive operating system and submits a book with no stop at the venue.
+
+**DAY WORK QUEUE (in order):** (1) **tonight after ~16:20 ET** resolve the state vector FROM THE RELEASE
+before looking at the after-hours move — `StateVector.load` then `.resolve({...})`, then `.reaction({...})`;
+(2) after the 27 Aug close `event_grade NVDA --post --resolve PH:NVDA:2026-08-27:b29d506d`, then
+IREN/AFRM/S/RBRK on the 28th; (3) audit patches 4-7 (exit sampling starved by the entry pass; partial
+short-shares read as UNBOUNDED and halts the book; `--role` vs `AAT_ACCOUNT_ROLE` silent disagreement; orders
+never terminal in the ledger); (4) loops restarted Friday with `--expiry 2026-09-04`; (5) NON_PRINT_BOUNCE_v1
+through the full battery; (6) STALE_TARGET_v1 with target AGE central.
+
 ## SESSION 11 (26 Aug, ~04:00-07:30 ET, Fable autonomous) — NIGHT LAB: four decisions for $0.00
 
 **RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched (loops
