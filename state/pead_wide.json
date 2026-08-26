@@ -1,0 +1,199 @@
+{
+ "generated_utc": "2026-08-26T06:38:37.200674+00:00",
+ "universe": "HIGH_DISPERSION_US_v1",
+ "names_covered_by_sec": 2532,
+ "names_refused_no_8k": 464,
+ "legs": 25856,
+ "window_from": "2024-02-26",
+ "forward_sessions": 3,
+ "benchmark": "beta*QQQ, beta on 120 prior sessions",
+ "headline_all": {
+  "n": 25856,
+  "mean": 0.0005,
+  "median": 0.00044,
+  "hit": 0.504,
+  "t": 1.26,
+  "n_weeks": 130,
+  "t_week_blocks": 0.81,
+  "mean_week_blocks": 0.00094
+ },
+ "by_dv_bucket": {
+  "micro": {
+   "n": 4795,
+   "mean": 0.00203,
+   "median": 0.00124,
+   "hit": 0.511,
+   "t": 1.75,
+   "n_weeks": 130,
+   "t_week_blocks": 1.14,
+   "mean_week_blocks": 0.00503
+  },
+  "small": {
+   "n": 8520,
+   "mean": -0.00015,
+   "median": 0.0,
+   "hit": 0.5,
+   "t": -0.2,
+   "n_weeks": 130,
+   "t_week_blocks": -1.41,
+   "mean_week_blocks": -0.00228
+  },
+  "mid": {
+   "n": 8700,
+   "mean": 9e-05,
+   "median": 0.0,
+   "hit": 0.5,
+   "t": 0.16,
+   "n_weeks": 127,
+   "t_week_blocks": 1.78,
+   "mean_week_blocks": 0.00225
+  },
+  "large": {
+   "n": 3403,
+   "mean": 0.00057,
+   "median": 0.00108,
+   "hit": 0.511,
+   "t": 0.72,
+   "n_weeks": 129,
+   "t_week_blocks": 0.46,
+   "mean_week_blocks": 0.00071
+  },
+  "mega": {
+   "n": 438,
+   "mean": 0.00416,
+   "median": 0.00395,
+   "hit": 0.527,
+   "t": 1.67,
+   "n_weeks": 113,
+   "t_week_blocks": 1.26,
+   "mean_week_blocks": 0.00482
+  }
+ },
+ "by_band": {
+  "<3.5%": {
+   "n": 10981,
+   "mean": -0.00028,
+   "median": -0.00026,
+   "hit": 0.496,
+   "t": -0.59,
+   "n_weeks": 130,
+   "t_week_blocks": 0.71,
+   "mean_week_blocks": 0.00086
+  },
+  "3.5-8.2%": {
+   "n": 7436,
+   "mean": 0.00107,
+   "median": 0.00076,
+   "hit": 0.508,
+   "t": 1.39,
+   "n_weeks": 130,
+   "t_week_blocks": 2.23,
+   "mean_week_blocks": 0.00445
+  },
+  ">8.2%": {
+   "n": 7439,
+   "mean": 0.0011,
+   "median": 0.00146,
+   "hit": 0.511,
+   "t": 1.19,
+   "n_weeks": 129,
+   "t_week_blocks": -0.47,
+   "mean_week_blocks": -0.00119
+  }
+ },
+ "mid_band_by_bucket": {
+  "micro": {
+   "n": 1280,
+   "mean": 0.00092,
+   "median": -0.0016,
+   "hit": 0.49,
+   "t": 0.44,
+   "n_weeks": 121,
+   "t_week_blocks": -0.21,
+   "mean_week_blocks": -0.0009
+  },
+  "small": {
+   "n": 2342,
+   "mean": 0.00148,
+   "median": 0.00103,
+   "hit": 0.508,
+   "t": 0.89,
+   "n_weeks": 121,
+   "t_week_blocks": 0.13,
+   "mean_week_blocks": 0.00043
+  },
+  "mid": {
+   "n": 2574,
+   "mean": 0.00035,
+   "median": 0.0008,
+   "hit": 0.506,
+   "t": 0.33,
+   "n_weeks": 125,
+   "t_week_blocks": 1.64,
+   "mean_week_blocks": 0.00431
+  },
+  "large": {
+   "n": 1095,
+   "mean": 0.00162,
+   "median": 0.00253,
+   "hit": 0.526,
+   "t": 1.2,
+   "n_weeks": 121,
+   "t_week_blocks": 0.82,
+   "mean_week_blocks": 0.00188
+  },
+  "mega": {
+   "n": 145,
+   "mean": 0.00417,
+   "median": 0.0074,
+   "hit": 0.552,
+   "t": 1.05,
+   "n_weeks": 67,
+   "t_week_blocks": 1.4,
+   "mean_week_blocks": 0.00598
+  }
+ },
+ "by_sign_mid_band": {
+  "up": {
+   "n": 3746,
+   "mean": -0.00225,
+   "median": -0.00213,
+   "hit": 0.479,
+   "t": -1.99,
+   "n_weeks": 126,
+   "t_week_blocks": -0.72,
+   "mean_week_blocks": -0.00176
+  },
+  "down": {
+   "n": 3690,
+   "mean": 0.00443,
+   "median": 0.00411,
+   "hit": 0.537,
+   "t": 4.29,
+   "n_weeks": 130,
+   "t_week_blocks": 2.3,
+   "mean_week_blocks": 0.00841
+  }
+ },
+ "old_universe_only": {
+  "n": 107,
+  "mean": 0.01092,
+  "median": 0.00851,
+  "hit": 0.598,
+  "t": 2.72,
+  "n_weeks": 59,
+  "t_week_blocks": 2.48,
+  "mean_week_blocks": 0.01211
+ },
+ "not_old_universe": {
+  "n": 25749,
+  "mean": 0.00046,
+  "median": 0.00041,
+  "hit": 0.504,
+  "t": 1.15,
+  "n_weeks": 130,
+  "t_week_blocks": 0.82,
+  "mean_week_blocks": 0.00109
+ },
+ "mechanism_note": "measured on ELEVEN mega-caps before this run; every bucket here is a NEW measurement of the same rule, same event source (SEC 8-K 2.02), same benchmark"
+}

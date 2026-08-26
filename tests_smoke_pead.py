@@ -58,7 +58,7 @@ class FakeClient:
         return {"bars": {symbol: self._bars}}
 
 
-def run(*, day0_move: float, elapsed: int, session: str = "amc"):
+def run(*, day0_move: float, elapsed: int, session: str = "amc", symbol: str = "NVDA"):
     bars, event_day = bars_with_print(day0_move=day0_move, elapsed=elapsed)
     releases = [{"date": event_day, "session": session, "date_source": "sec_8k_item_2.02"}]
     real = ped.event_days_from_sec
@@ -73,12 +73,14 @@ def run(*, day0_move: float, elapsed: int, session: str = "amc"):
 
     ped.event_days_from_sec = fake
     try:
-        return ped.forecast(FakeClient(bars), "TEST", 3.0)
+        return ped.forecast(FakeClient(bars), symbol, 3.0)
     finally:
         ped.event_days_from_sec = real
 
 
 # ------------------------------------------------------------ arrival clock
+# The checks below describe the MEGA-11 rule, so they run as NVDA. The wide rule
+# (every other name) is pinned at the end of this file.
 print("\n-- post_event_drift: the arrival clock")
 
 try:
@@ -144,10 +146,26 @@ ped.event_days_from_sec = lambda _b, _s: [
     {"period_end": None, "event_day": event_day, "release_date": event_day, "session": "amc",
      "move": 0.06, "date_source": "sec_8k_item_2.02"}]
 try:
-    wide = ped.forecast(FakeClient(vol_bars), "TEST", 3.0)
+    wide = ped.forecast(FakeClient(vol_bars), "NVDA", 3.0)
     check("a volatile name widens above the floor", wide.sd > f1.sd, f"{wide.sd:.2%} > {f1.sd:.2%}")
 finally:
     ped.event_days_from_sec = real
+
+# --------------------------------------------------- the WIDE-universe rule
+print("\n-- post_event_drift: outside the eleven names (state/pead_wide.json)")
+try:
+    run(day0_move=0.06, elapsed=1, symbol="TEST")
+    check("wide universe: an UP print is refused (good news fades)", False)
+except ped.NotApplicable as exc:
+    check("wide universe: an UP print is refused (good news fades)", "REVERSES" in str(exc), str(exc)[:80])
+wd = run(day0_move=-0.06, elapsed=1, symbol="TEST")
+check("wide universe: a DOWN print is a SHORT", wd.centre < 0 and wd.claim == "direction", f"centre {wd.centre:+.3%}")
+check("wide DOWN centre = 0.44% x 2/3 sessions left", abs(wd.centre + 0.0044 * 2 / 3) < 1e-9, f"{wd.centre:+.4%}")
+check("wide DOWN sd floor = 6.27% x sqrt(2/3)", wd.sd >= 0.0627 * math.sqrt(2 / 3) - 1e-9, f"{wd.sd:.2%}")
+check("wide rule named on the row with its receipt", wd.evidence["universe_rule"].startswith("wide") and "pead_wide" in wd.evidence["receipts"][0])
+wb = run(day0_move=-0.15, elapsed=1, symbol="TEST")
+check("wide big band is NOT discounted (t 5.16 > 4.29)", wb.conviction == wd.conviction and abs(wb.centre) > abs(wd.centre), f"{wb.centre:+.3%}")
+check("the eleven keep their two-sided rule", run(day0_move=0.06, elapsed=1, symbol="AVGO").centre > 0)
 
 # ----------------------------------------------------------------- provenance
 print("\n-- post_event_drift: provenance and wiring")

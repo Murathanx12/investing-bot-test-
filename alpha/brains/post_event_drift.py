@@ -82,6 +82,21 @@ ARRIVAL: dict[int, tuple[float, float, float]] = {
     2: (0.0041, 0.0255, 1.0),
 }
 
+#: THE ELEVEN NAMES THE +1.13% TWO-SIDED DRIFT WAS MEASURED ON. Outside them the
+#: rule is DIFFERENT, and it was measured on 2,532 names / 25,856 SEC-dated prints
+#: (`scripts/pead_wide.py`, `state/pead_wide.json`, 2024-02 .. 2026-08):
+#:   DOWN day-0 (3.5-8.2%): +0.44% further in 3 sessions, hit 54%, t +4.29
+#:                (>8.2%):  +0.64%, t +5.16; small caps +0.73%, t +4.08; positive every year
+#:   UP   day-0 (3.5-8.2%): REVERSES -0.22%, t -1.99; (>8.2%): -0.44%, t -3.23
+#: Bad news drifts, good news fades. So outside the mega-caps the brain SHORTS a
+#: print that fell and REFUSES a print that rose. The 11-name numbers stay for
+#: the 11 names (reproduced in the same run: +1.09%, t 2.72).
+MEGA_MEASURED = frozenset({"AAPL", "AMD", "AMZN", "AVGO", "GOOGL", "META", "MSFT", "MU", "NVDA", "PANW", "TSLA"})
+#: Wide-universe DOWN side: (3-session centre, 3-session sd) by |day-0| band.
+WIDE_DOWN: dict[str, tuple[float, float]] = {"mid": (0.0044, 0.0627), "big": (0.0064, 0.0762)}
+WIDE_HEADLINE = {"legs": 25856, "names": 2532, "down_mid_t": 4.29, "down_big_t": 5.16, "up_mid_t": -1.99,
+                 "up_big_t": -3.23, "week_block_t_down_mid": 2.30, "receipt": "state/pead_wide.json"}
+
 #: Below this the tercile split says there is nothing to continue (t 0.66).
 MIN_ABS_MOVE = 0.035
 #: Above this the print has over-reacted and the drift weakens (t 1.26 vs 3.45).
@@ -128,9 +143,23 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             f"{symbol}: day-0 move {r0:+.2%} is inside the flat tercile (|move| < {MIN_ABS_MOVE:.1%}, "
             "t 0.66) -- there is nothing to continue and the spread would eat it")
 
+    wide = symbol.upper() not in MEGA_MEASURED
+    if wide and r0 > 0:
+        raise NotApplicable(
+            f"{symbol}: day-0 move {r0:+.2%} is UP and {symbol} is outside the eleven names the two-sided "
+            f"drift was measured on. Across {WIDE_HEADLINE['names']} names an UP print REVERSES "
+            f"(t {WIDE_HEADLINE['up_mid_t']} mid band, {WIDE_HEADLINE['up_big_t']} above 8.2%). Refused: "
+            "good news fades.")
     base_centre, floor_sd, sessions_left = ARRIVAL[elapsed]
     sign = 1.0 if r0 > 0 else -1.0
     centre = sign * base_centre
+    if wide:
+        # DOWN side, wide universe: the 3-session numbers scaled to the sessions left.
+        band_key = "big" if abs(r0) > OVEREXTENDED_MOVE else "mid"
+        c3, sd3 = WIDE_DOWN[band_key]
+        base_centre = c3 * sessions_left / 3.0
+        floor_sd = sd3 * math.sqrt(sessions_left / 3.0)
+        centre = -base_centre
 
     # Live spread: the name's own ordinary volatility, measured on the sessions
     # BEFORE the print so the print day cannot inflate it, scaled to what is left
@@ -142,9 +171,15 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
     sd = max(daily_sd * math.sqrt(sessions_left), floor_sd)
 
     overextended = abs(r0) > OVEREXTENDED_MOVE
-    conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed == 1 else 0.7)
-    band = ("over-extended (>8.2%, t 1.26)" if overextended
-            else f"mid band ({MIN_ABS_MOVE:.1%}-{OVEREXTENDED_MOVE:.1%}, t 3.45, hit 81%)")
+    if wide:
+        # In the wide universe the big band is the STRONGER down-drift (t 5.16 vs 4.29).
+        conviction = 1.0 * (1.0 if elapsed == 1 else 0.7)
+        band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '3.5-8.2%'} band "
+                f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}, n={WIDE_HEADLINE['legs']} legs)")
+    else:
+        conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed == 1 else 0.7)
+        band = ("over-extended (>8.2%, t 1.26)" if overextended
+                else f"mid band ({MIN_ABS_MOVE:.1%}-{OVEREXTENDED_MOVE:.1%}, t 3.45, hit 81%)")
 
     return Forecast(
         brain="post_event_drift", symbol=symbol, horizon_days=sessions_left,
@@ -169,8 +204,10 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             "sessions_left": sessions_left, "measured_centre": base_centre,
             "measured_sd_floor": floor_sd, "live_daily_sd_pre_print": daily_sd,
             "last_close": closes[-1], "asof_utc": datetime.now(timezone.utc).isoformat(),
-            "receipts": ["state/post_event_relay.json", "state/source_pead_decompose.json",
-                         "state/source_pead_horizon.json"],
+            "receipts": (["state/pead_wide.json"] if wide else
+                         ["state/post_event_relay.json", "state/source_pead_decompose.json",
+                          "state/source_pead_horizon.json"]),
+            "universe_rule": "wide: DOWN only (bad news drifts, good news fades)" if wide else "mega-11: two-sided",
             "headline": {"n": 108, "names": 11, "mean": 0.0113, "hit": 0.639, "t": 2.72,
                          "week_block_t": 2.23, "worst_leave_one_out_t": 2.37},
         },
