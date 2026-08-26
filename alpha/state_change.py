@@ -34,7 +34,8 @@ from pathlib import Path
 from typing import Any
 
 from alpha.psychohistory import DEEPSEEK_URL, MODEL, PRICE_IN, PRICE_OUT
-from alpha.sources.http import SourceRefusal, post_json
+from alpha.sources.http import SourceRefusal
+from alpha.spend import llm_post
 
 STORE = Path("state") / "state_change.jsonl"
 ACTION = "SHADOW_ONLY"
@@ -80,7 +81,12 @@ def _call(prompt: str, *, temperature: float = 0.2) -> tuple[dict, dict]:
     body = {"model": MODEL, "temperature": temperature, "max_tokens": 3000,
             "response_format": {"type": "json_object"},
             "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]}
-    data, dt = post_json(DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0)
+    data, dt = llm_post(
+        DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0,
+        caller="state_change.triage",
+        why=("Decides whether a loser is a PRICE_OVERREACTION or a genuine state change, "
+             "which selects it into or out of the bounce candidate set. A CANNOT_DETERMINE "
+             "answer refuses the name rather than sizing it."))
     text = data["choices"][0]["message"]["content"]
     non_latin = sum(1 for ch in text if ord(ch) > 0x24F and ch.isalpha()) / max(1, sum(1 for ch in text if ch.isalpha()))
     if non_latin > 0.10:

@@ -53,7 +53,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from alpha.sources.http import SourceRefusal, post_json
+from alpha.sources.http import SourceRefusal
+from alpha.spend import llm_post
 
 SCHEMA = "PSYCHOHISTORY_v0.1"
 STORE = Path(__file__).resolve().parent.parent / "state" / "psychohistory.jsonl"
@@ -354,7 +355,12 @@ def compile_with_deepseek(trigger: dict, horizon: dict, evidence: list[dict], ma
         "response_format": {"type": "json_object"},
         "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}],
     }
-    data, dt = post_json(DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0)
+    data, dt = llm_post(
+        DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0,
+        caller="psychohistory.compile",
+        why=("Decides whether this event gets a scenario distribution to grade at all, and "
+             "which bucket the model disagrees with the chain on -- the disagreement is what "
+             "later decides whether a structure is built or refused."))
     text = data["choices"][0]["message"]["content"]
     usage = data.get("usage") or {}
     non_latin = sum(1 for ch in text if ord(ch) > 0x24F and ch.isalpha()) / max(1, sum(1 for ch in text if ch.isalpha()))

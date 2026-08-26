@@ -40,7 +40,8 @@ from pathlib import Path
 from alpha import config, universe
 from alpha.broker.alpaca import AlpacaPaper
 from alpha.sources import attention, finnhub
-from alpha.sources.http import SourceRefusal, post_json
+from alpha.sources.http import SourceRefusal
+from alpha.spend import llm_post
 
 logger = logging.getLogger(__name__)
 OUT = Path("state") / "autopsy"
@@ -107,7 +108,12 @@ def compile_why(movers: list[dict], *, session_date: str) -> tuple[dict, dict]:
     )
     body = {"model": MODEL, "temperature": 0.2, "max_tokens": 4000, "response_format": {"type": "json_object"},
             "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]}
-    data, dt = post_json(DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0)
+    data, dt = llm_post(
+        DEEPSEEK_URL, body, headers={"Authorization": f"Bearer {key}"}, timeout=180.0,
+        caller="daily_autopsy.compile",
+        why=("Decides which reasoning TEMPLATE is credited for a day's movers and whether a "
+             "precursor was knowable before the move -- the tally across days decides which "
+             "templates get built into a candidate lane and which are dropped."))
     text = data["choices"][0]["message"]["content"]
     usage = data.get("usage") or {}
     raw = json.loads(text)

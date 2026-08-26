@@ -22,7 +22,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 from alpha.narrative import exposure, schema
-from alpha.sources.http import SourceRefusal, post_json
+from alpha.sources.http import SourceRefusal
+from alpha.spend import llm_post
 
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 MODEL = "deepseek-chat"
@@ -72,7 +73,12 @@ def extract(symbol: str, headline: str, body: str, sources: list[dict[str, Any]]
         "response_format": {"type": "json_object"},
         "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}],
     }
-    data, dt = post_json(DEEPSEEK_URL, body_req, headers={"Authorization": f"Bearer {key}"})
+    data, dt = llm_post(
+        DEEPSEEK_URL, body_req, headers={"Authorization": f"Bearer {key}"},
+        caller="narrative.extract",
+        why=("Decides the narrative exposure tags a name carries, which the dispersion brain "
+             "uses to choose whether to forecast it and the node cap uses to refuse a second "
+             "position on the same theme."))
     text = data["choices"][0]["message"]["content"]
     usage = data.get("usage") or {}
     cost = (usage.get("prompt_tokens", 0) * PRICE_IN + usage.get("completion_tokens", 0) * PRICE_OUT) / 1e6
