@@ -1,0 +1,19 @@
+{
+ "_README": "Fill each field FROM THE RELEASE using its resolution_rule (python -m scripts.nvda_resolve --status). Use the string UNAVAILABLE for anything the release did not address. Do NOT look at the after-hours move until this file is complete -- the tooling refuses, but the discipline is yours.",
+ "values": {
+  "q3_guide_surprise": null,
+  "gross_margin_surprise": null,
+  "HBM_cost_pressure": "UNAVAILABLE",
+  "Rubin_timing_change": "UNAVAILABLE",
+  "customer_financing_quality": "UNAVAILABLE",
+  "future_capacity_constraint": "UNAVAILABLE",
+  "datacenter_surprise": null,
+  "hyperscale_growth": null,
+  "custom_silicon_competition": "UNAVAILABLE",
+  "Blackwell_demand": "UNAVAILABLE",
+  "ACIE_growth": null,
+  "China_optional_revenue": "UNAVAILABLE",
+  "revenue_surprise": null
+ },
+ "notes": {}
+}
