@@ -1,0 +1,28 @@
+{
+ "symbol": "RBRK",
+ "expiry": "2026-08-28",
+ "frozen_utc": "2026-08-26T07:20:11.167055+00:00",
+ "chain": {
+  "t": "2026-08-26T07:20:14.191776+00:00",
+  "spot": 92.62,
+  "spot_source": "trade",
+  "implied_move": 0.11467015763334054,
+  "atm_iv_call": 2.164,
+  "atm_iv_put": 2.3997,
+  "atm_strike": 93.0,
+  "straddle_mid": 12.495000000000001,
+  "median_quote_age_s": 40819.8,
+  "market_open": false
+ },
+ "brains": {},
+ "structures_before": {
+  "dev": {
+   "structures": [],
+   "equity": 96160.37
+  },
+  "exp1": {
+   "structures": [],
+   "equity": 97779.0
+  }
+ }
+}

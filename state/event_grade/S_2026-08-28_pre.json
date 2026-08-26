@@ -1,0 +1,28 @@
+{
+ "symbol": "S",
+ "expiry": "2026-08-28",
+ "frozen_utc": "2026-08-26T07:20:02.883597+00:00",
+ "chain": {
+  "t": "2026-08-26T07:20:05.865218+00:00",
+  "spot": 20.31,
+  "spot_source": "trade",
+  "implied_move": 0.0922821270310192,
+  "atm_iv_call": 1.7357,
+  "atm_iv_put": 1.9184,
+  "atm_strike": 20.5,
+  "straddle_mid": 2.205,
+  "median_quote_age_s": 40808.5,
+  "market_open": false
+ },
+ "brains": {},
+ "structures_before": {
+  "dev": {
+   "structures": [],
+   "equity": 96160.37
+  },
+  "exp1": {
+   "structures": [],
+   "equity": 97779.0
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "trigger": {"symbol": "DKNG", "event": "Q2 2026 print, early Aug 2026; day-0 large drop", "event_date": "2026-08-07", "type": "loser_triage_FALSIFICATION_CASE",
+             "note": "Facts restricted to what was public on day 0. Outcome (recovered to the mid-$20s by 25 Aug) is NOT in the evidence."},
+ "horizon": {"day0": "2026-08-07", "sessions": 12, "resolve_by": "2026-08-25"},
+ "market_expectation": {"note": "online gaming; high beta"},
+ "evidence": [
+  {"kind": "reported", "fact": "Q2 revenue disappointed; management attributed it to customer-friendly sports outcomes (hold rate) and promotional spending", "source": "DraftKings Q2 2026 release (via review)", "date": "2026-08-07"},
+  {"kind": "reported", "fact": "Sportsbook consumer volume (handle) still grew 15% year over year", "source": "DraftKings Q2 2026 release (via review)", "date": "2026-08-07"},
+  {"kind": "reported", "fact": "The stock fell sharply on the print (large single-day drop)", "source": "market data (via review)", "date": "2026-08-07"}
+ ]
+}

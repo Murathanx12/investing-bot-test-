@@ -1,0 +1,16 @@
+{
+ "trigger": {"symbol": "HOV", "event": "Fiscal Q3 2026 print, 2026-08-20 bmo; day-0 close -7.5% (127.67 -> 118.13)",
+             "event_date": "2026-08-20", "release": "2026-08-20 before the open", "type": "post_event_drift_POST_WINDOW",
+             "review_hypothesis": "NEGATIVE CONTINUATION (review P8). ALREADY FALSIFIED AT 3 SESSIONS: the stock bounced +11.2% on 21 Aug and sits +8.0% above the day-0 close after three sessions. The open question is the 21-session horizon: does the bounce hold (PRICE_OVERREACTION) or fade (THESIS_BROKEN)?"},
+ "horizon": {"day0": "2026-08-20", "sessions": 21, "resolve_by": "2026-09-19",
+             "note": "Buckets are the cumulative log move from the day-0 close 118.13 to the close 21 sessions later. Sessions 1-4 are already known at record time (+8.0% at session 3, +8.0% at session 4) and are stated in the evidence -- the compiler may not pretend not to know them."},
+ "market_expectation": {"expiry": "2026-09-18",
+                        "source_pead_rule": "wide DOWN mid band +0.44%/3d (t 4.29 iid, 2.15 two-way); the 3-session window is SPENT for this name and it went the other way"},
+ "evidence": [
+  {"kind": "measured", "fact": "Closes: 19 Aug 127.67, 20 Aug 118.13 (day 0, -7.5%), 21 Aug 131.41 (+11.2%), 24 Aug 126.05, 25 Aug 127.54. Three-session drift +8.0% AGAINST the day-0 direction.", "source": "state/shadow_bars_2026-08-26.json (Alpaca SIP)", "date": "2026-08-25"},
+  {"kind": "reported", "fact": "GAAP net loss $4.47M vs $13.9M net income a year ago; revenue -12% to $705.7M; first miss of a pre-tax income target in 23 quarters", "source": "WSJ / company release (via review)", "date": "2026-08-20"},
+  {"kind": "reported", "fact": "Adjusted homebuilding gross margin improved sequentially to 14.6%; SG&A 12.3% of revenue, better than guided", "source": "company release (via review)", "date": "2026-08-20"},
+  {"kind": "reported", "fact": "Q4 guide: revenue $800-900M, gross margin 15.0-16.5% (sequential expansion); 87% of lots optioned (record); 9.4 contracts per community", "source": "company release (via review)", "date": "2026-08-20"},
+  {"kind": "reported", "fact": "Contracts fell ~4% y/y", "source": "WSJ (via review)", "date": "2026-08-20"}
+ ]
+}

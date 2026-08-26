@@ -1,0 +1,28 @@
+{
+ "symbol": "ESTC",
+ "expiry": "2026-09-18",
+ "frozen_utc": "2026-08-26T07:20:29.295308+00:00",
+ "chain": {
+  "t": "2026-08-26T07:20:32.004967+00:00",
+  "spot": 80.46,
+  "spot_source": "trade",
+  "implied_move": 0.13300397713149392,
+  "atm_iv_call": 0.7865,
+  "atm_iv_put": 0.7844,
+  "atm_strike": 80.0,
+  "straddle_mid": 12.59,
+  "median_quote_age_s": 40847.3,
+  "market_open": false
+ },
+ "brains": {},
+ "structures_before": {
+  "dev": {
+   "structures": [],
+   "equity": 96160.37
+  },
+  "exp1": {
+   "structures": [],
+   "equity": 97779.0
+  }
+ }
+}

@@ -43,6 +43,7 @@ CACHE = Path("state") / "sec_cache"
 OUT = Path("state") / "pead_wide.json"
 FORWARD = 3
 HOLD_HORIZONS = (10, 21)
+ALT_BENCH = ("IWM", "XBI", "SPY")
 BETA_WINDOW = 120
 BANDS = (("<3.5%", 0.0, 0.035), ("3.5-8.2%", 0.035, 0.082), (">8.2%", 0.082, 9.0))
 
@@ -111,11 +112,18 @@ def main() -> int:
     # -- bars, SIP, one shot ----------------------------------------------------
     start = (datetime.now(timezone.utc) - timedelta(days=int(args.years * 365) + 250)).strftime("%Y-%m-%d")
     t0 = time.time()
-    bars = client.stock_bars_multi(symbols + ["QQQ"], start=start)
+    bars = client.stock_bars_multi(symbols + ["QQQ"] + list(ALT_BENCH), start=start)
     logger.info("bars: %d symbols in %.0fs", len(bars), time.time() - t0)
     q = bars.get("QQQ") or []
     qdays = [b["t"][:10] for b in q]
     qr = {qdays[i]: math.log(float(q[i]["c"]) / float(q[i - 1]["c"])) for i in range(1, len(q))}
+    # alternative benchmarks for residualisation (review P2 #21-24): raw returns kept per
+    # leg so the adversarial script can subtract any of them, beta-fitted or not
+    alt: dict[str, dict[str, float]] = {}
+    for a in ALT_BENCH:
+        ab = bars.get(a) or []
+        ad = [b["t"][:10] for b in ab]
+        alt[a] = {ad[i]: math.log(float(ab[i]["c"]) / float(ab[i - 1]["c"])) for i in range(1, len(ab))}
 
     # -- SEC dates, cached, rate-limited -----------------------------------------
     rows: list[dict] = []
@@ -161,19 +169,42 @@ def main() -> int:
             beta = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 0 else 1.0
             fwd_days = days[i0 + 1:i0 + 1 + FORWARD]
             fwd = sum(rets.get(dd, 0.0) for dd in fwd_days) - beta * sum(qr.get(dd, 0.0) for dd in fwd_days)
-            # HOLD horizons: the same excess over 10 and 21 sessions, so the question
-            # "hold the winners for weeks?" is measured on the same legs, not assumed.
+            sgn = 1 if r0 > 0 else -1
+            # HOLD horizons: the same excess over every horizon 1..21, so "hold the
+            # winners for weeks?" and "does the edge decay?" are one CURVE on the same
+            # legs (review P1: a response curve, not another binary verdict).
             hold = {}
-            for h in HOLD_HORIZONS:
+            for h in range(1, max(HOLD_HORIZONS) + 1):
                 hd = days[i0 + 1:i0 + 1 + h]
                 if len(hd) == h:
                     hold[f"signed_{h}"] = round((sum(rets.get(dd, 0.0) for dd in hd)
-                                                 - beta * sum(qr.get(dd, 0.0) for dd in hd)) * (1 if r0 > 0 else -1), 5)
+                                                 - beta * sum(qr.get(dd, 0.0) for dd in hd)) * sgn, 5)
+            # TIMING (review P2 #29-35): the 3-session drift is split into the overnight
+            # gap after day 0 (close_0 -> open_1) and the rest (open_1 -> close_3). A
+            # lane that enters at the next open only ever earns the second part.
+            o1 = float(b[i0 + 1]["o"]) if i0 + 1 < len(b) and float(b[i0 + 1]["o"]) > 0 else None
+            timing = {}
+            if o1 and i0 + FORWARD < len(b):
+                gap = math.log(o1 / closes[i0])
+                timing["overnight_gap_signed"] = round(gap * sgn, 5)
+                timing["from_open1_signed"] = round((math.log(closes[i0 + FORWARD] / o1)
+                                                     - beta * sum(qr.get(dd, 0.0) for dd in fwd_days)) * sgn, 5)
+                # intraday day 0 vs overnight into day 0: was the print reacted to in the
+                # gap (amc/bmo) or during the session?
+                o0 = float(b[i0]["o"])
+                if o0 > 0:
+                    timing["day0_gap"] = round(math.log(o0 / closes[i0 - 1]), 5)
+                    timing["day0_intraday"] = round(math.log(closes[i0] / o0), 5)
+            # raw benchmark sums for the alternative residualisations
+            bench = {f"raw_{a.lower()}_3": round(sum(alt[a].get(dd, 0.0) for dd in fwd_days), 5) for a in ALT_BENCH}
+            bench["raw_qqq_3"] = round(sum(qr.get(dd, 0.0) for dd in fwd_days), 5)
+            bench["raw_3"] = round(sum(rets.get(dd, 0.0) for dd in fwd_days), 5)
             band = next(name for name, lo, hi in BANDS if lo <= abs(r0) < hi)
             rows.append({"symbol": sym, "day0": target, "session": r["session"], "r0": round(r0, 5),
-                         "fwd_excess": round(fwd, 5), "signed": round(fwd * (1 if r0 > 0 else -1), 5), **hold,
-                         "beta": round(beta, 3), "band": band, "dv_bucket": by_sym[sym].dv_bucket,
-                         "dollar_volume": by_sym[sym].median_dollar_volume})
+                         "fwd_excess": round(fwd, 5), "signed": round(fwd * sgn, 5), **hold, **timing, **bench,
+                         "price0": round(closes[i0], 3), "beta": round(beta, 3), "band": band,
+                         "dv_bucket": by_sym[sym].dv_bucket, "dollar_volume": by_sym[sym].median_dollar_volume,
+                         "industry": by_sym[sym].industry, "market_cap_usd": by_sym[sym].market_cap_usd})
         if (k + 1) % 200 == 0:
             logger.info("  %d/%d names, %d legs so far", k + 1, len(symbols), len(rows))
 

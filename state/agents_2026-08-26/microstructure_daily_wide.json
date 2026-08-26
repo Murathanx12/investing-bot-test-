@@ -1,0 +1,1067 @@
+{
+ "generated_utc": "2026-08-26T07:36:23.833846+00:00",
+ "agent": "agent7_event_microstructure",
+ "note": "daily-granularity decomposition, signed for a SHORT, beta*QQQ excess; 500 random symbols with any DOWN>=3.5% print, 2024-02..2026-08",
+ "n_symbols": 500,
+ "n_legs": 1608,
+ "grades": {
+  "all_down_ge3.5": {
+   "gap01": {
+    "n": 1608,
+    "mean": -0.00049,
+    "median": -0.00054,
+    "hit": 0.476,
+    "t": -1.13,
+    "sd": 0.0174,
+    "t_weeks": -1.47
+   },
+   "intra1": {
+    "n": 1608,
+    "mean": 0.00187,
+    "median": 0.00127,
+    "hit": 0.516,
+    "t": 1.95,
+    "sd": 0.0385,
+    "t_weeks": 1.12
+   },
+   "gap12": {
+    "n": 1608,
+    "mean": 0.00064,
+    "median": -0.0,
+    "hit": 0.5,
+    "t": 1.82,
+    "sd": 0.0142,
+    "t_weeks": 0.83
+   },
+   "intra2": {
+    "n": 1608,
+    "mean": 0.00018,
+    "median": 0.0003,
+    "hit": 0.503,
+    "t": 0.22,
+    "sd": 0.0316,
+    "t_weeks": 0.29
+   },
+   "gap23": {
+    "n": 1608,
+    "mean": 0.00054,
+    "median": 0.00028,
+    "hit": 0.518,
+    "t": 1.45,
+    "sd": 0.0149,
+    "t_weeks": 1.82
+   },
+   "intra3": {
+    "n": 1608,
+    "mean": 0.00072,
+    "median": 0.00041,
+    "hit": 0.509,
+    "t": 0.99,
+    "sd": 0.0291,
+    "t_weeks": 0.86
+   },
+   "close0_close3": {
+    "n": 1608,
+    "mean": 0.00346,
+    "median": 0.00314,
+    "hit": 0.525,
+    "t": 2.27,
+    "sd": 0.0612,
+    "t_weeks": 1.34
+   },
+   "open1_close3": {
+    "n": 1608,
+    "mean": 0.00395,
+    "median": 0.00366,
+    "hit": 0.527,
+    "t": 2.65,
+    "sd": 0.0599,
+    "t_weeks": 1.89
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 1608,
+    "mean": 0.00269,
+    "median": 0.00334,
+    "hit": 0.528,
+    "t": 2.16,
+    "sd": 0.0499,
+    "t_weeks": 1.19
+   },
+   "overnights": {
+    "n": 1608,
+    "mean": 0.00069,
+    "median": -0.00018,
+    "hit": 0.494,
+    "t": 0.99,
+    "sd": 0.0279,
+    "t_weeks": 0.53
+   },
+   "intradays": {
+    "n": 1608,
+    "mean": 0.00277,
+    "median": 0.00255,
+    "hit": 0.524,
+    "t": 1.91,
+    "sd": 0.0581,
+    "t_weeks": 1.29
+   },
+   "close1_open2": {
+    "n": 1608,
+    "mean": 0.00064,
+    "median": -0.0,
+    "hit": 0.5,
+    "t": 1.82,
+    "sd": 0.0142,
+    "t_weeks": 0.83
+   },
+   "close1_close3": {
+    "n": 1608,
+    "mean": 0.00208,
+    "median": 0.00205,
+    "hit": 0.525,
+    "t": 1.82,
+    "sd": 0.0459,
+    "t_weeks": 1.51
+   }
+  },
+  "down_ge5": {
+   "gap01": {
+    "n": 1272,
+    "mean": -0.00074,
+    "median": -0.00058,
+    "hit": 0.472,
+    "t": -1.46,
+    "sd": 0.0182,
+    "t_weeks": -0.97
+   },
+   "intra1": {
+    "n": 1272,
+    "mean": 0.00164,
+    "median": 0.00145,
+    "hit": 0.512,
+    "t": 1.44,
+    "sd": 0.0405,
+    "t_weeks": 0.87
+   },
+   "gap12": {
+    "n": 1272,
+    "mean": 0.00061,
+    "median": 7e-05,
+    "hit": 0.506,
+    "t": 1.5,
+    "sd": 0.0144,
+    "t_weeks": 0.15
+   },
+   "intra2": {
+    "n": 1272,
+    "mean": -0.0002,
+    "median": 0.00037,
+    "hit": 0.506,
+    "t": -0.21,
+    "sd": 0.0331,
+    "t_weeks": -0.08
+   },
+   "gap23": {
+    "n": 1272,
+    "mean": 0.00093,
+    "median": 0.00051,
+    "hit": 0.531,
+    "t": 2.13,
+    "sd": 0.0155,
+    "t_weeks": 1.97
+   },
+   "intra3": {
+    "n": 1272,
+    "mean": 0.00069,
+    "median": 0.00056,
+    "hit": 0.513,
+    "t": 0.81,
+    "sd": 0.0308,
+    "t_weeks": 0.93
+   },
+   "close0_close3": {
+    "n": 1272,
+    "mean": 0.00292,
+    "median": 0.00267,
+    "hit": 0.52,
+    "t": 1.64,
+    "sd": 0.0637,
+    "t_weeks": 1.18
+   },
+   "open1_close3": {
+    "n": 1272,
+    "mean": 0.00367,
+    "median": 0.00363,
+    "hit": 0.526,
+    "t": 2.1,
+    "sd": 0.0623,
+    "t_weeks": 1.51
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 1272,
+    "mean": 0.00205,
+    "median": 0.00334,
+    "hit": 0.525,
+    "t": 1.4,
+    "sd": 0.0522,
+    "t_weeks": 0.61
+   },
+   "overnights": {
+    "n": 1272,
+    "mean": 0.00079,
+    "median": 3e-05,
+    "hit": 0.5,
+    "t": 0.98,
+    "sd": 0.0286,
+    "t_weeks": 0.76
+   },
+   "intradays": {
+    "n": 1272,
+    "mean": 0.00213,
+    "median": 0.00238,
+    "hit": 0.52,
+    "t": 1.26,
+    "sd": 0.0603,
+    "t_weeks": 0.95
+   },
+   "close1_open2": {
+    "n": 1272,
+    "mean": 0.00061,
+    "median": 7e-05,
+    "hit": 0.506,
+    "t": 1.5,
+    "sd": 0.0144,
+    "t_weeks": 0.15
+   },
+   "close1_close3": {
+    "n": 1272,
+    "mean": 0.00203,
+    "median": 0.00255,
+    "hit": 0.528,
+    "t": 1.52,
+    "sd": 0.0476,
+    "t_weeks": 1.22
+   }
+  },
+  "small_down_ge5": {
+   "gap01": {
+    "n": 547,
+    "mean": 0.00056,
+    "median": -0.00019,
+    "hit": 0.486,
+    "t": 0.81,
+    "sd": 0.0162,
+    "t_weeks": -0.1
+   },
+   "intra1": {
+    "n": 547,
+    "mean": 0.00272,
+    "median": 0.00102,
+    "hit": 0.508,
+    "t": 1.48,
+    "sd": 0.0429,
+    "t_weeks": 1.46
+   },
+   "gap12": {
+    "n": 547,
+    "mean": 0.00128,
+    "median": 6e-05,
+    "hit": 0.506,
+    "t": 2.03,
+    "sd": 0.0147,
+    "t_weeks": 1.17
+   },
+   "intra2": {
+    "n": 547,
+    "mean": 0.00052,
+    "median": 0.00033,
+    "hit": 0.505,
+    "t": 0.33,
+    "sd": 0.0371,
+    "t_weeks": -0.62
+   },
+   "gap23": {
+    "n": 547,
+    "mean": 0.00063,
+    "median": 0.00039,
+    "hit": 0.521,
+    "t": 1.08,
+    "sd": 0.0136,
+    "t_weeks": 0.64
+   },
+   "intra3": {
+    "n": 547,
+    "mean": 0.00124,
+    "median": -0.00029,
+    "hit": 0.494,
+    "t": 0.88,
+    "sd": 0.0329,
+    "t_weeks": 1.69
+   },
+   "close0_close3": {
+    "n": 547,
+    "mean": 0.00695,
+    "median": 0.00588,
+    "hit": 0.528,
+    "t": 2.37,
+    "sd": 0.0685,
+    "t_weeks": 1.89
+   },
+   "open1_close3": {
+    "n": 547,
+    "mean": 0.0064,
+    "median": 0.0082,
+    "hit": 0.534,
+    "t": 2.18,
+    "sd": 0.0686,
+    "t_weeks": 1.78
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 547,
+    "mean": 0.00452,
+    "median": 0.00593,
+    "hit": 0.528,
+    "t": 1.81,
+    "sd": 0.0583,
+    "t_weeks": 1.1
+   },
+   "overnights": {
+    "n": 547,
+    "mean": 0.00246,
+    "median": 0.00072,
+    "hit": 0.521,
+    "t": 2.19,
+    "sd": 0.0263,
+    "t_weeks": 1.05
+   },
+   "intradays": {
+    "n": 547,
+    "mean": 0.00449,
+    "median": 0.00559,
+    "hit": 0.534,
+    "t": 1.6,
+    "sd": 0.0656,
+    "t_weeks": 1.47
+   },
+   "close1_open2": {
+    "n": 547,
+    "mean": 0.00128,
+    "median": 6e-05,
+    "hit": 0.506,
+    "t": 2.03,
+    "sd": 0.0147,
+    "t_weeks": 1.17
+   },
+   "close1_close3": {
+    "n": 547,
+    "mean": 0.00367,
+    "median": 0.00335,
+    "hit": 0.537,
+    "t": 1.68,
+    "sd": 0.0512,
+    "t_weeks": 1.36
+   }
+  },
+  "mid_down_ge5": {
+   "gap01": {
+    "n": 543,
+    "mean": -0.00171,
+    "median": -0.00097,
+    "hit": 0.468,
+    "t": -1.99,
+    "sd": 0.0201,
+    "t_weeks": -0.53
+   },
+   "intra1": {
+    "n": 543,
+    "mean": 0.00044,
+    "median": 0.00146,
+    "hit": 0.506,
+    "t": 0.26,
+    "sd": 0.0384,
+    "t_weeks": 0.53
+   },
+   "gap12": {
+    "n": 543,
+    "mean": 0.00042,
+    "median": 0.00026,
+    "hit": 0.514,
+    "t": 0.67,
+    "sd": 0.0145,
+    "t_weeks": 0.1
+   },
+   "intra2": {
+    "n": 543,
+    "mean": -0.00174,
+    "median": 0.00048,
+    "hit": 0.506,
+    "t": -1.3,
+    "sd": 0.031,
+    "t_weeks": -0.75
+   },
+   "gap23": {
+    "n": 543,
+    "mean": 0.00134,
+    "median": 0.00058,
+    "hit": 0.541,
+    "t": 1.73,
+    "sd": 0.0181,
+    "t_weeks": 1.78
+   },
+   "intra3": {
+    "n": 543,
+    "mean": 0.00045,
+    "median": 0.00077,
+    "hit": 0.525,
+    "t": 0.36,
+    "sd": 0.0293,
+    "t_weeks": 1.01
+   },
+   "close0_close3": {
+    "n": 543,
+    "mean": -0.00081,
+    "median": 3e-05,
+    "hit": 0.501,
+    "t": -0.32,
+    "sd": 0.0582,
+    "t_weeks": 0.69
+   },
+   "open1_close3": {
+    "n": 543,
+    "mean": 0.0009,
+    "median": 0.00031,
+    "hit": 0.505,
+    "t": 0.38,
+    "sd": 0.0555,
+    "t_weeks": 0.98
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 543,
+    "mean": -0.00088,
+    "median": 0.0021,
+    "hit": 0.516,
+    "t": -0.44,
+    "sd": 0.0465,
+    "t_weeks": -0.14
+   },
+   "overnights": {
+    "n": 543,
+    "mean": 4e-05,
+    "median": -0.00038,
+    "hit": 0.49,
+    "t": 0.03,
+    "sd": 0.0317,
+    "t_weeks": 0.68
+   },
+   "intradays": {
+    "n": 543,
+    "mean": -0.00085,
+    "median": 0.00044,
+    "hit": 0.503,
+    "t": -0.36,
+    "sd": 0.055,
+    "t_weeks": 0.36
+   },
+   "close1_open2": {
+    "n": 543,
+    "mean": 0.00042,
+    "median": 0.00026,
+    "hit": 0.514,
+    "t": 0.67,
+    "sd": 0.0145,
+    "t_weeks": 0.1
+   },
+   "close1_close3": {
+    "n": 543,
+    "mean": 0.00047,
+    "median": 0.00088,
+    "hit": 0.514,
+    "t": 0.25,
+    "sd": 0.0443,
+    "t_weeks": 0.61
+   }
+  },
+  "large_down_ge5": {
+   "gap01": {
+    "n": 182,
+    "mean": -0.00178,
+    "median": -0.0013,
+    "hit": 0.44,
+    "t": -1.35,
+    "sd": 0.0178,
+    "t_weeks": -2.09
+   },
+   "intra1": {
+    "n": 182,
+    "mean": 0.00197,
+    "median": 0.00357,
+    "hit": 0.538,
+    "t": 0.68,
+    "sd": 0.0392,
+    "t_weeks": 0.5
+   },
+   "gap12": {
+    "n": 182,
+    "mean": -0.00083,
+    "median": -0.0003,
+    "hit": 0.484,
+    "t": -0.85,
+    "sd": 0.0132,
+    "t_weeks": -0.53
+   },
+   "intra2": {
+    "n": 182,
+    "mean": 0.00221,
+    "median": 0.00037,
+    "hit": 0.505,
+    "t": 1.16,
+    "sd": 0.0258,
+    "t_weeks": 1.05
+   },
+   "gap23": {
+    "n": 182,
+    "mean": 0.00059,
+    "median": 0.00069,
+    "hit": 0.533,
+    "t": 0.64,
+    "sd": 0.0124,
+    "t_weeks": 0.86
+   },
+   "intra3": {
+    "n": 182,
+    "mean": -0.00022,
+    "median": 0.00164,
+    "hit": 0.533,
+    "t": -0.1,
+    "sd": 0.0283,
+    "t_weeks": -0.04
+   },
+   "close0_close3": {
+    "n": 182,
+    "mean": 0.00194,
+    "median": 0.0038,
+    "hit": 0.555,
+    "t": 0.41,
+    "sd": 0.0637,
+    "t_weeks": 0.31
+   },
+   "open1_close3": {
+    "n": 182,
+    "mean": 0.00372,
+    "median": 0.00651,
+    "hit": 0.566,
+    "t": 0.82,
+    "sd": 0.0612,
+    "t_weeks": 0.83
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 182,
+    "mean": 0.00334,
+    "median": 0.00334,
+    "hit": 0.544,
+    "t": 0.94,
+    "sd": 0.048,
+    "t_weeks": 0.9
+   },
+   "overnights": {
+    "n": 182,
+    "mean": -0.00202,
+    "median": -0.00111,
+    "hit": 0.467,
+    "t": -1.11,
+    "sd": 0.0246,
+    "t_weeks": -1.19
+   },
+   "intradays": {
+    "n": 182,
+    "mean": 0.00396,
+    "median": 0.00378,
+    "hit": 0.533,
+    "t": 0.92,
+    "sd": 0.0583,
+    "t_weeks": 0.79
+   },
+   "close1_open2": {
+    "n": 182,
+    "mean": -0.00083,
+    "median": -0.0003,
+    "hit": 0.484,
+    "t": -0.85,
+    "sd": 0.0132,
+    "t_weeks": -0.53
+   },
+   "close1_close3": {
+    "n": 182,
+    "mean": 0.00175,
+    "median": 0.00472,
+    "hit": 0.544,
+    "t": 0.52,
+    "sd": 0.0455,
+    "t_weeks": 0.68
+   }
+  },
+  "mid_band_down": {
+   "gap01": {
+    "n": 817,
+    "mean": 0.00029,
+    "median": -0.00042,
+    "hit": 0.482,
+    "t": 0.54,
+    "sd": 0.0155,
+    "t_weeks": -0.39
+   },
+   "intra1": {
+    "n": 817,
+    "mean": 0.00286,
+    "median": 0.00189,
+    "hit": 0.53,
+    "t": 2.44,
+    "sd": 0.0334,
+    "t_weeks": 1.12
+   },
+   "gap12": {
+    "n": 817,
+    "mean": 0.00097,
+    "median": -0.00033,
+    "hit": 0.482,
+    "t": 1.96,
+    "sd": 0.0142,
+    "t_weeks": 1.95
+   },
+   "intra2": {
+    "n": 817,
+    "mean": 0.00142,
+    "median": 0.00022,
+    "hit": 0.502,
+    "t": 1.59,
+    "sd": 0.0255,
+    "t_weeks": 0.11
+   },
+   "gap23": {
+    "n": 817,
+    "mean": 0.00061,
+    "median": -2e-05,
+    "hit": 0.499,
+    "t": 1.1,
+    "sd": 0.0159,
+    "t_weeks": 1.57
+   },
+   "intra3": {
+    "n": 817,
+    "mean": 0.00114,
+    "median": 0.00041,
+    "hit": 0.508,
+    "t": 1.32,
+    "sd": 0.0248,
+    "t_weeks": 1.43
+   },
+   "close0_close3": {
+    "n": 817,
+    "mean": 0.00729,
+    "median": 0.00468,
+    "hit": 0.532,
+    "t": 3.67,
+    "sd": 0.0568,
+    "t_weeks": 2.34
+   },
+   "open1_close3": {
+    "n": 817,
+    "mean": 0.007,
+    "median": 0.0038,
+    "hit": 0.529,
+    "t": 3.59,
+    "sd": 0.0558,
+    "t_weeks": 2.43
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 817,
+    "mean": 0.00524,
+    "median": 0.00412,
+    "hit": 0.539,
+    "t": 3.37,
+    "sd": 0.0444,
+    "t_weeks": 1.71
+   },
+   "overnights": {
+    "n": 817,
+    "mean": 0.00188,
+    "median": -0.00053,
+    "hit": 0.491,
+    "t": 1.98,
+    "sd": 0.027,
+    "t_weeks": 2.06
+   },
+   "intradays": {
+    "n": 817,
+    "mean": 0.00542,
+    "median": 0.00396,
+    "hit": 0.541,
+    "t": 2.96,
+    "sd": 0.0524,
+    "t_weeks": 1.48
+   },
+   "close1_open2": {
+    "n": 817,
+    "mean": 0.00097,
+    "median": -0.00033,
+    "hit": 0.482,
+    "t": 1.96,
+    "sd": 0.0142,
+    "t_weeks": 1.95
+   },
+   "close1_close3": {
+    "n": 817,
+    "mean": 0.00414,
+    "median": 0.00286,
+    "hit": 0.539,
+    "t": 2.87,
+    "sd": 0.0413,
+    "t_weeks": 2.43
+   }
+  },
+  "big_band_down": {
+   "gap01": {
+    "n": 791,
+    "mean": -0.0013,
+    "median": -0.00059,
+    "hit": 0.47,
+    "t": -1.91,
+    "sd": 0.0191,
+    "t_weeks": -1.96
+   },
+   "intra1": {
+    "n": 791,
+    "mean": 0.00085,
+    "median": 5e-05,
+    "hit": 0.501,
+    "t": 0.56,
+    "sd": 0.0431,
+    "t_weeks": 0.52
+   },
+   "gap12": {
+    "n": 791,
+    "mean": 0.00031,
+    "median": 0.0003,
+    "hit": 0.518,
+    "t": 0.61,
+    "sd": 0.0142,
+    "t_weeks": -0.33
+   },
+   "intra2": {
+    "n": 791,
+    "mean": -0.0011,
+    "median": 0.00034,
+    "hit": 0.504,
+    "t": -0.84,
+    "sd": 0.0369,
+    "t_weeks": -0.64
+   },
+   "gap23": {
+    "n": 791,
+    "mean": 0.00046,
+    "median": 0.00061,
+    "hit": 0.537,
+    "t": 0.94,
+    "sd": 0.0137,
+    "t_weeks": 0.92
+   },
+   "intra3": {
+    "n": 791,
+    "mean": 0.00029,
+    "median": 0.00055,
+    "hit": 0.509,
+    "t": 0.24,
+    "sd": 0.033,
+    "t_weeks": -0.17
+   },
+   "close0_close3": {
+    "n": 791,
+    "mean": -0.0005,
+    "median": 0.0022,
+    "hit": 0.518,
+    "t": -0.22,
+    "sd": 0.0652,
+    "t_weeks": -0.73
+   },
+   "open1_close3": {
+    "n": 791,
+    "mean": 0.0008,
+    "median": 0.00328,
+    "hit": 0.525,
+    "t": 0.35,
+    "sd": 0.0637,
+    "t_weeks": -0.04
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 791,
+    "mean": 6e-05,
+    "median": 0.00284,
+    "hit": 0.517,
+    "t": 0.03,
+    "sd": 0.055,
+    "t_weeks": -0.15
+   },
+   "overnights": {
+    "n": 791,
+    "mean": -0.00054,
+    "median": -0.0001,
+    "hit": 0.498,
+    "t": -0.52,
+    "sd": 0.0288,
+    "t_weeks": -1.33
+   },
+   "intradays": {
+    "n": 791,
+    "mean": 4e-05,
+    "median": 0.00044,
+    "hit": 0.507,
+    "t": 0.02,
+    "sd": 0.0633,
+    "t_weeks": -0.13
+   },
+   "close1_open2": {
+    "n": 791,
+    "mean": 0.00031,
+    "median": 0.0003,
+    "hit": 0.518,
+    "t": 0.61,
+    "sd": 0.0142,
+    "t_weeks": -0.33
+   },
+   "close1_close3": {
+    "n": 791,
+    "mean": -5e-05,
+    "median": 0.00104,
+    "hit": 0.512,
+    "t": -0.03,
+    "sd": 0.0501,
+    "t_weeks": -0.43
+   }
+  },
+  "last3mo_down_ge5": {
+   "gap01": {
+    "n": 127,
+    "mean": -0.00093,
+    "median": -0.00018,
+    "hit": 0.496,
+    "t": -0.57,
+    "sd": 0.0184,
+    "t_weeks": -1.27
+   },
+   "intra1": {
+    "n": 127,
+    "mean": -0.00381,
+    "median": -0.00513,
+    "hit": 0.441,
+    "t": -1.04,
+    "sd": 0.0414,
+    "t_weeks": -1.12
+   },
+   "gap12": {
+    "n": 127,
+    "mean": 0.00089,
+    "median": -7e-05,
+    "hit": 0.496,
+    "t": 0.57,
+    "sd": 0.0177,
+    "t_weeks": 0.62
+   },
+   "intra2": {
+    "n": 127,
+    "mean": 8e-05,
+    "median": -0.00064,
+    "hit": 0.496,
+    "t": 0.03,
+    "sd": 0.0351,
+    "t_weeks": 1.02
+   },
+   "gap23": {
+    "n": 127,
+    "mean": 0.00292,
+    "median": 0.00186,
+    "hit": 0.559,
+    "t": 2.19,
+    "sd": 0.015,
+    "t_weeks": 2.43
+   },
+   "intra3": {
+    "n": 127,
+    "mean": -0.00282,
+    "median": -0.00446,
+    "hit": 0.425,
+    "t": -1.08,
+    "sd": 0.0293,
+    "t_weeks": 0.47
+   },
+   "close0_close3": {
+    "n": 127,
+    "mean": -0.00366,
+    "median": 0.00312,
+    "hit": 0.528,
+    "t": -0.59,
+    "sd": 0.0702,
+    "t_weeks": -0.02
+   },
+   "open1_close3": {
+    "n": 127,
+    "mean": -0.00273,
+    "median": 0.00217,
+    "hit": 0.512,
+    "t": -0.44,
+    "sd": 0.0693,
+    "t_weeks": 0.39
+   },
+   "open1_close2_CURRENT_IMPL": {
+    "n": 127,
+    "mean": -0.00283,
+    "median": 0.00179,
+    "hit": 0.512,
+    "t": -0.58,
+    "sd": 0.0554,
+    "t_weeks": -0.25
+   },
+   "overnights": {
+    "n": 127,
+    "mean": 0.00288,
+    "median": 0.00408,
+    "hit": 0.551,
+    "t": 1.07,
+    "sd": 0.0304,
+    "t_weeks": 0.51
+   },
+   "intradays": {
+    "n": 127,
+    "mean": -0.00654,
+    "median": 0.00022,
+    "hit": 0.512,
+    "t": -1.09,
+    "sd": 0.0674,
+    "t_weeks": -0.28
+   },
+   "close1_open2": {
+    "n": 127,
+    "mean": 0.00089,
+    "median": -7e-05,
+    "hit": 0.496,
+    "t": 0.57,
+    "sd": 0.0177,
+    "t_weeks": 0.62
+   },
+   "close1_close3": {
+    "n": 127,
+    "mean": 0.00108,
+    "median": 0.00169,
+    "hit": 0.52,
+    "t": 0.24,
+    "sd": 0.0516,
+    "t_weeks": 1.35
+   }
+  }
+ },
+ "time_of_day_small20_15m": {
+  "09:30": {
+   "median_range_pct": 0.0197,
+   "mean_vol_share": 0.086
+  },
+  "09:45": {
+   "median_range_pct": 0.0107,
+   "mean_vol_share": 0.055
+  },
+  "10:00": {
+   "median_range_pct": 0.0093,
+   "mean_vol_share": 0.052
+  },
+  "10:15": {
+   "median_range_pct": 0.0084,
+   "mean_vol_share": 0.045
+  },
+  "10:30": {
+   "median_range_pct": 0.0067,
+   "mean_vol_share": 0.037
+  },
+  "10:45": {
+   "median_range_pct": 0.0063,
+   "mean_vol_share": 0.037
+  },
+  "11:00": {
+   "median_range_pct": 0.0059,
+   "mean_vol_share": 0.036
+  },
+  "11:15": {
+   "median_range_pct": 0.0051,
+   "mean_vol_share": 0.032
+  },
+  "11:30": {
+   "median_range_pct": 0.0046,
+   "mean_vol_share": 0.029
+  },
+  "11:45": {
+   "median_range_pct": 0.0044,
+   "mean_vol_share": 0.029
+  },
+  "12:00": {
+   "median_range_pct": 0.0041,
+   "mean_vol_share": 0.031
+  },
+  "12:15": {
+   "median_range_pct": 0.0039,
+   "mean_vol_share": 0.029
+  },
+  "12:30": {
+   "median_range_pct": 0.0037,
+   "mean_vol_share": 0.029
+  },
+  "12:45": {
+   "median_range_pct": 0.0035,
+   "mean_vol_share": 0.025
+  },
+  "13:00": {
+   "median_range_pct": 0.0036,
+   "mean_vol_share": 0.024
+  },
+  "13:15": {
+   "median_range_pct": 0.0033,
+   "mean_vol_share": 0.023
+  },
+  "13:30": {
+   "median_range_pct": 0.0036,
+   "mean_vol_share": 0.023
+  },
+  "13:45": {
+   "median_range_pct": 0.0033,
+   "mean_vol_share": 0.022
+  },
+  "14:00": {
+   "median_range_pct": 0.0038,
+   "mean_vol_share": 0.025
+  },
+  "14:15": {
+   "median_range_pct": 0.0035,
+   "mean_vol_share": 0.024
+  },
+  "14:30": {
+   "median_range_pct": 0.0036,
+   "mean_vol_share": 0.026
+  },
+  "14:45": {
+   "median_range_pct": 0.0035,
+   "mean_vol_share": 0.027
+  },
+  "15:00": {
+   "median_range_pct": 0.004,
+   "mean_vol_share": 0.032
+  },
+  "15:15": {
+   "median_range_pct": 0.0043,
+   "mean_vol_share": 0.037
+  },
+  "15:30": {
+   "median_range_pct": 0.0047,
+   "mean_vol_share": 0.049
+  },
+  "15:45": {
+   "median_range_pct": 0.0084,
+   "mean_vol_share": 0.135
+  }
+ }
+}

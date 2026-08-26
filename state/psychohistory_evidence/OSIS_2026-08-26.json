@@ -1,0 +1,14 @@
+{
+ "trigger": {"symbol": "OSIS", "event": "Fiscal 2026 Q4 / FY print, 2026-08-20 amc; day-0 (21 Aug) close -5.4% (218.10 -> 206.73)",
+             "event_date": "2026-08-21", "release": "2026-08-20 after the close", "type": "post_event_drift_POST_WINDOW",
+             "review_hypothesis": "CONTRADICTION / REVERSAL (review P8): record FY revenue, EPS, cash flow, $1.9bn backlog, growth guide, bigger buyback -- sold off on a quarterly revenue miss. Is the day-0 reaction to the HEADLINE or to the BUSINESS? The 3-session window is spent: -1.3% further (206.73 -> 204.07), mildly in the day-0 direction."},
+ "horizon": {"day0": "2026-08-21", "sessions": 21, "resolve_by": "2026-09-22",
+             "note": "Buckets are the cumulative log move from the day-0 close 206.73 to the close 21 sessions later. Sessions 1-2 already known (-1.3%) and stated below."},
+ "market_expectation": {"expiry": "2026-09-18",
+                        "source_pead_rule": "wide DOWN mid band +0.44%/3d; realised so far +1.3% in the day-0 direction over 2 sessions (consistent with the rule, small)"},
+ "evidence": [
+  {"kind": "measured", "fact": "Closes: 20 Aug 218.10, 21 Aug 206.73 (day 0, -5.4%), 24 Aug 204.05, 25 Aug 204.07. Reported aftermarket drop was >13% on 20 Aug; by the next close it was -5.4% -- more than half the aftermarket reaction was bought back before the first close.", "source": "state/shadow_bars_2026-08-26.json (Alpaca SIP)", "date": "2026-08-25"},
+  {"kind": "reported", "fact": "Record FY revenue, EPS and operating cash flow; backlog $1.9bn; FY2027 guidance introduced with growth; buyback authorisation expanded", "source": "osisystems.gcs-web.com FY2026 Q4 release (via review)", "date": "2026-08-20"},
+  {"kind": "reported", "fact": "Quarterly revenue marginally missed consensus", "source": "company release vs consensus (via review)", "date": "2026-08-20"}
+ ]
+}

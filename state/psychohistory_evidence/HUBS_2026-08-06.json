@@ -1,0 +1,12 @@
+{
+ "trigger": {"symbol": "HUBS", "event": "Q2 2026 print, 2026-08-06; day-0 ~-19%", "event_date": "2026-08-06", "type": "loser_triage_FALSIFICATION_CASE",
+             "note": "Facts are restricted to what was public ON the day-0 close, so the triage is graded on what happened after (measured: ~202 on 06 Aug -> 237.69 on 25 Aug, +17%). The outcome is NOT in the evidence."},
+ "horizon": {"day0": "2026-08-06", "sessions": 13, "resolve_by": "2026-08-25"},
+ "market_expectation": {"note": "software sector under AI-pricing pressure in Aug 2026 (Datadog, HubSpot prints raised questions over AI pricing)"},
+ "evidence": [
+  {"kind": "reported", "fact": "Q2 EPS and revenue both BEAT consensus", "source": "Investing.com 'Why is HubSpot stock plunging today' (via review)", "date": "2026-08-06"},
+  {"kind": "reported", "fact": "Net customer additions disappointed and forward guidance was light; the stock fell about 19% on the day", "source": "Investing.com (via review)", "date": "2026-08-06"},
+  {"kind": "reported", "fact": "Software peers (Datadog) fell the same week on questions over AI pricing -- part of the move is sector-wide", "source": "Investor's Business Daily (via review)", "date": "2026-08-06"},
+  {"kind": "reported", "fact": "Revenue growth remained double-digit; no covenant, cash or going-concern issue was reported", "source": "company release (via review)", "date": "2026-08-06"}
+ ]
+}

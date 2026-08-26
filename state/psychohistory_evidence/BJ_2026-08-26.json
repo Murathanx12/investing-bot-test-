@@ -1,0 +1,13 @@
+{
+ "trigger": {"symbol": "BJ", "event": "Q2 FY2026 print, 2026-08-21 bmo; day-0 close +5.6% (91.30 -> 96.42)",
+             "event_date": "2026-08-21", "release": "2026-08-21 before the open", "type": "post_event_drift_POST_WINDOW",
+             "review_hypothesis": "HIGH-QUALITY POSITIVE-PRINT FALSIFIER (review P8): the wide rule refuses every UP print outside the mega-11 because they reverse (-0.22%/3d, t -1.99). BJ is a beat-AND-raise with traffic and membership growth. Did a high-quality UP print also fade? At 2 sessions: +2.1% then -4.2%, net -2.1% -- it faded. The 21-session horizon decides whether that is noise or the rule."},
+ "horizon": {"day0": "2026-08-21", "sessions": 21, "resolve_by": "2026-09-22",
+             "note": "Buckets are the cumulative log move from the day-0 close 96.42 to the close 21 sessions later. Sessions 1-2 already known (+2.1%, then -4.2% on 25 Aug) and stated below."},
+ "market_expectation": {"expiry": "2026-09-18",
+                        "source_pead_rule": "wide UP mid band -0.22%/3d (t -1.99 iid, -1.18 two-way -- the UP side is the WEAKER half of the asymmetry and is not resolved on clustered errors)"},
+ "evidence": [
+  {"kind": "measured", "fact": "Closes: 20 Aug 91.30, 21 Aug 96.42 (day 0, +5.6%), 24 Aug 98.49 (+2.1%), 25 Aug 94.37 (-4.2%). Net -2.1% from the day-0 close after two sessions.", "source": "state/shadow_bars_2026-08-26.json (Alpaca SIP)", "date": "2026-08-25"},
+  {"kind": "reported", "fact": "Adjusted EPS +19.3% to $1.36; membership fee income +9.9% to ~$135.6M; traffic growth; FY outlook raised", "source": "WSJ / company release (via review)", "date": "2026-08-21"}
+ ]
+}

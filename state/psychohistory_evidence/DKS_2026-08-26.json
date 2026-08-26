@@ -1,0 +1,62 @@
+{
+ "trigger": {
+  "symbol": "DKS",
+  "event": "POST-EVENT record. The print ALREADY HAPPENED on 2026-08-25 and the day-0 move is KNOWN: -30.7%. DO NOT predict day 0. PREDICT THE MOVE FROM THE DAY-0 CLOSE (124.31) TO THE CLOSE OF 2026-09-24 (21 sessions), using the same five buckets for that FORWARD move.",
+  "event_date": "2026-08-25",
+  "release": "2026-08-25 before the open",
+  "type": "post_event_drift_LIVE",
+  "review_hypothesis": "EXTREME-DROP CONTINUATION (review P8). The wide rule (state/pead_wide.json) says a >8.2% day-0 DROP drifts a further +0.64%/3d in the same direction (t 5.16; two-way clustered 3.08). The counter-hypothesis is PRICE_OVERREACTION: core DICK'S comps +4.9%, the loss is confined to the acquired Foot Locker."
+ },
+ "horizon": {
+  "day0": "2026-08-25",
+  "sessions": 21,
+  "resolve_by": "2026-09-24",
+  "note": "TARGET = log(close on 2026-09-24 / 124.31). Buckets apply to THIS forward move, not to the known day-0 move. A scenario 'the stock drifts a further 5% lower' belongs in the -8.2..-3.5% bucket; 'it recovers 10%' in >+8.2%."
+ },
+ "market_expectation": {
+  "expiry": "2026-09-18",
+  "consensus_eps_adj_q2": 3.76,
+  "reported_eps_adj_q2": 3.53,
+  "fy_eps_guide_before": "13.50-14.50",
+  "fy_eps_guide_after": "11.00-12.00",
+  "source_pead_rule": "wide DOWN big band +0.64%/3d (t 5.16 iid, 3.08 two-way); small bucket mid band +0.73%; edge starts at |day-0| >= 5% on the response curve (state/pead_adversarial_v1.json)"
+ },
+ "evidence": [
+  {
+   "kind": "measured",
+   "fact": "Day-0 close-to-close -30.7% (179.33 -> 124.31); 52-week low; the prior four sessions were already -9% (201.97 on 14 Aug)",
+   "source": "state/shadow_bars_2026-08-26.json (Alpaca SIP)",
+   "date": "2026-08-25"
+  },
+  {
+   "kind": "reported",
+   "fact": "Q2 2026 adjusted EPS $3.53 vs $3.76 consensus",
+   "source": "Investopedia 5-things 2026-08-25 (via review)",
+   "date": "2026-08-25"
+  },
+  {
+   "kind": "reported",
+   "fact": "Core DICK'S brand comparable sales +4.9%, broad-based, with a World Cup tailwind",
+   "source": "company release (via review)",
+   "date": "2026-08-25"
+  },
+  {
+   "kind": "reported",
+   "fact": "Foot Locker (acquired): proforma comps -3.6%, operating loss $31.9M; $125.8M pre-tax charges on unproductive Foot Locker assets",
+   "source": "company release (via review)",
+   "date": "2026-08-25"
+  },
+  {
+   "kind": "reported",
+   "fact": "FY2026 EPS guidance cut from $13.50-14.50 to $11.00-12.00 (-17% at the midpoint) against a -31% price move",
+   "source": "company release (via review)",
+   "date": "2026-08-25"
+  },
+  {
+   "kind": "measured",
+   "fact": "On the wide scan the >8.2% DOWN band is the strongest cell (n 3,790, +0.64%/3d, hit 55%) but the 3.5-5% zone is dead and quarters alternate sign (6 of 11 quarters negative in the mid band)",
+   "source": "state/pead_adversarial_v1.json",
+   "date": "2026-08-26"
+  }
+ ]
+}

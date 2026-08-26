@@ -1,0 +1,28 @@
+{
+ "symbol": "AFRM",
+ "expiry": "2026-08-28",
+ "frozen_utc": "2026-08-26T07:19:53.035168+00:00",
+ "chain": {
+  "t": "2026-08-26T07:19:57.495395+00:00",
+  "spot": 77.93,
+  "spot_source": "trade",
+  "implied_move": 0.092820479917875,
+  "atm_iv_call": 1.831,
+  "atm_iv_put": 1.8688,
+  "atm_strike": 78.0,
+  "straddle_mid": 8.51,
+  "median_quote_age_s": 40798.5,
+  "market_open": false
+ },
+ "brains": {},
+ "structures_before": {
+  "dev": {
+   "structures": [],
+   "equity": 96160.37
+  },
+  "exp1": {
+   "structures": [],
+   "equity": 97779.0
+  }
+ }
+}

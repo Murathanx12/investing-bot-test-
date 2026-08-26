@@ -92,10 +92,28 @@ ARRIVAL: dict[int, tuple[float, float, float]] = {
 #: print that fell and REFUSES a print that rose. The 11-name numbers stay for
 #: the 11 names (reproduced in the same run: +1.09%, t 2.72).
 MEGA_MEASURED = frozenset({"AAPL", "AMD", "AMZN", "AVGO", "GOOGL", "META", "MSFT", "MU", "NVDA", "PANW", "TSLA"})
-#: Wide-universe DOWN side: (3-session centre, 3-session sd) by |day-0| band.
-WIDE_DOWN: dict[str, tuple[float, float]] = {"mid": (0.0044, 0.0627), "big": (0.0064, 0.0762)}
-WIDE_HEADLINE = {"legs": 25856, "names": 2532, "down_mid_t": 4.29, "down_big_t": 5.16, "up_mid_t": -1.99,
-                 "up_big_t": -3.23, "week_block_t_down_mid": 2.30, "receipt": "state/pead_wide.json"}
+#: AMENDED 2026-08-26 after the adversarial battery (`scripts/pead_adversarial.py`,
+#: `state/pead_adversarial.json`, `docs/FINDING_2026-08-26_PEAD_ADVERSARIAL.md`):
+#:   * the numbers above are EXCESS OVER beta*QQQ. With NO benchmark the mid-band loser
+#:     moves +0.03% (t 0.25) -- the "drift" was the loser not joining the index's rise.
+#:     An unhedged short is sized on an ABSOLUTE move, so the brain must quote the RAW
+#:     short return, not the excess: short at the NEXT OPEN, 3 sessions, raw:
+#:       5-8.2%: +0.27% sd 6.7% t 1.87 (hedged long IWM +0.56%, t 3.95)
+#:       >8.2%:  +0.32% sd 7.8% t 2.51 (hedged +0.55%, t 4.49)
+#:       3.5-5%: -0.05%  -> REFUSED; the response curve is dead below a 5% drop
+#:   * UP prints do NOT reverse raw (+0.25%, t 2.49); they only trail QQQ. They stay
+#:     refused -- there is no excess to sell and no raw edge to buy -- but the reason is
+#:     "no edge", not "reversal".
+#:   * the raw short is NEGATIVE in 2026 (-0.14%, t -0.8) and 6 of 11 quarters are
+#:     negative in the mid band: conviction is cut, and `hedged_vs_iwm` travels on the row
+#:     so a pair expression can be built later without re-measuring.
+WIDE_MIN_ABS_MOVE = 0.05
+#: Wide-universe DOWN side: (3-session RAW short-from-next-open centre, 3-session sd).
+WIDE_DOWN: dict[str, tuple[float, float]] = {"mid": (0.00272, 0.0673), "big": (0.00319, 0.0780)}
+WIDE_HEDGED_IWM = {"mid": (0.00555, 3.95), "big": (0.00548, 4.49)}
+WIDE_HEADLINE = {"legs": 25856, "names": 2532, "down_mid_t": 1.87, "down_big_t": 2.51, "up_raw_3d": 0.0025,
+                 "up_raw_t": 2.49, "up_vs_qqq_t": -1.99, "two_way_cluster_t_mid_excess": 2.15,
+                 "raw_2026": -0.0014, "receipt": "state/pead_adversarial.json"}
 
 #: Below this the tercile split says there is nothing to continue (t 0.66).
 MIN_ABS_MOVE = 0.035
@@ -147,14 +165,20 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
     if wide and r0 > 0:
         raise NotApplicable(
             f"{symbol}: day-0 move {r0:+.2%} is UP and {symbol} is outside the eleven names the two-sided "
-            f"drift was measured on. Across {WIDE_HEADLINE['names']} names an UP print REVERSES "
-            f"(t {WIDE_HEADLINE['up_mid_t']} mid band, {WIDE_HEADLINE['up_big_t']} above 8.2%). Refused: "
-            "good news fades.")
+            f"drift was measured on. Across {WIDE_HEADLINE['names']} names an UP print carries NO EDGE: raw "
+            f"+{WIDE_HEADLINE['up_raw_3d']:.2%}/3d (t {WIDE_HEADLINE['up_raw_t']}) is the index's own drift, and "
+            f"against QQQ it trails (t {WIDE_HEADLINE['up_vs_qqq_t']}). Refused: nothing to buy, nothing to sell.")
+    if wide and abs(r0) < WIDE_MIN_ABS_MOVE:
+        raise NotApplicable(
+            f"{symbol}: day-0 move {r0:+.2%} is a drop of less than {WIDE_MIN_ABS_MOVE:.0%}; on the response curve "
+            f"({WIDE_HEADLINE['receipt']}) the 3.5-5% zone is dead (raw short -0.05%, t -0.3). Refused.")
     base_centre, floor_sd, sessions_left = ARRIVAL[elapsed]
     sign = 1.0 if r0 > 0 else -1.0
     centre = sign * base_centre
     if wide:
-        # DOWN side, wide universe: the 3-session numbers scaled to the sessions left.
+        # DOWN side, wide universe: the RAW short-from-next-open numbers scaled to the
+        # sessions left. Raw, because the structure is an unhedged short and the gate
+        # sizes an absolute move; the hedged (long IWM) number rides along in evidence.
         band_key = "big" if abs(r0) > OVEREXTENDED_MOVE else "mid"
         c3, sd3 = WIDE_DOWN[band_key]
         base_centre = c3 * sessions_left / 3.0
@@ -172,10 +196,12 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
 
     overextended = abs(r0) > OVEREXTENDED_MOVE
     if wide:
-        # In the wide universe the big band is the STRONGER down-drift (t 5.16 vs 4.29).
-        conviction = 1.0 * (1.0 if elapsed == 1 else 0.7)
-        band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '3.5-8.2%'} band "
-                f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}, n={WIDE_HEADLINE['legs']} legs)")
+        # Raw t is 1.9 / 2.5 and 2026 is negative: a tilt the gate may well refuse. That
+        # is the honest number; the hedged pair (t ~4) is the expression to build next.
+        conviction = 0.6 * (1.0 if elapsed == 1 else 0.7)
+        band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '5-8.2%'} band, RAW short from next open "
+                f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}; hedged vs IWM "
+                f"t {WIDE_HEDGED_IWM['big' if overextended else 'mid'][1]}; n={WIDE_HEADLINE['legs']} legs)")
     else:
         conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed == 1 else 0.7)
         band = ("over-extended (>8.2%, t 1.26)" if overextended
@@ -207,7 +233,12 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             "receipts": (["state/pead_wide.json"] if wide else
                          ["state/post_event_relay.json", "state/source_pead_decompose.json",
                           "state/source_pead_horizon.json"]),
-            "universe_rule": "wide: DOWN only (bad news drifts, good news fades)" if wide else "mega-11: two-sided",
+            "universe_rule": ("wide: DOWN >=5% only, RAW short-from-open centre (excess-vs-QQQ was the old, wrong, number)"
+                              if wide else "mega-11: two-sided"),
+            "hedged_vs_iwm": ({"centre_3d": WIDE_HEDGED_IWM["big" if overextended else "mid"][0],
+                               "t": WIDE_HEDGED_IWM["big" if overextended else "mid"][1],
+                               "note": "short stock + long IWM; not an expression the engine has yet"} if wide else None),
+            "raw_2026_3d": WIDE_HEADLINE["raw_2026"] if wide else None,
             "headline": {"n": 108, "names": 11, "mean": 0.0113, "hit": 0.639, "t": 2.72,
                          "week_block_t": 2.23, "worst_leave_one_out_t": 2.37},
         },
