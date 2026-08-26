@@ -1,0 +1,107 @@
+{
+ "symbol": "NVDA",
+ "expiry": "2026-08-28",
+ "frozen_utc": "2026-08-26T05:02:06.602568+00:00",
+ "chain": {
+  "t": "2026-08-26T05:02:09.651686+00:00",
+  "spot": 212.96,
+  "spot_source": "trade",
+  "implied_move": 0.05104949286250939,
+  "atm_iv_call": 0.9519,
+  "atm_iv_put": 1.075,
+  "atm_strike": 212.5,
+  "straddle_mid": 12.790000000000001,
+  "median_quote_age_s": 32530.2,
+  "market_open": false
+ },
+ "brains": {
+  "vol_gap": {
+   "centre": -0.0028165648736136564,
+   "sd": 0.03767446187196565,
+   "ts": "2026-08-26T04:55:36.296755+00:00",
+   "claim": "distribution",
+   "thesis": "EWMA realised vol 34.5% annualised (2.18%/day, half-life 10d) implies a 3.77% move over 3.0 days. Trailing 5-day drift -3.13%, damped to a -0.28% tilt because m"
+  },
+  "event_move": {
+   "centre": 0.0,
+   "sd": 0.057121460367048064,
+   "ts": "2026-08-26T04:55:36.328385+00:00",
+   "claim": "distribution",
+   "thesis": "NVDA prints 2026-08-26 amc. Last 8 prints moved mean 3.8% / median 3.2% close-to-close (dates: sec_8k_item_2.02). Event sd 4.8% + 2 ordinary days at 2.18%/day ="
+  },
+  "options_attention": {
+   "centre": 0.0,
+   "sd": 0.05409801800518393,
+   "ts": "2026-08-26T02:05:09.542730+00:00",
+   "claim": null,
+   "thesis": "option volume 867176 vs trailing median 76968 (11.27x); calls 77%, near-term 100%, OTM 71%. Attention widens sigma x1.44; no direction claimed."
+  },
+  "narrative_dispersion": {
+   "centre": 0.0,
+   "sd": 0.04155725258618739,
+   "ts": "2026-08-26T02:05:09.650831+00:00",
+   "claim": null,
+   "thesis": "'Wintermute: Bitcoin, XRP, Gold Benefited From 'Debasement Board' Last Week' -- truth 0.90, belief 0.80, impact 0.20, priced 0.50 => indeterminate: no clean gap"
+  }
+ },
+ "structures_before": {
+  "dev": {
+   "structures": [
+    {
+     "kind": "iron_condor",
+     "brain": "vol_gap",
+     "contracts": 19,
+     "actual": -439,
+     "delta": 44,
+     "gamma": -46,
+     "vega": -851,
+     "theta": 549,
+     "spread": -99,
+     "residual": -35,
+     "max_loss": 12445,
+     "claimed_mechanism_usd": -302,
+     "share_from_claimed_mechanism": 0.69,
+     "unclaimed_delta_usd": 44
+    },
+    {
+     "kind": "iron_condor",
+     "brain": "vol_gap",
+     "contracts": 15,
+     "actual": -542,
+     "delta": -82,
+     "gamma": -44,
+     "vega": -736,
+     "theta": 502,
+     "spread": -176,
+     "residual": -5,
+     "max_loss": 12825,
+     "claimed_mechanism_usd": -234,
+     "share_from_claimed_mechanism": 0.43,
+     "unclaimed_delta_usd": -82
+    }
+   ],
+   "equity": 96160.37
+  },
+  "exp1": {
+   "structures": [
+    {
+     "kind": "iron_condor",
+     "brain": "narrative_dispersion",
+     "contracts": 23,
+     "actual": -437,
+     "delta": 31,
+     "gamma": -39,
+     "vega": -720,
+     "theta": 443,
+     "spread": -184,
+     "residual": 32,
+     "max_loss": 10212,
+     "claimed_mechanism_usd": -277,
+     "share_from_claimed_mechanism": 0.63,
+     "unclaimed_delta_usd": 31
+    }
+   ],
+   "equity": 97779.0
+  }
+ }
+}
