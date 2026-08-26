@@ -49,6 +49,7 @@ import os
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 
+from alpha import admission
 from alpha import book as book_mod
 from alpha import config, ledger, recovery
 from alpha.brains.base import Forecast
@@ -438,6 +439,9 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                 (book.premium_paid_usd / state.equity * 100) if state.equity else 0.0)
     record_forecasts(forecasts, note=f"pass expiry={expiry} dry_run={dry_run}")
     role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+    greeks = admission.book_greeks(client, account_role=role)
+    if not greeks.derived:
+        logger.warning("book greeks not derived: %s -- theta/stress admission checks will say so", greeks.note)
     scores = recovery.live_scores(account_role=role) if recovery.active() else {}
     if recovery.active():
         logger.info("%s", recovery.summary(scores))
@@ -548,7 +552,9 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                                 "expressions of one event are one bet."))
                 continue
         before = committed
-        committed = _execute(client, result, *champion, state, committed, dry_run=dry_run)
+        committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
+                             book=book, greeks=greeks, risk_profile=risk_profile,
+                             reserved=reserve_for)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -556,13 +562,35 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
 
 def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              structure: sizing.Structure, verdict: sizing.SizingVerdict, snapshot,
-             state: sizing.TournamentState, committed: float, *, dry_run: bool) -> float:
+             state: sizing.TournamentState, committed: float, *, dry_run: bool,
+             book=None, greeks=None, risk_profile: str | None = None,
+             reserved: dict[str, float] | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
-    candidates cannot each pass a 50% test and total 300%.
+    candidates cannot each pass a 50% test and total 300%. Then the PROSPECTIVE
+    admission controller looks at the whole post-trade book (`alpha/admission.py`).
     """
     n = contracts_for(structure, verdict.risk_fraction, state.equity)
+    if n >= 1 and book is not None:
+        d_new, t_new = admission.structure_greeks(structure, n, snapshot)
+        sig_new = (structure.implied_move / math.sqrt(max(1.0, structure.days_to_expiry))
+                   if structure.implied_move else None)
+        env = sizing.profile(risk_profile)
+        adm = admission.admit(
+            book, structure, n, equity=state.equity,
+            aggregate_cap=env["aggregate"],
+            per_underlying_cap=max(admission.PER_UNDERLYING_CAP, env["per_thesis"] * env["edge_scale_cap"]),
+            committed_usd=committed * state.equity, own_event=event_node(forecast),
+            reserved_events=reserved, greeks=greeks, new_delta_usd=d_new,
+            new_theta_usd_per_day=t_new, new_daily_sigma=sig_new)
+        verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
+        if not adm.ok:
+            result.refused += 1
+            _record(decision_id, forecast, structure, verdict, snapshot, state,
+                    action="refused", reason=f"ADMISSION: {adm.reason}", contracts=n)
+            logger.info("ADMISSION refused %s %s x%d: %s", forecast.symbol, structure.kind, n, adm.reason[:100])
+            return committed
     if n < 1:
         result.refused += 1
         _record(decision_id, forecast, structure, verdict, snapshot, state,

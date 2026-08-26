@@ -73,6 +73,8 @@ class StructureAttribution:
     net_delta_shares: float = 0.0
     """Share-equivalent delta of the whole structure right now (BS at current IV)."""
     net_vega_usd_per_pt: float = 0.0
+    net_theta_usd_per_day: float = 0.0
+    """Dollars per calendar day the structure earns (+) or pays (-) to wait, BS at current IV."""
 
     def as_dict(self) -> dict:
         d = asdict(self)
@@ -181,6 +183,7 @@ def attribute_structure(struct: book_mod.OpenStructure, positions_by_symbol: dic
             g1 = _bs_greeks(spot_now, strike, t1, iv1 if iv1 else iv0, right)
             out.net_delta_shares += sign * qty * g1["delta"] * MULT
             out.net_vega_usd_per_pt += sign * qty * g1["vega"] * MULT
+            out.net_theta_usd_per_day += sign * qty * g1["theta"] * MULT
         else:
             leg.note = "no entry IV/spot in the ledger snapshot; actual only"
             leg.residual_usd = actual

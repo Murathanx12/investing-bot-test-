@@ -221,5 +221,7 @@ import tests_smoke_pead
 fails += tests_smoke_pead.fails
 import tests_smoke_equity
 fails += tests_smoke_equity.fails
+import tests_smoke_admission
+fails += tests_smoke_admission.fails
 print(f"\n{'ALL PASS' if not fails else str(len(fails))+' FAILED: '+', '.join(fails)}\n")
 raise SystemExit(1 if fails else 0)
