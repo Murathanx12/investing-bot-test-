@@ -1,0 +1,29 @@
+PRE-FLIGHT  account PA3AOJPJTSBW
+  equity            $93,267
+  cash              $56,833
+  buying power      $181,332
+  positions         13
+  open orders       0
+
+  TRUE max loss     $56,704  = 60.8% of equity
+  premium-paid view $49,537  = 53.1%   (the flattering view, printed so the gap is visible)
+  book unbounded    False
+  structures        7   residual legs 1
+
+  CONCENTRATION     [CONCENTRATED]
+    effective N by RISK is 1.26, at or below the 1.43 that Situational Awareness LP's $20bn book carried into its July 2026 drawdown. The book holds 4 underlyings and behaves like 1.3 bet(s); the weight-based count of 3.41 overstates it 2.7x.
+    largest single thesis: SPY at 42.7% of book max loss
+
+  PROPOSED LIMITS (not enforced -- nothing refuses on these)
+    [MAX_BOOK_STRESS] true max loss is 60.8% of equity against a 35% cap. The rehearsal book reached 72.9% with every individual check passing.
+    [MAX_SINGLE_THESIS] SPY carries 42.7% of book max loss against a 20% cap.
+    [MIN_EFFECTIVE_N_RISK] the book behaves like 1.26 independent bet(s) against a 2.0 floor -- at or below the value a $20bn book carried at forced liquidation.
+
+  DAILY LATCH       LATCHED
+    DAILY LOSS LATCH: -5.53% against the previous close ($98,728 -> $93,267), past the -3% limit. No new entries this session. Exits and stops are unaffec
+
+  LOOP LIVENESS     ok
+    dev    PRE-BEAT started before the heartbeat existed, so it cannot emit one until the next restart. Not confirmed alive BY ROLE.
+    exp1   PRE-BEAT started before the heartbeat existed, so it cannot emit one until the next restart. Not confirmed alive BY ROLE.
+    scan   OK       2 agent_loop process(es) in the OS process table (roles not resolvable from a command line).
+             "C:\Users\mrthn\AppData\Local\Programs\Python\Python312\python.exe" -m scripts.agent_loop --expiry 2026-08-28 --live --profile conservative

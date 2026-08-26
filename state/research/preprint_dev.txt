@@ -1,0 +1,54 @@
+PRE-FLIGHT  account PA32Q5IW7TAS
+  equity            $94,721
+  cash              $77,132
+  buying power      $191,526
+  positions         15
+  open orders       0
+
+  TRUE max loss     $53,415  = 56.4% of equity
+  premium-paid view $33,046  = 34.9%   (the flattering view, printed so the gap is visible)
+  book unbounded    False
+  structures        7   residual legs 3
+
+  CONCENTRATION     [CLUSTERED]
+    effective N by RISK 1.49 against 2.73 by weight (1.8x overstated, avg rho +0.51). More than one bet, but not the 5 the position count suggests.
+    largest single thesis: NVDA at 52.7% of book max loss
+
+  PROPOSED LIMITS (not enforced -- nothing refuses on these)
+    [MAX_BOOK_STRESS] true max loss is 56.4% of equity against a 35% cap. The rehearsal book reached 72.9% with every individual check passing.
+    [MAX_SINGLE_THESIS] NVDA carries 52.7% of book max loss against a 20% cap.
+    [MIN_EFFECTIVE_N_RISK] the book behaves like 1.49 independent bet(s) against a 2.0 floor.
+
+  DAILY LATCH       not tripped
+    day -2.61% vs previous close $97,263; latch at -3%, not tripped.
+
+  LOOP LIVENESS     ok
+    dev    PRE-BEAT started before the heartbeat existed, so it cannot emit one until the next restart. Not confirmed alive BY ROLE.
+    exp1   PRE-BEAT started before the heartbeat existed, so it cannot emit one until the next restart. Not confirmed alive BY ROLE.
+    scan   OK       2 agent_loop process(es) in the OS process table (roles not resolvable from a command line).
+             "C:\Users\mrthn\AppData\Local\Programs\Python\Python312\python.exe" -m scripts.agent_loop --expiry 2026-08-28 --live --profile conservative
+  earnings calendar: NVDA 2026-08-26
+RE-UNDERWRITING  7 structures, asof 2026-08-26
+
+brain                symbol  kind              risk $    mark $        event         exp  verdict
+vol_gap              QQQ     long_straddle      4,524     7,336            -  2026-08-28  thesis live
+vol_gap              NVDA    iron_condor       12,445    -5,421            -  2026-08-28  EVENT EXPOSED: reports 2026-08-26, before expiry, UNTAGGED
+vol_gap              AMD     long_straddle     10,785     9,575            -  2026-08-28  thesis live
+vol_gap              SPY     long_straddle      2,322     2,043            -  2026-08-28  thesis live
+vol_gap              MSFT    long_call            598       990            -  2026-08-28  thesis live
+vol_gap              NVDA    iron_condor       12,825    -5,465            -  2026-08-28  EVENT EXPOSED: reports 2026-08-26, before expiry, UNTAGGED
+vol_gap              QQQ     long_straddle      4,428     7,336            -  2026-08-28  thesis live
+
+  thesis live    7 structures  $   47,927 (100.0% of book risk)
+  STALE          0 structures  $        0 (0.0% of book risk)
+  stale capital as a share of equity: 0.0%
+  EVENT EXPOSED  2 structures  $   25,270 (52.7% of book risk, 26.7% of equity)
+
+  Event-exposed is NOT stale -- the thesis is about to be decided, not finished.
+  It is flagged because none of these carry an event node, so EVENT_NODE_CAP never
+  saw them. The cap counts what brains TAG, and no brain in either book tags:
+  vol_gap, narrative_dispersion and options_attention all write event_node: null.
+  Concentration into one scheduled event is exactly what that cap exists to
+  prevent, and it is invisible to it.
+
+  (Reporting only. `exits.manage` remains the only thing that closes anything.)

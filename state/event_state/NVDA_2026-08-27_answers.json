@@ -1,19 +1,33 @@
 {
- "_README": "Fill each field FROM THE RELEASE using its resolution_rule (python -m scripts.nvda_resolve --status). Use the string UNAVAILABLE for anything the release did not address. Do NOT look at the after-hours move until this file is complete -- the tooling refuses, but the discipline is yours.",
+ "_README": "Filled 2026-08-26 ~16:30 ET from the SEC 8-K itself (acc 0001045810-26-000073: q2fy27pr.htm + q2fy27cfocommentary.htm), BEFORE any price was observed. Every value traces to the filing text.",
  "values": {
-  "q3_guide_surprise": null,
-  "gross_margin_surprise": null,
-  "HBM_cost_pressure": "UNAVAILABLE",
-  "Rubin_timing_change": "UNAVAILABLE",
-  "customer_financing_quality": "UNAVAILABLE",
-  "future_capacity_constraint": "UNAVAILABLE",
-  "datacenter_surprise": null,
-  "hyperscale_growth": null,
-  "custom_silicon_competition": "UNAVAILABLE",
-  "Blackwell_demand": "UNAVAILABLE",
-  "ACIE_growth": null,
-  "China_optional_revenue": "UNAVAILABLE",
-  "revenue_surprise": null
+  "q3_guide_surprise": 3.8,
+  "gross_margin_surprise": 0.0,
+  "HBM_cost_pressure": "partially_passed",
+  "Rubin_timing_change": "ahead",
+  "customer_financing_quality": "quantified",
+  "future_capacity_constraint": "power",
+  "datacenter_surprise": 4.023,
+  "hyperscale_growth": 54.7,
+  "custom_silicon_competition": "not_addressed",
+  "Blackwell_demand": "not_addressed",
+  "ACIE_growth": 138.0,
+  "China_optional_revenue": "excluded",
+  "revenue_surprise": 4.171
  },
- "notes": {}
+ "notes": {
+  "q3_guide_surprise": "Q3 FY27 outlook: revenue expected to be $108.0bn +/- 2%. Street carried $104.2bn, so surprise = +3.8. The guide explicitly assumes NO Data Center compute revenue from China.",
+  "gross_margin_surprise": "Reported Q2 GAAP and non-GAAP gross margins BOTH 75.0%, exactly the guided figure, so surprise = 0.0. THE FORWARD NUMBER IS THE ONE THAT MATTERS: Q3 GM guided to 74.0% +/- 50bp. The sealed rule named 'a Q3 GM guide below 74% is the bear trigger regardless of the revenue line' -- this lands EXACTLY ON the line, with a band reaching 73.5%. Not tripped; not cleared either.",
+  "HBM_cost_pressure": "Commitments rose from $119bn last quarter to $279bn, 'primarily related to the procurement of memory' -- a $160bn increase. Q2 GM held at 75.0% and was 'approximately flat sequentially', but the Q3 guide steps down 100bp to 74.0%. Cost is real, quantified, and only PARTIALLY absorbed into price: margin holds now and is guided lower.",
+  "Rubin_timing_change": "'Vera Rubin, now in full production' (CEO) and 'the NVIDIA Vera Rubin platform is ramping into full production with racks running at partners including CoreWeave, Google Cloud, Microsoft Azure, Oracle Cloud Infrastructure and Nebius'. The sealed prior was that Foxconn had said rack production PREPARES TO START in Q4. Full production now, with named partners running racks, is AHEAD of that prior. Exact phrasing recorded per the rule: 'full production', not 'sampling' and not 'volume'.",
+  "customer_financing_quality": "QUANTIFIED, and it is the largest disclosure in the release. Explicit: 'AI clouds and model makers are seeing extraordinary demand for AI infrastructure, yet many are growing faster than their balance sheets and long-term credit profiles can support.' Figures: maximum gross exposure on existing land/power/shell guarantees $3.5bn; and in August 2026 NEW guarantees providing credit support for ~4.25 GW at SB Energy's PORTS-Pike campus in Ohio, exclusively hosting NVIDIA infrastructure under 20-year leases to OpenAI, with guarantee obligations CAPPED AT $105 BILLION, effective in phases. Also $56bn of additional AI-cloud and third-party lease commitments.",
+  "future_capacity_constraint": "'Securing land, power and shell for data centers has become the next critical phase in the AI infrastructure buildout.' The named constraint has moved OFF silicon and packaging and onto POWER and physical siting. Supply-and-capacity commitments of $279bn are front-loaded: $92bn remainder-FY27, $87bn FY28, $88bn FY29.",
+  "datacenter_surprise": "Data Center revenue $89.023bn (up 18% q/q, 117% y/y), against the 85.0 baseline in the rule, so surprise = +4.023.",
+  "hyperscale_growth": "Hyperscale revenue $48.710bn of $89.023bn Data Center = 54.7%. Hyperscale 'more than doubled from a year ago' and rose 13% sequentially. Per the sealed rule, rising concentration RAISES the financing question in field 5 rather than settling it -- and field 5 came back quantified at $105bn of capped guarantees, so the two readings compound rather than offset.",
+  "custom_silicon_competition": "NOT ADDRESSED. 'Competition' appears only in the boilerplate forward-looking-statements risk paragraph; no substantive discussion of custom silicon, ASICs or merchant-vs-captive share anywhere in the release or the CFO commentary. A finding about the release, not a missing entry.",
+  "Blackwell_demand": "NOT ADDRESSED as a supply/demand BALANCE. None of {sold_out, tight, in_balance, normalising} is stated, and the words 'sold out', 'tight', 'supply constrained', 'backlog', 'lead time' and 'allocation' appear nowhere. What IS said is qualitative demand language -- 'demand is accelerating', 'Blackwell architecture remains the vast majority of our revenue', GM 'increased from a year ago on improved mix from Blackwell Ultra' -- plus a supply commitment tripling to meet 'demand for the next several years'. Tightness is INFERABLE from the commitments; it is not stated, and the difference is recorded rather than resolved.",
+  "ACIE_growth": "ACIE revenue increased 138% from a year ago and 25% sequentially, 'driven by end-demand from AI natives, enterprises, and sovereign customers, as well as hyperscalers utilizing AI clouds'.",
+  "China_optional_revenue": "EXCLUDED. 'NVIDIA is not assuming any Data Center compute revenue from China in its outlook.' Realised Q2: shipments of Data Center Hopper products to China were LESS THAN 1% of Data Center revenue. Per the sealed rule, exclusion is BULLISH for the quality of the guide in field 1 -- the $108.0bn is a China-free number.",
+  "revenue_surprise": "Revenue $96.221bn (up 18% q/q, 106% y/y) against consensus $92.05bn sealed on 25 Aug, so surprise = +4.171. Non-GAAP diluted EPS $2.22, GAAP $2.46. RANKED LAST ON PURPOSE and it stays last: the quarter was nine weeks old at the print."
+ }
 }
