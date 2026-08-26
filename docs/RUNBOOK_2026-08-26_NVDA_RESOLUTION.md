@@ -16,6 +16,19 @@ makes it worthless.
 So: **do not look at the after-hours price, and do not read market commentary,
 until step 3 is complete.**
 
+## Step 0 — capture the book BEFORE the print
+
+```
+AAT_ACCOUNT_ROLE=dev  python -m scripts.preflight  > state/research/preprint_dev.txt
+AAT_ACCOUNT_ROLE=exp1 python -m scripts.preflight  > state/research/preprint_exp1.txt
+AAT_ACCOUNT_ROLE=dev  python -m scripts.reunderwrite >> state/research/preprint_dev.txt
+```
+
+Thirty seconds, and it is the difference between grading against a receipt and
+grading against a memory. As of 12:45 ET the state to beat is: **dev +0.43%,
+54.9% true max loss, NVDA 52.5% of it, effective N 1.50**; **exp1 −4.01% and
+LATCHED, 60.1% stress, effective N 1.26.**
+
 ## Steps
 
 **1. Get the release itself.** `investor.nvidia.com` press release + the CFO
