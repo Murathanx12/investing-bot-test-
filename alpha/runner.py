@@ -54,7 +54,8 @@ from alpha import config, ledger, recovery
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
-from alpha.engine import payoff, sizing, structures
+from alpha.engine import equity, payoff, sizing, structures
+from alpha.engine import equity as equity_mod
 
 logger = logging.getLogger(__name__)
 
@@ -123,14 +124,15 @@ def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = Non
 
 
 def held_underlyings(client: AlpacaPaper) -> dict[str, int]:
-    """Underlyings with an open OPTION position in this account -> leg count."""
+    """Underlyings with an open OPTION or SHARE position in this account -> leg count."""
     out: dict[str, int] = {}
     for pos in client.positions():
-        if (pos.get("asset_class") or "") != "us_option":
-            continue
+        cls = pos.get("asset_class") or ""
         sym = pos.get("symbol") or ""
-        if len(sym) > 15:
+        if cls == "us_option" and len(sym) > 15:
             out[sym[:-15]] = out.get(sym[:-15], 0) + 1
+        elif cls == "us_equity" and sym:
+            out[sym] = out.get(sym, 0) + 1
     return out
 
 
@@ -210,7 +212,19 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     best = None
     rejected = []
     cash_beat = 0
-    for structure in structures.enumerate_all(snapshot, expiry):
+    candidates = list(structures.enumerate_all(snapshot, expiry))
+    # SHARES beside the options, for a brain that knows WHICH WAY. The same
+    # gate, the same ranker; the instrument with no premium to pay wins only
+    # when the shift alone clears one bid-ask (`alpha/engine/equity.py`).
+    if forecast.claim == "direction" and forecast.centre != 0.0:
+        try:
+            share = share_structure(client, forecast, snapshot, expiry)
+        except Exception as exc:                                          # noqa: BLE001
+            share = None
+            logger.warning("%s: share structure not built: %s", forecast.symbol, exc)
+        if share is not None:
+            candidates.append(share)
+    for structure in candidates:
         try:
             sd_used, sd_note = effective_sd(forecast, structure)
         except ChainWidthUnavailable as exc:
@@ -276,10 +290,68 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     return best[0], best[1], snapshot, rejected
 
 
+def share_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: str):
+    """One share of the underlying as a bounded structure, priced at the live stock quote."""
+    symbol = forecast.symbol
+    raw = (client.stock_quote([symbol]).get("quotes") or {}).get(symbol) or {}
+    bid, ask = float(raw.get("bp") or 0.0), float(raw.get("ap") or 0.0)
+    synthetic = None
+    spot = snapshot.spot
+    # The free IEX quote is routinely ONE-SIDED or stale: measured 26 Aug 00:15 ET,
+    # NVDA bid 200.45 / ask 0 against a last trade of 212.96. A quote that is
+    # missing a side, or whose sides sit more than SYNTHETIC_QUOTE_TOLERANCE from
+    # the last trade, is replaced by the trade +/- a declared half-spread and
+    # LABELLED as such in the snapshot, so the fill audit can tell the two apart.
+    usable = (bid > 0 and ask > 0 and ask >= bid and spot > 0
+              and abs(bid / spot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE
+              and abs(ask / spot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE)
+    if not usable:
+        if spot <= 0:
+            logger.info("%s: no spot and no two-sided stock quote; shares not built", symbol)
+            return None
+        synthetic = {"bid": bid, "ask": ask, "why": "one-sided or off-trade quote replaced by last trade +/- half-spread"}
+        bid, ask = spot * (1.0 - SYNTHETIC_HALF_SPREAD), spot * (1.0 + SYNTHETIC_HALF_SPREAD)
+        logger.info("%s: stock quote unusable (bid %s ask %s vs trade %.2f); using synthetic %.2f/%.2f",
+                    symbol, synthetic["bid"], synthetic["ask"], spot, bid, ask)
+    direction = "up" if forecast.centre > 0 else "down"
+    shortable = True
+    if direction == "down":
+        asset = client.asset(symbol)
+        shortable = bool(asset.get("shortable")) and bool(asset.get("easy_to_borrow"))
+    dte = 1.0
+    try:
+        dte = max(0.5, (datetime.fromisoformat(expiry + "T20:00:00+00:00")
+                        - datetime.now(timezone.utc)).total_seconds() / 86400.0)
+    except ValueError:
+        pass
+    return equity.shares(
+        symbol, spot=snapshot.spot, bid=bid, ask=ask, direction=direction,
+        implied_move=snapshot.implied_move(expiry) or 0.0,
+        horizon_days=forecast.horizon_days, days_to_expiry=dte, shortable=shortable,
+        quote={"symbol": symbol, "bid": bid, "ask": ask, "bid_size": raw.get("bs"),
+               "ask_size": raw.get("as"), "quote_ts": raw.get("t"), "feed": config.stock_feed(),
+               "shortable": shortable, "last_trade": spot, "synthetic": synthetic},
+    )
+
+
+#: A stock quote whose side is further than this from the last trade is not a quote.
+SYNTHETIC_QUOTE_TOLERANCE = 0.005
+#: Half-spread assumed when the quote is replaced by the last trade (5 bp a side;
+#: NVDA's real spread is ~1 bp, so this over-charges rather than under-charges).
+SYNTHETIC_HALF_SPREAD = 0.0005
+
+
 def build_order(structure: sizing.Structure, contracts: int) -> dict:
     """Alpaca order payload. Single-leg or `mleg`, always a LIMIT, never market."""
     if contracts < 1:
         raise ValueError("refusing a zero-contract order")
+    if structure.kind in equity.KINDS:
+        symbol, side, _ratio = structure.legs[0]
+        return {
+            "symbol": symbol, "qty": str(contracts), "side": side,
+            "type": "limit", "limit_price": f"{abs(structure.entry_cost):.2f}",
+            "time_in_force": "day",
+        }
     net_price = round(structure.entry_cost / structures.MULT, 2)
     if len(structure.legs) == 1:
         symbol, side, _ratio = structure.legs[0]
@@ -304,7 +376,13 @@ def contracts_for(structure: sizing.Structure, risk_fraction: float, equity: flo
     budget = risk_fraction * equity
     if structure.max_loss <= 0:
         return 0
-    return int(budget // structure.max_loss)
+    n = int(budget // structure.max_loss)
+    if structure.kind in equity_mod.KINDS:
+        # A 5%-of-spot declared worst case would let a 7% risk budget buy 140% of
+        # the account. Shares are additionally capped by NOTIONAL.
+        spot = structure.max_loss / equity_mod.MAX_LOSS_FRACTION
+        n = min(n, equity_mod.units_cap(spot, equity))
+    return n
 
 
 def record_forecasts(forecasts: list[Forecast], *, note: str = "") -> int:
@@ -542,6 +620,8 @@ def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
          "delta": c.delta, "iv": c.implied_vol, "greeks_source": c.greeks_source}
         for c in snapshot.contracts if c.symbol in wanted
     ]
+    if structure.kind in equity_mod.KINDS and structure.quote:
+        legs.append(dict(structure.quote))
     return {
         "underlying": snapshot.underlying, "spot": snapshot.spot,
         "spot_source": snapshot.spot_source, "spot_ts": snapshot.spot_ts.isoformat(),
@@ -555,7 +635,9 @@ def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
 def _expiry_of_legs(structure: sizing.Structure) -> str:
     from alpha.data.chain import _decode_occ
 
-    return _decode_occ(structure.legs[0][0])[2] if structure.legs else ""
+    if not structure.legs or equity_mod.is_equity_symbol(structure.legs[0][0]):
+        return ""
+    return _decode_occ(structure.legs[0][0])[2]
 
 
 def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,

@@ -139,6 +139,22 @@ def attribute_structure(struct: book_mod.OpenStructure, positions_by_symbol: dic
         entry_px = float(pos.get("avg_entry_price") or 0.0) or float(
             (entry.get("ask") if side == "buy" else entry.get("bid")) or 0.0)
         mark = float(pos.get("current_price") or 0.0)
+        if book_mod.is_share(sym):
+            # A share is all delta: one unit, no greeks, the spread is the half bid-ask.
+            actual = sign * qty * (mark - entry_px)
+            leg = LegAttribution(sym, side, sign * qty, entry_px, mark, None, None, actual)
+            mid0 = None
+            if entry.get("bid") is not None and entry.get("ask") is not None:
+                mid0 = 0.5 * (float(entry["bid"]) + float(entry["ask"]))
+            leg.spread_usd = -abs(entry_px - mid0) * qty if mid0 is not None else 0.0
+            leg.delta_usd = actual - leg.spread_usd
+            leg.note = "shares: delta only"
+            out.net_delta_shares += sign * qty
+            out.legs.append(leg)
+            out.actual_usd += actual
+            out.delta_usd += leg.delta_usd
+            out.spread_usd += leg.spread_usd
+            continue
         actual = sign * qty * (mark - entry_px) * MULT
         leg = LegAttribution(sym, side, sign * qty, entry_px, mark, entry.get("iv"), None, actual)
         _, right, strike, expiry = book_mod.decode_occ(sym)

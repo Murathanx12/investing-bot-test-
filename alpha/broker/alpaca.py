@@ -121,6 +121,13 @@ class AlpacaPaper:
     def clock(self) -> dict[str, Any]:
         return self._request("GET", "/v2/clock")
 
+    def asset(self, symbol: str) -> dict[str, Any]:
+        """The venue's own record of an asset: `tradable`, `shortable`, `easy_to_borrow`.
+
+        Asked before a short share structure is BUILT, so a name the venue will
+        not lend is never enumerated rather than rejected at the order."""
+        return self._request("GET", f"/v2/assets/{urllib.parse.quote(symbol)}") or {}
+
     # ------------------------------------------------------------- market data
     def option_chain(self, underlying: str, *, expiration_gte: str | None = None,
                      expiration_lte: str | None = None, feed: str | None = None,

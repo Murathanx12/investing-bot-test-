@@ -163,6 +163,9 @@ class Structure:
     """How much of `entry_cost` is our own charge for carrying a delayed quote
     forward. Recorded so a post-mortem can separate 'the thesis was wrong' from
     'we paid for stale data'."""
+    quote: dict | None = None
+    """For a SHARE structure (`alpha/engine/equity.py`): the stock quote seen at
+    decision time, since the option-chain snapshot cannot carry it."""
 
     def __post_init__(self) -> None:
         if self.max_loss <= 0:

@@ -83,11 +83,19 @@ def terminal_pnl(structure: Structure, spot: float, terminal: float) -> float:
     """
     value = 0.0
     for symbol, side, ratio in structure.legs:
+        sign = 1.0 if side == "buy" else -1.0
+        if _is_share(symbol):
+            # A share is worth the terminal price; the unit is one share.
+            value += sign * ratio * terminal
+            continue
         right, strike = _decode(symbol)
         intrinsic = max(0.0, terminal - strike) if right == "C" else max(0.0, strike - terminal)
-        sign = 1.0 if side == "buy" else -1.0
         value += sign * ratio * intrinsic * MULT
     return value - structure.entry_cost
+
+
+def _is_share(symbol: str) -> bool:
+    return not (len(symbol) >= 15 and symbol[-8:].isdigit())
 
 
 def _norm_pdf(z: float) -> float:
@@ -157,5 +165,6 @@ def liquidation_value(structure: Structure, quotes: dict[str, dict]) -> float | 
         px = q.get("bid") if side == "buy" else q.get("ask")
         if px is None:
             return None
-        value += (1.0 if side == "buy" else -1.0) * ratio * float(px) * MULT
+        mult = 1.0 if _is_share(symbol) else MULT
+        value += (1.0 if side == "buy" else -1.0) * ratio * float(px) * mult
     return value

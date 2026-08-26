@@ -244,6 +244,12 @@ def judge_book(client, *, account_role: str | None = None, now: datetime | None 
         st = by_id.get(att.decision_id)
         if st is None:
             continue
+        if st.legs and book_mod.is_share(st.legs[0][0]):
+            # Shares have no expiry to value at and no greeks to hedge; their
+            # horizon, stop and target live in `exits.py`. Nothing to judge here.
+            logger.info("arbiter %-5s %-16s x%-3d SKIP  shares are judged by the exit rules", st.symbol,
+                        st.kind, st.contracts)
+            continue
         fc = latest_forecast(st.symbol, st.brain, forecasts)
         v = judge(st, positions, att.spot_now, forecast=fc, now=now,
                   net_delta_shares=att.net_delta_shares, all_forecasts=forecasts)

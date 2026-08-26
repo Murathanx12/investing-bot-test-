@@ -45,6 +45,7 @@ failure the shape thesis exists to avoid.
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta, timezone
 
@@ -99,8 +100,89 @@ def deadline_liquidation_due(deadline_utc: str, *, now: datetime | None = None) 
     return (current + ET_OFFSET).time() >= LIQUIDATE_BY_ET
 
 
-def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None) -> ExitVerdict:
-    """Should this position be closed, and why."""
+def _looks_like_share(symbol: str) -> bool:
+    return bool(symbol) and not (len(symbol) >= 15 and symbol[-8:].isdigit())
+
+
+#: A share position is flat at the end of its LAST measured session, once the
+#: closing auction is near enough that the day's drift has been collected.
+SHARES_HORIZON_EXIT_ET = time(15, 45)
+
+
+def _sessions_since(entry_utc: str, today_et) -> int:
+    """Completed weekday sessions between the entry date and today (ET), holidays ignored --
+    the competition window contains none."""
+    from datetime import date
+
+    try:
+        t = datetime.fromisoformat(entry_utc.replace("Z", "+00:00"))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        d0 = (t + ET_OFFSET).date()
+    except (ValueError, AttributeError):
+        return 0
+    n, d = 0, d0
+    while d < today_et:
+        d += timedelta(days=1)
+        if d.weekday() < 5:
+            n += 1
+    return n
+
+
+def _entry_row_for_shares(symbol: str, rows: list[dict] | None) -> dict | None:
+    """The latest SUBMITTED share row for this symbol in this account."""
+    import os
+
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+    rows = rows if rows is not None else ledger.read_all()
+    best = None
+    for r in rows:
+        if r.get("action") != "submitted" or r.get("symbol") != symbol:
+            continue
+        if r.get("instrument") not in ("long_shares", "short_shares"):
+            continue
+        if r.get("account_role") not in (role, None):
+            continue
+        if best is None or (r.get("ts_utc") or "") > (best.get("ts_utc") or ""):
+            best = r
+    return best
+
+
+def _evaluate_shares(position: dict, *, plpc: float, et: datetime,
+                     rows: list[dict] | None) -> ExitVerdict:
+    from alpha.engine import equity
+
+    symbol = position.get("symbol", "")
+    if equity.stop_hit(plpc):
+        return ExitVerdict(True, (
+            f"shares at {plpc:+.2%} against the declared {-equity.STOP_FRACTION:.0%} stop. "
+            "This is the number the book was charged at; past it the position is an "
+            "undeclared bet."))
+    if equity.target_hit(plpc):
+        return ExitVerdict(True, (
+            f"shares at {plpc:+.2%} against a +{equity.PROFIT_TARGET:.1%} target -- about twice "
+            "the measured three-day drift. Beyond it the tercile split says the move stops "
+            "continuing; collected."))
+    row = _entry_row_for_shares(symbol, rows)
+    if row is None:
+        return ExitVerdict(True, (
+            "shares with NO ledger row in this account: nothing declared a horizon or a stop "
+            "for them. Flattened rather than carried as an unexplained position."))
+    horizon = float(((row.get("outcome") or {}).get("horizon_days")) or 1.0)
+    elapsed = _sessions_since(row.get("ts_utc") or "", et.date())
+    last_session = elapsed >= math.ceil(horizon) - 1
+    if elapsed >= math.ceil(horizon) or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+        return ExitVerdict(True, (
+            f"drift window spent: {elapsed} session(s) since entry against a {horizon:.0f}-session "
+            "horizon. The mechanism was measured over +1..+3 and has no opinion after that."))
+    return ExitVerdict(False, (
+        f"shares {plpc:+.2%}, session {elapsed + 1} of {math.ceil(horizon)} in the drift window, "
+        "inside stop and target. Holding."))
+
+
+def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None,
+             rows: list[dict] | None = None) -> ExitVerdict:
+    """Should this position be closed, and why. `rows` is the ledger, read once per pass."""
     current = now or datetime.now(timezone.utc)
     et = current + ET_OFFSET
 
@@ -134,6 +216,15 @@ def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None) 
 
     if cost <= 0:
         return ExitVerdict(False, "no cost basis yet; nothing to judge against.")
+
+    # 2b. SHARES: a drift position, not a premium one. Its worst case was
+    # DECLARED as a stop plus a gap allowance (`alpha/engine/equity.py`), so the
+    # stop here is the number the book was charged at, and the horizon is the
+    # measured drift window -- the mechanism is spent after +3 sessions and
+    # holding past it is an unpriced bet.
+    asset_class = position.get("asset_class") or ""
+    if asset_class == "us_equity" or (not asset_class and expiry is None and _looks_like_share(symbol)):
+        return _evaluate_shares(position, plpc=plpc, et=et, rows=rows)
 
     # 3/4. Targets and stops, asymmetric by whether we are long or short premium.
     long_premium = qty > 0
@@ -248,10 +339,13 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
     positions = client.positions()
     summary = {"checked": 0, "closed": 0, "held": 0, "errors": 0, "actions": []}
     leg_action, arbiter_close = _arbiter_pass(client, summary)
+    rows = None
+    if any((p.get("asset_class") or "") == "us_equity" for p in positions):
+        rows = ledger.read_all()
 
     for position in positions:
         summary["checked"] += 1
-        verdict = evaluate(position, deadline_utc=deadline_utc)
+        verdict = evaluate(position, deadline_utc=deadline_utc, rows=rows)
         symbol = position.get("symbol", "")
         if symbol in arbiter_close and not verdict.close:
             verdict = ExitVerdict(True, "arbiter CLOSE: remaining edge below the close cost (act mode)")

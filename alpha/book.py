@@ -133,20 +133,33 @@ class BookRisk:
         return "; ".join(parts)
 
 
+def is_share(symbol: str) -> bool:
+    """An equity symbol, as opposed to an OCC option contract."""
+    return not (len(symbol) >= 15 and symbol[-8:].isdigit())
+
+
 def _open_option_positions(positions: list[dict]) -> dict[str, dict]:
+    """Every open OPTION leg and every open SHARE position, by symbol.
+
+    Shares are legs too (`alpha/engine/equity.py`): a ledger row whose single
+    leg is `("NVDA", "buy", 1)` x 120 is matched against 120 held shares exactly
+    as a straddle row is matched against its two contracts."""
     out = {}
     for pos in positions:
-        if (pos.get("asset_class") or "") != "us_option":
-            continue
+        cls = pos.get("asset_class") or ""
         sym = pos.get("symbol") or ""
-        try:
-            decode_occ(sym)
-        except ValueError:
+        if cls == "us_option":
+            try:
+                decode_occ(sym)
+            except ValueError:
+                continue
+        elif cls != "us_equity" or not sym:
             continue
         out[sym] = {
             "qty": float(pos.get("qty") or 0.0),
             "cost_basis": abs(float(pos.get("cost_basis") or 0.0)),
             "avg_entry_price": float(pos.get("avg_entry_price") or 0.0),
+            "share": cls == "us_equity",
         }
     return out
 
@@ -173,7 +186,8 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
     """Match ledger structures against the broker's open legs; charge the rest."""
     open_legs = _open_option_positions(positions)
     remaining = {sym: p["qty"] for sym, p in open_legs.items()}
-    premium_paid = sum(p["cost_basis"] for p in open_legs.values() if p["qty"] > 0)
+    premium_paid = sum(p["cost_basis"] for p in open_legs.values()
+                       if p["qty"] > 0 and not p.get("share"))
 
     structures: list[OpenStructure] = []
     # Rows stamped with THIS account's role are unambiguous and go first. Rows
@@ -232,6 +246,13 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
     long_left = {s: q for s, q in remaining.items() if q > 1e-9}
     short_left = {s: -q for s, q in remaining.items() if q < -1e-9}
     for sym, qty in sorted(short_left.items()):
+        if is_share(sym):
+            # Short shares no ledger row explains: nothing declared their stop,
+            # so nothing bounds them. The book is unbounded until someone looks.
+            unbounded = True
+            residuals.append(Residual(sym, -qty, float("inf"),
+                                      "short SHARES with no ledger row -- no declared stop, unbounded", True))
+            continue
         root, right, strike, expiry = decode_occ(sym)
         protectors = []
         for lsym, lq in long_left.items():
@@ -263,6 +284,13 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
         if qty <= 1e-9:
             continue
         pos = open_legs.get(sym, {})
+        if pos.get("share"):
+            from alpha.engine.equity import MAX_LOSS_FRACTION
+
+            per = (pos.get("avg_entry_price") or 0.0) * MAX_LOSS_FRACTION
+            residuals.append(Residual(sym, qty, per * qty,
+                                      f"unmatched long SHARES at the declared {MAX_LOSS_FRACTION:.0%} stop+gap"))
+            continue
         per = (pos.get("avg_entry_price") or 0.0) * MULT
         residuals.append(Residual(sym, qty, per * qty, "unmatched long leg at cost basis"))
 
@@ -277,7 +305,7 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
     for r in residuals:
         if r.unbounded:
             continue
-        root = decode_occ(r.symbol)[0]
+        root = r.symbol if is_share(r.symbol) else decode_occ(r.symbol)[0]
         by_underlying[root] = by_underlying.get(root, 0.0) + r.charge_usd
     return BookRisk(equity=equity, structures=structures, residuals=residuals,
                     unbounded=unbounded, max_loss_usd=total, by_underlying=by_underlying,
