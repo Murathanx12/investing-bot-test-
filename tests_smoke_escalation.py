@@ -59,6 +59,30 @@ check("escalation exposes no snooze/ack/silence function",
       not any(hasattr(E, n) for n in ("acknowledge", "ack", "snooze", "silence", "mute")),
       "a snooze button is how a warning becomes wallpaper with extra steps")
 
+print("\n-- the CLI must survive the failure it exists to report")
+# scripts.liveness printed esc.line() in the unhealthy branch while `esc` was
+# never assigned: the wiring patch asserted mid-script and wrote nothing, and I
+# reported it as done anyway. The healthy path never touches the name, so the
+# NameError was LATENT and would have fired the first time a loop actually
+# died -- a guard that crashes at the exact moment of the failure it watches for.
+import importlib
+import sys as _sys
+_cli = importlib.import_module("scripts.liveness")
+from alpha import liveness as _A
+_orig, _argv = _A.report, _sys.argv
+try:
+    _A.report = lambda *a, **k: (False, ["dev    DEAD     pid 999 is NOT running."])
+    _sys.argv = ["liveness"]
+    rc = _cli.main()
+    check("the CLI REPORTS a dead loop instead of crashing", rc == 1, f"rc={rc}")
+except NameError as exc:
+    check("the CLI REPORTS a dead loop instead of crashing", False, f"NameError: {exc}")
+finally:
+    _A.report, _sys.argv = _orig, _argv
+check("...and it actually records the invariant",
+      E.status("loop_liveness") is not None,
+      "an escalation nobody observes is a ladder nobody climbs")
+
 print("\n-- an unreadable store degrades to 'no history', never to OK-by-accident")
 E.STORE.write_text("{ not json", encoding="utf-8")
 check("a corrupt store reads as absent", E.status("ledger_chain") is None)

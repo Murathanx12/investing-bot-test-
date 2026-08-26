@@ -26,7 +26,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from alpha import liveness
+from alpha import escalation, liveness
 
 
 def main() -> int:
@@ -39,6 +39,11 @@ def main() -> int:
     args = p.parse_args()
 
     ok, lines = liveness.report(tuple(args.expect))
+    # Repetition is evidence. A loop DEAD for one check and one DEAD for ten
+    # print the same line otherwise, and the second is a standing defect.
+    esc = escalation.observe(
+        "loop_liveness", ok,
+        "; ".join(l for l in lines if liveness.HEALTHY not in l)[:200])
     if not args.quiet:
         print("LOOP LIVENESS")
         for line in lines:
