@@ -23,3 +23,10 @@ Full findings in `docs/FINDING_2026-08-26_POSITIVE_EXPECTANCY_SEARCH.md`.
 - No order on any account by hand. No change to exits' leg-level stops (the arbiter advises).
 - No brain promoted. EVENT_MISPRICING and source-PEAD are candidates for SHADOW brains; neither is built as a brain yet.
 - Railway: still Murat's call.
+
+## Session 7 addendum — the sweep (`docs/FINDING_2026-08-26_SWEEP_OF_THE_WILD.md`)
+- [x] PRE_PRINT_IV_RAMP_v1 — REFUTED (t −12.9). Retired.
+- [x] PRE_PRINT_OPTION_FLOW_v1 — coarse form dead; signed form needs the tape. Deprioritised.
+- [x] EVENT_EXIT_TIMING_v1 — sell event straddles at the day-0 open (rule; advisory until the arbiter acts).
+- [x] EVENT_CALENDAR_v1 — direction; steep-term-structure tercile +14%; NVDA shadow candidate. Assignment not modelled → shadow only.
+- [ ] Skew premium / risk reversal around prints (Neururer 2026) — needs OTM bars per print; with SURFACE_MOMENT_SHOCK.

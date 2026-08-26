@@ -4,6 +4,25 @@
 of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
 
+## SESSION 7 (25 Aug ~22:00-00:30 ET, market closed) — `docs/FINDING_2026-08-26_SWEEP_OF_THE_WILD.md`
+
+**RESULT IMPROVEMENT: no P&L. Six repos cloned and read, six papers, four new mechanisms tested on our 117 prints:**
+
+| mechanism | verdict |
+|---|---|
+| PRE_PRINT_IV_RAMP_v1 — the retail "buy the run-up, sell before the print" | **REFUTED**: T-5→T-0 mean −19.5%, hit 11%, **t −12.9**; every name negative. The largest t of the week, negative. |
+| PRE_PRINT_OPTION_FLOW_v1 — unsigned call−put volume before the print | dead (hit 44%); the signed version (Johnson-So) needs the tape |
+| EVENT_EXIT_TIMING_v1 — sell the pre-print straddle at the day-0 OPEN | **rule**: 89% of the day-0 move is in the gap; holding the session costs −4.5% (open beats close on 62%) |
+| EVENT_CALENDAR_v1 — short front straddle through the print, long the back | direction: +5.5% of debit mean, t 0.77; steep term structure +14.3% vs flat −8.9%; **NVDA +35%/6** — the one structure positive on NVDA |
+
+The wild: `IgorGanapolsky/trading` ran 69 SPY condors to **23% win rate, −$57/trade, 0 of 39 cells survive Bonferroni** and
+wrote the same "no resumption without a written hypothesis change" rule we call recovery mode. The LLM frameworks
+(TradingAgents, ai-hedge-fund) never touch options. Competitor pitches name no mechanism.
+
+**For the morning, added:** (5) a long-premium event structure exits at the first pass after the day-0 open, not the close —
+the arbiter logs it today, acts only under `AAT_ARBITER=act`; (6) NVDA calendar (short 28 Aug ATM straddle / long Sep
+monthly, same strike) is a SHADOW candidate for the print — not placed.
+
 ## SESSION 6 (26 Aug, ~01:00-04:00 ET, market closed) — `docs/FINDING_2026-08-26_DIRECTION_CANNOT_BE_SPENT_ON_A_CONDOR.md`
 
 **RESULT IMPROVEMENT: no P&L (market closed throughout; both books still above every ceiling, nothing sized).**
