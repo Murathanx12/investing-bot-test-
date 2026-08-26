@@ -46,7 +46,16 @@ sh = equity.shares("NVDA", spot=180.0, bid=179.98, ask=180.02, direction="down",
 check("short shares: credit entry, sell leg", sh is not None and sh.entry_cost < 0 and sh.legs[0][1] == "sell")
 w = equity.shares("NVDA", spot=180.0, bid=179.98, ask=180.02, direction="up",
                   implied_move=0.04, horizon_days=1.0, days_to_expiry=4.0)
-check("chain width rescaled to the horizon (sqrt(1/4))", w is not None and abs(w.implied_move - 0.02) < 1e-12, f"{w.implied_move:.4f}")
+check("chain width is NEVER scaled down to a shorter horizon (a jump has no sqrt(t))",
+      w is not None and abs(w.implied_move - 0.04) < 1e-12, f"{w.implied_move:.4f}")
+w2 = equity.shares("NVDA", spot=180.0, bid=179.98, ask=180.02, direction="up",
+                   implied_move=0.02, horizon_days=4.0, days_to_expiry=1.0)
+check("chain width scaled UP to a longer horizon (sqrt 4)", w2 is not None and abs(w2.implied_move - 0.04) < 1e-12, f"{w2.implied_move:.4f}")
+live = equity.shares("NVDA", spot=212.96, bid=212.85, ask=213.07, direction="up",
+                     implied_move=0.0510, horizon_days=2.0, days_to_expiry=2.6)
+_st0 = sizing.TournamentState(equity=100_000, starting_equity=100_000, fraction_of_window_remaining=0.9)
+_live_v = sizing.size(live, 0.0072, live.implied_move * math.sqrt(math.pi / 2), _st0)
+check("the 26 Aug live case: pre-print 5.1% width, +0.72% centre -> REFUSED", not _live_v.approved, f"edge {_live_v.mdm_edge:+.1%}")
 
 print("\n-- payoff: linear, one share per unit")
 check("long share terminal P&L", abs(payoff.terminal_pnl(s, 180.0, 183.0) - (183.0 - 180.02)) < 1e-9)

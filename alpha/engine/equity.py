@@ -98,7 +98,13 @@ def shares(symbol: str, *, spot: float, bid: float, ask: float, direction: str,
     breakeven = (spread / spot) if direction == "up" else -(spread / spot)
     horizon = max(0.5, float(horizon_days or 1.0))
     dte = max(0.5, float(days_to_expiry or horizon))
-    width = float(implied_move or 0.0) * math.sqrt(horizon / dte)
+    # The chain's width is over ITS life. If our horizon is LONGER, scale it up
+    # by sqrt(time). If our horizon is shorter it is NOT scaled down: the width
+    # to a post-print expiry is mostly the print, a jump, and sqrt(t) on a jump
+    # is a fiction that shrank a 5.1% pre-print width to 4.5% and let shares
+    # clear the floor on 26 Aug at 00:50 ET, two hours after the doctrine said
+    # they must not. Under-stating the market's width is the unsafe error.
+    width = float(implied_move or 0.0) * max(1.0, math.sqrt(horizon / dte))
     entry_cost = ask if direction == "up" else -bid
     max_loss = spot * MAX_LOSS_FRACTION
     return Structure(
