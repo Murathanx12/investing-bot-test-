@@ -161,6 +161,33 @@ def weights_from_book(book: Any) -> dict[str, float]:
     return out
 
 
+def marginal(weights: dict[str, float], returns: dict[str, list[float]]
+             ) -> list[tuple[str, float, float, float]]:
+    """Per underlying: (symbol, share of risk, N_risk WITHOUT it, delta).
+
+    Standalone size answers "how big is this position". It does not answer the
+    question that matters for a concentrated book, which is **which position is
+    costing the most diversification** -- and those give different orderings,
+    because a large position uncorrelated with the rest can raise effective N
+    while a small one that duplicates the book's main bet lowers it.
+
+    A POSITIVE delta means the book is more diversified without that name: it is
+    the one to cut first. Cutting by size alone would cut the wrong thing.
+    """
+    base = measure(weights, returns)
+    if base is None:
+        return []
+    total = sum(abs(v) for v in weights.values()) or 1.0
+    out = []
+    for sym in weights:
+        rest = {k: v for k, v in weights.items() if k != sym}
+        alt = measure(rest, returns)
+        if alt is None:
+            continue
+        out.append((sym, abs(weights[sym]) / total, alt.n_risk, alt.n_risk - base.n_risk))
+    return sorted(out, key=lambda r: -r[3])
+
+
 def verdict(c: Concentration | None) -> tuple[str, str]:
     """A reading, and the sentence that says what it means. Never a refusal."""
     if c is None:

@@ -66,6 +66,20 @@ def main() -> int:
     for sym, v in sorted(weights.items(), key=lambda kv: -kv[1]):
         flag = "" if sym in returns else "   (UNPRICED - excluded, not assumed uncorrelated)"
         print(f"  {sym:12s} {v:>12,.0f} {100*v/total:>6.1f}%{flag}")
+
+    marg = concentration.marginal(weights, returns)
+    if marg:
+        print("\n  MARGINAL CONTRIBUTION TO CONCENTRATION")
+        print(f"  which name costs the most diversification -- NOT the same ordering as size")
+        print(f"  {'underlying':12s} {'share':>7s} {'N_risk without':>15s} {'delta':>8s}")
+        for sym, share, n_wo, delta in marg:
+            mark = "  <- cut this first" if delta == marg[0][3] and delta > 0.01 else ""
+            print(f"  {sym:12s} {100*share:>6.1f}% {n_wo:>15.2f} {delta:>+8.2f}{mark}")
+        big_share = max(marg, key=lambda r: r[1])[0]
+        worst = marg[0][0]
+        if worst != big_share:
+            print(f"\n  NOTE: the largest position is {big_share}, but removing {worst} would")
+            print(f"  diversify the book more. Cutting by SIZE would cut the wrong name.")
     return 0
 
 

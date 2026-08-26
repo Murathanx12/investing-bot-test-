@@ -80,6 +80,29 @@ check("max loss is per-unit times contracts", w["NVDA"] == 80.0 and w["AMD"] == 
 check("OCC symbols decode to the underlying",
       C.underlying_of("NVDA260828C00200000") == "NVDA" and C.underlying_of("SPY") == "SPY")
 
+print("\n-- marginal contribution: which name costs the most diversification")
+# Size and diversification-damage give DIFFERENT orderings, and the difference is
+# the whole point: a large uncorrelated position can RAISE effective N while a
+# small duplicate of the book's main bet lowers it. Measured live the same day:
+# in exp1, removing NVDA -- an 18% position -- would have made the book MORE
+# concentrated, because it is the only thing uncorrelated with its index cluster.
+f2 = series(120, 0.02)
+mixed = {"CLONE_A": with_common(f2, 1.0, 0.002),      # duplicates the main bet
+         "CLONE_B": with_common(f2, 1.0, 0.002),
+         "CLONE_C": with_common(f2, 1.0, 0.002),
+         "DIVERSIFIER": series(120, 0.02)}            # independent of it
+w = {"CLONE_A": 1.0, "CLONE_B": 1.0, "CLONE_C": 1.0, "DIVERSIFIER": 4.0}
+m = C.marginal(w, mixed)
+check("a CLONE is flagged to cut first, not the BIGGEST position",
+      m[0][0].startswith("CLONE"), f"flagged {m[0][0]}, biggest is DIVERSIFIER")
+check("removing the DIVERSIFIER makes the book WORSE (negative delta)",
+      m[-1][0] == "DIVERSIFIER" and m[-1][3] < 0, f"{m[-1][0]} {m[-1][3]:+.2f}")
+check("every entry reports share, N-without, and delta", all(len(r) == 4 for r in m))
+check("it is sorted worst-first",
+      [r[3] for r in m] == sorted([r[3] for r in m], reverse=True))
+check("an unmeasurable book returns no ranking",
+      C.marginal({"A": 1.0}, {"A": series()}) == [])
+
 print("\n-- degenerate inputs refuse rather than returning a flattering number")
 check("one name cannot be measured", C.measure({"A": 1.0}, {"A": series()}) is None)
 check("too few sessions cannot be measured",
