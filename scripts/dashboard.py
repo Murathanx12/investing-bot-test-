@@ -27,7 +27,7 @@ import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 
-from alpha import config, ledger, liveness
+from alpha import book as book_mod, concentration, config, ledger, liveness
 
 ROOT = config.__file__.rsplit("alpha", 1)[0]
 STATE = ROOT + "state/"
@@ -213,12 +213,53 @@ def liveness_section() -> str:
     return banner + "<table>" + "".join(rows) + "</table>"
 
 
+def concentration_section() -> str:
+    """How many bets is this book actually making?
+
+    The most useful risk number on this page, and the one no position count can
+    produce. Calibrated against a real liquidation rather than a round number:
+    Situational Awareness LP's Q2 2026 book measured 5.34 by weight and 1.43 by
+    RISK, and 20 of its 21 priced names fell together on its worst July session.
+    """
+    try:
+        from alpha.broker.alpaca import AlpacaPaper
+        client = AlpacaPaper()
+        b = book_mod.read(client)
+        w = concentration.weights_from_book(b)
+        if not w:
+            return "<p class=note>no structures with positive max loss -- a clean book.</p>"
+        import math as _m
+        from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+        start = (_dt.now(_tz.utc) - _td(days=60)).date().isoformat()
+        bars = client.stock_bars_multi(sorted(w), start=start, timeframe="1Day")
+        rets = {}
+        for sym, rows in bars.items():
+            c = [float(r["c"]) for r in rows if r.get("c")]
+            if len(c) > 5:
+                rets[sym] = [_m.log(c[i] / c[i - 1]) for i in range(1, len(c)) if c[i - 1] > 0]
+        cc = concentration.measure(w, rets)
+        state, why = concentration.verdict(cc)
+        rows_html = [f"<tr><td><b>{esc(state)}</b></td><td>{esc(why)}</td></tr>"]
+        for sym, share, n_wo, delta in concentration.marginal(w, rets)[:6]:
+            cls = "bad" if delta > 0 else "good"
+            rows_html.append(
+                f"<tr><td>{esc(sym)} &middot; {100*share:.1f}% of book risk</td>"
+                f"<td class={cls}>effective N without it {n_wo:.2f} ({delta:+.2f})</td></tr>")
+        return ("<table>" + "".join(rows_html) + "</table>"
+                "<p class=note>Effective N by RISK counts BETS, not tickers. A positive delta "
+                "means the book is more diversified without that name -- which is often not "
+                "the largest position.</p>")
+    except Exception as exc:                       # a view must never take the page down
+        return f"<p class=note>concentration unavailable: {esc(type(exc).__name__)}</p>"
+
+
 def main() -> int:
     config.load_env()
     now = datetime.now(timezone.utc).isoformat()[:16]
     sections = [
         ("Loop liveness — is the engine running?", liveness_section()),
         ("Accounts (paper)", accounts_section()),
+        ("How many bets is this book making?", concentration_section()),
         ("Decisions — taken, refused, shadowed", decisions_section()),
         ("Brain scoreboard (counterfactual marks)", counterfactual_section()),
         ("Latest event card", card_section()),
