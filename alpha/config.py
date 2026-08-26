@@ -162,6 +162,34 @@ def credentials(for_role: str | None = None) -> Credentials:
     if not _valid_role(resolved):
         raise CredentialRefusal(f"Invalid role name {resolved!r}.")
 
+    # FOURTH REFUSAL: the flag and the environment must AGREE.
+    #
+    # `scripts/run_pass.py --role X` builds the client, but every ledger stamp
+    # and book match reads `AAT_ACCOUNT_ROLE` from the environment instead
+    # (`runner`, `exits`, `book`, `recovery`). So
+    #     AAT_ACCOUNT_ROLE=dev python -m scripts.run_pass --role competition --live
+    # sends orders to the JUDGED account and stamps the rows `dev`; the book is
+    # then reconstructed from another account's rows and its risk is computed
+    # against positions it does not hold.
+    #
+    # Neither value is obviously the right one to believe, which is exactly why
+    # this refuses instead of picking. (Audit defect 6.)
+    declared = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower()
+    if for_role and declared and declared != resolved:
+        raise CredentialRefusal(
+            f"ROLE DISAGREEMENT: --role/{resolved!r} was requested but "
+            f"AAT_ACCOUNT_ROLE={declared!r} is what every ledger stamp, book match "
+            "and recovery score will read. One of them is wrong and this refuses "
+            "rather than choosing: orders would go to one account and its rows "
+            "would be written under another's name. Set both, or neither."
+        )
+    # NOTE: this deliberately does NOT set AAT_ACCOUNT_ROLE when it is unset.
+    # An earlier draft did, and it turned `credentials()` -- which reads like an
+    # accessor -- into a function that mutates global process state, so a
+    # credential check in one test silently re-stamped the ledger rows of every
+    # test after it. Making the flag authoritative is right; the place to do it
+    # is the CLI entry point, where it is visible. See `scripts/run_pass.py`.
+
     prefix = f"AAT_{resolved.upper()}"
     key_id = os.getenv(f"{prefix}_KEY_ID", "").strip()
     secret = os.getenv(f"{prefix}_SECRET_KEY", "").strip()

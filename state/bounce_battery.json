@@ -1,0 +1,275 @@
+{
+ "n_rows": 104675,
+ "n_down_nonprint": 46361,
+ "steps": {
+  "guard": {
+   "gapped": 3,
+   "extreme": 35,
+   "dropped": 35,
+   "kept": 46326,
+   "extreme_examples": [
+    {
+     "symbol": "AKTS",
+     "day0": "2024-12-17",
+     "log3": 6.353
+    },
+    {
+     "symbol": "AKTS",
+     "day0": "2024-12-16",
+     "log3": 6.276
+    },
+    {
+     "symbol": "AKTS",
+     "day0": "2024-12-13",
+     "log3": 5.794
+    },
+    {
+     "symbol": "DFNS",
+     "day0": "2024-12-13",
+     "log3": 3.598
+    },
+    {
+     "symbol": "WOLF",
+     "day0": "2025-09-26",
+     "log3": 3.021
+    },
+    {
+     "symbol": "WOLF",
+     "day0": "2025-09-25",
+     "log3": 2.738
+    },
+    {
+     "symbol": "DFNS",
+     "day0": "2024-12-12",
+     "log3": 2.083
+    },
+    {
+     "symbol": "BYND",
+     "day0": "2025-10-16",
+     "log3": 1.94
+    },
+    {
+     "symbol": "QXO",
+     "day0": "2024-07-25",
+     "log3": -1.94
+    },
+    {
+     "symbol": "QXO",
+     "day0": "2024-07-26",
+     "log3": -1.84
+    },
+    {
+     "symbol": "DFNS",
+     "day0": "2026-07-23",
+     "log3": 1.817
+    },
+    {
+     "symbol": "RLMD",
+     "day0": "2024-12-03",
+     "log3": -1.801
+    }
+   ]
+  },
+  "h1": {
+   "raw": {
+    "n": 46326,
+    "mean": -0.00121,
+    "t_iid": -4.35,
+    "t_issuer": 5.37,
+    "n_issuer": 2434,
+    "t_month": -1.52,
+    "n_month": 30,
+    "t_two_way": -1.52
+   },
+   "exc": {
+    "n": 46326,
+    "mean": 0.00043,
+    "t_iid": 1.67,
+    "t_issuer": 3.78,
+    "n_issuer": 2434,
+    "t_month": 0.4,
+    "n_month": 30,
+    "t_two_way": 0.4
+   }
+  },
+  "h3": {
+   "raw": {
+    "n": 46326,
+    "mean": -0.00306,
+    "t_iid": -6.79,
+    "t_issuer": -6.68,
+    "n_issuer": 2434,
+    "t_month": -1.6,
+    "n_month": 30,
+    "t_two_way": -1.6
+   },
+   "exc": {
+    "n": 46326,
+    "mean": 0.00066,
+    "t_iid": 1.58,
+    "t_issuer": -0.8,
+    "n_issuer": 2434,
+    "t_month": -0.3,
+    "n_month": 30,
+    "t_two_way": 0.3
+   }
+  },
+  "h5": {
+   "raw": {
+    "n": 46326,
+    "mean": -0.00516,
+    "t_iid": -8.63,
+    "t_issuer": -12.39,
+    "n_issuer": 2434,
+    "t_month": -1.83,
+    "n_month": 30,
+    "t_two_way": -1.83
+   },
+   "exc": {
+    "n": 46326,
+    "mean": 0.00094,
+    "t_iid": 1.64,
+    "t_issuer": -1.62,
+    "n_issuer": 2434,
+    "t_month": -0.42,
+    "n_month": 30,
+    "t_two_way": 0.42
+   }
+  },
+  "h21": {
+   "raw": {
+    "n": 46326,
+    "mean": -0.02084,
+    "t_iid": -16.41,
+    "t_issuer": -26.51,
+    "n_issuer": 2434,
+    "t_month": -1.41,
+    "n_month": 30,
+    "t_two_way": -1.41
+   },
+   "exc": {
+    "n": 46326,
+    "mean": 0.00357,
+    "t_iid": 2.94,
+    "t_issuer": -7.32,
+    "n_issuer": 2434,
+    "t_month": 0.23,
+    "n_month": 30,
+    "t_two_way": 0.23
+   }
+  },
+  "long_h3": {
+   "log_mean": 0.00306,
+   "simple_mean": 0.00788,
+   "convexity": 0.00481,
+   "net": 0.00488
+  },
+  "long_h21": {
+   "log_mean": 0.02084,
+   "simple_mean": 0.08913,
+   "convexity": 0.06829,
+   "net": 0.08613
+  },
+  "quarters": {
+   "n": 11,
+   "positive_3d": 6,
+   "positive_21d": 3
+  },
+  "buckets": {
+   "micro": {
+    "exc_3": {
+     "n": 12229,
+     "mean": 0.00382,
+     "t_iid": 3.97,
+     "t_issuer": -1.35,
+     "n_issuer": 464,
+     "t_month": 0.92,
+     "n_month": 30,
+     "t_two_way": 0.92
+    },
+    "exc_21": {
+     "n": 12229,
+     "mean": 0.02232,
+     "t_iid": 7.71,
+     "t_issuer": 0.17,
+     "n_issuer": 464,
+     "t_month": 1.83,
+     "n_month": 30,
+     "t_two_way": 0.17
+    }
+   },
+   "small": {
+    "exc_3": {
+     "n": 15734,
+     "mean": -0.00022,
+     "t_iid": -0.3,
+     "t_issuer": -0.33,
+     "n_issuer": 800,
+     "t_month": -1.03,
+     "n_month": 30,
+     "t_two_way": -0.33
+    },
+    "exc_21": {
+     "n": 15734,
+     "mean": -0.00198,
+     "t_iid": -0.95,
+     "t_issuer": -3.68,
+     "n_issuer": 800,
+     "t_month": -0.32,
+     "n_month": 30,
+     "t_two_way": -0.32
+    }
+   },
+   "mid": {
+    "exc_3": {
+     "n": 12600,
+     "mean": 0.00088,
+     "t_iid": 1.27,
+     "t_issuer": 0.64,
+     "n_issuer": 815,
+     "t_month": -0.26,
+     "n_month": 30,
+     "t_two_way": 0.26
+    },
+    "exc_21": {
+     "n": 12600,
+     "mean": -0.00104,
+     "t_iid": -0.53,
+     "t_issuer": -6.31,
+     "n_issuer": 815,
+     "t_month": -0.32,
+     "n_month": 30,
+     "t_two_way": -0.32
+    }
+   },
+   "large": {
+    "exc_3": {
+     "n": 4814,
+     "mean": -0.00382,
+     "t_iid": -3.37,
+     "t_issuer": -0.85,
+     "n_issuer": 312,
+     "t_month": -0.61,
+     "n_month": 30,
+     "t_two_way": -0.61
+    },
+    "exc_21": {
+     "n": 4814,
+     "mean": -0.00856,
+     "t_iid": -2.96,
+     "t_issuer": -4.83,
+     "n_issuer": 312,
+     "t_month": -1.99,
+     "n_month": 30,
+     "t_two_way": -1.99
+    }
+   }
+  },
+  "micro_short": {
+   "log_mean": -0.00086,
+   "short_simple": -0.00521,
+   "convexity_charge": -0.00607,
+   "net": -0.00821
+  }
+ }
+}

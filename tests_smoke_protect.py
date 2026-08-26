@@ -218,6 +218,78 @@ check("a multileg order's OCC legs resolve to the underlying",
       runner.open_order_underlyings(c11).get("NVDA") == 2,
       str(runner.open_order_underlyings(c11)))
 
+print("\n-- 6. a partial SHORT-shares fill must not halt the whole book (defect 5)")
+
+from alpha import book as book_mod
+
+SHORT_ROW = {"action": "submitted", "decision_id": "d1", "brain": "b", "symbol": "HOV",
+             "instrument": "short_shares", "ts_utc": "2026-08-26T10:00:00+00:00",
+             "account_role": None, "order": {"qty": "100"}, "max_loss_per_unit": 0.8,
+             "entry_cost_per_unit": 10.0, "legs": [["HOV", "sell", 1]], "outcome": {}}
+half = [{"asset_class": "us_equity", "symbol": "HOV", "qty": "-40",
+         "cost_basis": "-400", "avg_entry_price": "10.00"}]
+b = book_mod.reconstruct(half, equity=100_000, account_role=None, rows=[SHORT_ROW])
+check("a 40-of-100 short fill MATCHES at 40 instead of becoming a residual",
+      len(b.structures) == 1 and b.structures[0].contracts == 40,
+      f"{len(b.structures)} structures, {len(b.residuals)} residuals")
+check("and the book is therefore NOT unbounded (it used to refuse every entry all day)",
+      not b.unbounded, str(b.residuals))
+
+full = [{"asset_class": "us_equity", "symbol": "HOV", "qty": "-100",
+         "cost_basis": "-1000", "avg_entry_price": "10.00"}]
+check("a complete fill still matches at full size",
+      book_mod.reconstruct(full, equity=100_000, account_role=None,
+                           rows=[SHORT_ROW]).structures[0].contracts == 100)
+
+wrong_way = [{"asset_class": "us_equity", "symbol": "HOV", "qty": "40",
+              "cost_basis": "400", "avg_entry_price": "10.00"}]
+bw = book_mod.reconstruct(wrong_way, equity=100_000, account_role=None, rows=[SHORT_ROW])
+check("a position on the WRONG SIDE is never matched to the row",
+      not bw.structures, str(bw.structures))
+
+CONDOR = {"action": "submitted", "decision_id": "d2", "brain": "b", "symbol": "NVDA",
+          "instrument": "iron_condor", "ts_utc": "2026-08-26T10:00:00+00:00",
+          "account_role": None, "order": {"qty": "10"}, "max_loss_per_unit": 855.0,
+          "entry_cost_per_unit": -259.0,
+          "legs": [["NVDA260828P00200000", "sell", 1], ["NVDA260828P00192500", "buy", 1]],
+          "outcome": {}}
+part = [{"asset_class": "us_option", "symbol": "NVDA260828P00200000", "qty": "-4",
+         "cost_basis": "-720", "avg_entry_price": "1.80"},
+        {"asset_class": "us_option", "symbol": "NVDA260828P00192500", "qty": "4",
+         "cost_basis": "280", "avg_entry_price": "0.70"}]
+bc = book_mod.reconstruct(part, equity=100_000, account_role=None, rows=[CONDOR])
+check("a partly-filled OPTION STRUCTURE is still NOT matched -- half a condor is "
+      "two naked legs with a different worst case",
+      not bc.structures and bc.residuals, f"{len(bc.structures)}/{len(bc.residuals)}")
+
+print("\n-- 7. --role and AAT_ACCOUNT_ROLE may not disagree silently (defect 6)")
+
+from alpha import config as cfg
+from alpha.config import CredentialRefusal
+
+_saved = os.environ.get("AAT_ACCOUNT_ROLE")
+os.environ["AAT_ACCOUNT_ROLE"] = "dev"
+os.environ["AAT_COMPETITION_KEY_ID"] = "k"
+os.environ["AAT_COMPETITION_SECRET_KEY"] = "s"
+try:
+    cfg.credentials("competition")
+    check("--role competition under AAT_ACCOUNT_ROLE=dev is REFUSED", False)
+except CredentialRefusal as exc:
+    check("--role competition under AAT_ACCOUNT_ROLE=dev is REFUSED",
+          "ROLE DISAGREEMENT" in str(exc), str(exc)[:56])
+
+os.environ["AAT_DEV_KEY_ID"] = "k"
+os.environ["AAT_DEV_SECRET_KEY"] = "s"
+check("agreement is fine", cfg.credentials("dev").role == "dev")
+
+os.environ.pop("AAT_ACCOUNT_ROLE", None)
+check("credentials() does NOT mutate the environment (it reads like an accessor)",
+      cfg.credentials("dev").role == "dev" and "AAT_ACCOUNT_ROLE" not in os.environ)
+if _saved is not None:
+    os.environ["AAT_ACCOUNT_ROLE"] = _saved
+for k in ("AAT_COMPETITION_KEY_ID", "AAT_COMPETITION_SECRET_KEY"):
+    os.environ.pop(k, None)
+
 print()
 if fails:
     print(f"{len(fails)} FAILED: {fails}")

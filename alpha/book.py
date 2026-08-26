@@ -224,6 +224,26 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
                 fits = False
             if not fits:
                 break
+
+        # PARTIAL FILLS. A single-leg SHARE row is matched at whatever the venue
+        # actually holds, because an entry limit is DAY and fills partially all
+        # the time. Before this, a row for 120 shares against a 60-share fill
+        # failed to match and became a residual -- and a residual SHORT share
+        # position is scored UNBOUNDED, which refuses every subsequent entry in
+        # the account for the rest of the day (`runner.run_pass`). So a routine
+        # partial fill silently halted the whole book. (Audit defect 5.)
+        #
+        # Deliberately single-leg only: an option STRUCTURE matched at partial
+        # size is not the same structure -- half an iron condor is two naked
+        # legs and a different worst case -- so those still fail to match and
+        # are explained as residuals, which is the correct, loud outcome.
+        if not fits and len(legs) == 1 and is_share(legs[0][0]):
+            sym, side, ratio = legs[0]
+            need = _signed_leg_qty(side, ratio, contracts)
+            have = remaining.get(sym, 0.0)
+            filled = int(min(abs(need), abs(have)) / max(1, abs(ratio)))
+            if filled >= 1 and (need > 0) == (have > 0):
+                contracts, fits = filled, True
         if not fits:
             continue
         for sym, side, ratio in legs:

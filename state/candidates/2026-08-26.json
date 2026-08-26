@@ -1,95 +1,10 @@
 {
- "generated_utc": "2026-08-26T06:13:50.853020+00:00",
+ "generated_utc": "2026-08-26T12:14:00.853125+00:00",
  "universe": "HIGH_DISPERSION_US_v1",
  "universe_n": 4634,
- "printers_on_calendar": 152,
+ "printers_on_calendar": 153,
  "printers_in_universe": 74,
- "candidates": [
-  {
-   "symbol": "BJ",
-   "centre": 0.0041,
-   "sd": 0.0255,
-   "conviction": 0.7,
-   "score": 0.1125,
-   "direction": "UP",
-   "r_day0": 0.0579,
-   "band": "mid band (3.5%-8.2%, t 3.45, hit 81%)",
-   "elapsed": 2,
-   "event_day": "2026-08-21",
-   "dv_bucket": "mid",
-   "median_dollar_volume": 164099768.0,
-   "market_cap_usd": 12050481101.289066,
-   "cap_bucket": "large",
-   "industry": "Retail",
-   "shortable_etb": true,
-   "old_universe": false,
-   "control_holding": false,
-   "calendar": {
-    "date": "2026-08-21",
-    "hour": "bmo",
-    "eps_actual": 1.36,
-    "eps_estimate": 1.1951,
-    "revenue_actual": 6090980000,
-    "revenue_estimate": 6122130243
-   }
-  },
-  {
-   "symbol": "OSIS",
-   "centre": -0.0041,
-   "sd": 0.0255,
-   "conviction": 0.7,
-   "score": 0.1125,
-   "direction": "DOWN",
-   "r_day0": -0.0525,
-   "band": "mid band (3.5%-8.2%, t 3.45, hit 81%)",
-   "elapsed": 2,
-   "event_day": "2026-08-21",
-   "dv_bucket": "small",
-   "median_dollar_volume": 45454401.0,
-   "market_cap_usd": 3253277451.364077,
-   "cap_bucket": "mid",
-   "industry": "Electrical Equipment",
-   "shortable_etb": true,
-   "old_universe": false,
-   "control_holding": false,
-   "calendar": {
-    "date": "2026-08-20",
-    "hour": "amc",
-    "eps_actual": 3.78,
-    "eps_estimate": 3.8461,
-    "revenue_actual": 484060000,
-    "revenue_estimate": 540266755
-   }
-  },
-  {
-   "symbol": "HOV",
-   "centre": 0.0041,
-   "sd": 0.03636,
-   "conviction": 0.42,
-   "score": 0.0474,
-   "direction": "UP",
-   "r_day0": 0.1097,
-   "band": "over-extended (>8.2%, t 1.26)",
-   "elapsed": 2,
-   "event_day": "2026-08-21",
-   "dv_bucket": "small",
-   "median_dollar_volume": 16003363.0,
-   "market_cap_usd": 724173674.1566046,
-   "cap_bucket": "small",
-   "industry": "Consumer products",
-   "shortable_etb": true,
-   "old_universe": false,
-   "control_holding": false,
-   "calendar": {
-    "date": "2026-08-20",
-    "hour": "bmo",
-    "eps_actual": -0.7,
-    "eps_estimate": -0.5656,
-    "revenue_actual": 705750000,
-    "revenue_estimate": 730735000
-   }
-  }
- ],
+ "candidates": [],
  "declined": [
   {
    "symbol": "A",
@@ -118,6 +33,10 @@
   {
    "symbol": "BBWI",
    "why": "NotApplicable: BBWI: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "BJ",
+   "why": "NotApplicable: BJ: day-0 move +5.79% is UP and BJ is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries NO"
   },
   {
    "symbol": "BKE",
@@ -186,6 +105,10 @@
   {
    "symbol": "HEI",
    "why": "NotApplicable: HEI: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "HOV",
+   "why": "NotApplicable: HOV: day-0 move +10.97% is UP and HOV is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries"
   },
   {
    "symbol": "HPQ",
@@ -266,6 +189,10 @@
   {
    "symbol": "OPRA",
    "why": "SourceRefusal: OPRA: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "OSIS",
+   "why": "NotApplicable: OSIS: day-0 move -5.25% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-retur"
   },
   {
    "symbol": "P",
@@ -376,20 +303,10 @@
    "why": "NotApplicable: ZM: 64 sessions since the print on 2026-05-22; the measured drift window is +1..+3 and is spent after 2"
   }
  ],
- "enriched": 3,
+ "enriched": 0,
  "collapse_audit": {
-  "n": 3,
-  "old_universe": [],
-  "share_old_universe": 0.0,
-  "mega": [],
-  "share_mega": 0.0,
-  "etf_like": [],
-  "by_dv_bucket": {
-   "mid": 1,
-   "small": 2
-  },
-  "control_holdings_in_candidates": [],
-  "verdict": "OK"
+  "n": 0,
+  "verdict": "EMPTY"
  },
  "control_holdings": {
   "SLDP": "in_universe_no_print",

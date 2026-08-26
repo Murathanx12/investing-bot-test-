@@ -26,6 +26,15 @@ def main() -> int:
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     config.load_env()
+    # THE FLAG IS AUTHORITATIVE, AND IT IS MADE SO HERE RATHER THAN IN
+    # `config.credentials`, so the mutation is visible at the entry point.
+    # Every ledger stamp, book match and recovery score reads AAT_ACCOUNT_ROLE
+    # from the environment; a `--role` that never reaches it writes rows under
+    # the wrong name. `config.credentials` REFUSES if the two disagree, so this
+    # only ever fills in a blank. (Audit defect 6.)
+    if args.role:
+        import os
+        os.environ["AAT_ACCOUNT_ROLE"] = args.role.strip().lower()
     client = AlpacaPaper(role=args.role)
 
     et = exits.now_et()
