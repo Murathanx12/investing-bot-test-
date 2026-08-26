@@ -16,7 +16,7 @@ Full findings in `docs/FINDING_2026-08-26_POSITIVE_EXPECTANCY_SEARCH.md`.
 - [x] 11. **POST_EVENT_RELAY_v1** — peers dead both ways (t −0.6; big moves t −0.84). Pre-event and post-event relay are both retired from current search.
 - [x] 12. **BELLWETHER_PREMIUM_v1** — `scripts/bellwether_premium.py`. Spearman −0.57 / +0.60 on 12 names, direction as hypothesised. Explains NVDA; says where not to buy vol.
 - [ ] 13. **SURFACE_MOMENT_SHOCK_v1** — needs historical skew/kurtosis series per print; the bar feed prices named contracts only, so it means reconstructing 4-6 strikes per print × 117 prints. Not tonight.
-- [ ] 14. **LOCK_THE_JUMP_v1** — needs 08:30–09:30 extended-hours SPY minute bars beside the 0DTE straddle bars `nfp_straddle_backtest` already pulls. Feasible; not tonight.
+- [x] 14. **LOCK_THE_JUMP_v1 — REFUTED.** `scripts/lock_the_jump.py`, 28 NFP days of SPY extended-hours minute bars: corr(jump, drift to 09:30) **+0.42** (the gap EXTENDS), |move| 0.39% at the first print → 0.45% at the open → 0.72% at 10:45 (t −3.6); reversed by half before the open on 11% of days, extended on 46%. An 08:31 share hedge would sell the move the straddle was bought for. Caveat: IEX pre-market is thin (9/28 days have a pre-08:30 bar; median first print 09:06 ET), so the jump is measured late — the extension through 10:45 does not depend on it. `state/lock_the_jump.json`.
 - [x] 15. **$99 Algo Trader Plus: NO** stands.
 
 ## Explicitly NOT done tonight

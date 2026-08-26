@@ -41,11 +41,11 @@ refused before kickoff. Event-node cap now seeded from the book. 68 new smoke ch
 | EVENT_MISPRICING_v1 (walk-forward ridge on 117 prints) | direction, not significance | OOS corr +0.105, tercile spread +26.6% (t 1.78); implied/rv20 terciles **+10 / +7 / −17%** |
 | BELLWETHER_PREMIUM_v1 | direction as hypothesised, n=12 names | Spearman(systemic share, straddle) **−0.57**; (share, implied/realised) **+0.60** |
 | POST_EVENT_VOL_CRUSH_v1 (114 next-day straddles) | seller wins 82% of days, loses the mean to the tail | hit 18%, paired t −7.74, median −6.9%, **mean +1.8%**; wings decide it |
+| LOCK_THE_JUMP_v1 (28 NFP days) | **refuted** — the gap EXTENDS; do not hedge the straddle at 08:31 | corr +0.42; \|move\| 0.39 → 0.45 → 0.72% (t −3.6) |
 | POST_EVENT_RELAY_v1 — peers | **dead both ways** (retired with the pre-event relay) | 392 legs, t −0.6; big moves t −0.84 |
 | POST_EVENT_RELAY_v1 — **source PEAD** | **first positive t on record** | 3-day excess in day-0 direction **+1.13%, hit 64%, t 2.72, n=108** |
 
-**Not done:** SURFACE_MOMENT_SHOCK (needs 4-6 strikes × 117 prints of bars), LOCK_THE_JUMP (needs 08:30–09:30 SPY
-minute bars beside the 0DTE straddle bars), the LLM half of POST_EVENT_UNDERREACTION, the dashboard rebuild (it does
+**Not done:** SURFACE_MOMENT_SHOCK (needs 4-6 strikes × 117 prints of bars), the LLM half of POST_EVENT_UNDERREACTION, the dashboard rebuild (it does
 not read the new receipts yet), Railway (still yours).
 
 **For the morning:** (1) `python -m scripts.pnl_attribution --all` before reading any P&L; (2) NVDA grades after the

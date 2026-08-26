@@ -16,6 +16,7 @@
 | EVENT_MISPRICING_v1 | walk-forward OOS corr +0.105, tercile spread +26.6% (**t 1.78**); univariate implied/rv20 terciles +10% / +7% / **−17%** | `state/event_mispricing.json` |
 | BELLWETHER_PREMIUM_v1 | Spearman(systemic share, straddle return) **−0.57**, (share, implied/realised) **+0.60**, n=12 names | `state/bellwether_premium.json` |
 | POST_EVENT_VOL_CRUSH_v1 | next-day move clears the post-print straddle **18%** of the time (paired t **−7.74**), median −6.9%, **mean +1.8%** — the tail pays the buyer on average, the seller wins 4 in 5 | `state/post_event_vol_crush.json` |
+| LOCK_THE_JUMP_v1 | **refuted** — the NFP gap extends: corr(jump, drift to open) +0.42; |move| 0.39% → 0.45% → 0.72% first print → open → 10:45 (t −3.6). Do not hedge the straddle at 08:31. | `state/lock_the_jump.json` |
 | POST_EVENT_RELAY_v1 | **peers: dead** (392 legs, t −0.6; big source moves t −0.84). **Source PEAD: alive** — 3-day excess in the direction of the day-0 move +1.13%, hit 64%, **t 2.72**, n=108 | `state/post_event_relay.json` |
 
 **RESULT IMPROVEMENT: no P&L was made. One mechanism has a positive t for the first time (source continuation after a print); the book's stated risk is now the book's real risk; and the engine can say "cash" and mean it.**
@@ -77,6 +78,9 @@ Per name: systemic share = mean |QQQ move on its prints| / mean |own move|. Acro
 **The source itself continues.** 108 source legs: 3-day excess in the direction of the day-0 move **+1.13%, hit 64%, t 2.72**, corr +0.197. That is PEAD on the printing name, the plain version of `POST_EVENT_UNDERREACTION_v1` before any LLM reads the release. By source: META t 1.69, AMD 1.12, AMZN 1.02; NVDA −1.22 and AVGO −1.71 go the *other* way — the two names whose prints move the index most (§BELLWETHER) do not drift, which is one story or is noise on eight prints each.
 
 **The trade it licenses (shadow first):** at the first close after a print, a 3-to-5-day directional debit spread on the SOURCE in the direction of its day-0 move, sized on a +1.1% expected excess — thin against a 0.35-delta spread's cost, so the shape to test is the cheapest directional expression the chain offers, and the filter to test first is "not a bellwether".
+
+### LOCK_THE_JUMP_v1 — should the NFP straddle's delta be locked with shares at 08:31?
+No. 28 release days, SPY 1-minute bars with extended hours: the first print after 08:30 is 0.39% from the prior close on average, the open 0.45%, 10:45 **0.72%** — the move builds through the morning (corr of the jump with the drift to the open **+0.42**; |jump| − |pre→open| t −3.6). The gap reversed by half before the open on 11% of days and extended on 46%. A share hedge at 08:31 converts the straddle's best hour into a locked small gain. The 4 Sep contract stays as frozen: buy narrow the afternoon before, flat by 10:45, no equity hedge. (IEX pre-market is thin — nine days have a bar before 08:30, the median first print is 09:06 ET — so the jump is measured late; the extension to 10:45 does not depend on where it is measured.)
 
 ## 5. What changes on the book tomorrow
 
