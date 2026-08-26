@@ -4,6 +4,55 @@
 of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
 
+## SESSION 5 (26 Aug, ~21:00–01:00 ET, autonomous) — `docs/ROADMAP_2026-08-26_STOP_BLEED.md` · `docs/FINDING_2026-08-26_POSITIVE_EXPECTANCY_SEARCH.md`
+
+**The objective is not to recover yesterday's loss. The objective is to refuse every negative-EV dollar from today forward.**
+
+**RESULT IMPROVEMENT: no P&L was made (market closed all session). The book's stated risk is now its real risk,
+the engine can choose cash, and ONE mechanism has a positive t for the first time.** Realised P&L is **−$6 on each
+account** (fees); everything else is unrealised: dev −$3,834, exp1 −$2,215, unchanged since the close.
+
+```
+TRUE max loss (new)              dev $69,878 = 72.7% of equity   (the sizer believed ~50%; the old function summed
+                                 exp1 $56,913 = 58.2%             long-leg cost basis and could not see a short leg)
+attribution, dev  -3,219 attrib  delta -943  gamma +522  VEGA -1,286  THETA -1,947  spread -1,114  residual +1,550
+attribution, exp1 -2,215         delta +172  gamma  +60  VEGA -1,017  THETA -2,796  spread   -614  residual +1,980
+NVDA condors (dev -981, exp1 -437)  red on VEGA into the print, THETA running FOR them -> held through the print by design
+TSLA 10-lot call (dev -1,160)       -916 of plain delta; nothing to attribute it to but the forecast
+arbiter (advise)                 21 HOLD, 1 CLOSE (dev SPY straddle, edge -38 vs cost 9), 1 HEDGE (dev META, +91 delta)
+dev loop                         RESTARTED 21:01 ET: --profile conservative, AAT_RECOVERY=1 (vol_gap marks -6.0% on 12
+                                 live decisions -> no new long premium from it); exp1 loop untouched (aggressive challenger)
+entries tomorrow                 NONE will size on either book until exits release capital: both are above every ceiling
+first grade that matters         NVDA prints 26 Aug amc -> python -m scripts.counterfactual after Thursday's open, by account_role
+```
+
+**Code (4c7cf3f, 26f1bdb, +):** `alpha/book.py` (true structure-level max loss from ledger+positions; residual shorts at full
+width; unbounded → refuse), `alpha/engine/payoff.py` (EV / max-loss ranker: MDM gates, EV ranks, risk fraction sizes; EV ≤ 0
+after spread → `CASH:` refusal), `alpha/recovery.py`, `alpha/attribution.py` + `scripts/pnl_attribution.py`,
+`alpha/arbiter.py` (HOLD/CLOSE/HEDGE from remaining edge, event-aware across brains, records every 30 min, **advise mode**;
+`AAT_ARBITER=act` to let it close whole structures and override leg stops while an event is pending), `maximum` profile
+refused before kickoff. Event-node cap now seeded from the book. 68 new smoke checks (`tests_smoke_book.py`,
+`tests_smoke_arbiter.py`), every suite green.
+
+**Research (all `PRODUCT_EXPERIMENT`, receipts in `state/`):**
+
+| mechanism | verdict | number |
+|---|---|---|
+| EVENT_MISPRICING_v1 (walk-forward ridge on 117 prints) | direction, not significance | OOS corr +0.105, tercile spread +26.6% (t 1.78); implied/rv20 terciles **+10 / +7 / −17%** |
+| BELLWETHER_PREMIUM_v1 | direction as hypothesised, n=12 names | Spearman(systemic share, straddle) **−0.57**; (share, implied/realised) **+0.60** |
+| POST_EVENT_VOL_CRUSH_v1 (114 next-day straddles) | seller wins 82% of days, loses the mean to the tail | hit 18%, paired t −7.74, median −6.9%, **mean +1.8%**; wings decide it |
+| POST_EVENT_RELAY_v1 — peers | **dead both ways** (retired with the pre-event relay) | 392 legs, t −0.6; big moves t −0.84 |
+| POST_EVENT_RELAY_v1 — **source PEAD** | **first positive t on record** | 3-day excess in day-0 direction **+1.13%, hit 64%, t 2.72, n=108** |
+
+**Not done:** SURFACE_MOMENT_SHOCK (needs 4-6 strikes × 117 prints of bars), LOCK_THE_JUMP (needs 08:30–09:30 SPY
+minute bars beside the 0DTE straddle bars), the LLM half of POST_EVENT_UNDERREACTION, the dashboard rebuild (it does
+not read the new receipts yet), Railway (still yours).
+
+**For the morning:** (1) `python -m scripts.pnl_attribution --all` before reading any P&L; (2) NVDA grades after the
+print — condors first, then `scripts.counterfactual` by role; (3) if the source-PEAD shape holds on NVDA's day-0 move
+(27 Aug close), that is the first shadow trade to write as a brain, filtered "not a bellwether"; (4) decide whether the
+arbiter earns `act` from its recorded verdicts.
+
 ## NIGHT SESSION 4 (25→26 Aug, autonomous) — `docs/ROADMAP_2026-08-25_NIGHT.md` has the chunk status
 
 **RESULT IMPROVEMENT: one more idea killed before it cost money, two live-book defects

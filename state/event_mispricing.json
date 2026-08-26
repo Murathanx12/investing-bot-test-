@@ -1,0 +1,1022 @@
+{
+ "generated_utc": "2026-08-26T01:09:29.285378+00:00",
+ "n_rows": 117,
+ "features": [
+  "implied_move",
+  "rv20",
+  "implied_over_rv",
+  "prior_resid",
+  "prior_straddle",
+  "n_prior",
+  "bellwether_prior",
+  "drift5",
+  "log_volume"
+ ],
+ "y_straddle": {
+  "target": "y_straddle",
+  "n_oos": 77,
+  "burn_in": 40,
+  "lambda": 3.0,
+  "oos_corr_model": 0.105,
+  "oos_corr_prior_mean": 0.055,
+  "sign_hit_model": 0.623,
+  "sign_hit_prior_mean": 0.579,
+  "tercile_mean_truth_by_pred": [
+   -0.1227,
+   -0.0098,
+   0.1434
+  ],
+  "top_minus_bottom": 0.2661,
+  "top_minus_bottom_t": 1.78,
+  "mean_truth": 0.0052,
+  "long_when_pred_positive": {
+   "n": 36,
+   "mean": 0.084
+  },
+  "avoid_when_pred_negative": {
+   "n": 41,
+   "mean_avoided": -0.0639
+  },
+  "final_fit_coefficients_standardised": {
+   "implied_move": -0.1038,
+   "rv20": -0.0274,
+   "implied_over_rv": -0.0711,
+   "prior_resid": 0.088,
+   "prior_straddle": -0.0912,
+   "n_prior": 0.0807,
+   "bellwether_prior": -0.0708,
+   "drift5": 0.0956,
+   "log_volume": -0.0766
+  },
+  "oos_rows": [
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-02-05",
+    "pred": 0.0923,
+    "truth": 0.0192
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-02-07",
+    "pred": -0.0295,
+    "truth": -0.2959
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-02-14",
+    "pred": 0.1006,
+    "truth": -0.6348
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-02-27",
+    "pred": -0.2525,
+    "truth": -0.1487
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-03-07",
+    "pred": 0.2531,
+    "truth": -0.0597
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-03-11",
+    "pred": -0.0542,
+    "truth": -0.3016
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-03-21",
+    "pred": 0.1837,
+    "truth": -0.013
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-04-02",
+    "pred": 0.1697,
+    "truth": 0.0418
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-04-23",
+    "pred": -0.022,
+    "truth": -0.3268
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-04-25",
+    "pred": 0.106,
+    "truth": -0.3761
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-04-28",
+    "pred": -0.4065,
+    "truth": -0.2913
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-05-01",
+    "pred": -0.2086,
+    "truth": -0.252
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-05-01",
+    "pred": 0.2219,
+    "truth": 0.9805
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-05-02",
+    "pred": -0.1817,
+    "truth": -0.2198
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-05-02",
+    "pred": -0.0882,
+    "truth": -0.5126
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-05-07",
+    "pred": -0.2538,
+    "truth": -0.5055
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-05-21",
+    "pred": -0.5339,
+    "truth": -0.0249
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-05-29",
+    "pred": -0.0291,
+    "truth": -0.476
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-06-06",
+    "pred": 0.2243,
+    "truth": -0.3503
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-06-26",
+    "pred": 0.1361,
+    "truth": -0.7346
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-07-24",
+    "pred": 0.0755,
+    "truth": 0.1435
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-07-24",
+    "pred": -0.0014,
+    "truth": -0.6596
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-07-31",
+    "pred": -0.2847,
+    "truth": 0.8985
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-07-31",
+    "pred": -0.02,
+    "truth": 0.3099
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-08-01",
+    "pred": -0.2358,
+    "truth": -0.2948
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-08-01",
+    "pred": -0.2345,
+    "truth": 0.3017
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-08-06",
+    "pred": -0.0228,
+    "truth": -0.141
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-08-19",
+    "pred": -0.09,
+    "truth": -0.57
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-08-22",
+    "pred": 0.1135,
+    "truth": 1.2097
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-08-28",
+    "pred": 0.0378,
+    "truth": -0.713
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-09-05",
+    "pred": 0.0008,
+    "truth": 0.4355
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-09-24",
+    "pred": 0.012,
+    "truth": -0.6123
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-10-02",
+    "pred": 0.2106,
+    "truth": 0.26
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-10-23",
+    "pred": 0.0424,
+    "truth": -0.4954
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-10-30",
+    "pred": -0.1006,
+    "truth": 0.5905
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-10-30",
+    "pred": 0.1092,
+    "truth": -0.542
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-10-30",
+    "pred": 0.2238,
+    "truth": -0.5416
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-10-31",
+    "pred": 0.0681,
+    "truth": -0.382
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-10-31",
+    "pred": -0.1675,
+    "truth": 0.3003
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-11-05",
+    "pred": -0.0646,
+    "truth": -0.3397
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-11-20",
+    "pred": -0.0878,
+    "truth": -0.4012
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-11-20",
+    "pred": -0.0806,
+    "truth": -0.0654
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-11-20",
+    "pred": -0.0935,
+    "truth": -0.4643
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-12-12",
+    "pred": 0.0535,
+    "truth": 0.4101
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-12-18",
+    "pred": 0.2086,
+    "truth": 0.1815
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-01-05",
+    "pred": 0.3111,
+    "truth": 0.0713
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-01-29",
+    "pred": -0.131,
+    "truth": -0.3835
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-01-29",
+    "pred": 0.1539,
+    "truth": 0.6572
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-01-29",
+    "pred": 0.2333,
+    "truth": 0.7434
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-01-30",
+    "pred": 0.0014,
+    "truth": -0.4275
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-02-04",
+    "pred": -0.0736,
+    "truth": 1.1298
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-02-05",
+    "pred": -0.1035,
+    "truth": -0.6259
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-02-06",
+    "pred": -0.0224,
+    "truth": -0.3674
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2026-02-18",
+    "pred": -0.0666,
+    "truth": -0.2102
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2026-02-26",
+    "pred": -0.0793,
+    "truth": -0.1404
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2026-03-05",
+    "pred": 0.0198,
+    "truth": -0.2195
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2026-03-10",
+    "pred": -0.1959,
+    "truth": 0.6512
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2026-03-19",
+    "pred": 0.266,
+    "truth": -0.4221
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-04-23",
+    "pred": -0.0627,
+    "truth": -0.2797
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-04-30",
+    "pred": -0.1629,
+    "truth": 0.1189
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-04-30",
+    "pred": -0.0683,
+    "truth": -0.4575
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-04-30",
+    "pred": -0.057,
+    "truth": 0.8254
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-04-30",
+    "pred": -0.136,
+    "truth": -0.7285
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-05-01",
+    "pred": -0.0861,
+    "truth": -0.0894
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-05-06",
+    "pred": 0.0822,
+    "truth": 1.158
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2026-05-21",
+    "pred": -0.0767,
+    "truth": -0.6091
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2026-05-27",
+    "pred": 0.2692,
+    "truth": 1.3529
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2026-06-03",
+    "pred": 0.303,
+    "truth": -0.4741
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2026-06-04",
+    "pred": 0.3366,
+    "truth": 0.3413
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2026-06-25",
+    "pred": -0.3044,
+    "truth": 0.3977
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-07-23",
+    "pred": 0.096,
+    "truth": 1.4955
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-07-23",
+    "pred": 0.3187,
+    "truth": 0.2043
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-07-30",
+    "pred": 0.1457,
+    "truth": 0.0374
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-07-30",
+    "pred": -0.0732,
+    "truth": 1.2995
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-07-31",
+    "pred": 0.151,
+    "truth": 0.4611
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-07-31",
+    "pred": -0.0724,
+    "truth": 0.7382
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-08-05",
+    "pred": 0.4242,
+    "truth": -0.1809
+   }
+  ]
+ },
+ "y_resid": {
+  "target": "y_resid",
+  "n_oos": 77,
+  "burn_in": 40,
+  "lambda": 3.0,
+  "oos_corr_model": -0.006,
+  "oos_corr_prior_mean": -0.031,
+  "sign_hit_model": 0.571,
+  "sign_hit_prior_mean": 0.5,
+  "tercile_mean_truth_by_pred": [
+   -0.013,
+   -0.0102,
+   -0.011
+  ],
+  "top_minus_bottom": 0.0021,
+  "top_minus_bottom_t": 0.14,
+  "mean_truth": -0.0114,
+  "long_when_pred_positive": {
+   "n": 16,
+   "mean": -0.008
+  },
+  "avoid_when_pred_negative": {
+   "n": 61,
+   "mean_avoided": -0.0122
+  },
+  "final_fit_coefficients_standardised": {
+   "implied_move": -0.0142,
+   "rv20": -0.0019,
+   "implied_over_rv": -0.0068,
+   "prior_resid": 0.0064,
+   "prior_straddle": -0.006,
+   "n_prior": 0.0038,
+   "bellwether_prior": -0.0046,
+   "drift5": 0.0023,
+   "log_volume": -0.0042
+  },
+  "oos_rows": [
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-02-05",
+    "pred": -0.0111,
+    "truth": 0.0081
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-02-07",
+    "pred": -0.015,
+    "truth": -0.0292
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-02-14",
+    "pred": 0.0019,
+    "truth": -0.0859
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-02-27",
+    "pred": -0.0246,
+    "truth": -0.001
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-03-07",
+    "pred": 0.0108,
+    "truth": -0.028
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-03-11",
+    "pred": 0.0038,
+    "truth": 0.0141
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-03-21",
+    "pred": 0.0198,
+    "truth": -0.0224
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-04-02",
+    "pred": 0.0262,
+    "truth": -0.0261
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-04-23",
+    "pred": -0.0012,
+    "truth": -0.0591
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-04-25",
+    "pred": 0.0043,
+    "truth": -0.0581
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-04-28",
+    "pred": -0.0181,
+    "truth": -0.1886
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-05-01",
+    "pred": -0.0001,
+    "truth": -0.0265
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-05-01",
+    "pred": 0.017,
+    "truth": 0.0301
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-05-02",
+    "pred": 0.0022,
+    "truth": -0.0179
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-05-02",
+    "pred": -0.0091,
+    "truth": -0.0753
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-05-07",
+    "pred": -0.0178,
+    "truth": -0.0645
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-05-21",
+    "pred": -0.0447,
+    "truth": -0.0014
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-05-29",
+    "pred": -0.0052,
+    "truth": -0.0364
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-06-06",
+    "pred": -0.0137,
+    "truth": -0.0332
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-06-26",
+    "pred": -0.0199,
+    "truth": -0.0704
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-07-24",
+    "pred": -0.0271,
+    "truth": 0.0156
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-07-24",
+    "pred": -0.0116,
+    "truth": -0.0468
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-07-31",
+    "pred": -0.0371,
+    "truth": 0.0464
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-07-31",
+    "pred": -0.0138,
+    "truth": 0.0003
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-08-01",
+    "pred": -0.0346,
+    "truth": -0.0286
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-08-01",
+    "pred": -0.0304,
+    "truth": 0.02
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-08-06",
+    "pred": -0.014,
+    "truth": -0.0155
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-08-19",
+    "pred": -0.0177,
+    "truth": -0.0514
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-08-22",
+    "pred": -0.0342,
+    "truth": 0.0269
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-08-28",
+    "pred": -0.005,
+    "truth": -0.0581
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-09-05",
+    "pred": -0.012,
+    "truth": 0.0188
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-09-24",
+    "pred": -0.0231,
+    "truth": -0.0697
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-10-02",
+    "pred": 0.002,
+    "truth": 0.0085
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2025-10-23",
+    "pred": -0.0164,
+    "truth": -0.0449
+   },
+   {
+    "symbol": "META",
+    "event_day": "2025-10-30",
+    "pred": -0.0184,
+    "truth": 0.053
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2025-10-30",
+    "pred": -0.0054,
+    "truth": -0.0193
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2025-10-30",
+    "pred": -0.0026,
+    "truth": -0.041
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2025-10-31",
+    "pred": 0.0027,
+    "truth": -0.0384
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2025-10-31",
+    "pred": -0.0292,
+    "truth": 0.0125
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2025-11-05",
+    "pred": -0.0159,
+    "truth": -0.0514
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2025-11-20",
+    "pred": -0.0153,
+    "truth": -0.0408
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2025-11-20",
+    "pred": -0.0201,
+    "truth": 0.002
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2025-11-20",
+    "pred": -0.0553,
+    "truth": -0.0851
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2025-12-12",
+    "pred": -0.0159,
+    "truth": 0.0362
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2025-12-18",
+    "pred": -0.0168,
+    "truth": 0.0073
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-01-05",
+    "pred": 0.0041,
+    "truth": -0.0115
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-01-29",
+    "pred": -0.0215,
+    "truth": -0.0241
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-01-29",
+    "pred": -0.0074,
+    "truth": 0.0321
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-01-29",
+    "pred": 0.0022,
+    "truth": 0.0522
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-01-30",
+    "pred": -0.0081,
+    "truth": -0.0501
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-02-04",
+    "pred": -0.0212,
+    "truth": 0.1097
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-02-05",
+    "pred": -0.0156,
+    "truth": -0.0624
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-02-06",
+    "pred": -0.0267,
+    "truth": -0.0387
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2026-02-18",
+    "pred": -0.0135,
+    "truth": -0.0077
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2026-02-26",
+    "pred": -0.009,
+    "truth": -0.0035
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2026-03-05",
+    "pred": -0.0092,
+    "truth": -0.0294
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2026-03-10",
+    "pred": -0.0268,
+    "truth": 0.0543
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2026-03-19",
+    "pred": -0.0021,
+    "truth": -0.04
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-04-23",
+    "pred": -0.0105,
+    "truth": -0.0171
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-04-30",
+    "pred": -0.0184,
+    "truth": 0.0133
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-04-30",
+    "pred": -0.0106,
+    "truth": -0.0242
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-04-30",
+    "pred": -0.0073,
+    "truth": 0.0397
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-04-30",
+    "pred": -0.0201,
+    "truth": -0.0691
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-05-01",
+    "pred": -0.0059,
+    "truth": -0.0154
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-05-06",
+    "pred": -0.0151,
+    "truth": 0.0836
+   },
+   {
+    "symbol": "NVDA",
+    "event_day": "2026-05-21",
+    "pred": -0.0051,
+    "truth": -0.041
+   },
+   {
+    "symbol": "NIO",
+    "event_day": "2026-05-27",
+    "pred": 0.0055,
+    "truth": 0.0262
+   },
+   {
+    "symbol": "PANW",
+    "event_day": "2026-06-03",
+    "pred": -0.0221,
+    "truth": -0.0732
+   },
+   {
+    "symbol": "AVGO",
+    "event_day": "2026-06-04",
+    "pred": -0.0033,
+    "truth": 0.0468
+   },
+   {
+    "symbol": "MU",
+    "event_day": "2026-06-25",
+    "pred": -0.0458,
+    "truth": 0.0364
+   },
+   {
+    "symbol": "TSLA",
+    "event_day": "2026-07-23",
+    "pred": -0.0031,
+    "truth": 0.0985
+   },
+   {
+    "symbol": "GOOGL",
+    "event_day": "2026-07-23",
+    "pred": 0.0087,
+    "truth": 0.0146
+   },
+   {
+    "symbol": "META",
+    "event_day": "2026-07-30",
+    "pred": -0.0053,
+    "truth": 0.0004
+   },
+   {
+    "symbol": "MSFT",
+    "event_day": "2026-07-30",
+    "pred": -0.0108,
+    "truth": 0.076
+   },
+   {
+    "symbol": "AAPL",
+    "event_day": "2026-07-31",
+    "pred": 0.0063,
+    "truth": 0.0273
+   },
+   {
+    "symbol": "AMZN",
+    "event_day": "2026-07-31",
+    "pred": -0.0211,
+    "truth": 0.0497
+   },
+   {
+    "symbol": "AMD",
+    "event_day": "2026-08-05",
+    "pred": 0.0006,
+    "truth": -0.0132
+   }
+  ]
+ },
+ "univariate_implied_over_rv_terciles": [
+  0.1008,
+  0.0668,
+  -0.1714
+ ]
+}
