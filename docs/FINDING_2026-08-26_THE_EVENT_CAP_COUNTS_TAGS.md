@@ -8,10 +8,11 @@ Found while building `CONTINUOUS_REUNDERWRITING`, not while looking for it.
 `runner.EVENT_NODE_CAP` refuses a position that would push one event node past a
 share of equity. It reads `event_node(forecast)` — a **tag the brain assigns**.
 
-`vol_gap` assigns none. It opens volatility structures and every row it writes
-carries `event_node: null`.
+**No brain in either account assigns one.** Measured across both books:
+`vol_gap`, `narrative_dispersion` and `options_attention` all write
+`event_node: null` on every row.
 
-Measured on the dev book at 12:20 ET today:
+Measured on BOTH books at 12:20 ET today:
 
 | | |
 |---|---|
@@ -22,10 +23,19 @@ Measured on the dev book at 12:20 ET today:
 | share of equity | **25.9%** |
 | NVDA earnings | **tonight** |
 
-So more than half the book's risk is short volatility into a scheduled earnings
-print, and **the cap that exists to prevent concentration into one event never
-saw it**, because the brain that opened it does not speak the language the cap
-listens to.
+And exp1, independently:
+
+| | |
+|---|---|
+| structures | 8, from `narrative_dispersion` and `options_attention` |
+| carrying an event node | **0** |
+| NVDA iron condor | 1, risk **$10,212** = 18.0% of book risk, **10.8% of equity** |
+| effective N by RISK | **1.26** — below the value a $20bn fund carried at forced liquidation |
+
+So across two accounts, **$35,482 of risk is short volatility into one scheduled
+earnings print**, and the cap that exists to prevent concentration into a single
+event never saw any of it — because no brain speaks the language the cap listens
+to. This is not one brain's omission; it is the whole tagging convention.
 
 ## Why it went unnoticed
 

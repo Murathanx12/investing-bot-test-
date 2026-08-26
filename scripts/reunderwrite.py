@@ -160,11 +160,12 @@ def main() -> int:
         dte = (exp - today).days if exp else None
 
         # EVENT EXPOSURE IS A FACT ABOUT THE UNDERLYING, NOT A TAG.
-        # `vol_gap` opens volatility structures and assigns no event node, so
-        # every row in this book reads `event: -` -- while two NVDA iron condors
-        # sit short-vol into an earnings print. A structure whose underlying
-        # reports before it expires is an event structure whoever opened it, and
-        # scoring it off the tag alone made that invisible.
+        # MEASURED across both accounts: vol_gap, narrative_dispersion and
+        # options_attention ALL write `event_node: null`, so every structure in
+        # both books reads `event: -` -- while three NVDA iron condors sit
+        # short-vol into an earnings print. A structure whose underlying reports
+        # before it expires is an event structure whoever opened it, and scoring
+        # it off the tag alone made that invisible in every account.
         # STALE and EVENT-EXPOSED are OPPOSITE conditions and must not share a
         # bucket. Stale means the thesis is finished and the capital is idle.
         # Event-exposed means the thesis is about to be decided and the capital
@@ -208,9 +209,10 @@ def main() -> int:
               + (f", {100*exposed_risk/equity:.1f}% of equity)" if equity else ")"))
         print("\n  Event-exposed is NOT stale -- the thesis is about to be decided, not finished.")
         print("  It is flagged because none of these carry an event node, so EVENT_NODE_CAP never")
-        print("  saw them: the cap counts what brains TAG, and vol_gap tags nothing. Concentration")
-        print("  into one scheduled event is exactly what that cap exists to prevent, and it was")
-        print("  invisible to it.")
+        print("  saw them. The cap counts what brains TAG, and no brain in either book tags:")
+        print("  vol_gap, narrative_dispersion and options_attention all write event_node: null.")
+        print("  Concentration into one scheduled event is exactly what that cap exists to")
+        print("  prevent, and it is invisible to it.")
     if stale:
         print("\n  Every stale structure is capital that cannot take the next idea. Two thirds")
         print("  of this engine's refusals are already 'we already own it', so a position held")
