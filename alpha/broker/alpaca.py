@@ -62,7 +62,7 @@ class AlpacaPaper:
 
     # ---------------------------------------------------------------- transport
     def _request(self, method: str, path: str, *, base: str | None = None, body: Any = None,
-                 params: dict[str, Any] | None = None) -> Any:
+                 params: dict[str, Any] | None = None, timeout: float | None = None) -> Any:
         root = base or config.base_url()
         url = f"{root}{path}"
         if params:
@@ -76,7 +76,7 @@ class AlpacaPaper:
         req.add_header("Content-Type", "application/json")
 
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as resp:
                 raw = resp.read()
                 return json.loads(raw) if raw else None
         except urllib.error.HTTPError as exc:
@@ -120,6 +120,52 @@ class AlpacaPaper:
 
     def clock(self) -> dict[str, Any]:
         return self._request("GET", "/v2/clock")
+
+    def assets(self, *, status: str = "active", asset_class: str = "us_equity") -> list[dict[str, Any]]:
+        """Every asset the venue lists -- the raw material of a universe that is
+        not "the names with good option chains"."""
+        return self._request("GET", "/v2/assets", params={"status": status, "asset_class": asset_class}) or []
+
+    def stock_bars_multi(self, symbols: list[str], *, start: str, timeframe: str = "1Day",
+                         adjustment: str = "all", end: str | None = None,
+                         page_limit: int = 10000, feed: str = "sip",
+                         batch_size: int = 100) -> dict[str, list[dict[str, Any]]]:
+        """Daily bars for MANY symbols, following `next_page_token` to the end.
+        Symbols are sent in batches so the URL stays inside the venue's limit.
+
+        DEFAULT FEED IS SIP, deliberately. Measured 2026-08-26: the free plan
+        serves HISTORICAL bars from the consolidated tape, and the IEX feed's
+        volume is IEX's own (~2-4% of consolidated: NTLA $2.0M vs $48.8M a day).
+        A dollar-volume screen on IEX bars is a screen on a different market."""
+        import time
+
+        out: dict[str, list[dict[str, Any]]] = {}
+        for i in range(0, len(symbols), batch_size):
+            batch = symbols[i:i + batch_size]
+            token = None
+            while True:
+                data = None
+                for attempt in range(4):
+                    try:
+                        data = self._request(
+                            "GET", "/v2/stocks/bars", base=config.data_url(), timeout=90.0,
+                            params={"symbols": ",".join(batch), "start": start, "end": end, "timeframe": timeframe,
+                                    "adjustment": adjustment, "limit": page_limit, "feed": feed,
+                                    "page_token": token})
+                        break
+                    except (TimeoutError, OSError, BrokerRefusal) as exc:
+                        # A multi-year page for 100 names can exceed the venue's patience; a
+                        # transient failure here must not restart a 3,000-name scan from zero.
+                        if attempt == 3:
+                            raise
+                        logger.warning("bars page retry %d for %d symbols: %s", attempt + 1, len(batch), str(exc)[:80])
+                        time.sleep(2.0 * (attempt + 1))
+                for sym, bars in (data.get("bars") or {}).items():
+                    out.setdefault(sym, []).extend(bars)
+                token = data.get("next_page_token")
+                if not token:
+                    break
+        return out
 
     def asset(self, symbol: str) -> dict[str, Any]:
         """The venue's own record of an asset: `tradable`, `shortable`, `easy_to_borrow`.

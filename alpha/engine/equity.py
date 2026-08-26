@@ -25,17 +25,25 @@ option at the same width -- which is exactly the finding this file exists to
 express. Against the PRE-print width of 5.4% it clears nothing, in shares
 either; that refusal stands.
 
-THE WORST CASE IS DECLARED, AND IT IS A STOP PLUS A GAP
-=======================================================
-Every structure this agent trades must state a positive bounded `max_loss`.
-Shares have none by construction, so this one is DECLARED: the exit stop
-(`STOP_FRACTION`) plus an allowance for the stop being gapped through
-(`GAP_ALLOWANCE`), charged as the unit's max loss at entry and in the book.
-A stop cannot bound a gap; the allowance says so in the number rather than in
-a comment. The size the sizer approves is then converted into shares AT THAT
-MAX LOSS -- 5% of spot per share -- and additionally capped at
+THE NUMBER THE BOOK IS CHARGED IS A STRESS-LOSS CHARGE, NOT A WORST CASE
+=======================================================================
+Every option structure this agent trades states a CONTRACTUAL maximum loss.
+Shares have none: a long share can go to zero and a short share has no ceiling
+at all. So what `Structure.max_loss` carries for shares is a **stress-loss
+charge** -- the exit stop (`STOP_FRACTION`) plus a GAP allowance for the stop
+being gapped through -- and it is named as such on every row
+(`quote["risk_semantics"]`), beside the THEORETICAL maximum loss (the notional
+for a long; UNBOUNDED for a short). Corrected 2026-08-26 after review: calling
+5% a "worst case" would have let the book arithmetic believe something false.
+
+The gap allowance is MEASURED, not assumed (`gap_allowance`): the 95th
+percentile of the name's own |overnight gap| over the trailing year, floored at
+`GAP_FLOOR`; and when a scheduled event sits inside the position's horizon the
+allowance is at least the chain's implied move for that event, because a generic
+2% gap into an earnings print is exactly the wrong number. The size the sizer
+approves is converted into shares AT THE CHARGE and additionally capped at
 `MAX_NOTIONAL_FRACTION` of equity per name, because a 7% risk budget over a 5%
-per-share worst case would otherwise buy 140% of the account.
+per-share charge would otherwise buy 140% of the account.
 
 SHORTS
 ======
@@ -55,10 +63,56 @@ logger = logging.getLogger(__name__)
 
 #: Exit stop on the position as a fraction of entry spot. `exits.py` enforces it.
 STOP_FRACTION = 0.03
-#: A stop cannot bound a gap. Charged on top of the stop as the declared worst case.
-GAP_ALLOWANCE = 0.02
-#: Declared max loss per share as a fraction of spot.
-MAX_LOSS_FRACTION = STOP_FRACTION + GAP_ALLOWANCE
+#: Floor on the gap allowance when the name's own history says less.
+GAP_FLOOR = 0.02
+#: Default gap allowance when no bars are available to measure one.
+GAP_ALLOWANCE = GAP_FLOOR
+#: Default stress-loss charge per share as a fraction of spot (stop + floor gap).
+#: The LIVE charge is `stress_charge(...)`; this constant is the fallback and the
+#: number the book uses for an unexplained long share residual.
+MAX_LOSS_FRACTION = STOP_FRACTION + GAP_FLOOR
+GAP_PERCENTILE = 0.95
+GAP_LOOKBACK = 250
+
+
+def gap_allowance(bars: list[dict] | None, *, implied_move: float = 0.0,
+                  event_pending: bool = False) -> tuple[float, str]:
+    """Gap allowance as a fraction of spot, and how it was derived.
+
+    `bars` are daily bars with open `o` and close `c`; the overnight gap is
+    open_t / close_{t-1} - 1. Percentile of |gap| over the trailing window,
+    floored at GAP_FLOOR. With an event inside the horizon the allowance is at
+    least the chain's implied move -- a print IS the gap."""
+    gaps: list[float] = []
+    if bars:
+        closes = [float(b.get("c") or 0.0) for b in bars]
+        opens = [float(b.get("o") or 0.0) for b in bars]
+        for i in range(1, len(bars)):
+            if closes[i - 1] > 0 and opens[i] > 0:
+                gaps.append(abs(opens[i] / closes[i - 1] - 1.0))
+    gaps = gaps[-GAP_LOOKBACK:]
+    if gaps:
+        s = sorted(gaps)
+        k = min(len(s) - 1, max(0, int(round(GAP_PERCENTILE * (len(s) - 1)))))
+        measured = s[k]
+        how = f"p{int(GAP_PERCENTILE * 100)} |overnight gap| over {len(s)} sessions = {measured:.2%}"
+    else:
+        measured = 0.0
+        how = "no bars; floor"
+    gap = max(GAP_FLOOR, measured)
+    if event_pending and implied_move > gap:
+        gap = implied_move
+        how += f"; event pending -> raised to the chain's implied move {implied_move:.2%}"
+    elif gap == GAP_FLOOR and measured < GAP_FLOOR:
+        how += f"; floored at {GAP_FLOOR:.0%}"
+    return gap, how
+
+
+def stress_charge(bars: list[dict] | None, *, implied_move: float = 0.0,
+                  event_pending: bool = False) -> tuple[float, str]:
+    """Stress-loss charge per share as a fraction of spot = stop + gap allowance."""
+    gap, how = gap_allowance(bars, implied_move=implied_move, event_pending=event_pending)
+    return STOP_FRACTION + gap, f"stop {STOP_FRACTION:.0%} + gap {gap:.2%} ({how})"
 #: Take-profit for a drift position: about twice the measured three-day centre.
 #: The mechanism's mean is ~1%; +2.5% inside the window is noise realised, and
 #: the tercile split says an over-extended move stops continuing.
@@ -76,7 +130,8 @@ def is_equity_symbol(symbol: str) -> bool:
 
 def shares(symbol: str, *, spot: float, bid: float, ask: float, direction: str,
            implied_move: float, horizon_days: float, days_to_expiry: float,
-           shortable: bool = True, quote: dict | None = None) -> Structure | None:
+           shortable: bool = True, quote: dict | None = None,
+           charge_fraction: float | None = None, charge_note: str = "") -> Structure | None:
     """One share of `symbol` as a bounded structure, or None if it cannot be built.
 
     `implied_move` is the chain's expected absolute move to `days_to_expiry`;
@@ -106,7 +161,19 @@ def shares(symbol: str, *, spot: float, bid: float, ask: float, direction: str,
     # they must not. Under-stating the market's width is the unsafe error.
     width = float(implied_move or 0.0) * max(1.0, math.sqrt(horizon / dte))
     entry_cost = ask if direction == "up" else -bid
-    max_loss = spot * MAX_LOSS_FRACTION
+    charge = charge_fraction if charge_fraction is not None else MAX_LOSS_FRACTION
+    if charge <= 0:
+        raise ValueError(f"shares: stress charge must be positive, got {charge}")
+    max_loss = spot * charge
+    semantics = {
+        "max_loss_is": "STRESS_LOSS_CHARGE, not a contractual worst case",
+        "stress_loss_charge_frac": round(charge, 5),
+        "stress_loss_charge_note": charge_note or f"default stop {STOP_FRACTION:.0%} + gap floor {GAP_FLOOR:.0%}",
+        "theoretical_max_loss": ("notional (the share can go to zero)" if direction == "up"
+                                 else "UNBOUNDED (short share, no ceiling)"),
+        "theoretical_max_loss_per_unit": (round(ask, 4) if direction == "up" else None),
+    }
+    quote = {**(quote or {}), "risk_semantics": semantics}
     return Structure(
         symbol=symbol,
         kind="long_shares" if direction == "up" else "short_shares",

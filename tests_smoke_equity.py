@@ -57,6 +57,26 @@ _st0 = sizing.TournamentState(equity=100_000, starting_equity=100_000, fraction_
 _live_v = sizing.size(live, 0.0072, live.implied_move * math.sqrt(math.pi / 2), _st0)
 check("the 26 Aug live case: pre-print 5.1% width, +0.72% centre -> REFUSED", not _live_v.approved, f"edge {_live_v.mdm_edge:+.1%}")
 
+print("\n-- risk semantics: a STRESS charge, measured, never called a worst case")
+check("row says what max_loss IS", s.quote["risk_semantics"]["max_loss_is"].startswith("STRESS_LOSS_CHARGE"))
+check("long: theoretical loss is the notional", "notional" in s.quote["risk_semantics"]["theoretical_max_loss"])
+check("short: theoretical loss UNBOUNDED, stated", "UNBOUNDED" in sh.quote["risk_semantics"]["theoretical_max_loss"])
+quiet = [{"o": 100 + 0.001 * i, "c": 100 + 0.001 * i} for i in range(300)]
+g, how = equity.gap_allowance(quiet)
+check("quiet name -> gap floored at 2%", abs(g - 0.02) < 1e-12 and "floored" in how, how)
+jumpy = [{"o": 100.0, "c": 100.0}] + [{"o": 100.0 * (1 + (0.06 if i % 10 == 0 else 0.001)), "c": 100.0} for i in range(1, 300)]
+g2, how2 = equity.gap_allowance(jumpy)
+check("a name with 6% gaps every 10th day -> p95 gap 6%", abs(g2 - 0.06) < 1e-9, how2)
+g3, how3 = equity.gap_allowance(quiet, implied_move=0.051, event_pending=True)
+check("event pending -> gap raised to the implied move", abs(g3 - 0.051) < 1e-12 and "event pending" in how3)
+g4, _ = equity.gap_allowance(quiet, implied_move=0.051, event_pending=False)
+check("no event pending -> implied move ignored", abs(g4 - 0.02) < 1e-12)
+ch, note = equity.stress_charge(jumpy)
+check("stress charge = stop + measured gap", abs(ch - 0.09) < 1e-9, note)
+s9 = equity.shares("X", spot=100.0, bid=99.9, ask=100.1, direction="up", implied_move=0.03, horizon_days=2, days_to_expiry=2,
+                   charge_fraction=ch, charge_note=note)
+check("the charge flows into max_loss and onto the row", abs(s9.max_loss - 9.0) < 1e-9 and s9.quote["risk_semantics"]["stress_loss_charge_frac"] == 0.09)
+
 print("\n-- payoff: linear, one share per unit")
 check("long share terminal P&L", abs(payoff.terminal_pnl(s, 180.0, 183.0) - (183.0 - 180.02)) < 1e-9)
 check("short share terminal P&L", abs(payoff.terminal_pnl(sh, 180.0, 177.0) - (179.98 - 177.0)) < 1e-9)
@@ -126,10 +146,12 @@ _, _, _, rej_dist = runner.evaluate(FakeClient(), dist_f, state=state, expiry="2
 check("a dispersion/distribution brain never sees a share structure", not any(x.kind in equity.KINDS for x, _ in rej_dist))
 
 print("\n-- sizing to shares: notional cap, order payload")
+check("event pending in the runner -> charge = stop + implied move (3% + 3%)", abs(st.max_loss - 180.0 * 0.06) < 1e-9, f"{st.max_loss:.2f}")
+check("the charge note is on the row", "event pending" in st.quote["risk_semantics"]["stress_loss_charge_note"])
 n = runner.contracts_for(st, 0.08, 100_000.0)
-check("share count capped at 25% notional", n == int(25_000 // 180.0), str(n))
+check("share count capped at 25% notional (spot from the quote, not from the charge)", n == int(25_000 // 180.0), str(n))
 n_small = runner.contracts_for(st, 0.005, 100_000.0)
-check("small risk -> fewer shares than the cap", n_small == int(500 // 9.0), str(n_small))
+check("small risk -> fewer shares than the cap", n_small == int(500 // st.max_loss), str(n_small))
 o = runner.build_order(st, n)
 check("equity order: limit at the ask, day, buy", o == {"symbol": "NVDA", "qty": str(n), "side": "buy", "type": "limit",
                                                          "limit_price": "180.02", "time_in_force": "day"}, str(o))
@@ -161,8 +183,9 @@ pos = [{"asset_class": "us_equity", "symbol": "NVDA", "qty": str(qty), "cost_bas
         "avg_entry_price": "180.02", "current_price": "181.0", "unrealized_plpc": "0.0054"}]
 b = book.reconstruct(pos, equity=100_000, account_role=None, rows=rows)
 check("book matches the share row", len(b.structures) == 1 and b.structures[0].kind == "long_shares", b.summary()[:100])
-check("book charges shares at the declared stop+gap", abs(b.max_loss_usd - qty * 9.0) < 1e-6, f"{b.max_loss_usd:.0f} vs {qty * 9.0:.0f}")
-check("node exposure carries the share risk", abs(b.by_node.get("print:2026-08-27", 0) - qty * 9.0) < 1e-6)
+mlpu = float(sub[0]["max_loss_per_unit"])
+check("book charges shares at the row's stress charge", abs(b.max_loss_usd - qty * mlpu) < 1e-6 and abs(mlpu - 10.8) < 1e-9, f"{b.max_loss_usd:.0f} vs {qty * mlpu:.0f}")
+check("node exposure carries the share risk", abs(b.by_node.get("print:2026-08-27", 0) - qty * mlpu) < 1e-6)
 check("premium-paid view excludes shares", b.premium_paid_usd == 0.0)
 res2 = runner.run_pass(FakeClient(pos), [f_up], expiry="2026-08-28", dry_run=False)
 check("already positioned -> the next pass refuses", res2.submitted == 0 and res2.refused == 1)

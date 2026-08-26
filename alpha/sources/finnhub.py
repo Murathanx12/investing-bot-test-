@@ -58,3 +58,19 @@ def probe() -> tuple[bool, float, str]:
         return bool(rows), dt, f"{len(rows)} row(s)"
     except SourceRefusal as exc:
         return False, 0.0, str(exc)
+
+
+def profile(symbol: str) -> dict[str, Any]:
+    """Company profile: marketCapitalization ($M), finnhubIndustry, shareOutstanding, exchange.
+    Free tier, 60/min. Called for CANDIDATES only, never for the whole universe."""
+    data, _ = get_json(f"{BASE}/stock/profile2", {"symbol": symbol, "token": _token()})
+    return data or {}
+
+
+def recommendation_trends(symbol: str) -> list[dict[str, Any]]:
+    """Monthly analyst recommendation counts (strongBuy/buy/hold/sell/strongSell), newest first.
+    EVIDENCE, never authority: the parent project's Holm-surviving result is that
+    short-horizon winner-chasing is an ANTI-signal; a change in the count is recorded
+    beside the candidate so the ranker can be graded on it, not steered by it."""
+    data, _ = get_json(f"{BASE}/stock/recommendation", {"symbol": symbol, "token": _token()})
+    return data or []

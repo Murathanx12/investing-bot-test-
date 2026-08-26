@@ -1,0 +1,409 @@
+{
+ "generated_utc": "2026-08-26T06:02:51.246113+00:00",
+ "universe": "HIGH_DISPERSION_US_v1",
+ "universe_n": 4634,
+ "printers_on_calendar": 152,
+ "printers_in_universe": 74,
+ "candidates": [
+  {
+   "symbol": "BJ",
+   "centre": 0.0041,
+   "sd": 0.0255,
+   "conviction": 0.7,
+   "score": 0.1125,
+   "direction": "UP",
+   "r_day0": 0.0579,
+   "band": "mid band (3.5%-8.2%, t 3.45, hit 81%)",
+   "elapsed": 2,
+   "event_day": "2026-08-21",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 164099768.0,
+   "market_cap_usd": 12050481101.289066,
+   "cap_bucket": "large",
+   "industry": "Retail",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-21",
+    "hour": "bmo",
+    "eps_actual": 1.36,
+    "eps_estimate": 1.1951,
+    "revenue_actual": 6090980000,
+    "revenue_estimate": 6122130243
+   }
+  },
+  {
+   "symbol": "OSIS",
+   "centre": -0.0041,
+   "sd": 0.0255,
+   "conviction": 0.7,
+   "score": 0.1125,
+   "direction": "DOWN",
+   "r_day0": -0.0525,
+   "band": "mid band (3.5%-8.2%, t 3.45, hit 81%)",
+   "elapsed": 2,
+   "event_day": "2026-08-21",
+   "dv_bucket": "small",
+   "median_dollar_volume": 45454401.0,
+   "market_cap_usd": 3253277451.364077,
+   "cap_bucket": "mid",
+   "industry": "Electrical Equipment",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-20",
+    "hour": "amc",
+    "eps_actual": 3.78,
+    "eps_estimate": 3.8461,
+    "revenue_actual": 484060000,
+    "revenue_estimate": 540266755
+   }
+  },
+  {
+   "symbol": "HOV",
+   "centre": 0.0041,
+   "sd": 0.03636,
+   "conviction": 0.42,
+   "score": 0.0474,
+   "direction": "UP",
+   "r_day0": 0.1097,
+   "band": "over-extended (>8.2%, t 1.26)",
+   "elapsed": 2,
+   "event_day": "2026-08-21",
+   "dv_bucket": "small",
+   "median_dollar_volume": 16003363.0,
+   "market_cap_usd": 724173674.1566046,
+   "cap_bucket": "small",
+   "industry": "Consumer products",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-20",
+    "hour": "bmo",
+    "eps_actual": -0.7,
+    "eps_estimate": -0.5656,
+    "revenue_actual": 705750000,
+    "revenue_estimate": 730735000
+   }
+  }
+ ],
+ "declined": [
+  {
+   "symbol": "A",
+   "why": "NotApplicable: A: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "AAP",
+   "why": "NotApplicable: AAP: 3 sessions since the print on 2026-08-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "ANF",
+   "why": "NotApplicable: ANF: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "ATAT",
+   "why": "SourceRefusal: ATAT: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "ATHM",
+   "why": "SourceRefusal: ATHM: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "BABA",
+   "why": "SourceRefusal: BABA: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "BBWI",
+   "why": "NotApplicable: BBWI: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "BKE",
+   "why": "NotApplicable: BKE: day-0 move +1.05% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "BOX",
+   "why": "NotApplicable: BOX: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "BURL",
+   "why": "NotApplicable: BURL: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "CRM",
+   "why": "NotApplicable: CRM: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "CRWD",
+   "why": "NotApplicable: CRWD: 56 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "CTRN",
+   "why": "NotApplicable: CTRN: the day-0 close (2026-08-25) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
+   "symbol": "DCI",
+   "why": "NotApplicable: DCI: 57 sessions since the print on 2026-06-03; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "DE",
+   "why": "NotApplicable: DE: 3 sessions since the print on 2026-08-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "DKS",
+   "why": "NotApplicable: DKS: the day-0 close (2026-08-25) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry "
+  },
+  {
+   "symbol": "DOMO",
+   "why": "NotApplicable: DOMO: 48 sessions since the print on 2026-06-16; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "DQ",
+   "why": "SourceRefusal: DQ: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "DY",
+   "why": "NotApplicable: DY: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "FIVE",
+   "why": "NotApplicable: FIVE: 56 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "FLO",
+   "why": "NotApplicable: FLO: day-0 move -2.56% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "FSCO",
+   "why": "NotApplicable: FSCO: 13 sessions since the print on 2026-08-06; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "FUTU",
+   "why": "SourceRefusal: FUTU: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "HEI",
+   "why": "NotApplicable: HEI: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "HPQ",
+   "why": "NotApplicable: HPQ: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "INTU",
+   "why": "NotApplicable: INTU: 65 sessions since the print on 2026-05-21; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "JKS",
+   "why": "SourceRefusal: JKS: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "JOYY",
+   "why": "SourceRefusal: JOYY: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "KSS",
+   "why": "NotApplicable: KSS: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "LTRX",
+   "why": "NotApplicable: LTRX: 75 sessions since the print on 2026-05-07; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "LYTS",
+   "why": "NotApplicable: LYTS: 3 sessions since the print on 2026-08-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "MOV",
+   "why": "NotApplicable: MOV: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "MZTI",
+   "why": "NotApplicable: MZTI: the day-0 close (2026-08-25) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
+   "symbol": "NAT",
+   "why": "SourceRefusal: NAT: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "NCNO",
+   "why": "NotApplicable: NCNO: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "NMM",
+   "why": "SourceRefusal: NMM: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "NSSC",
+   "why": "NotApplicable: NSSC: the day-0 close (2026-08-25) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
+   "symbol": "NTES",
+   "why": "SourceRefusal: NTES: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "NTNX",
+   "why": "NotApplicable: NTNX: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "NVDA",
+   "why": "NotApplicable: NVDA: 65 sessions since the print on 2026-05-21; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "OKTA",
+   "why": "NotApplicable: OKTA: 60 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "OLLI",
+   "why": "NotApplicable: OLLI: 57 sessions since the print on 2026-06-03; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "OOMA",
+   "why": "NotApplicable: OOMA: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "OPRA",
+   "why": "SourceRefusal: OPRA: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "P",
+   "why": "NotApplicable: P: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "PAHC",
+   "why": "NotApplicable: PAHC: 75 sessions since the print on 2026-05-07; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "PDD",
+   "why": "SourceRefusal: PDD: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "PDEX",
+   "why": "NotApplicable: PDEX: 79 sessions since the print on 2026-05-01; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "PICS",
+   "why": "SourceRefusal: PICS: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "PLAB",
+   "why": "NotApplicable: PLAB: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "PSEC",
+   "why": "NotApplicable: PSEC: day-0 move -0.86% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "PVH",
+   "why": "NotApplicable: PVH: 56 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "QFIN",
+   "why": "SourceRefusal: QFIN: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "RERE",
+   "why": "SourceRefusal: RERE: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "REX",
+   "why": "NotApplicable: REX: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "SCSC",
+   "why": "NotApplicable: SCSC: 3 sessions since the print on 2026-08-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "SFL",
+   "why": "SourceRefusal: SFL: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "SJM",
+   "why": "NotApplicable: SJM: 53 sessions since the print on 2026-06-09; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "SMTC",
+   "why": "NotApplicable: SMTC: 62 sessions since the print on 2026-05-27; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "SNPS",
+   "why": "NotApplicable: SNPS: 61 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "STRT",
+   "why": "NotApplicable: STRT: 74 sessions since the print on 2026-05-08; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "TIGR",
+   "why": "SourceRefusal: TIGR: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "UI",
+   "why": "NotApplicable: UI: day-0 move -2.68% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "URBN",
+   "why": "NotApplicable: URBN: no SEC 8-K Item 2.02 print in the bar window"
+  },
+  {
+   "symbol": "VEEV",
+   "why": "NotApplicable: VEEV: 56 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "VSXY",
+   "why": "NotApplicable: VSXY: 58 sessions since the print on 2026-06-02; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "WMT",
+   "why": "NotApplicable: WMT: 3 sessions since the print on 2026-08-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "WOOF",
+   "why": "NotApplicable: WOOF: 56 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "WSM",
+   "why": "NotApplicable: WSM: 65 sessions since the print on 2026-05-21; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "XPEV",
+   "why": "SourceRefusal: XPEV: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "ZM",
+   "why": "NotApplicable: ZM: 64 sessions since the print on 2026-05-22; the measured drift window is +1..+3 and is spent after 2"
+  }
+ ],
+ "enriched": 3,
+ "collapse_audit": {
+  "n": 3,
+  "old_universe": [],
+  "share_old_universe": 0.0,
+  "mega": [],
+  "share_mega": 0.0,
+  "etf_like": [],
+  "by_dv_bucket": {
+   "mid": 1,
+   "small": 2
+  },
+  "control_holdings_in_candidates": [],
+  "verdict": "OK"
+ },
+ "control_holdings": {
+  "SLDP": "in_universe_no_print",
+  "DKNG": "in_universe_no_print",
+  "HUBS": "in_universe_no_print",
+  "BHVN": "in_universe_no_print",
+  "AMSC": "in_universe_no_print",
+  "KYTX": "in_universe_no_print",
+  "PRCH": "in_universe_no_print",
+  "NTLA": "in_universe_no_print",
+  "ABSI": "in_universe_no_print",
+  "QUBT": "in_universe_no_print",
+  "AARD": "NOT IN UNIVERSE",
+  "SOC": "in_universe_no_print"
+ },
+ "policy": "index membership, fame and a liquid chain add NO score; liquidity decides execution only"
+}

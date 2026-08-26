@@ -325,9 +325,24 @@ def share_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: s
                         - datetime.now(timezone.utc)).total_seconds() / 86400.0)
     except ValueError:
         pass
+    # The stress-loss charge is MEASURED from the name's own overnight gaps, and
+    # raised to the chain's implied move when a scheduled event sits inside the
+    # position's horizon (a print IS the gap).
+    ev = forecast.evidence or {}
+    today = datetime.now(timezone.utc).date().isoformat()
+    event_pending = bool(ev.get("event_date")) and str(ev.get("event_date")) >= today
+    bars = None
+    try:
+        from alpha.brains.vol_gap import _daily_bars
+
+        bars = _daily_bars(client, symbol, equity.GAP_LOOKBACK + 20)
+    except Exception as exc:                                              # noqa: BLE001
+        logger.info("%s: bars for the gap allowance not read (%s); floor applies", symbol, exc)
+    implied = snapshot.implied_move(expiry) or 0.0
+    charge, charge_note = equity.stress_charge(bars, implied_move=implied, event_pending=event_pending)
     return equity.shares(
         symbol, spot=snapshot.spot, bid=bid, ask=ask, direction=direction,
-        implied_move=snapshot.implied_move(expiry) or 0.0,
+        implied_move=implied, charge_fraction=charge, charge_note=charge_note,
         horizon_days=forecast.horizon_days, days_to_expiry=dte, shortable=shortable,
         quote={"symbol": symbol, "bid": bid, "ask": ask, "bid_size": raw.get("bs"),
                "ask_size": raw.get("as"), "quote_ts": raw.get("t"), "feed": config.stock_feed(),
@@ -381,7 +396,7 @@ def contracts_for(structure: sizing.Structure, risk_fraction: float, equity: flo
     if structure.kind in equity_mod.KINDS:
         # A 5%-of-spot declared worst case would let a 7% risk budget buy 140% of
         # the account. Shares are additionally capped by NOTIONAL.
-        spot = structure.max_loss / equity_mod.MAX_LOSS_FRACTION
+        spot = float((structure.quote or {}).get("last_trade") or abs(structure.entry_cost))
         n = min(n, equity_mod.units_cap(spot, equity))
     return n
 
