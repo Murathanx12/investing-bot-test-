@@ -205,7 +205,29 @@ def profile(name: str | None = None) -> dict:
     key = (name or os.getenv("AAT_RISK_PROFILE", DEFAULT_PROFILE)).strip().lower()
     if key not in PROFILES:
         raise ValueError(f"unknown risk profile {key!r}; have {sorted(PROFILES)}")
+    if key == "maximum" and not maximum_allowed():
+        raise ValueError(
+            "the 'maximum' profile is disabled before kickoff: no mechanism has a "
+            "positive live or counterfactual score yet, and 75% of equity at risk is a "
+            "bet on a mechanism, not a rehearsal. Set AAT_ALLOW_MAXIMUM=1 to override."
+        )
     return PROFILES[key]
+
+
+def maximum_allowed(now=None) -> bool:
+    """`maximum` is a competition-week profile. Before kickoff it needs an explicit
+    override, so a rehearsal account cannot run it by habit."""
+    import os
+    from datetime import datetime, timezone
+
+    if os.getenv("AAT_ALLOW_MAXIMUM", "").strip() == "1":
+        return True
+    try:
+        from alpha import config
+        kickoff = datetime.fromisoformat(config.COMPETITION["kickoff_utc"].replace("Z", "+00:00"))
+    except Exception:                                                   # noqa: BLE001
+        return False
+    return (now or datetime.now(timezone.utc)) >= kickoff
 
 
 #: Kept as module constants for the smoke tests and for anything that wants the
@@ -228,6 +250,10 @@ class SizingVerdict:
     mdm_edge: float
     """P_model(beyond breakeven) - P_implied(beyond breakeven)."""
     reason: str
+    economics: dict | None = None
+    """`payoff.Economics.as_dict()` once the ranker has integrated the payoff.
+    The GATE (this verdict) says whether the trade may exist; the economics say
+    whether it is worth more than cash and how it ranks against its siblings."""
 
 
 def implied_probability_beyond(move: float, implied_move: float,

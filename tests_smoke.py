@@ -61,7 +61,15 @@ check("ahead+late sizes DOWN", ahead.risk_fraction < edge.risk_fraction,
 from alpha.engine.sizing import profile as riskprofile
 cap = riskprofile()["aggregate"]
 check("aggregate cap binds", not size(s,0.06,0.05,st_early,open_convex_risk=cap).approved, f"cap={cap:.0%}")
-check("profiles escalate", riskprofile("maximum")["per_thesis"] > riskprofile("aggressive")["per_thesis"] > riskprofile("conservative")["per_thesis"])
+from alpha.engine.sizing import PROFILES
+check("profiles escalate", PROFILES["maximum"]["per_thesis"] > riskprofile("aggressive")["per_thesis"] > riskprofile("conservative")["per_thesis"])
+try:
+    riskprofile("maximum"); check("maximum profile refused before kickoff", False)
+except ValueError as exc:
+    check("maximum profile refused before kickoff", "kickoff" in str(exc))
+os.environ["AAT_ALLOW_MAXIMUM"] = "1"
+check("maximum profile allowed with explicit override", riskprofile("maximum")["aggregate"] == 0.75)
+del os.environ["AAT_ALLOW_MAXIMUM"]
 check("maximum still bounded", all(p["aggregate"] <= 1.0 for p in __import__("alpha.engine.sizing",fromlist=["x"]).PROFILES.values()))
 try:
     Structure("X","naked_put",entry_cost=1.0,max_loss=0.0,breakeven_move=0.01,

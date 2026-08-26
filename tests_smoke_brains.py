@@ -131,7 +131,10 @@ def fake_evaluate(client, forecast, *, state, expiry, risk_profile=None, open_ri
     # the brain with the bigger sd disagrees more with the chain -> larger risk
     s = sizing.Structure("X", "long_straddle", direction="both", entry_cost=200.0, max_loss=200.0,
                          breakeven_move=0.03, implied_move=0.03, quote_spread_pct=0.05)
-    v = sizing.SizingVerdict(True, min(0.08, forecast.sd), 0.1, "ok")
+    # the ranker's number travels on the verdict: the brain that expects the most per
+    # dollar of max loss wins the symbol, whatever size the sizer approved
+    v = sizing.SizingVerdict(True, min(0.08, forecast.sd), 0.1, "ok",
+                             economics={"ev_over_max_loss": forecast.sd * 10, "ev_usd": forecast.sd * 2000})
     return s, v, FakeChain(), []
 
 
@@ -145,7 +148,7 @@ rows = ledger.read_all()
 check("exactly one order per symbol", res.submitted == 1, str(res.submitted))
 check("two shadows recorded", res.shadow == 2, str(res.shadow))
 winner = [r for r in rows if r["action"] == "submitted"]
-check("champion is the largest approved risk among EXECUTABLE brains",
+check("champion is the best EV/max-loss among EXECUTABLE brains",
       winner and winner[0]["brain"] == "event_move", winner[0]["brain"] if winner else "none")
 shadow_reasons = {r["brain"]: r["refusal_reason"] for r in rows if r["action"] == "shadow"}
 check("shadow-only brain is named as such", "shadow-only" in shadow_reasons.get("narrative_dispersion", ""))

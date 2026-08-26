@@ -45,14 +45,15 @@ from __future__ import annotations
 
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 
-from alpha import config, ledger
+from alpha import book as book_mod
+from alpha import config, ledger, recovery
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
-from alpha.engine import sizing, structures
+from alpha.engine import payoff, sizing, structures
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,8 @@ class PassResult:
     refused: int = 0
     shadow: int = 0
     errors: int = 0
+    cash: int = 0
+    """Symbols where a structure cleared the gate and CASH still beat it on EV."""
     decisions: list[str] = None
 
     def __post_init__(self) -> None:
@@ -131,19 +134,15 @@ def held_underlyings(client: AlpacaPaper) -> dict[str, int]:
 
 
 def open_convex_risk(client: AlpacaPaper) -> float:
-    """Premium currently at risk, as a fraction of equity -- from the BROKER's book."""
-    acct = client.account()
-    equity = float(acct.get("equity") or 0.0)
-    if equity <= 0:
-        return 1.0
-    at_risk = 0.0
-    for pos in client.positions():
-        if (pos.get("asset_class") or "") != "us_option":
-            continue
-        qty = float(pos.get("qty") or 0.0)
-        cost = abs(float(pos.get("cost_basis") or 0.0))
-        at_risk += cost if qty > 0 else 0.0
-    return at_risk / equity
+    """TRUE maximum loss of the open book, as a fraction of equity.
+
+    Until 26 Aug this summed the cost basis of LONG legs -- premium paid, not
+    risk carried -- and credited two NVDA condors with ~$5k of a ~$25k worst
+    case. It is now `alpha.book.read`: structures matched against the ledger at
+    their stated max loss, residual shorts charged at full width, an unbounded
+    short read as 100% (every entry refused).
+    """
+    return book_mod.read(client).fraction
 
 
 def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.TournamentState,
@@ -169,23 +168,58 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     risk = open_risk if open_risk is not None else open_convex_risk(client)
     best = None
     rejected = []
+    cash_beat = 0
     for structure in structures.enumerate_all(snapshot, expiry):
         verdict = sizing.size(
             structure, forecast.centre, forecast.sd, state,
             open_convex_risk=risk, conviction=forecast.conviction,
             risk_profile=risk_profile,
         )
-        if verdict.approved and (best is None or verdict.risk_fraction > best[1].risk_fraction):
+        if not verdict.approved:
+            rejected.append((structure, verdict))
+            continue
+        # THE GATE passed. Now THE RANKER: integrate the actual payoff over our
+        # own forecast. A structure that cannot beat cash after the spread is
+        # refused here, whatever its probability edge looked like.
+        try:
+            econ = payoff.economics(structure, snapshot.spot, forecast.centre, forecast.sd,
+                                    horizon_days=forecast.horizon_days)
+        except ValueError as exc:
+            rejected.append((structure, sizing.SizingVerdict(
+                False, 0.0, verdict.mdm_edge, f"payoff could not be integrated: {exc}")))
+            continue
+        verdict = replace(verdict, economics=econ.as_dict(),
+                          reason=f"{verdict.reason} {econ.summary()}.")
+        if econ.ev_usd <= 0.0:
+            cash_beat += 1
+            rejected.append((structure, replace(
+                verdict, approved=False, risk_fraction=0.0,
+                reason=(f"CASH beats it: cleared the MDM gate ({verdict.mdm_edge:+.1%}) but "
+                        f"{econ.summary()} -- expected P&L is not positive after the spread. "
+                        "Cash is a structure with EV exactly zero and it wins this comparison."))))
+            continue
+        if best is None or econ.ev_over_max_loss > best[1].economics["ev_over_max_loss"]:
             if best is not None:
-                rejected.append(best)
+                rejected.append((best[0], replace(
+                    best[1], approved=False, risk_fraction=0.0,
+                    reason=f"out-ranked on EV/max-loss by {structure.kind} "
+                           f"({econ.ev_over_max_loss:+.0%} vs "
+                           f"{best[1].economics['ev_over_max_loss']:+.0%}). {best[1].reason}")))
             best = (structure, verdict)
         else:
-            rejected.append((structure, verdict))
+            rejected.append((structure, replace(
+                verdict, approved=False, risk_fraction=0.0,
+                reason=f"out-ranked on EV/max-loss by {best[0].kind} "
+                       f"({best[1].economics['ev_over_max_loss']:+.0%} vs "
+                       f"{econ.ev_over_max_loss:+.0%}). {verdict.reason}")))
 
     if best is None:
+        with_econ = sum(1 for _, v in rejected if v.economics is not None)
+        lead = "CASH: " if cash_beat and cash_beat == with_econ else ""
         why = sizing.SizingVerdict(
             False, 0.0, 0.0,
-            f"{len(rejected)} structures enumerated at {expiry}, none cleared the gates. "
+            f"{lead}{len(rejected)} structures enumerated at {expiry}, none cleared the gates"
+            + (f" ({cash_beat} cleared MDM and lost to cash on EV)" if cash_beat else "") + ". "
             + (rejected[0][1].reason if rejected else "chain produced nothing tradeable."),
         )
         return None, why, snapshot, rejected
@@ -268,17 +302,37 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     """
     result = PassResult()
     state = tournament_state(client, field_leader_estimate=field_leader_estimate)
-    risk = open_convex_risk(client)
-    logger.info("pass: equity $%s, %.0f%% of window left, %.1f%% already at risk",
-                f"{state.equity:,.0f}", state.fraction_of_window_remaining * 100, risk * 100)
+    book = book_mod.read(client)
+    risk = book.fraction
+    logger.info("pass: equity $%s, %.0f%% of window left, %.1f%% TRUE max loss already at risk "
+                "(premium-paid view %.1f%%)", f"{state.equity:,.0f}",
+                state.fraction_of_window_remaining * 100, risk * 100,
+                (book.premium_paid_usd / state.equity * 100) if state.equity else 0.0)
     record_forecasts(forecasts, note=f"pass expiry={expiry} dry_run={dry_run}")
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+    scores = recovery.live_scores(account_role=role) if recovery.active() else {}
+    if recovery.active():
+        logger.info("%s", recovery.summary(scores))
+    if book.unbounded:
+        for forecast in forecasts:
+            result.considered += 1
+            result.refused += 1
+            _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None,
+                    None, state, action="refused",
+                    reason="BOOK UNBOUNDED: a short option leg has no protective long in this "
+                           "account. No entry is sized against a worst case that cannot be "
+                           "stated. " + book.summary())
+        logger.error("book unbounded; every entry refused: %s", book.summary())
+        return result
 
     by_symbol: dict[str, list[Forecast]] = {}
     for f in forecasts:
         by_symbol.setdefault(f.symbol, []).append(f)
 
     committed = 0.0
-    node_committed: dict[str, float] = {}
+    # Event exposure starts from what the BOOK already carries, not from zero.
+    node_committed: dict[str, float] = (
+        {node: usd / state.equity for node, usd in book.by_node.items()} if state.equity else {})
     held = held_underlyings(client)
     today = datetime.now(timezone.utc).date().isoformat()
     reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
@@ -321,6 +375,8 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                         reason=alt_verdict.reason)
             if structure is None:
                 result.refused += 1
+                if verdict.reason.startswith("CASH:"):
+                    result.cash += 1
                 _record(decision_id, forecast, None, verdict, snapshot, state,
                         action="refused", reason=verdict.reason)
                 continue
@@ -328,15 +384,24 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
 
         if not evaluated:
             continue
-        executable = [e for e in evaluated if e[1].brain not in shadow_brains]
-        champion = max(executable, key=lambda e: e[3].risk_fraction) if executable else None
+        demoted: dict[str, str] = {}
+        for e in evaluated:
+            why_not = recovery.refusal(e[1].brain, e[2].kind, scores)
+            if why_not:
+                demoted[e[0]] = why_not
+        executable = [e for e in evaluated
+                      if e[1].brain not in shadow_brains and e[0] not in demoted]
+        # Across brains on one symbol the champion is the best EXPECTED ECONOMICS,
+        # not the largest approved size -- size is the sizer's answer, not the ranker's.
+        champion = max(executable, key=lambda e: _ev_ratio(e[3])) if executable else None
         for e in evaluated:
             if e is champion:
                 continue
             d_id, forecast, structure, verdict, snapshot = e
-            why = ("shadow-only brain" if forecast.brain in shadow_brains else
-                   f"out-ranked by {champion[1].brain} at {champion[3].risk_fraction:.2%} "
-                   f"vs {verdict.risk_fraction:.2%} on the same symbol")
+            why = (demoted[d_id] if d_id in demoted else
+                   "shadow-only brain" if forecast.brain in shadow_brains else
+                   f"out-ranked by {champion[1].brain} at {_ev_ratio(champion[3]):+.0%} EV/max-loss "
+                   f"vs {_ev_ratio(verdict):+.0%} on the same symbol")
             result.shadow += 1
             _record(d_id, forecast, structure, verdict, snapshot, state, action="shadow",
                     reason=why)
@@ -349,9 +414,10 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                 result.refused += 1
                 _record(champion[0], champion[1], champion[2], champion[3], champion[4], state,
                         action="refused",
-                        reason=(f"event node {node} already carries {already:.1%} this pass; adding "
-                                f"{champion[3].risk_fraction:.1%} would exceed the {EVENT_NODE_CAP:.0%} "
-                                "node cap. Correlated expressions of one event are one bet."))
+                        reason=(f"event node {node} already carries {already:.1%} of equity across "
+                                f"the BOOK and this pass; adding {champion[3].risk_fraction:.1%} "
+                                f"would exceed the {EVENT_NODE_CAP:.0%} node cap. Correlated "
+                                "expressions of one event are one bet."))
                 continue
         before = committed
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run)
@@ -408,6 +474,10 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
                 action="rejected", reason=str(exc), order=order, contracts=n)
         logger.warning("REJECTED %s: %s", forecast.symbol, exc)
         return committed
+
+
+def _ev_ratio(verdict: sizing.SizingVerdict) -> float:
+    return float((verdict.economics or {}).get("ev_over_max_loss") or 0.0)
 
 
 def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
@@ -472,4 +542,9 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             "window_remaining": state.fraction_of_window_remaining,
         },
         llm=(forecast.evidence.get("shocks") or [{}])[0].get("llm") if forecast.evidence.get("shocks") else None,
+        outcome={
+            "event_node": event_node(forecast),
+            "economics": verdict.economics if verdict else None,
+            "horizon_days": forecast.horizon_days,
+        },
     ))
