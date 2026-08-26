@@ -174,8 +174,12 @@ criterion 2 and criterion 4.
 Do not create dozens of Alpaca accounts. Run N virtual $100k books internally
 off the **same frozen live decision state** — event-only, tail-momentum-only,
 dispersion-only, relay-only, crypto-only, aggressive-convergence, and a
-do-nothing control. The judged account trades the champion; the rest generate
-counterfactuals in real time.
+do-nothing control. The judged account trades whichever sleeve the evidence has
+actually promoted; the rest generate counterfactuals in real time.
+
+**No sleeve is promoted today.** The counterfactual ledger spans two calendar
+days, which cannot rank one brain against another — so until a sleeve earns it,
+the judged account trades an *assigned* set and the write-up says so.
 
 This reuses the parent project's `portfolio_farm` idea directly, and it gives
 the dashboard something almost nobody will have: **what the agent did *not* do,
