@@ -1,0 +1,222 @@
+{
+ "computed_utc": "2026-08-26T16:55:45.735970+00:00",
+ "shock_musd": 1000.0,
+ "universe": "chain",
+ "assumption": "revenue multiple held constant; ranks candidates, does not price them",
+ "rows": [
+  {
+   "symbol": "CORZ",
+   "revenue_ttm_musd": 434.90155599999997,
+   "market_cap_musd": 5793.768058,
+   "ps": 13.322021910632115,
+   "elasticity": 2.2993709408572456,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "POWI",
+   "revenue_ttm_musd": 441.63672,
+   "market_cap_musd": 3052.358365,
+   "ps": 6.911468695356672,
+   "elasticity": 2.264304471783958,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "AAOI",
+   "revenue_ttm_musd": 586.265536,
+   "market_cap_musd": 9607.146633,
+   "ps": 16.387022676700546,
+   "elasticity": 1.7057117271856825,
+   "industry": "Communications"
+  },
+  {
+   "symbol": "APLD",
+   "revenue_ttm_musd": 587.6909610000001,
+   "market_cap_musd": 8408.884114,
+   "ps": 14.308343452639896,
+   "elasticity": 1.7015745797730584,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "IREN",
+   "revenue_ttm_musd": 801.78203,
+   "market_cap_musd": 15062.954111,
+   "ps": 18.786844238701633,
+   "elasticity": 1.2472217667437622,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "SLAB",
+   "revenue_ttm_musd": 820.974438,
+   "market_cap_musd": 7286.299273999999,
+   "ps": 8.875184094343263,
+   "elasticity": 1.218064721279422,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "ALAB",
+   "revenue_ttm_musd": 1123.7125369999999,
+   "market_cap_musd": 49035.56455399999,
+   "ps": 43.6371073022922,
+   "elasticity": 0.8899073090967927,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "NBIS",
+   "revenue_ttm_musd": 1227.12409,
+   "market_cap_musd": 60343.70573500001,
+   "ps": 49.17490107703778,
+   "elasticity": 0.8149135104991705,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "CRDO",
+   "revenue_ttm_musd": 1292.1572159999998,
+   "market_cap_musd": 42239.105843,
+   "ps": 32.68882866572174,
+   "elasticity": 0.7738996366832193,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "BE",
+   "revenue_ttm_musd": 2256.1587059999997,
+   "market_cap_musd": 64044.97,
+   "ps": 28.38673087566031,
+   "elasticity": 0.44323123073771925,
+   "industry": "Electrical Equipment"
+  },
+  {
+   "symbol": "LITE",
+   "revenue_ttm_musd": 2771.7417,
+   "market_cap_musd": 79435.178016,
+   "ps": 28.658939617641863,
+   "elasticity": 0.3607839792575188,
+   "industry": "Communications"
+  },
+  {
+   "symbol": "MPWR",
+   "revenue_ttm_musd": 3264.521458,
+   "market_cap_musd": 64089.84668,
+   "ps": 19.632233239864952,
+   "elasticity": 0.3063236106319384,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "ENTG",
+   "revenue_ttm_musd": 3302.28075,
+   "market_cap_musd": 21219.335678000003,
+   "ps": 6.425660712827037,
+   "elasticity": 0.30282101241694853,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "COHR",
+   "revenue_ttm_musd": 6887.212739999999,
+   "market_cap_musd": 56427.10590599999,
+   "ps": 8.193024963245145,
+   "elasticity": 0.14519661839282755,
+   "industry": "Electrical Equipment"
+  },
+  {
+   "symbol": "ANET",
+   "revenue_ttm_musd": 10401.99936,
+   "market_cap_musd": 240818.229993,
+   "ps": 23.151148318567095,
+   "elasticity": 0.09613536449977247,
+   "industry": "Communications"
+  },
+  {
+   "symbol": "VRT",
+   "revenue_ttm_musd": 11252.87271,
+   "market_cap_musd": 93001.599805,
+   "ps": 8.264698464273307,
+   "elasticity": 0.08886619672782205,
+   "industry": "Electrical Equipment"
+  },
+  {
+   "symbol": "WDC",
+   "revenue_ttm_musd": 11447.098544,
+   "market_cap_musd": 183729.36,
+   "ps": 16.050299496749048,
+   "elasticity": 0.08735838135368812,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "STM",
+   "revenue_ttm_musd": 12009.667992,
+   "market_cap_musd": 37990.878398,
+   "ps": 3.1633579232420797,
+   "elasticity": 0.08326624854793072,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "SNDK",
+   "revenue_ttm_musd": 19098.900738,
+   "market_cap_musd": 216812.874889,
+   "ps": 11.352112766239982,
+   "elasticity": 0.052359034361090566,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "SMCI",
+   "revenue_ttm_musd": 31491.824112000002,
+   "market_cap_musd": 24878.734443000005,
+   "ps": 0.790006141102507,
+   "elasticity": 0.031754273631261286,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "AMD",
+   "revenue_ttm_musd": 40597.8635,
+   "market_cap_musd": 782249.346845,
+   "ps": 19.26823924724512,
+   "elasticity": 0.024631838076897814,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "ORCL",
+   "revenue_ttm_musd": 66560.172478,
+   "market_cap_musd": 416976.958503,
+   "ps": 6.2646616284058245,
+   "elasticity": 0.01502399952960651,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "AVGO",
+   "revenue_ttm_musd": 73632.114144,
+   "market_cap_musd": 1697219.0706100003,
+   "ps": 23.049984240447074,
+   "elasticity": 0.013581030663391403,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "MU",
+   "revenue_ttm_musd": 89043.25344100001,
+   "market_cap_musd": 1053689.8160770002,
+   "ps": 11.833460429151708,
+   "elasticity": 0.0112304971051243,
+   "industry": "Semiconductors"
+  },
+  {
+   "symbol": "DELL",
+   "revenue_ttm_musd": 132390.272243,
+   "market_cap_musd": 292698.890867,
+   "ps": 2.2108791371752474,
+   "elasticity": 0.0075534250595430275,
+   "industry": "Technology"
+  },
+  {
+   "symbol": "NVDA",
+   "revenue_ttm_musd": 251505.75999999998,
+   "market_cap_musd": 5155810.073853,
+   "ps": 20.49976936453861,
+   "elasticity": 0.003976052079284387,
+   "industry": "Semiconductors"
+  }
+ ],
+ "excluded_non_usd": [
+  {
+   "symbol": "TSM",
+   "currency": "TWD"
+  }
+ ]
+}
