@@ -6,12 +6,17 @@
 (PIDs 7260 / 4324). Independent selectors: unchanged. Candidates tested: 0. **RESULT IMPROVEMENT: NONE.**
 LLM spend this session: **$0.00**. What moved is the instrument and the record, not the edge.
 
-**1. THE REVIEW'S TWO "COMMITTED" DOCUMENTS DID NOT EXIST.** The external review reported committing
-`AEGIS_STRATEGIC_INVARIANTS.md` as `174b6796` and a roadmap as `889a9ef5`. `git cat-file -t` calls both hashes
-invalid objects in both repos; neither file was on disk or any remote. **The content was good and the
-persistence was fiction.** Both now exist for real in `aegis-finance` (commit `c15ca1f`), and the correction is
-logged in the roadmap's own first section because it is the exact failure the document is about. New standing
-rule, and it binds on my own reports: *a claim that an artefact was persisted is checkable in one command.*
+**1. I WRONGLY REPORTED THE REVIEW'S TWO DOCUMENTS AS NEVER COMMITTED. THEY EXIST.** `174b679` and `889a9ef`
+are real, pushed straight to GitHub. My check was broken twice over: I ran `git cat-file` against **unfetched**
+local refs (I had fetched a different repo in the same call), and I looked for the invariants file at the repo
+root when it is at `docs/AEGIS_STRATEGIC_INVARIANTS.md`. Two weak checks agreed and I read the agreement as
+corroboration; they shared a cause. **Absence of a local object is not evidence of absence of a commit** —
+the same false-negative class as `feedback_silence_is_not_evidence`, produced while writing a memory about it.
+Corrected in `aegis-finance` `f0a47fe`, which keeps both prior commits intact, appends a validation addendum
+and extends the invariants 12 -> 16. **What the addendum adds:** $104.2bn Q3 and ~75% GM match the sealed NVDA
+vector exactly; SPY's open gap corroborates at -0.15%; the **Situational Awareness 13F is UNVERIFIED and
+BLOCKING** for the leverage lane built on it; and three of the proposed NVDA hypotheses are already sealed
+(revenue surprise is rank 13 of 13, the guide is rank 1), so re-recording them was **refused**.
 
 **2. THE CHAIN BREAK IS SOLVED — AND IT WAS SIX BREAKS, NOT ONE.**
 `docs/FINDING_LEDGER_CHAIN_BREAK_2026-08-25.md`. Cause **CONFIRMED as CONCURRENT_WRITE**: line 1202 is
