@@ -4,6 +4,69 @@
 of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
 
+## SESSION 6 (26 Aug, ~01:00-04:00 ET, market closed) — `docs/FINDING_2026-08-26_DIRECTION_CANNOT_BE_SPENT_ON_A_CONDOR.md`
+
+**RESULT IMPROVEMENT: no P&L (market closed throughout; both books still above every ceiling, nothing sized).**
+What changed: the one mechanism with a positive t is decomposed, dated, cost-tested and BUILT AS A BRAIN — and
+building it found a defect in the core gate that had nothing to do with it.
+
+**The headline held.** Source PEAD (+1.13%, hit 64%, t 2.72, n=108) was taken apart three ways and survived all
+three: **not one name** (leave-one-out t never below 2.37; the only negative name is GOOGL and dropping it RAISES
+the headline to 2.86), **not clustering** (one observation per calendar week — 62 blocks, the honest n — t 2.23),
+**not long drift** (the DOWN side is the stronger half: hit 72%, t 2.37, against the up side's 54% and 1.65). It
+lives in the mid |day-0 move| tercile (3.5-8.2%: **t 3.45, hit 81%**) and **it dies of costs, not of doubt** —
+1% of spot round-trip leaves mean +0.13%, t 0.32. The whole edge is about 1% of spot.
+
+**And it survives arriving LATE, which is the only reason the competition can trade it.** The account is created
+28 Aug; NVDA's first reflecting close is 27 Aug. The drift is flat across +1/+2/+3 (+0.41/+0.31/+0.41%) and the
+overnight gap is worth **+0.05% (t 0.42)**, so a day+1 OPEN entry keeps **+1.08% of the +1.13% at t 2.82**; a
+full session late still keeps +0.72% at t 2.17.
+
+```
+NEW  alpha/brains/post_event_drift.py   fires on an SEC-dated print 1-2 sessions old; refuses while the day-0 bar
+                                        is still forming; quotes the LATER arrival's number when it cannot tell how
+                                        late it is; refuses |move|<3.5%, halves conviction above 8.2%
+NEW  scripts/source_pead_decompose.py   by name / leave-one-out / week+day blocks / day-0 sign / tercile / cost
+NEW  scripts/source_pead_horizon.py     per-day drift + what each arrival keeps (the late-arrival table above)
+NEW  tests_smoke_pead.py                38 checks on a SYNTHETIC planted print -- no live name has printed in the
+                                        last two sessions, so the brain declines on all 15 today and that proves nothing
+```
+
+**THE DEFECT.** Probed through the real engine on a live NVDA chain, a **+0.72% forecast and a −0.72% forecast were
+handed THE SAME IRON CONDOR** (EV $54 and $48 per unit — the sign of a 108-print mechanism moved the answer by $6
+and changed nothing else). Cause: a brain's `sd` enters the gate as a claim that the chain has the WIDTH wrong, and
+a directional brain makes that claim by accident — implied sits above trailing realised, so every long option looks
+overpriced, every short-premium structure looks free, and the biggest such "disagreement" is always the structure
+that cannot see a sign. `shape.py`'s own thesis failing in the mirror: not buying a tail that is not there, but
+selling one it has no view on.
+
+**Fix:** `Forecast.claim` — `direction` | `dispersion` | `distribution`, defaulting to `distribution` so every
+existing brain is byte-identical. A `direction` brain is integrated at the **chain's** width (`runner.effective_sd`:
+the structure's ATM implied move under the same `sigma = implied*sqrt(pi/2)` conversion the MDM gate already uses).
+No quoted width **REFUSES** rather than falling back. A `dispersion` brain that tilts is refused at construction.
+The arbiter now judges a position at the width it was gated at; every ledger row records its `claim`.
+Now: UP → long_call / bull_call_spread / bull_put_spread; DOWN → the mirror; **the condor is gone from both sides.**
+
+**It still refuses, and that is the honest answer.** On the 28 Aug chain the directional disagreement is 3-5pp
+against a 5pp floor, and where it clears (AMD `bull_call_spread` +5.1%) **cash beats it at −$6/unit** — the same
+number §1's cost table gives by another route. **But that expiry contains tonight's NVDA print**, so implied is
+inflated by the event and our shift looks small against it. When the brain actually fires — 28 Aug against a
+POST-print expiry, where implied has collapsed — the same centre is a larger fraction of the chain's width.
+**Whether it clears then is the measurement, and it has not been made.**
+
+**One judgement call to review:** `post_event_drift` is in `DEFAULT_BRAINS` and deliberately **NOT** in
+`DEFAULT_SHADOW`. The reason that list exists is that brains which WIDEN sigma win the gate by construction; this
+brain does the opposite — it cannot inflate its own edge, and after the fix it cannot claim the chain's width
+either. It reaches dev on the next entry pass (the loop spawns `run_pass` as a subprocess, so code changes go live
+without a restart). Exp1 runs an explicit `--brains` list and does NOT have it. Override with `--shadow` if you
+disagree.
+
+**For the morning:** (1) `python -m scripts.pnl_attribution --all` before any P&L number, unchanged; (2) NVDA
+prints tonight amc → day 0 is **27 Aug** → the brain can speak **28 Aug** → the window closes **1 Sep**, inside the
+competition; (3) the first thing to check on 28 Aug is whether the post-print chain lets a 0.72% centre clear the
+5pp floor — if it does not, the mechanism is real and the INSTRUMENT is wrong, and the next question is whether the
+underlying itself (shares, not options) is the honest expression of a 1%-of-spot edge.
+
 ## SESSION 5 (26 Aug, ~21:00–01:00 ET, autonomous) — `docs/ROADMAP_2026-08-26_STOP_BLEED.md` · `docs/FINDING_2026-08-26_POSITIVE_EXPECTANCY_SEARCH.md`
 
 **The objective is not to recover yesterday's loss. The objective is to refuse every negative-EV dollar from today forward.**

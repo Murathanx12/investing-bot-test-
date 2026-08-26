@@ -64,7 +64,7 @@ Deliberately conservative in two places:
    +1.08%. Under-sizing is the safe error.
 
 Refuses below |3.5%|; halves conviction above |8.2%|; mirror-symmetric on the down side,
-because the down side is the stronger half. 31 checks in `tests_smoke_pead.py`, built on a
+because the down side is the stronger half. 38 checks in `tests_smoke_pead.py`, built on a
 synthetic planted print — no live name has printed in the last two sessions, so the brain
 correctly declines on all 15 today and that proves nothing.
 
