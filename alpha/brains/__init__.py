@@ -5,6 +5,7 @@
     options_attention     abnormal option volume, unsigned        option tape
     narrative_dispersion  LLM axes on news -> variance            Alpaca news + DeepSeek + attention
     relay                 a peer's measured move on the originator's prints   price + SEC dates
+    post_event_drift      the printer's own day-0 move, continued             price + SEC dates
 
 They are INDEPENDENT by data source, not by formula -- the parent project's
 lesson is that thirteen signals on one file are one signal. `forecast_all`
@@ -16,7 +17,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-from alpha.brains import event_move, narrative_dispersion, options_attention, relay, vol_gap
+from alpha.brains import (event_move, narrative_dispersion, options_attention, post_event_drift,
+                          relay, vol_gap)
 from alpha.brains.base import Forecast
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,7 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
         client, sym, h, expiries=kw["expiries"]),
     "narrative_dispersion": lambda client, sym, h, **kw: narrative_dispersion.forecast(client, sym, h),
     "relay": lambda client, sym, h, **kw: relay.forecast(client, sym, h),
+    "post_event_drift": lambda client, sym, h, **kw: post_event_drift.forecast(client, sym, h),
 }
 
 

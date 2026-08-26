@@ -38,6 +38,7 @@ still has its entry forecast. A brain that forecasts wrongly will hold wrongly
 from __future__ import annotations
 
 import logging
+import math
 import os
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
@@ -184,6 +185,14 @@ def judge(struct: book_mod.OpenStructure, positions_by_symbol: dict[str, dict], 
     centre = float(forecast.get("predicted_move") or 0.0)
     sd = float(forecast.get("predicted_sd"))
     horizon = float(((forecast.get("outcome") or {}).get("horizon_days")) or s.days_to_expiry)
+    # Judge the position at the SAME width it was gated at. A `direction` brain
+    # was integrated against the chain's implied move, not against its own sd
+    # (runner.effective_sd); re-judging it at its own narrower sd would tell the
+    # arbiter the position is safer than the gate ever believed, and every
+    # remaining-edge number here would be measured against a different world.
+    claim = ((forecast.get("outcome") or {}).get("claim")) or "distribution"
+    if claim == "direction" and (getattr(s, "implied_move", 0.0) or 0.0) > 0:
+        sd, horizon = s.implied_move * math.sqrt(math.pi / 2.0), None
     econ = payoff.economics(s, spot_now, centre, sd, horizon_days=horizon)
     # economics.ev is per unit AFTER entry cost and spread; the expected terminal
     # VALUE is ev + entry_cost + spread, and the whole structure is `contracts` units.

@@ -43,6 +43,7 @@ selection, not discovered on the last morning.
 
 from __future__ import annotations
 
+import math
 import logging
 import os
 from dataclasses import dataclass, replace
@@ -145,6 +146,46 @@ def open_convex_risk(client: AlpacaPaper) -> float:
     return book_mod.read(client).fraction
 
 
+class ChainWidthUnavailable(RuntimeError):
+    """A `direction` brain asked for the market's width and the chain had none."""
+
+
+def effective_sd(forecast: Forecast, structure: sizing.Structure) -> tuple[float, str]:
+    """The spread this forecast is allowed to be integrated at, and where it came from.
+
+    A brain that declares `claim="direction"` knows which WAY, not how FAR. Its
+    own sd is a realised-volatility estimate, and handing that to the gate makes
+    an accidental second claim -- that the chain has the width wrong -- which is
+    the larger of the two claims and the one it has no evidence for. Since
+    implied is above trailing realised most of the time, that accident is
+    systematic in one direction: every long option looks overpriced, every
+    short-premium structure looks free, and the EV ranker hands a directional
+    brain an IRON CONDOR. Measured on a live NVDA chain, the same condor won
+    whether the print was up or down; the sign of the forecast moved its EV by
+    $6 on $54 and changed nothing else.
+
+    So a `direction` brain is integrated at the CHAIN's width -- the structure's
+    own ATM implied move, converted with sigma = E|Z| * sqrt(pi/2) exactly as
+    `sizing.implied_probability_beyond` does, so the gate compares like with
+    like. What survives is a pure statement about the SHIFT: this structure pays
+    only if the centre moves enough mass across its breakeven to cover its quote.
+
+    A chain that cannot state its own width REFUSES rather than falling back to
+    the brain's sd -- a fallback here would silently restore the bug on exactly
+    the illiquid names where it does the most damage.
+    """
+    if forecast.claim != "direction":
+        return forecast.sd, "brain"
+    implied = getattr(structure, "implied_move", 0.0) or 0.0
+    if implied <= 0:
+        raise ChainWidthUnavailable(
+            f"{structure.kind}: this is a DIRECTION-only forecast, which is integrated at the "
+            "chain's own width, and the chain quotes no implied move for this expiry. Refused "
+            "rather than falling back to the brain's sd, which would turn a view about which "
+            "way into a view about how far.")
+    return implied * math.sqrt(math.pi / 2.0), "chain_implied_move"
+
+
 def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.TournamentState,
              expiry: str, risk_profile: str | None = None,
              open_risk: float | None = None):
@@ -170,8 +211,13 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     rejected = []
     cash_beat = 0
     for structure in structures.enumerate_all(snapshot, expiry):
+        try:
+            sd_used, sd_note = effective_sd(forecast, structure)
+        except ChainWidthUnavailable as exc:
+            rejected.append((structure, sizing.SizingVerdict(False, 0.0, 0.0, str(exc))))
+            continue
         verdict = sizing.size(
-            structure, forecast.centre, forecast.sd, state,
+            structure, forecast.centre, sd_used, state,
             open_convex_risk=risk, conviction=forecast.conviction,
             risk_profile=risk_profile,
         )
@@ -182,13 +228,17 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
         # own forecast. A structure that cannot beat cash after the spread is
         # refused here, whatever its probability edge looked like.
         try:
-            econ = payoff.economics(structure, snapshot.spot, forecast.centre, forecast.sd,
-                                    horizon_days=forecast.horizon_days)
+            # A `direction` brain's sd is already the chain's own width, stated
+            # over the structure's LIFE, so it must not be re-scaled by horizon.
+            econ = payoff.economics(
+                structure, snapshot.spot, forecast.centre, sd_used,
+                horizon_days=None if forecast.claim == "direction" else forecast.horizon_days)
         except ValueError as exc:
             rejected.append((structure, sizing.SizingVerdict(
                 False, 0.0, verdict.mdm_edge, f"payoff could not be integrated: {exc}")))
             continue
-        verdict = replace(verdict, economics=econ.as_dict(),
+        verdict = replace(verdict, economics={**econ.as_dict(), "sd_used": round(sd_used, 5),
+                                              "sd_source": sd_note},
                           reason=f"{verdict.reason} {econ.summary()}.")
         if econ.ev_usd <= 0.0:
             cash_beat += 1
@@ -275,7 +325,7 @@ def record_forecasts(forecasts: list[Forecast], *, note: str = "") -> int:
             mdm_edge=None, quote_snapshot={}, action="forecast", refusal_reason=None,
             risk_fraction=0.0, max_loss_usd=0.0, order=None,
             outcome={"horizon_days": f.horizon_days, "conviction": f.conviction,
-                     "evidence": _compact(f.evidence), "note": note},
+                     "claim": f.claim, "evidence": _compact(f.evidence), "note": note},
         ), name="forecasts")
         n += 1
     return n
@@ -546,5 +596,8 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             "event_node": event_node(forecast),
             "economics": verdict.economics if verdict else None,
             "horizon_days": forecast.horizon_days,
+            # So a later reader -- the arbiter, the counterfactual -- can tell
+            # WHICH width this row was gated at without re-deriving it.
+            "claim": forecast.claim,
         },
     ))

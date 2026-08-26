@@ -24,11 +24,21 @@ from alpha.broker.alpaca import AlpacaPaper
 UNIVERSE = ["SPY", "QQQ", "IWM", "NVDA", "AVGO", "AMD", "TSLA", "META",
             "AAPL", "MSFT", "GOOGL", "AMZN", "NIO", "PANW", "SMH"]
 
-DEFAULT_BRAINS = "vol_gap,event_move,options_attention,narrative_dispersion,relay"
+DEFAULT_BRAINS = "vol_gap,event_move,options_attention,narrative_dispersion,relay,post_event_drift"
 #: Brains that WIDEN sigma by construction win the MDM comparison by construction
 #: on long premium -- the sizer rewards disagreement, and a wider claim is a bigger
 #: disagreement. They earn execution by beating the others in the counterfactual
 #: ledger first, not by being loudest.
+#:
+#: `post_event_drift` is deliberately NOT on this list, and the reason the list
+#: exists is the reason: it does the OPPOSITE of widening sigma. It quotes a
+#: centre of +0.72% against a spread floored at the dispersion the backtest
+#: measured, and it FALLS BACK to the later, smaller arrival number when it
+#: cannot tell how late it is. A brain that cannot inflate its own edge does not
+#: need the veto this list applies -- the MDM gate and the EV/max-loss ranker are
+#: the gates it must pass, and on a 1%-of-spot edge the spread will refuse most
+#: structures without help. It is `PRODUCT_EXPERIMENT` on paper accounts; the
+#: evidence is in state/source_pead_decompose.json and _horizon.json.
 DEFAULT_SHADOW = "options_attention,narrative_dispersion,relay"
 
 

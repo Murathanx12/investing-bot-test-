@@ -28,6 +28,10 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+#: The parts of a distribution a brain can hold evidence for. See `Forecast.claim`.
+CLAIMS = frozenset({"direction", "dispersion", "distribution"})
+
+
 @dataclass(frozen=True)
 class Forecast:
     brain: str
@@ -46,10 +50,43 @@ class Forecast:
     """Every number that produced the forecast, so the ledger row can be argued
     with later. A rationale string alone is a story; the evidence is the receipt."""
 
+    claim: str = "distribution"
+    """WHICH PART OF THE DISTRIBUTION THIS BRAIN HAS EVIDENCE FOR.
+
+    `dispersion`   -- it knows how WIDE the outcome is, not which way (centre 0).
+    `direction`    -- it knows which WAY, and has no opinion on the width.
+    `distribution` -- it claims both, and must be able to defend both.
+
+    This is not bookkeeping. `sd` enters the gate as a claim that the chain has
+    the width wrong, and a brain whose evidence is a directional drift makes
+    that claim ACCIDENTALLY: its sd is a two-day realised-vol estimate, the
+    chain's implied is almost always higher, so every long option looks
+    overpriced and every short-premium structure looks free. Run that through
+    an EV ranker and a DIRECTIONAL brain is handed an IRON CONDOR -- the same
+    condor whether the print was up or down, because the condor cannot see the
+    sign. Measured on a real NVDA chain on 2026-08-26: EV +$54/unit at centre
+    +0.72% and +$48 at -0.72%, and it won the ranking both times.
+
+    So `direction` brains are integrated against the CHAIN's width instead of
+    their own (`runner.effective_sd`). The brain supplies the centre, the market
+    supplies the spread, and a structure earns its place only if the SHIFT pays
+    for the quote. See `alpha/brains/post_event_drift.py`."""
+
     def __post_init__(self) -> None:
         if self.sd <= 0:
             raise ValueError(
                 f"{self.brain} returned sd={self.sd} for {self.symbol}. A forecast must "
                 "state its own uncertainty -- a zero spread is a claim of certainty and "
                 "would size to the ceiling on every trade."
+            )
+        if self.claim not in CLAIMS:
+            raise ValueError(
+                f"{self.brain} declared claim={self.claim!r} for {self.symbol}. It must be one "
+                f"of {sorted(CLAIMS)} -- an undeclared claim is how a directional reading gets "
+                "spent on a short-volatility structure."
+            )
+        if self.claim == "dispersion" and self.centre != 0.0:
+            raise ValueError(
+                f"{self.brain} claims dispersion only but returned centre={self.centre:+.4f} for "
+                f"{self.symbol}. A brain that says it does not know the direction may not tilt."
             )

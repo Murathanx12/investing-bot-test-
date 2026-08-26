@@ -217,5 +217,7 @@ except config.CredentialRefusal as e:
 
 import tests_smoke_brains
 fails += tests_smoke_brains.fails
+import tests_smoke_pead
+fails += tests_smoke_pead.fails
 print(f"\n{'ALL PASS' if not fails else str(len(fails))+' FAILED: '+', '.join(fails)}\n")
 raise SystemExit(1 if fails else 0)
