@@ -56,12 +56,25 @@ from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 OUT = Path(__file__).resolve().parent.parent / "state" / "research"
 BASELINE = OUT / "contagion_baseline.json"
 
-#: NVDA's weight in the S&P 500. Read from index-provider commentary on
-#: 2026-08-26 (~7.8%, and 7.50% as of 30 June). NOT computed from constituent
-#: caps, so it carries a band and the mechanical term is reported across it
-#: rather than at a false point estimate.
+#: NVDA's weight in the S&P 500. Two independent readings, deliberately kept
+#: apart rather than averaged into a false precision:
+#:
+#:   REPORTED   ~7.8% (index-provider commentary, 2026-08-26; 7.50% at 30 June)
+#:   FITTED     0.084 -- SPY's regression loading on NVDA controlling for SMH,
+#:              over 269 sessions. Derived from RETURNS, not constituent caps.
+#:
+#: The fitted value sits ABOVE the reported one, which is expected: a regression
+#: beta absorbs the mechanical weight PLUS whatever NVDA-specific correlation
+#: SMH does not already explain. It is an upper bound on the purely mechanical
+#: term, not a competing estimate of it.
+#:
+#: The band spans both, and the mechanical channel is reported ACROSS it. Picking
+#: one number here would put false precision at the base of the whole
+#: decomposition -- and the "beyond mechanical" residual is exactly the quantity
+#: that a wrong weight biases.
 NVDA_SPX_WEIGHT = 0.078
-NVDA_SPX_WEIGHT_BAND = (0.075, 0.080)
+NVDA_SPX_WEIGHT_BAND = (0.075, 0.085)
+NVDA_SPX_WEIGHT_FITTED = 0.084
 
 #: The complex, by causal role. SPY/QQQ/SMH are the aggregates the mechanical
 #: term applies to; the rest are the transmission nodes.
