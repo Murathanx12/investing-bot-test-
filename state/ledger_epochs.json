@@ -1,0 +1,58 @@
+{
+  "decisions": {
+    "declared_utc": "2026-08-26T14:30:00+00:00",
+    "cause": "CONCURRENT_WRITE",
+    "cause_confidence": "CONFIRMED",
+    "evidence": "Six breaks in a 36-second window (2026-08-25T15:39:55.943 .. 15:40:31.519). Line 1202 is role='dev' written at 15:39:59.208; line 1203 is role='exp1' written at 15:39:59.209 and its _prev is the hash of line 1201. Two of the six lines begin mid-JSON, so the appends were not atomic. Two loops were writing one chain with no lock.",
+    "fixed_by": "alpha.ledger._Lock -- O_EXCL cross-process lock with a 30s stale rule, added after the incident. No break has occurred since.",
+    "epoch_1": {
+      "lines": "1..1202",
+      "verifies_to": "genesis"
+    },
+    "epoch_2": {
+      "lines": "1381..EOF",
+      "note": "self-consistent; cannot verify back across the boundary"
+    },
+    "downstream_unverifiable_pct": 79.6,
+    "not_repaired_because": "Repairing a tamper-evident chain is indistinguishable from the tampering it exists to detect. The damage is a fact about this ledger and stays in the file. This record dates it; it does not launder it.",
+    "breaks": [
+      {
+        "line": 1203,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": "20260825T1539:narrative_dispersion:QQQ:alt0",
+        "detail": "exp1 read the head when line 1201 was the tail; dev appended 1202 at 15:39:59.208; exp1 appended this row 1ms later at .209 carrying the stale _prev. Skip-one-line signature of two unlocked appenders."
+      },
+      {
+        "line": 1370,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": null,
+        "detail": "row physically spliced: the line begins mid-JSON at 'isk_fraction' (the tail of \"risk_fraction\"). This decision is partly LOST, not merely unverifiable."
+      },
+      {
+        "line": 1372,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": "20260825T1540:vol_gap:AMD:alt1",
+        "detail": "same interleave, _prev points two lines back."
+      },
+      {
+        "line": 1374,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": null,
+        "detail": "row physically spliced: begins mid-JSON at 'e\",\"spot_ts\"'. Partly LOST."
+      },
+      {
+        "line": 1376,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": "20260825T1540:vol_gap:AMD:alt3",
+        "detail": "same interleave, _prev points two lines back."
+      },
+      {
+        "line": 1380,
+        "kind": "CONCURRENT_WRITE",
+        "decision_id": "20260825T1540:options_attention:AVGO",
+        "detail": "same interleave, _prev points two lines back. Last break; the chain is self-consistent from 1381 to EOF."
+      }
+    ],
+    "manifest_hash": "077fe258c506b1f309e91fcef3542f0d7fe28dc6ddbea04d2ea0ee16386e852a"
+  }
+}

@@ -42,6 +42,8 @@ LEDGER_DIR = Path(os.getenv("AAT_LEDGER_DIR", Path(__file__).resolve().parent.pa
 
 #: The genesis link. A chain that started from an empty string would validate
 #: against a file someone truncated to zero rows.
+from alpha import epoch
+
 GENESIS = "aegis-alpha-terminal/v1"
 
 
@@ -202,28 +204,72 @@ def read_all(name: str = "decisions") -> list[dict[str, Any]]:
 MALFORMED: dict[str, list[int]] = {}
 
 
-def verify_chain(name: str = "decisions") -> tuple[bool, str]:
-    """Walk the hash chain. Returns (ok, message naming the first broken row)."""
+def scan_chain(name: str = "decisions") -> tuple[list[dict[str, Any]], str, int]:
+    """Every break in the chain, not just the first. Returns (breaks, head, lines).
+
+    Walking to the END matters. The old version RETURNED at the first break, so
+    two days of warnings all said "line 1203" while five further breaks -- two of
+    them rows physically spliced mid-JSON, i.e. decisions partly LOST rather than
+    merely unverifiable -- were never reported. A tamper-evident check that stops
+    at the first sign of tampering under-states the damage by design.
+    """
     path = _path(name)
-    if not path.exists():
-        return True, "no ledger yet"
+    breaks: list[dict[str, Any]] = []
     prev = GENESIS
+    n = 0
+    if not path.exists():
+        return breaks, prev, 0
     with path.open("rb") as fh:
         for i, raw in enumerate(fh, start=1):
             if not raw.strip():
                 continue
+            n = i
             try:
                 row = json.loads(raw)
             except ValueError:
-                return False, f"chain breaks at line {i}: the line is not JSON (interleaved write)."
+                breaks.append({"line": i, "decision_id": None,
+                               "detail": "line is not JSON (write spliced by a second writer)"})
+                prev = hashlib.sha256(raw).hexdigest()
+                continue
             if row.get("_prev") != prev:
-                return False, (
-                    f"chain breaks at line {i} (decision_id="
-                    f"{row.get('decision_id')!r}): recorded _prev "
-                    f"{row.get('_prev')!r} != computed {prev!r}."
-                )
+                breaks.append({"line": i, "decision_id": row.get("decision_id"),
+                               "detail": f"recorded _prev {str(row.get('_prev'))[:16]} "
+                                         f"!= computed {prev[:16]}"})
             prev = hashlib.sha256(raw).hexdigest()
-    return True, f"chain intact, head={prev[:16]}"
+    return breaks, prev, n
+
+
+def verify_chain(name: str = "decisions") -> tuple[bool, str]:
+    """Walk the hash chain, honouring declared epoch boundaries.
+
+    A break that is enumerated in `state/ledger_epochs.json` is HISTORICAL: its
+    cause is known, documented and fixed, and it stays in the file because
+    repairing a tamper-evident chain is the tampering it detects. Any break NOT
+    on that list is new, and fails.
+
+    This is what lets the check go green again. It was permanently red for two
+    days over damage from 25 Aug that nothing could undo, and a red line that no
+    action can clear trains the reader to skim red lines.
+    """
+    path = _path(name)
+    if not path.exists():
+        return True, "no ledger yet"
+    breaks, head, n = scan_chain(name)
+    try:
+        known = epoch.accepted_breaks(name)
+    except ValueError as exc:                      # anchor edited by hand
+        return False, str(exc)
+    novel = [b for b in breaks if b["line"] not in known]
+    if novel:
+        first = novel[0]
+        return False, (
+            f"chain breaks at line {first['line']} (decision_id={first['decision_id']!r}): "
+            f"{first['detail']}. {len(novel)} UNDECLARED break(s) of {len(breaks)} total "
+            f"across {n} lines.")
+    if breaks:
+        return True, (f"chain intact within epochs, head={head[:16]} "
+                      f"({len(breaks)} declared historical break(s), see state/ledger_epochs.json)")
+    return True, f"chain intact, head={head[:16]}"
 
 
 def new_decision_id(symbol: str, brain: str, ts: datetime | None = None) -> str:
