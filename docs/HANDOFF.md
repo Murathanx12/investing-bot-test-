@@ -1,5 +1,28 @@
 # HANDOFF — read this first
 
+## URGENT / OPEN AT HANDOFF (26 Aug 09:45 ET)
+
+**1. BOTH PAPER LOOPS DIED AT 09:19 ET AND THE CAUSE IS NOW FIXED.** Found by counting command lines, not by
+trusting silence: at 09:36 ET there were ZERO `agent_loop` processes. `alpha/broker/alpaca._request` converted
+only `HTTPError` into `BrokerRefusal`; a DNS failure raises `URLError`, which is not an HTTPError, so it went
+straight past `agent_loop`'s `except BrokerRefusal` at line 84 and killed the process. **Session 9 found both
+loops dead once before and never traced the cause -- this was it.** A transient blip could end the forward
+record at any moment, and nothing announced it: the log just stops, which reads exactly like a quiet market.
+Fixed in two places (transport converts `URLError/TimeoutError/OSError`; the supervisor cycle is wrapped with
+backoff). **Both restarted 09:41 ET, verified on the right accounts** -- dev PID 7260 (PA32Q5IW7TAS),
+exp1 PID 4324 (PA3AOJPJTSBW), logs `state/loop_*_s12.{log,err}`. `--expiry 2026-08-28` deliberately UNCHANGED;
+**Friday's restart to `--expiry 2026-09-04` is still due.**
+
+**2. THE LEDGER HASH CHAIN IS BROKEN AND HAS BEEN SINCE 25 AUG -- NOT INVESTIGATED.**
+`chain breaks at line 1203 (decision_id='20260825T1539:narrative_dispersion:QQQ:alt0')`, recorded `_prev` !=
+computed. It appears **53+ times** in `state/loop_dev.log` and on every `manage` pass since. Not caused by
+session 12; NOT repaired here, because repairing a tamper-evident chain is itself the tampering it exists to
+detect. Most likely cause is concurrent writers (session 9 found dead/duplicated loops on the same role) with
+`ledger._Lock`'s 30s stale rule breaking a live lock. **This is a permanent red line beside green ones, which
+is precisely what the canon says teaches a reader to skim red lines.** It needs a decision: investigate and
+document the break, or re-anchor the chain from a declared point with the break recorded. Do not leave it
+printing forever.
+
 ## SESSION 12b (26 Aug, ~09:00-09:40 ET, Opus day) — the second review, and a candidate killed by 35 rows
 
 **RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched and alive
