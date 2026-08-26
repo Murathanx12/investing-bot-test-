@@ -27,7 +27,7 @@ import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 
-from alpha import config, ledger
+from alpha import config, ledger, liveness
 
 ROOT = config.__file__.rsplit("alpha", 1)[0]
 STATE = ROOT + "state/"
@@ -191,10 +191,33 @@ def belief_section() -> str:
                     "vol": r.get("volume_24h") or r.get("volume")} for r in latest[:15]], ["source", "market", "p_yes", "vol"]))
 
 
+def liveness_section() -> str:
+    """Are the loops running RIGHT NOW -- first panel, above the P&L.
+
+    A dashboard that shows equity and positions while the loop that maintains
+    them is dead is a brochure. On 26 Aug both loops were gone for 22 minutes
+    and every other panel on this page would have rendered perfectly.
+    """
+    try:
+        ok, lines = liveness.report()
+    except Exception as exc:                       # a view must never take the page down
+        return f"<p class=note>liveness unavailable: {esc(type(exc).__name__)}</p>"
+    rows = []
+    for line in lines:
+        state = line.split()[1] if len(line.split()) > 1 else ""
+        cls = "good" if state in ("HEALTHY", "OK") else "bad"
+        rows.append(f"<tr><td class={cls}>{esc(line)}</td></tr>")
+    banner = ("" if ok else
+              "<p class=note><b>NOT HEALTHY.</b> A stopped loop reads exactly like a quiet "
+              "market, so every number below may be stale. Check before believing this page.</p>")
+    return banner + "<table>" + "".join(rows) + "</table>"
+
+
 def main() -> int:
     config.load_env()
     now = datetime.now(timezone.utc).isoformat()[:16]
     sections = [
+        ("Loop liveness — is the engine running?", liveness_section()),
         ("Accounts (paper)", accounts_section()),
         ("Decisions — taken, refused, shadowed", decisions_section()),
         ("Brain scoreboard (counterfactual marks)", counterfactual_section()),

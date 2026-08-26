@@ -17,13 +17,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 NIGHT_WRITE_PREFIXES = ("state/night_shadow/", "docs/night/", "scripts/night_", "tests_smoke_night.py", ".gitignore",
                         "docs/HANDOFF.md")
-FORBIDDEN_IMPORTS = ("alpha.ledger", "alpha.book", "alpha.runner", "alpha.fills", "alpha.admission", "alpha.arbiter",
+FORBIDDEN_IMPORTS = ("alpha.ledger", "alpha.liveness", "alpha.book", "alpha.runner", "alpha.fills", "alpha.admission", "alpha.arbiter",
                      "alpha.recovery", "alpha.exits", "alpha.engine", "scripts.agent_loop", "scripts.run_pass",
                      "scripts.manage")
 #: read-only market data through the broker client is allowed ONLY here
 BROKER_ALLOWLIST = {"scripts/night_bars.py"}
 EXECUTION_STATE = re.compile(r"state/(decisions|fills|forecasts|ledger|book|positions|orders|candidates|cards|"
-                             r"psychohistory\.jsonl|belief_series|autopsy|event_grade|universe)")
+                             r"psychohistory\.jsonl|belief_series|autopsy|event_grade|universe|liveness)")
 
 
 def static_check() -> list[str]:

@@ -33,12 +33,14 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
-from alpha import config
+from alpha import config, liveness
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 log = logging.getLogger("loop")
@@ -49,6 +51,17 @@ log = logging.getLogger("loop")
 #: -- and exits are the one job that must never wait on an LLM call.
 TIMEOUTS_S = {"scripts.run_pass": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
               "scripts.fill_audit": 300}
+
+
+def _commit() -> str | None:
+    """Which code is running. A heartbeat that cannot say that explains an
+    outage as a mystery rather than as a deploy."""
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
+                                       cwd=str(Path(__file__).resolve().parent.parent),
+                                       text=True, timeout=10).strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
 
 
 def _run(mod: str, *args: str, live: bool) -> int:
@@ -79,10 +92,28 @@ def main() -> int:
 
     last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0, "autopsy": 0.0}
     consecutive_errors = 0
+    # THE HEARTBEAT. A dead process cannot report its own death, so the receipt
+    # has to exist before the first cycle and be refreshed by every one that
+    # completes. `scripts.liveness` and the dashboard read it; nothing runs in
+    # the background to make this work, so nothing in the background can fail
+    # silently and take the guarantee with it.
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or "unset"
+    beat = liveness.Beat(role=role, pid=os.getpid(), expiry=args.expiry, live=bool(args.live),
+                         argv=sys.argv[1:], commit=_commit(),
+                         started_utc=datetime.now(timezone.utc).isoformat())
+    liveness.write(beat)
     while True:
+        beat.started_utc = datetime.now(timezone.utc).isoformat()
+        liveness.write(beat)
         try:
             consecutive_errors = _cycle(client, args, last)
-        except Exception:
+            beat.cycle += 1
+            beat.completed_utc = datetime.now(timezone.utc).isoformat()
+            beat.consecutive_errors = 0
+            beat.last_error = None
+            beat.backoff_until_utc = None
+            liveness.write(beat)
+        except Exception as exc:
             # THE SUPERVISOR MUST OUTLIVE THE WORK.
             #
             # Every job below already runs as a subprocess and cannot take this
@@ -94,7 +125,13 @@ def main() -> int:
             # exception either. Silence has been read as health here before.
             consecutive_errors += 1
             log.exception("cycle failed (%d in a row); continuing", consecutive_errors)
-            time.sleep(min(300, 30 * consecutive_errors))
+            wait = min(300, 30 * consecutive_errors)
+            beat.consecutive_errors = consecutive_errors
+            beat.last_error = f"{type(exc).__name__}: {exc}"
+            beat.backoff_until_utc = datetime.fromtimestamp(
+                time.time() + wait, timezone.utc).isoformat()
+            liveness.write(beat)
+            time.sleep(wait)
         if args.once:
             return 0
         time.sleep(60)
