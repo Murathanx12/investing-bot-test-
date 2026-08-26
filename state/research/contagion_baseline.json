@@ -1,0 +1,161 @@
+{
+ "measured_utc": "2026-08-26T15:55:32.925548+00:00",
+ "window_start": "2025-08-01",
+ "window_end": "2026-08-26",
+ "sessions": 269,
+ "nvda_spx_weight": 0.078,
+ "weight_band": [
+  0.075,
+  0.08
+ ],
+ "note": "betas fitted on data ENDING BEFORE the event. Refitting after the reaction and calling the residual contagion is a story with an equation.",
+ "betas": {
+  "SPY": {
+   "beta_nvda": 0.0842,
+   "beta_smh": 0.2039,
+   "resid_sd": 0.00482,
+   "n": 268,
+   "mde_1event": 0.0135
+  },
+  "QQQ": {
+   "beta_nvda": 0.0706,
+   "beta_smh": 0.4092,
+   "resid_sd": 0.00504,
+   "n": 268,
+   "mde_1event": 0.01411
+  },
+  "IWM": {
+   "beta_nvda": -0.0387,
+   "beta_smh": 0.3623,
+   "resid_sd": 0.00877,
+   "n": 268,
+   "mde_1event": 0.02456
+  },
+  "TSM": {
+   "beta_nvda": 0.1311,
+   "beta_smh": 0.7777,
+   "resid_sd": 0.01381,
+   "n": 268,
+   "mde_1event": 0.03868
+  },
+  "MU": {
+   "beta_nvda": -0.4135,
+   "beta_smh": 1.9404,
+   "resid_sd": 0.02851,
+   "n": 268,
+   "mde_1event": 0.07983
+  },
+  "AMD": {
+   "beta_nvda": -0.1157,
+   "beta_smh": 1.4452,
+   "resid_sd": 0.02866,
+   "n": 268,
+   "mde_1event": 0.08026
+  },
+  "AVGO": {
+   "beta_nvda": 0.1373,
+   "beta_smh": 0.7386,
+   "resid_sd": 0.02185,
+   "n": 268,
+   "mde_1event": 0.06119
+  },
+  "ANET": {
+   "beta_nvda": 0.1666,
+   "beta_smh": 0.6327,
+   "resid_sd": 0.02991,
+   "n": 268,
+   "mde_1event": 0.08374
+  },
+  "VRT": {
+   "beta_nvda": 0.1736,
+   "beta_smh": 1.0429,
+   "resid_sd": 0.02852,
+   "n": 268,
+   "mde_1event": 0.07986
+  },
+  "MPWR": {
+   "beta_nvda": -0.2128,
+   "beta_smh": 1.2336,
+   "resid_sd": 0.0195,
+   "n": 268,
+   "mde_1event": 0.05461
+  },
+  "CRDO": {
+   "beta_nvda": 0.1601,
+   "beta_smh": 1.4016,
+   "resid_sd": 0.04481,
+   "n": 268,
+   "mde_1event": 0.12546
+  },
+  "ALAB": {
+   "beta_nvda": -0.0528,
+   "beta_smh": 1.5871,
+   "resid_sd": 0.04967,
+   "n": 268,
+   "mde_1event": 0.13908
+  },
+  "COHR": {
+   "beta_nvda": 0.0614,
+   "beta_smh": 1.4681,
+   "resid_sd": 0.0391,
+   "n": 268,
+   "mde_1event": 0.10949
+  },
+  "LITE": {
+   "beta_nvda": -0.0216,
+   "beta_smh": 1.4358,
+   "resid_sd": 0.04778,
+   "n": 268,
+   "mde_1event": 0.1338
+  },
+  "AAOI": {
+   "beta_nvda": -0.0299,
+   "beta_smh": 1.9056,
+   "resid_sd": 0.07444,
+   "n": 268,
+   "mde_1event": 0.20842
+  },
+  "SMCI": {
+   "beta_nvda": 0.489,
+   "beta_smh": 0.9572,
+   "resid_sd": 0.04932,
+   "n": 268,
+   "mde_1event": 0.13811
+  },
+  "DELL": {
+   "beta_nvda": -0.0171,
+   "beta_smh": 0.7912,
+   "resid_sd": 0.03831,
+   "n": 268,
+   "mde_1event": 0.10726
+  },
+  "ORCL": {
+   "beta_nvda": 0.5945,
+   "beta_smh": 0.185,
+   "resid_sd": 0.03587,
+   "n": 268,
+   "mde_1event": 0.10043
+  },
+  "APLD": {
+   "beta_nvda": 0.3169,
+   "beta_smh": 1.2318,
+   "resid_sd": 0.05352,
+   "n": 268,
+   "mde_1event": 0.14984
+  },
+  "IREN": {
+   "beta_nvda": 0.1179,
+   "beta_smh": 1.3348,
+   "resid_sd": 0.05932,
+   "n": 268,
+   "mde_1event": 0.16611
+  },
+  "CORZ": {
+   "beta_nvda": 0.2752,
+   "beta_smh": 0.9017,
+   "resid_sd": 0.03435,
+   "n": 268,
+   "mde_1event": 0.09618
+  }
+ }
+}
