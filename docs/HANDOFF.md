@@ -1,5 +1,59 @@
 # HANDOFF — read this first
 
+## SESSION 13 (26 Aug, ~10:00-11:15 ET, Opus day) — the north star, the chain break, and what the refusals actually say
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 alive
+(PIDs 7260 / 4324). Independent selectors: unchanged. Candidates tested: 0. **RESULT IMPROVEMENT: NONE.**
+LLM spend this session: **$0.00**. What moved is the instrument and the record, not the edge.
+
+**1. THE REVIEW'S TWO "COMMITTED" DOCUMENTS DID NOT EXIST.** The external review reported committing
+`AEGIS_STRATEGIC_INVARIANTS.md` as `174b6796` and a roadmap as `889a9ef5`. `git cat-file -t` calls both hashes
+invalid objects in both repos; neither file was on disk or any remote. **The content was good and the
+persistence was fiction.** Both now exist for real in `aegis-finance` (commit `c15ca1f`), and the correction is
+logged in the roadmap's own first section because it is the exact failure the document is about. New standing
+rule, and it binds on my own reports: *a claim that an artefact was persisted is checkable in one command.*
+
+**2. THE CHAIN BREAK IS SOLVED — AND IT WAS SIX BREAKS, NOT ONE.**
+`docs/FINDING_LEDGER_CHAIN_BREAK_2026-08-25.md`. Cause **CONFIRMED as CONCURRENT_WRITE**: line 1202 is
+`role=dev` at 15:39:59.**208**, line 1203 is `role=exp1` at 15:39:59.**209**, and 1203's `_prev` is the hash of
+line **1201**. Six breaks in a 36-second window; two of them rows spliced mid-JSON, i.e. decisions partly
+**lost**. `verify_chain` had been RETURNING at the first break, which is why 53+ warnings all said "line 1203"
+and five more were never seen. `_Lock` already fixed the cause; 4,516 rows since are clean.
+**Not repaired — declared as an epoch** (`alpha/epoch.py`, `state/ledger_epochs.json`): exactly those six are
+accepted, anything else is red, and a manifest hash stops the accepted list being widened later. The check now
+reads green and still says the damage is there.
+
+**3. REFUSAL DECOMPOSITION, AND IT ANSWERS A QUESTION WE HAD BEEN ASKING WRONG.** `48 refused` never said
+whether the alpha layer was barren or the risk layer too strict. Measured on live forecasts:
+
+> **`already_held=32  evidence=12  execution=4  risk=0`**
+
+**Neither. The system is SATURATED** — two thirds of refusals are "we already own it", and admission never got
+to speak. The loop is spending forecast budget on names it cannot act on. This is direct evidence for
+`MAX_THESIS_CLUSTER` and for starting the competition account clean.
+*Caveat, stated because it matters:* that run used an isolated ledger, so `book.reconstruct` matched nothing
+and read 99.5% at risk. `already_held` reads venue positions, not the ledger, so the 32 stands; the `risk=0`
+is partly an artefact of firing later in the pass.
+
+**4. A DRY RUN WAS COUNTED AS A REFUSAL.** `dry_run` incremented `refused`, so a pass that BUILT every order
+and chose not to send it printed identically to one where risk blocked everything. Yesterday's smoke reported
+`refused=48` for a pass that had built 48 orders **and I read that number into a handoff.** Now its own counter.
+
+**5. TWO TESTS WERE AMBIENT-ENVIRONMENT TESTS WEARING OTHER NAMES.** Both passed only because nobody ran them
+with `AAT_ACCOUNT_ROLE` set. The equity book test reconstructed at `account_role=None` while the ledger stamped
+`dev`, so every row was silently dropped and every leg became a residual — it looked like a book-matching test
+and was measuring the environment. **The suite is now verified green under `dev`, `exp1` AND unset**, which it
+never was before.
+
+**6. LIVE OBSERVATION FOR P0.5.** The dev book holds AMD, AVGO, NVDA, QQQ, META and TSLA simultaneously — one
+causal cluster, on the eve of that cluster's event. NVDA is net short premium (−$8,320 over 5 legs), which is
+consistent with our own "the chain overprices mega-cap prints" result. Bounded contractual loss per structure
+does not make that a diversified book.
+
+**STILL OPEN.** `REPEATED_INVARIANT_ESCALATION` (a warning may not print 53 times unread) · `LOOP_LIVENESS_v1`
+· defect 4 (option structures have no venue stop) · **Friday's restart to `--expiry 2026-09-04`** · tonight's
+NVDA resolution after ~16:20 ET.
+
 ## URGENT / OPEN AT HANDOFF (26 Aug 09:45 ET)
 
 **1. BOTH PAPER LOOPS DIED AT 09:19 ET AND THE CAUSE IS NOW FIXED.** Found by counting command lines, not by
@@ -13,7 +67,7 @@ backoff). **Both restarted 09:41 ET, verified on the right accounts** -- dev PID
 exp1 PID 4324 (PA3AOJPJTSBW), logs `state/loop_*_s12.{log,err}`. `--expiry 2026-08-28` deliberately UNCHANGED;
 **Friday's restart to `--expiry 2026-09-04` is still due.**
 
-**2. THE LEDGER HASH CHAIN IS BROKEN AND HAS BEEN SINCE 25 AUG -- NOT INVESTIGATED.**
+**2. [RESOLVED IN SESSION 13 -- see above. Kept for the record.] THE LEDGER HASH CHAIN IS BROKEN AND HAS BEEN SINCE 25 AUG -- NOT INVESTIGATED.**
 `chain breaks at line 1203 (decision_id='20260825T1539:narrative_dispersion:QQQ:alt0')`, recorded `_prev` !=
 computed. It appears **53+ times** in `state/loop_dev.log` and on every `manage` pass since. Not caused by
 session 12; NOT repaired here, because repairing a tamper-evident chain is itself the tampering it exists to
