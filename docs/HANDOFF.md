@@ -1,8 +1,37 @@
 # HANDOFF — read this first
 
-**Updated 2026-08-25 evening, sandbox session 3 (Fable).** Competition derivative
-of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
+**Updated 2026-08-26 ~02:30 ET, session 8 (Fable, autonomous; market closed throughout).**
+Competition derivative of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
+
+## SESSION 8 (26 Aug 00:00-02:30 ET, market closed) — Murat's review executed in its order
+
+**RESULT IMPROVEMENT: no P&L (market closed; both books unchanged: dev $96,160 / exp1 $97,779,
+realised −$6 each). What changed: the one positive-t mechanism has an instrument that does not
+eat it; the book can no longer immobilise itself; and the first Psychohistory record exists
+BEFORE tonight's print.** Commits `8378503 → f06f7d7`, 241 smoke checks green (`python tests_smoke.py`).
+
+| built | what it is | receipt |
+|---|---|---|
+| **SHARES as a structure** (`alpha/engine/equity.py`) | `long_shares`/`short_shares` enumerated BESIDE the options for any `direction` brain; same MDM gate, same EV/max-loss ranker, same sizer. Worst case is DECLARED: 3% stop + 2% gap allowance = 5% of spot per share, charged in the book; notional capped at 25%/name; shorts only if the venue says shortable+ETB. `book.py`, `exits.py` (stop / +2.5% target / horizon spent at 15:45 ET on the last session / orphan flattened), `attribution.py`, `arbiter.py` (skips shares) all read equity legs. | `tests_smoke_equity.py` (51). **Live probe on the real NVDA chain:** +0.72% centre vs the PRE-print 5.10% width → shares refused at **+4.5pp** (floor 5pp), exactly the doctrine's number. The first cut had scaled the width by √(horizon/dte) and let shares clear at 4.5%→5.1pp — **a jump has no √t; the width is never scaled DOWN** (commit 2). |
+| **PROSPECTIVE admission** (`alpha/admission.py`) | Before any order: the POST-trade book must keep **10% of equity free** under the aggregate ceiling for a better signal tomorrow (unless the order IS the reserved event's expression), ≤15%/name (or the profile's single-thesis max), **theta burn ≤0.75%/day**, **2σ delta stress ≤10%** (delta-only, labelled). Theta/stress say `CANNOT DETERMINE` when greeks cannot be derived — never a silent pass. Refusals are ledger rows `ADMISSION: …` with the post-trade metrics. | `tests_smoke_admission.py` (27). The 25 Aug dev book replayed one order at a time: the second NVDA condor refused on CONCENTRATION, the book never passes 40%. Live dry pass on dev: greeks derived from attribution; all 5 forecasts refused (72.7% book). |
+| **PSYCHOHISTORY v0** (`alpha/psychohistory.py`, `scripts/psychohistory.py`, `docs/ROADMAP_2026-08-26_CAUSAL_WORLD_MODEL.md`) | The causal compiler upstream of verification. Evidence bundle (authored facts with sources + measured: chain implied, Polymarket ladder, our brains) → DeepSeek → causal chain (confidence, lag), 3-5 scenarios each committing to a **day-0 bucket on the PEAD terciles** with **falsifiers (refused without)**, priced-in, second-order winners/losers, templates used. Folded onto five buckets and set against the CHAIN's own bucket distribution; Brier + log score for both on resolve. `SHADOW_ONLY`, no trading authority. | `tests_smoke_psychohistory.py` (24). **First record `PH:NVDA:2026-08-27:b29d506d`** ($0.0034): priced-in 0.80; surprise axis = GM ≥74% under HBM cost inflation + the guide; model tail mass **12% vs chain 20%**, mild up-skew (34/29). `python -m scripts.psychohistory show`. |
+| **Component grader** (`scripts/event_grade.py`) | Width (each brain vs chain vs realised), crush (28 Aug implied/IV before→after), direction, P&L by greek per structure per account with the **share from the CLAIMED mechanism** (condor = vega+theta; straddle = gamma+vega) and the unclaimed delta, and the Psychohistory resolve. | `--pre` frozen at 05:07 UTC: chain implied **5.10%, ATM IV 0.95** (0.81 on 25 Aug → the pre-print lift the condors are red on: vega −851/−736/−720 against theta +549/+502/+443). |
+
+**Crypto: no "round" exists.** Sat/Sun are days when crypto is the only open market; it is 25% of the
+calendar and 0% of the criteria. Skipped on evidence, and the write-up says so. $99 Algo Trader Plus: still NO.
+
+**For the morning (in order):**
+1. `python -m scripts.pnl_attribution --all` (unchanged rule). The admission controller is LIVE on both
+   loops' next entry pass (`run_pass` is spawned per pass, no restart needed); expect `ADMISSION:` rows
+   only once exits free capital.
+2. **After the 27 Aug close** (day-0): `python -m scripts.event_grade NVDA --expiry 2026-08-28 --post --resolve PH:NVDA:2026-08-27:b29d506d`
+   — the condors graded by mechanism, the first Psychohistory Brier line. If bars are not final pass `--day0-move`.
+3. **28 Aug, first pass after kickoff:** `post_event_drift` may fire on NVDA (day+1, needs |day-0| ≥ 3.5%).
+   The chain's 28 Aug width will have collapsed; if the +0.72% centre now clears 5pp, the champion will be
+   **shares**, not an option — the whole point of commit 1. If it does not clear, the record says so and cash wins.
+4. Dashboard does not yet read `state/psychohistory.jsonl`, `state/event_grade/`, or `ADMISSION:` rows.
+5. Not done from the review: the adversarial falsifier pass, Trade Pulse (customs by HS code), edge shapes — §5 of the roadmap.
 
 ## SESSION 7 (25 Aug ~22:00-00:30 ET, market closed) — `docs/FINDING_2026-08-26_SWEEP_OF_THE_WILD.md`
 
