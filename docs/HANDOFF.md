@@ -131,6 +131,18 @@ the second-largest riser, so this is large-cap tech generally or a mix shift tow
 cleanly an AI story.** AMZN's series has a five-year hole and the run says so. A **lead, not a finding**;
 nothing trades on it. Decisive next step is splitting PP&E by asset class.
 
+**18. `NEEDS_GRAPH_v1` — THE LAST LANE, and it fails the same way the panel did.** Constrained = revenue
+growing AND gross margin rising, jointly. **Six of seven nodes qualify**, so the binary discriminates nothing
+— the same failure as conditioning on analyst bullishness when 93% of names are bullish. The tool says so
+itself now. **What survives is the ordering:** memory/HBM at **+39.9pp** margin expansion against +7.3pp for
+the next node, on +167% growth. **The most valuable row is the one that FAILS** — servers/ODM grows 47% while
+margin contracts 4.6pp, exactly what an assembler should look like; a metric that flagged even the assemblers
+would be measuring growth and calling it scarcity.
+It also exposes a tension neither metric shows alone: **the node with the most pricing power has the LEAST
+torque** (MU is 1%, already $89bn of revenue), while the high-torque names sit in datacentre ops at a fifth
+of the margin expansion. Diagnosis and expression point at different places — which is what `ANCHOR_TO_TORQUE`
+arbitrates.
+
 **CORRECTIONS I OWE FROM THIS BLOCK.** I said the hackathon LLM path was dead (170 calls, 0 successes) —
 **wrong twice**: my parser tested a field that does not exist so everything read False, and my own test call
 omitted the `Authorization` header that `extract.py` passes explicitly, producing a 401 that looked exactly

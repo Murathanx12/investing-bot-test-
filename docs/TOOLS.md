@@ -40,6 +40,8 @@ reading code or eyeballing the venue, there is probably already a tool.
 
 | `python -m scripts.depreciation_gap` | **Is accounting useful life being stretched?** PP&E / depreciation from SEC XBRL. Flags missing years, and runs Apple as the control that stops a clean AI narrative. |
 
+| `python -m scripts.needs_graph` | **Which layer of the build-out has pricing power?** revenue growth AND margin expansion, jointly. Says out loud when its own binary fails to discriminate. |
+
 ## Modules worth knowing
 
 | module | why |
