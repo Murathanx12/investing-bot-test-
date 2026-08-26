@@ -52,6 +52,7 @@ def main() -> int:
             else:
                 print("\nall expected loops HEALTHY")
         else:
+            print(f"\n{esc.line()}")
             print("\nNOT HEALTHY -- see above. A stopped loop reads exactly like a quiet market,\n"
                   "so this is the only thing standing between an outage and a silent gap in the\n"
                   "forward record. Restart with the SAME --expiry the book was opened against.")
