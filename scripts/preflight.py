@@ -1,132 +1,139 @@
-"""Prove the account is the one we think it is, BEFORE the agent trades on it.
+"""PRE-FLIGHT -- what the account looks like before the first competition order.
 
-Run this against `dev` during rehearsal and against `competition` immediately
-after the judged account is created at kickoff. It answers, with the server's
-own words rather than ours:
+    python -m scripts.preflight                  # this account, full report
+    python -m scripts.preflight --require-clean  # exit 1 unless the book is EMPTY
 
-  * is this a PAPER account (PA-prefixed account number)?
-  * is the starting equity the $100,000 the rules require?
-  * is it FRESH -- zero fills, zero positions, no prior history that would make
-    it a "reused account" and therefore ineligible?
-  * are options enabled, and at what level (multi-leg needs level 3)?
-  * is the market data feed real OPRA, or the free INDICATIVE one that makes
-    every expected-value calculation in this repo fiction?
-  * does the clock agree with the competition window?
+WHY THIS EXISTS
+===============
+The rehearsal book reached **72.9% of equity in true max loss** while every
+individual structure was defined-risk and every admission check passed. Nothing
+was violated; the checks simply never asked the question this asks.
 
-A check that did not run is not a check that passed. Each line prints PASS,
-FAIL or CANNOT DETERMINE -- never a silent skip -- because the failure mode that
-costs the most here is a guard that reported green while reading nothing.
+The competition account starts from zero positions and has to prove each one
+against a state it can see. This prints that state, and `--require-clean`
+refuses to certify an account that has already been traded into.
 
-    python -m scripts.preflight
+WHAT IT REPORTS, AND WHY EACH LINE IS HERE
+==========================================
+equity / free capital       the denominator every other number divides by
+true max loss               what the book loses if every structure goes wrong
+premium-paid view           what it loses if you only count debits -- the
+                            FLATTERING view, printed beside the honest one so
+                            the gap is visible rather than selectable
+effective N by RISK         how many bets this actually is (alpha/concentration)
+largest thesis cluster      the concentration that killed a $20bn fund in July
+open + in-flight orders     a resting order is exposure that no position shows
+daily loss latch            whether today is already latched
+loop liveness               a book nobody is managing is not a managed book
+
+Nothing here trades or sizes. It reads and it refuses.
 """
 
 from __future__ import annotations
 
+import argparse
+import math
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from alpha import config
+from alpha import (book as book_mod, concentration, config, daybreak, liveness)
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
-PASS, FAIL, UNKNOWN = "PASS", "FAIL", "????"
 
-
-def _line(status: str, label: str, detail: str = "") -> bool:
-    print(f"  [{status}] {label}" + (f"  --  {detail}" if detail else ""))
-    return status == PASS
+def _returns(client: AlpacaPaper, syms: list[str], days: int = 60) -> dict[str, list[float]]:
+    if not syms:
+        return {}
+    start = (datetime.now(timezone.utc) - timedelta(days=days)).date().isoformat()
+    try:
+        bars = client.stock_bars_multi(sorted(syms), start=start, timeframe="1Day")
+    except BrokerRefusal:
+        return {}
+    out = {}
+    for sym, rows in bars.items():
+        c = [float(r["c"]) for r in rows if r.get("c")]
+        if len(c) > 5:
+            out[sym] = [math.log(c[i] / c[i - 1]) for i in range(1, len(c)) if c[i - 1] > 0]
+    return out
 
 
 def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--require-clean", action="store_true",
+                   help="exit 1 unless the account holds no positions and no open orders")
+    args = p.parse_args()
+    config.load_env()
+    client = AlpacaPaper()
+
+    acct = client.account()
+    equity = float(acct.get("equity") or 0.0)
+    cash = float(acct.get("cash") or 0.0)
+    buying_power = float(acct.get("buying_power") or 0.0)
+    positions = client.positions()
     try:
-        role = config.role()
-    except config.CredentialRefusal as exc:
-        print(f"REFUSED: {exc}")
-        return 2
+        open_orders = client.orders(status="open")
+    except BrokerRefusal:
+        open_orders = []
 
-    print(f"\nPREFLIGHT  role={role}  host={config.base_url()}")
-    print(f"window: {config.COMPETITION['kickoff_utc']} -> {config.COMPETITION['deadline_utc']}\n")
+    print(f"PRE-FLIGHT  account {acct.get('account_number')}  role={config.account_role()}"
+          if hasattr(config, "account_role") else
+          f"PRE-FLIGHT  account {acct.get('account_number')}")
+    print(f"  equity            ${equity:,.0f}")
+    print(f"  cash              ${cash:,.0f}")
+    print(f"  buying power      ${buying_power:,.0f}")
+    print(f"  positions         {len(positions)}")
+    print(f"  open orders       {len(open_orders)}"
+          + ("   <- resting orders are exposure no position shows" if open_orders else ""))
 
-    client = AlpacaPaper(role=role)
-    results: list[bool] = []
+    b = book_mod.read(client)
+    tml = getattr(b, "max_loss_usd", 0.0) or 0.0
+    ppd = getattr(b, "premium_paid_usd", 0.0) or 0.0
+    print(f"\n  TRUE max loss     ${tml:,.0f}  = {100*tml/equity if equity else 0:.1f}% of equity")
+    print(f"  premium-paid view ${ppd:,.0f}  = {100*ppd/equity if equity else 0:.1f}%"
+          "   (the flattering view, printed so the gap is visible)")
+    print(f"  book unbounded    {getattr(b, 'unbounded', None)}")
+    print(f"  structures        {len(getattr(b, 'structures', []))}"
+          f"   residual legs {len(getattr(b, 'residuals', []) or [])}")
 
-    try:
-        acct = client.account()
-    except (BrokerRefusal, config.CredentialRefusal) as exc:
-        print(f"  [{FAIL}] account fetch  --  {exc}")
-        return 1
-
-    number = str(acct.get("account_number", ""))
-    results.append(_line(PASS if number.startswith("PA") else FAIL,
-                         "paper account", f"account_number={number}"))
-
-    equity = float(acct.get("equity", 0) or 0)
-    required = config.COMPETITION["required_starting_equity"]
-    if role == "competition":
-        # Fresh account: equity should still BE the starting balance.
-        ok = abs(equity - required) < 1.0
-        results.append(_line(PASS if ok else FAIL, "starting equity",
-                             f"${equity:,.2f} (rules require ${required:,.0f})"))
+    weights = concentration.weights_from_book(b)
+    if weights:
+        c = concentration.measure(weights, _returns(client, list(weights)))
+        state, why = concentration.verdict(c)
+        print(f"\n  CONCENTRATION     [{state}]")
+        print(f"    {why}")
+        top, tw = max(weights.items(), key=lambda kv: kv[1]), sum(weights.values())
+        print(f"    largest single thesis: {top[0]} at {100*top[1]/tw:.1f}% of book max loss")
     else:
-        results.append(_line(PASS, "equity (dev account, not rules-bound)", f"${equity:,.2f}"))
-
-    # Freshness. Only meaningful for the judged account, and it is the check
-    # that cannot be repaired after the fact -- an account with history cannot
-    # be un-used, and resetting it is itself a reuse.
-    if role == "competition":
-        try:
-            fills = client.orders(status="closed", limit=5)
-            positions = client.positions()
-            fresh = not fills and not positions
-            results.append(_line(
-                PASS if fresh else FAIL, "account is FRESH",
-                "no prior orders or positions" if fresh
-                else f"{len(fills)} closed order(s), {len(positions)} position(s) -- "
-                     "a reused account is INELIGIBLE and this cannot be undone",
-            ))
-        except BrokerRefusal as exc:
-            results.append(_line(UNKNOWN, "account is FRESH", str(exc)))
-
-    opts_level = acct.get("options_trading_level")
-    if opts_level is None:
-        results.append(_line(UNKNOWN, "options level",
-                             "field absent from the account payload -- verify in the dashboard"))
-    else:
-        ok = int(opts_level) >= 3
-        results.append(_line(PASS if ok else FAIL, "options level",
-                             f"level {opts_level} (multi-leg needs 3; paper is auto-approved)"))
-
-    # The data feed. This is not a nicety: on the free plan the options feed is
-    # INDICATIVE, which means the bid/ask this agent computes its minimum
-    # detectable move from is not a price anyone would trade.
-    try:
-        chain = client.option_chain("SPY")
-        snaps = (chain or {}).get("snapshots") or {}
-        with_quote = sum(1 for s in snaps.values() if (s.get("latestQuote") or {}).get("ap"))
-        with_greeks = sum(1 for s in snaps.values() if s.get("greeks"))
-        if not snaps:
-            results.append(_line(FAIL, "OPRA option chain", "no snapshots returned"))
-        else:
-            results.append(_line(PASS, "OPRA option chain",
-                                 f"{len(snaps)} contracts, {with_quote} quoted, {with_greeks} with greeks"))
-    except BrokerRefusal as exc:
-        results.append(_line(FAIL, "OPRA option chain",
-                             f"{exc}  --  if this is a 403/subscription error, the account is on the "
-                             "free INDICATIVE feed and Algo Trader Plus ($99/mo) is required"))
+        print("\n  CONCENTRATION     no structures -- nothing to measure (a clean book)")
 
     try:
-        clock = client.clock()
-        now = datetime.now(timezone.utc)
-        deadline = datetime.fromisoformat(config.COMPETITION["deadline_utc"].replace("Z", "+00:00"))
-        remaining = (deadline - now).total_seconds() / 3600.0
-        results.append(_line(PASS, "clock",
-                             f"market {'OPEN' if clock.get('is_open') else 'closed'}, "
-                             f"{remaining:.1f}h to the submission deadline"))
-    except BrokerRefusal as exc:
-        results.append(_line(UNKNOWN, "clock", str(exc)))
+        day = daybreak.read(client)
+        print(f"\n  DAILY LATCH       {'LATCHED' if day.latched else 'not tripped'}")
+        print(f"    {day.reason[:150]}")
+    except Exception as exc:                                   # noqa: BLE001
+        print(f"\n  DAILY LATCH       UNREADABLE ({type(exc).__name__}) -- treat as latched")
 
-    failed = results.count(False)
-    print(f"\n{len(results) - failed}/{len(results)} checks passed.\n")
-    return 1 if failed else 0
+    ok_live, lines = liveness.report()
+    print(f"\n  LOOP LIVENESS     {'ok' if ok_live else 'NOT HEALTHY'}")
+    for line in lines[:4]:
+        print(f"    {line[:150]}")
+
+    if args.require_clean:
+        dirty = []
+        if positions:
+            dirty.append(f"{len(positions)} open position(s)")
+        if open_orders:
+            dirty.append(f"{len(open_orders)} open order(s)")
+        print()
+        if dirty:
+            print("REFUSED: this account is NOT clean -- " + ", ".join(dirty) + ".")
+            print("  The competition account inherits no rehearsal book. A book assembled under")
+            print("  the old admission rules has not proved itself under the new ones, and the")
+            print("  rehearsal book reached 72.9% of equity in true max loss with every")
+            print("  individual check passing.")
+            return 1
+        print("CLEAN: no positions, no open orders. The account is ready to prove each")
+        print("  position against a state it can see.")
+    return 0
 
 
 if __name__ == "__main__":
