@@ -1,5 +1,74 @@
 # HANDOFF — read this first
 
+## SESSION 13b (26 Aug, 11:15-16:00 ET, Opus, UNATTENDED) — every P0 closed, and a $20bn case study
+
+Murat asleep, 8 hours granted. **Did NOT: restart the loops** (an unanswered question and an
+execution-surface change before an earnings print), place any order, or mutate execution state. The
+night-guard spirit binds whenever unattended regardless of the clock. `NIGHT_CONFLICT_GUARD: PASS` throughout.
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev/exp1 alive (PIDs 7260,
+4324). Independent selectors: unchanged. Candidates tested: 1 (`fame_bias`), **0 promoted**. New actionable
+finding: **effective N by RISK**. LLM spend: **$0.03**. **RESULT IMPROVEMENT: NONE** — what moved is the
+instrument, the risk measurement, and a lane that was blocked.
+
+**1. ALL FIVE OPEN P0 ITEMS ARE CLOSED.** `LOOP_LIVENESS_v1` (heartbeat + process scan + PRE-BEAT state; the
+PID probe is MEASURED because `os.kill(pid,0)` reports a *dead* process as ALIVE on Windows and would have
+certified a dead loop) · ledger forensics (six breaks, CONCURRENT_WRITE confirmed, epoch-declared not
+repaired) · `REPEATED_INVARIANT_ESCALATION` (WARN/ELEVATED/FAIL, no acknowledge verb, asserted absent by
+test) · defect 4 (**mis-sized by me** — 1500s was a constant, measured median is 368s, and 7 of 9 structures
+are LONG-ONLY so a late exit cannot breach a budgeted loss; ceiling cut to 600s, exits now run immediately
+after entries) · refusal decomposition.
+
+**2. `LEVERAGE_WITH_SURVIVAL_v1` UNBLOCKED AND PHASE 1 DONE.**
+`docs/FINDING_2026-08-26_EFFECTIVE_N_BY_RISK.md`. Every Situational Awareness figure verified from the SEC
+filings themselves (CIK 0002045724): SNDK 28.03%, MU 27.54%, BE 9.60%, TSM 6.37%, NBIS 6.09% of $20.24bn.
+The four quarters show what the summaries missed: **in Q1 2026 the fund held its most diversified book ever
+(effective N 12.5) alongside a ~$7.2bn PUT BOOK; by Q2 the puts are $5M and 55.6% sits in two memory names.**
+The hedge came off and concentration doubled in the same filing period.
+
+Marked through the drawdown at Q2 weights (96.98% of the book priced from our own bars, 41 sessions):
+**unlevered −23.3%, and it SURVIVES.** Margin breaks at 2.0x on 16 July, 3.0x on 1 July. Carrying the
+reported +439% in: 1.0x ends **+313%**, 3.0x **+50%**. The thesis was not what killed it.
+
+**3. THE NUMBER THAT TRANSFERS: EFFECTIVE N BY RISK.** SA measured 5.34 by weight and **1.43 by RISK**
+(avg rho +0.54; on 1 July **20 of 21 names fell together**). Same code on our books, weighted by TRUE MAX
+LOSS: **dev 1.51, exp1 1.27** — exp1 is *below* the fund's value at forced liquidation. And **dev carries
+52.4% of its max loss on NVDA, on the night NVDA reports.** `alpha/concentration.py` REPORTS and never
+refuses; making it a gate is an attended decision.
+
+**4. `FAME_BIAS_v1`: NOT DETECTED, and the instrument could only have seen 3.5 points.**
+78 replies, 18 companies, each condition drawn TWICE. Overall drift **−0.36p** against a **2.64p noise
+floor**, MDE 3.53p. Best cell t 1.50 over 5 cells (p_adj 0.512) — *below* the 1.57 expected max |t| from five
+noise draws. NOT PROMOTABLE. **The noise floor earned its cost immediately**: on one validation packet,
+revealing "NVDA" moved the score 62→72 while a weak packet stayed 12→12 — a clean mechanistic story that did
+not replicate (NVDA's real drift over four draws: **−1.5**). The binding constraint is the output scale, not
+n: seven distinct scores across 78 replies. Rerun should change the ELICITATION before the sample.
+
+**5. `ANALYST_DISLOCATION_FUNNEL` UNBLOCKED THE ONLY WAY IT CAN BE.** We cannot recover analyst vintages we
+never recorded, so `scripts/analyst_panel.py` starts the clock: recommendation counts BY PERIOD (net breadth
++ 1-month delta), market cap, industry, and price features, every row stamped `captured_utc`. Stratified
+across dollar-volume buckets so it is not another mega-cap list. **Finnhub's free tier refuses
+`stock/price-target` (403), so the literal ">50% upside" screen cannot be reproduced — recorded as
+`UNAVAILABLE_FREE_TIER`, never approximated.** Scheduled daily at **17:30 ET** (`AegisAnalystPanelDaily`,
+read-only; remove with `Unregister-ScheduledTask -TaskName AegisAnalystPanelDaily -Confirm:$false`).
+
+**6. P0.5 PRE-FLIGHT + ADMISSION PROPOSAL.** `python -m scripts.preflight [--require-clean]`. On dev now:
+**55.0% true max loss vs 34.1% premium-paid**, N_RISK 1.51, NVDA 52.4%. `docs/PROPOSAL_2026-08-26_
+COMPETITION_ADMISSION.md` proposes four thresholds each traced to evidence and leaves `MAX_DAILY_THETA`
+**UNSET** because there is no evidence for one. **Nothing enforces any of it.**
+
+**7. TONIGHT IS REHEARSED.** `scripts/nvda_resolve.py` built and exercised on a COPY: `reaction()` refuses
+before resolution, an unknown field is refused, a tampered vector refuses to resolve, **sealed record
+untouched**. Also verified from NVIDIA IR that the sealed priors are right: Q2 guide **$91.0bn ±2%**, GM
+**75.0%**.
+
+**CORRECTIONS I OWE FROM THIS BLOCK.** I said the hackathon LLM path was dead (170 calls, 0 successes) —
+**wrong twice**: my parser tested a field that does not exist so everything read False, and my own test call
+omitted the `Authorization` header that `extract.py` passes explicitly, producing a 401 that looked exactly
+like a dead key. The key is fine; the narrative brain has been working. Separately, my first
+`fame_bias_report` charged the alpha budget **on every render** (0.100 → 0.047 → 0.023 for re-reading the
+same replies); fixed, and the wasted charges stay in the ledger.
+
 ## SESSION 13 (26 Aug, ~10:00-11:15 ET, Opus day) — the north star, the chain break, and what the refusals actually say
 
 **RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 alive
