@@ -270,6 +270,19 @@
    "short_simple": -0.00521,
    "convexity_charge": -0.00607,
    "net": -0.00821
+  },
+  "alpha_budget": {
+   "family": "post_event_drift",
+   "hypothesis": "NON_PRINT_BOUNCE_v1: >=5% non-print loser reverses",
+   "n_tests_charged": 8,
+   "alpha_spent": 0.05,
+   "wealth_before": 0.1,
+   "wealth_after": 0.04736842105263158,
+   "p_value": 0.3172932242256511,
+   "best_t": 1.99,
+   "expected_max_t": 1.600875875284244,
+   "promoted": false,
+   "reason": "NOT PROMOTABLE: best |t| 1.99 over 8 cells gives p_adj 0.3173 > alpha 0.0500. Expected max |t| from 8 noise draws is 1.60."
   }
  }
 }

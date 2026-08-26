@@ -340,3 +340,161 @@ it runs tonight.
 - **No source ranked by how convenient it is.** Primary sources first: filings
   and IR -> government/exchange/customs -> audited industry data -> wire services
   -> other media -> social. And a restatement is never a confirmation.
+
+---
+
+## 4. Review of 2026-08-26 (second pass) — assessed, and what was adopted
+
+The review is **largely valid**. Its five-finding summary matches the receipts,
+its ranking of the project's best results is better than the one this repo had
+been using, and its central diagnosis is correct and uncomfortable:
+
+> Aegis is much better at proving that something should not be traded than at
+> continuously producing a portfolio of high-expected-return trades.
+
+Adopted immediately (this session):
+
+- **A5 run.** `NON_PRINT_BOUNCE_v1` went through the battery and is
+  **FAILED_VARIANT** — the bounce is beta plus convexity, and 35 corporate-action
+  rows out of 46,361 carried 81% of the simple return.
+  `docs/FINDING_2026-08-26_NON_PRINT_BOUNCE_IS_BETA_AND_CONVEXITY.md`.
+- **`RESEARCH_ALPHA_BUDGET` built** (`alpha/alpha_budget.py`), motivated by a
+  live example from that battery rather than in the abstract.
+- **Audit defects 5 and 6 closed**; 4 and 7 assessed below.
+
+### 4a. The one correction the review asked for
+
+It asked for the exact distinction between the *stock reaction magnitude* and
+the *minimum detectable residual edge*, and it was right that the handoff
+compressed this. **There is no contradiction, but the handoff's phrasing was
+wrong and is withdrawn.**
+
+- The **implied move (5.1%)** is the expected size of NVDA's OWN move.
+- The **MDE (3.8% on the capacity edge)** is the smallest *abnormal* return —
+  the part of a node's move NOT explained by its loading on NVDA and SMH — that
+  one event can resolve at 80% power.
+
+These are different quantities and comparing them, as the handoff did, is a
+category error. The correct comparison is MDE against the *plausible size of an
+underreaction*. Concretely, the capacity group's mean NVDA-beta is 0.734, so on
+a +5% NVDA move its expected move is +3.67%; clearing a 3.8% MDE requires the
+group to land at **≤ −0.13% or ≥ +7.47%**.
+
+So the precise verdict, replacing "nothing is resolvable":
+
+> **Only a near-total non-response is resolvable on one event.** An ordinary
+> partial underreaction of 1–2% — the interesting case — is not. The instrument
+> needs ~4 comparable events on the capacity edge and more elsewhere.
+
+### 4b. Where the review is right and it changes the plan
+
+1. **Causal edges accumulate across events.** NVDA is observation #1, not a
+   verdict. Reuse edge ids across AMD, AVGO, hyperscaler capex, Foxconn monthly,
+   TSMC sales and supplier results. This is the correct reading of the power
+   result and it is now the design, not a consolation.
+2. **The two projects must converge.** The strongest evidence (momentum tail,
+   revision dispersion tail, profitability step, over decades and broad
+   universes) is disconnected from a paper system trading short-dated options on
+   SPY/QQQ/NVDA/TSLA. That is a real structural mismatch and naming it is worth
+   more than another strategy.
+3. **Marginal Alpha Contribution over standalone Sharpe.** A sleeve earns capital
+   by improving the portfolio *given what every other sleeve already knows*. This
+   is the direct answer to the diagnosed bottleneck — ten books selecting on one
+   signal — and it is the right principle to take from Numerai.
+4. **LLM large-cap bias is an architecture problem, not a prompting problem.**
+   We have our own evidence, which is stronger than any citation: every arena
+   book is a mega-cap, and the first whole-market scan returned BJ/OSIS/HOV —
+   none of the old fifteen. Ticker-blind reasoning already exists in
+   `alpha/state_change.py`; the missing half is **coverage normalisation**, and
+   the review is right that blinding alone does not fix it. Evidence *quantity*
+   must never become conviction.
+5. **The audit-first methodology may be the most defensible contribution.**
+   Recording how much apparent alpha dies at each audit layer is nearly free
+   now, because the layers already exist and each kill is already written down.
+
+### 4c. Where I would push back
+
+- **The 24-idea table is too many, and the review says so itself before listing
+  them.** They are logged in §5 below, unscheduled. Roughly half need data we do
+  not have (patents, procurement, grid queues, job postings) and are
+  post-competition by necessity, not by preference.
+- **The citations were not verified.** Several point to venues I cannot check
+  from here, and the underlying claims are well-supported by our own receipts
+  anyway. Nothing in this roadmap depends on them.
+- **`ANALYST_STALENESS_v2` should stay v1-shaped until the data exists.** The
+  interaction `target_gap × target_age × revision_direction × drawdown ×
+  catalyst` is five-way on n=52 from one date. That is not an underpowered
+  test, it is an unfittable one. Get point-in-time IBES target vintages first;
+  until then the honest version is two-way at most, and every extra interaction
+  is a cell the alpha budget will charge for.
+
+### 4d. Audit defects 4 and 7 — the explicit statement the review asked for
+
+- **Defect 4 (exit sampling starved by the entry pass): CAN still affect the
+  competition account.** Patch 1 removed it for SHARE positions, which now carry
+  a venue-side GTC stop. It remains live for OPTION structures, which have no
+  venue stop and are closed only when `exits.manage` runs — every 5 minutes at
+  best, and the entry pass may hold the loop for up to 1500s. **Not closed.**
+- **Defect 7 (orders never terminal in the ledger): CANNOT affect competition
+  execution.** It corrupts grading and recovery scoring — `recovery.live_scores`
+  can demote a brain on a trade that never opened — but no order, size or exit
+  depends on it. Deferred with that stated.
+
+---
+
+## 5. The idea backlog — LOGGED, NOT SCHEDULED
+
+Twenty-four hypotheses arrived with the second review. They are recorded here so
+none is lost, and **deliberately not prioritised as a block**: the review's own
+first instruction was "I would not add 30 more items equally."
+
+Triaged by the only thing that decides what can run before 4 Sep — **do we have
+the data today?**
+
+### Runnable now (bars, SEC cache, chain, Finnhub already on disk)
+
+| id | hypothesis | note |
+|---|---|---|
+| `SURPRISE_TO_ATTENTION_RATIO_v1` | high economic surprise / low attention beats raw surprise | the anti-mainstream signal in its cheapest form; the placebo rows already carry attention proxies |
+| `LATENT_EVENT_CLUSTER_v1` | seemingly different tickers are one causal trade | directly improves the node cap, which today keys on a declared theme string |
+| `PRICE_WITHOUT_CAUSE_v1` | an unexplained move triggers a reverse causal search | `daily_autopsy` already found 20/30 movers had no visible precursor — that IS this dataset |
+| `EDGE_DECAY_v1` | deterioration is detectable before statistical death | needs only the forward paper record we already keep |
+| `FAME_BIAS_v1` | the recommendation changes when the ticker is revealed | ticker-blind triage exists in `alpha/state_change.py`; this is the A/B on top |
+| `ANALYST_STALENESS_v2` | target gap works only at certain target age | **v1-shaped until PIT vintages exist** — see §4c |
+
+### Needs one new collector (feasible, probably post-competition)
+
+`COVERAGE_GAP_v1` · `EVIDENCE_DENSITY_NEUTRAL_v1` · `GUIDANCE_LANGUAGE_DELTA_v1`
+· `FOOTNOTE_DRIFT_v1` · `FORM4_CLUSTER_v1` · `ATM_SHADOW_v1` ·
+`CUSTOMER_SUPPLIER_CLOCK_v1` · `MANAGEMENT_TRUTH_SCORE_v1` ·
+`ALPHA_CROWDING_v1` · `EXPECTATION_DISAGREEMENT_v1`
+
+### Needs data we do not have at all (post-competition, by necessity)
+
+`PROCUREMENT_PULSE_v1` · `GRID_QUEUE_v1` · `JOB_FUNCTION_DELTA_v1` ·
+`PATENT_TO_PRODUCTION_v1` · `PHYSICAL_TO_PRICE_LAG_v1` · `CAUSE_WITHOUT_PRICE_v1`
+
+### Architecture, not hypotheses
+
+`MARGINAL_ALPHA_CONTRIBUTION_v1` (the strategy-market allocator) ·
+`RESEARCHER_DIVERSITY_v1` · `UNKNOWN_TICKER_CHALLENGE_v1`
+
+**Every one of these is a family under `RESEARCH_ALPHA_BUDGET`.** That is the
+point of building it before the backlog rather than after: twenty-four lines of
+inquiry run without a budget will manufacture beautiful nonsense, and the
+manufacturing is invisible because each individual test is honest.
+
+## 6. The strategic reframe, which is the review's best contribution
+
+> **Search where ordinary LLMs have the least information and the market has the
+> weakest information-processing machinery.**
+>
+> `high economic importance × low information coverage × measurable causal
+> evidence × large disagreement with market expectations × executable asymmetry`
+
+Not the most discussed company, not the highest analyst coverage, not the
+cleanest option chain, not the ticker the model remembers best.
+
+Unlike "look for risky small caps" — which is what our Nov-2025 list turned out
+to be, a 72%-vol screen with no rank edge — this is testable, and every term in
+it is something we can already measure.

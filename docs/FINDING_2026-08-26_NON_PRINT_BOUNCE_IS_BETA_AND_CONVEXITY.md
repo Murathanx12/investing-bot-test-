@@ -95,10 +95,21 @@ ranges −4.59% to +4.94% at 21 days. The pooled mean is a coin flip with a sign
 | large | 4,814 | 312 | +0.38% | 0.61 | **+0.86%** | **1.99** |
 
 **One cell of eight reaches t2w ≈ 2.0** — large caps at 21 days. That is exactly
-what a multiple-comparison budget exists to price: eight cells tested, best t
-2.0, and the expected maximum |t| from eight independent draws is ≈ 1.9. It is
-recorded as a candidate, **not** as a finding, and it is the first entry for the
-`RESEARCH_ALPHA_BUDGET`.
+what a multiple-comparison budget exists to price. Eight cells were tested; the
+expected maximum |t| from eight independent noise draws is **1.78** (exact
+integration, checked against 200k Monte-Carlo draws), so the best cell sits just
+above what noise routinely produces. Adjusted within the experiment,
+`p_adj = 1 − (1 − p)^8 = 0.317`.
+
+`alpha/alpha_budget.py` charges the `post_event_drift` family for all eight
+cells and returns **NOT PROMOTABLE**, taking family wealth 0.100 → 0.047. It is
+recorded as a candidate, **not** a finding.
+
+> A note on the arithmetic, because the first version was wrong in the dangerous
+> direction: the usual Gumbel approximation for `E[max |Z|]` **understates** it
+> by 0.13–0.32 over n = 2..200, which makes the noise bar look lower and a
+> reported t look more remarkable than it is. It is now computed by exact
+> integration. A guard that errs toward "this is a discovery" is not a guard.
 
 ## Verdict
 

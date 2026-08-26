@@ -242,6 +242,32 @@ def main() -> int:
             "convexity_charge": round(short_simple + mlog, 5),
             "net": round(short_simple - COST_STOCK, 5)}
 
+    # ------------------------------------------------------------------ step 7
+    # Charge the family for EVERY cell examined, not the one worth reporting.
+    # Eight liquidity x horizon cells were sliced; the best reached t2w 1.99,
+    # and the expected maximum |t| from eight noise draws is about 1.86.
+    from alpha import alpha_budget
+
+    cells = []
+    for bk, d in report["steps"].get("buckets", {}).items():
+        for h in ("exc_3", "exc_21"):
+            tv = d.get(h, {}).get("t_two_way")
+            if tv is not None:
+                cells.append((f"{bk}/{h}", abs(tv)))
+    if cells:
+        label, best = max(cells, key=lambda c: c[1])
+        v = alpha_budget.record_batch(
+            "post_event_drift", "NON_PRINT_BOUNCE_v1: >=5% non-print loser reverses",
+            best_t=best, n_tests=len(cells),
+            note=f"best cell {label}; battery in scripts/bounce_battery.py")
+        print("\nSTEP 7  RESEARCH_ALPHA_BUDGET (family 'post_event_drift')")
+        print(f"  {len(cells)} cells charged; best |t2w| {best:.2f} on {label}")
+        print(f"  expected max |t| from {len(cells)} noise draws: {v.expected_max_t:.2f}")
+        print(f"  p_adj {v.p_value:.4f} vs alpha {v.alpha_spent:.4f}")
+        print(f"  wealth {v.wealth_before:.5f} -> {v.wealth_after:.5f}")
+        print(f"  {v.reason}")
+        report["steps"]["alpha_budget"] = v.as_dict()
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"\nwrote {OUT}")
