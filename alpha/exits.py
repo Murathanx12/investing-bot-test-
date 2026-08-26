@@ -336,8 +336,25 @@ def _arbiter_record_due(role: str | None) -> bool:
 
 def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> dict:
     """Evaluate every open position and close the ones that earned it."""
+    from alpha import protect
+
     positions = client.positions()
     summary = {"checked": 0, "closed": 0, "held": 0, "errors": 0, "actions": []}
+
+    # VENUE-SIDE STOPS FIRST. Until this ran, the only thing standing behind a
+    # share position was this function's own cadence -- which is 5 minutes at
+    # best and nothing at all between 16:00 and the next session. A broker error
+    # here must not abort the exit pass: an unplaced stop is the status quo ante,
+    # a skipped `evaluate` loop is a position nobody is watching at all.
+    try:
+        summary["protect"] = protect.ensure(client, positions, dry_run=dry_run)
+        if summary["protect"]["placed"] or summary["protect"]["orphans"]:
+            logger.info("protective stops: %s", summary["protect"])
+    except BrokerRefusal as exc:
+        summary["errors"] += 1
+        summary["actions"].append(("protect_error", "", str(exc)))
+        logger.warning("protective stop pass failed: %s", exc)
+
     leg_action, arbiter_close = _arbiter_pass(client, summary)
     rows = None
     if any((p.get("asset_class") or "") == "us_equity" for p in positions):
@@ -363,6 +380,22 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
             summary["actions"].append(("dry_run", symbol, verdict.reason))
             logger.info("DRY CLOSE %s -- %s", symbol, verdict.reason)
             _record_exit(decision_id, position, verdict, action="dry_run")
+            continue
+
+        try:
+            # CANCEL THE STOP BEFORE CLOSING. `close_position` is a market
+            # DELETE; a sell-stop that outlives the long it protected has
+            # nothing left to sell, and the next trigger OPENS A SHORT in an
+            # account whose book model reads the symbol as flat. If the cancel
+            # fails we do NOT close -- carrying the position one more cycle is
+            # recoverable, an unbounded accidental short is not.
+            protect.cancel_for(client, symbol)
+        except BrokerRefusal as exc:
+            summary["errors"] += 1
+            summary["actions"].append(("stop_cancel_failed", symbol, str(exc)))
+            logger.error("NOT closing %s: its protective stop would outlive it (%s)", symbol, exc)
+            _record_exit(decision_id, position, verdict, action="close_failed",
+                         error=f"protective stop cancel failed, close withheld: {exc}")
             continue
 
         try:

@@ -48,7 +48,15 @@ positions = [
     {"asset_class": "us_equity", "symbol": "SPY", "qty": "10", "cost_basis": "7660"},
 ]
 b = book.reconstruct(positions, equity=100_000, account_role="dev", rows=[condor_row, straddle_row])
-check("both structures matched", len(b.structures) == 2 and not b.residuals, f"{len(b.structures)} / {len(b.residuals)}")
+# The two OPTION structures match; the SPY shares in the fixture have no ledger
+# row and are a residual BY DESIGN -- that is the case the residual charge
+# exists for. The old assertion said `not b.residuals` and had been red since
+# the SPY line was added, which is worse than no check: a permanent red line
+# beside green ones teaches the reader to skim red lines.
+check("both option structures matched", len(b.structures) == 2, f"{len(b.structures)} / {len(b.residuals)}")
+check("the unmatched SPY shares are a named residual, not a silent gap",
+      [r.symbol for r in b.residuals] == ["SPY"] and not b.residuals[0].unbounded,
+      str([(r.symbol, r.how) for r in b.residuals]))
 check("condor charged at its MAX LOSS, not its long wings",
       abs(b.by_underlying["NVDA"] - 15 * 855.0) < 1e-6, f"{b.by_underlying['NVDA']:,.0f}")
 check("premium-paid view is the OLD (smaller) number",
@@ -171,8 +179,9 @@ tmp = tempfile.mkdtemp(); ledger.LEDGER_DIR = __import__("pathlib").Path(tmp)
 
 class FakeClient:
     def __init__(self, positions): self._p = positions
-    def account(self): return {"equity": "100000"}
+    def account(self): return {"equity": "100000", "last_equity": "100000"}
     def positions(self): return self._p
+    def orders(self, status="open", limit=200): return []
     def clock(self): return {"is_open": True}
     def submit(self, order, *, decision_id, quote_snapshot): return {"id": "fake-" + decision_id}
 

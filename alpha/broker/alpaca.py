@@ -300,6 +300,54 @@ class AlpacaPaper:
             params={"percentage": percentage},
         )
 
+    def submit_protective_stop(self, order: dict[str, Any]) -> dict[str, Any]:
+        """Place a protective stop. NOT a general order path.
+
+        `submit()` demands a decision id and the quote seen at decision time,
+        because an entry whose fill cannot be audited against a quote that
+        existed is not evidence. A protective stop is not an entry and has no
+        quote: it is a consequence of a position that already exists.
+
+        Rather than relax `submit()`, this is a SEPARATE verb with a narrower
+        contract -- it refuses anything that is not a plain `stop` carrying the
+        `aat-stop-` client id. So the exemption cannot be borrowed to route an
+        entry around the audit, which is the only reason a second order path is
+        dangerous at all.
+        """
+        from alpha import protect
+
+        if order.get("type") != "stop":
+            raise BrokerRefusal(
+                f"submit_protective_stop only sends type=stop, got {order.get('type')!r}. "
+                "Entries go through submit() with a decision id and a quote snapshot."
+            )
+        if not str(order.get("client_order_id") or "").startswith(protect.STOP_PREFIX):
+            raise BrokerRefusal(
+                f"a protective stop must carry the {protect.STOP_PREFIX!r} client id; "
+                "that prefix is what tells a later sweep the order is ours to cancel."
+            )
+        if order.get("order_class") or order.get("legs"):
+            raise BrokerRefusal("a protective stop is single-leg and has no order class.")
+        logger.info("submitting protective stop %s %s x%s @ %s", order.get("symbol"),
+                    order.get("side"), order.get("qty"), order.get("stop_price"))
+        return self._request("POST", "/v2/orders", body=dict(order))
+
+    def cancel_order(self, order_id: str) -> None:
+        """Cancel one resting order. 404/422 means it is already gone, which is
+        the state we wanted -- so it is NOT an error here.
+
+        Used only by `alpha.protect`: a protective stop must be cancelled before
+        the position under it is closed, or the stop outlives its position and a
+        sell-stop with nothing to sell becomes an OPENING short.
+        """
+        try:
+            self._request("DELETE", f"/v2/orders/{urllib.parse.quote(order_id)}")
+        except BrokerRefusal as exc:
+            if "HTTP 404" in str(exc) or "HTTP 422" in str(exc):
+                logger.info("cancel %s: already terminal", order_id)
+                return
+            raise
+
 
 def client_order_id(decision_id: str) -> str:
     """Deterministic, <=48 chars, collides on replay by design."""

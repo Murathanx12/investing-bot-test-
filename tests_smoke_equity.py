@@ -114,8 +114,9 @@ class FakeClient:
     def __init__(self, positions=(), shortable=True, bid=179.98, ask=180.02):
         self._p = list(positions); self._short = shortable; self._q = (bid, ask)
 
-    def account(self): return {"equity": "100000"}
+    def account(self): return {"equity": "100000", "last_equity": "100000"}
     def positions(self): return self._p
+    def orders(self, status="open", limit=200): return []
     def clock(self): return {"is_open": True}
     def stock_quote(self, syms): return {"quotes": {syms[0]: {"bp": self._q[0], "ap": self._q[1], "bs": 5, "as": 5, "t": "now"}}}
     def asset(self, sym): return {"shortable": self._short, "easy_to_borrow": self._short, "tradable": True}

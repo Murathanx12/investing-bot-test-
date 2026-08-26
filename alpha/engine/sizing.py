@@ -411,8 +411,12 @@ def _tournament_multiplier(state: TournamentState) -> tuple[float, str]:
         return 1.0, "Early: sizing normally to survive to the known catalysts."
 
     if phase is TournamentPhase.MIDDLE:
-        if state.behind:
+        if state.behind and ret >= 0.0:
             return 1.4, "Middle and behind the podium estimate: leaning into convexity."
+        if state.behind:
+            return 1.0, (
+                f"Middle and behind, but {ret:+.1%} on the session's own capital: leaning "
+                "into convexity FROM RED is how a drawdown compounds. Lean in from flat.")
         return 1.1, "Middle: full participation."
 
     # Late and final. The rank objective diverges hardest from the utility
@@ -422,7 +426,19 @@ def _tournament_multiplier(state: TournamentState) -> tuple[float, str]:
             f"Late with {ret:+.1%} banked: converting a lead into a coin flip is "
             "negative in RANK terms even when it is neutral in return terms. Protecting."
         )
-    if state.behind or ret < 0.0:
+    if ret < 0.0:
+        # THE CLAMP. The rank argument is sound and it is also how a drawdown
+        # becomes a disqualification: a book that is DOWN and doubling is one
+        # bad session from unrecoverable, and the judged criteria ask for risk
+        # gates. Convexity is bought from flat, not from red. (Audit defect 2,
+        # `docs/night/2026-08-26_EXECUTION_AUDIT.md`.)
+        return 1.0, (
+            f"Late at {ret:+.1%}: the rank objective says maximise convexity when behind, "
+            "and it is right that a small loss and a large loss score alike. It is also "
+            "how -2% becomes -20%. Sizing normally; the multiplier is clamped at 1.0 "
+            "while the return is negative."
+        )
+    if state.behind:
         mult = 2.0 if phase is TournamentPhase.FINAL else 1.6
         return mult, (
             f"Late at {ret:+.1%} and off the podium: a small loss and a large loss score "

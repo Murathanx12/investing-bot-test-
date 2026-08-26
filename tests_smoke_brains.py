@@ -122,8 +122,9 @@ class FakeChain:
 
 
 class FakeClient:
-    def account(self): return {"equity": "100000"}
+    def account(self): return {"equity": "100000", "last_equity": "100000"}
     def positions(self): return []
+    def orders(self, status="open", limit=200): return []
     def submit(self, order, *, decision_id, quote_snapshot): return {"id": "fake-" + decision_id}
 
 

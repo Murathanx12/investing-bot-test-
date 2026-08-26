@@ -54,8 +54,20 @@ check("wide spread refused", not size(wide, 0.06, 0.05, st_early).approved)
 
 behind = size(s, 0.06, 0.05, st_late)
 ahead  = size(s, 0.06, 0.05, st_ahead)
-check("behind+late sizes UP", behind.risk_fraction > edge.risk_fraction,
+# THE CLAMP (audit defect 2). `st_late` is DOWN 12%, and until 26 Aug that
+# state sized 1.6-2.0x on the rank argument that a small loss and a large loss
+# score the same. True, and also how -2% becomes -20% -- so convexity is now
+# bought from flat, never from red. The rank logic is kept where it is safe and
+# pinned below: behind but NOT negative still leans in.
+check("behind+late+NEGATIVE does not size up (clamped at 1.0)",
+      behind.risk_fraction <= edge.risk_fraction,
       f"{edge.risk_fraction:.2%} -> {behind.risk_fraction:.2%}")
+st_behind_flat = TournamentState(equity=100_000, starting_equity=100_000,
+                                 fraction_of_window_remaining=0.05, field_leader_estimate=0.25)
+behind_flat = size(s, 0.06, 0.05, st_behind_flat)
+check("behind+late but FLAT still leans into convexity",
+      behind_flat.risk_fraction > edge.risk_fraction,
+      f"{edge.risk_fraction:.2%} -> {behind_flat.risk_fraction:.2%}")
 check("ahead+late sizes DOWN", ahead.risk_fraction < edge.risk_fraction,
       f"{edge.risk_fraction:.2%} -> {ahead.risk_fraction:.2%}")
 from alpha.engine.sizing import profile as riskprofile

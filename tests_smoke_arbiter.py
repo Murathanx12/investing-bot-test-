@@ -96,7 +96,12 @@ closed = []
 
 
 class FakeClient:
-    def account(self): return {"equity": "100000"}
+    cancelled: list = []
+    stops: list = []
+    def account(self): return {"equity": "100000", "last_equity": "100000"}
+    def orders(self, status="open", limit=200): return []
+    def cancel_order(self, order_id): self.cancelled.append(order_id)
+    def submit_protective_stop(self, order): self.stops.append(order); return {"id": "stop-1"}
     def positions(self):
         return [{"asset_class": "us_option", "symbol": "NVDA260828C00222500", "qty": "-10", "cost_basis": "-2250",
                  "avg_entry_price": "2.25", "current_price": "6.00", "unrealized_pl": "-3750", "unrealized_plpc": "-1.67"},

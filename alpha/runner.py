@@ -51,7 +51,7 @@ from datetime import datetime, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import config, ledger, recovery
+from alpha import config, daybreak, ledger, recovery
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -134,6 +134,40 @@ def held_underlyings(client: AlpacaPaper) -> dict[str, int]:
             out[sym[:-15]] = out.get(sym[:-15], 0) + 1
         elif cls == "us_equity" and sym:
             out[sym] = out.get(sym, 0) + 1
+    return out
+
+
+def open_order_underlyings(client: AlpacaPaper) -> dict[str, int]:
+    """Underlyings with a RESTING, UNFILLED order -> order count.
+
+    `held_underlyings` reads POSITIONS, and an entry limit that has not filled is
+    not a position. The one-position-per-symbol guard was therefore blind to it:
+    the 10:00 pass rests `buy 120 NVDA limit 212.96 DAY`, the price ticks up, and
+    at 10:30 the brain re-forecasts, gets a new decision id (the id only collides
+    within the same MINUTE) and rests a SECOND order. A dip fills both -- 240
+    shares against a 25% notional cap, two ledger rows, and an admission
+    controller that was never asked about the second one. The same mechanism
+    fires on any restart more than a minute after a submit.
+
+    Protective stops are excluded: `alpha.protect` places those as a consequence
+    of a position that already exists, so counting them here would refuse every
+    re-entry into a name we already stopped out of.
+    """
+    from alpha import protect
+    from alpha.broker.alpaca import _is_option
+
+    out: dict[str, int] = {}
+    for order in client.orders(status="open"):
+        if protect.is_ours(order):
+            continue
+        legs = order.get("legs") or []
+        symbols = [str(leg.get("symbol") or "") for leg in legs] if legs else [
+            str(order.get("symbol") or "")]
+        for sym in symbols:
+            if not sym:
+                continue
+            root = sym[:-15] if _is_option(sym) and len(sym) > 15 else sym
+            out[root] = out.get(root, 0) + 1
     return out
 
 
@@ -460,6 +494,17 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     scores = recovery.live_scores(account_role=role) if recovery.active() else {}
     if recovery.active():
         logger.info("%s", recovery.summary(scores))
+    day = daybreak.read(client)
+    if day.latched:
+        for forecast in forecasts:
+            result.considered += 1
+            result.refused += 1
+            _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None,
+                    None, state, action="refused", reason=day.reason)
+        logger.error("%s", day.reason)
+        return result
+    logger.info("%s", day.reason)
+
     if book.unbounded:
         for forecast in forecasts:
             result.considered += 1
@@ -481,6 +526,9 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     node_committed: dict[str, float] = (
         {node: usd / state.equity for node, usd in book.by_node.items()} if state.equity else {})
     held = held_underlyings(client)
+    in_flight = open_order_underlyings(client)
+    for sym, n in in_flight.items():
+        held[sym] = held.get(sym, 0) + n
     today = datetime.now(timezone.utc).date().isoformat()
     reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
     reserve_total = sum(reserve_for.values())
@@ -493,9 +541,15 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
             for forecast in group:
                 result.considered += 1
                 result.refused += 1
+                pending = in_flight.get(symbol, 0)
+                why = (f"{symbol} has {pending} order(s) IN FLIGHT at the venue and unfilled; "
+                       "a resting entry is not a position and used to be invisible here, "
+                       "which is how one symbol got two orders thirty minutes apart"
+                       ) if pending else (
+                    f"{symbol} already positioned in this book ({held[symbol]} legs); "
+                    "exits decide when it is free again, not entries")
                 _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None, None, state,
-                        action="refused", reason=f"{symbol} already positioned in this book ({held[symbol]} legs); "
-                                                 "exits decide when it is free again, not entries")
+                        action="refused", reason=why)
             continue
         evaluated = []
         for forecast in group:
