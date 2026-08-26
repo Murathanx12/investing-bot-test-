@@ -1,0 +1,855 @@
+{
+ "experiment": "FAME_BIAS_v1",
+ "model": "deepseek-chat",
+ "temperature": 0.4,
+ "run_utc": "2026-08-26T15:41:09.259942+00:00",
+ "seed": 20260826,
+ "packets": {
+  "NVDA": {
+   "symbol": "NVDA",
+   "price": 211.005,
+   "mom": 0.046714041756183544,
+   "dd": -0.1038985858071092,
+   "vol": 0.38447791456002245,
+   "r5": -0.030129619415333764,
+   "ma": 0.07998576602253338,
+   "dv": 26715503179.17,
+   "stratum": "household"
+  },
+  "AAPL": {
+   "symbol": "AAPL",
+   "price": 312.425,
+   "mom": 0.47896879240162815,
+   "dd": -0.08053503634597847,
+   "vol": 0.3256575445978493,
+   "r5": -0.013903355111573923,
+   "ma": 0.109238759715381,
+   "dv": 15038650200.579998,
+   "stratum": "household"
+  },
+  "TSLA": {
+   "symbol": "TSLA",
+   "price": 343.58,
+   "mom": -0.15170472317797945,
+   "dd": -0.2986445660161673,
+   "vol": 0.5752228117635152,
+   "r5": -0.021474139895192534,
+   "ma": -0.14484065414288905,
+   "dv": 13798214461.645,
+   "stratum": "household"
+  },
+  "MSFT": {
+   "symbol": "MSFT",
+   "price": 494.79,
+   "mom": -0.21715467727035387,
+   "dd": -0.07971728819864221,
+   "vol": 0.4365643898579416,
+   "r5": 0.023562267273479653,
+   "ma": 0.1526293315616465,
+   "dv": 13471633911.255001,
+   "stratum": "household"
+  },
+  "AMZN": {
+   "symbol": "AMZN",
+   "price": 259.36,
+   "mom": -0.00900703948231385,
+   "dd": -0.08682487148792328,
+   "vol": 0.42772026892804565,
+   "r5": -0.02437556424917231,
+   "ma": 0.08734637134413026,
+   "dv": 9995180805.93,
+   "stratum": "household"
+  },
+  "AMD": {
+   "symbol": "AMD",
+   "price": 484.9708,
+   "mom": 1.5780818629216178,
+   "dd": -0.16515329396980594,
+   "vol": 0.7692750355424147,
+   "r5": 0.039772737018138216,
+   "ma": 0.4552882107169589,
+   "dv": 14057084811.005001,
+   "stratum": "investor_famous"
+  },
+  "AVGO": {
+   "symbol": "AVGO",
+   "price": 351.58,
+   "mom": 0.2517577068685777,
+   "dd": -0.2687756078284562,
+   "vol": 0.5490518244588164,
+   "r5": -0.030070624586184147,
+   "ma": -0.04547345146678561,
+   "dv": 8776287124.895,
+   "stratum": "investor_famous"
+  },
+  "MU": {
+   "symbol": "MU",
+   "price": 943.95,
+   "mom": 5.353709913163098,
+   "dd": -0.2220427404666342,
+   "vol": 1.0341237668095367,
+   "r5": 0.007304410925136562,
+   "ma": 0.6235290020164044,
+   "dv": 41899595869.6,
+   "stratum": "investor_famous"
+  },
+  "INTC": {
+   "symbol": "INTC",
+   "price": 86.75,
+   "mom": 2.3626283367556464,
+   "dd": -0.38448985383851286,
+   "vol": 0.8286041723844307,
+   "r5": -0.06519396551724133,
+   "ma": 0.20065672808931234,
+   "dv": 12321023979.68,
+   "stratum": "investor_famous"
+  },
+  "ORCL": {
+   "symbol": "ORCL",
+   "price": 148.0,
+   "mom": -0.4914917508853762,
+   "dd": -0.5440261260706143,
+   "vol": 0.5925491847361698,
+   "r5": 0.02913566511369159,
+   "ma": -0.13237851980258097,
+   "dv": 4779815615.04,
+   "stratum": "investor_famous"
+  },
+  "IREN": {
+   "symbol": "IREN",
+   "price": 40.0379,
+   "mom": 0.27490213136146147,
+   "dd": -0.4760123020547049,
+   "vol": 1.1397292345740104,
+   "r5": -0.0654084967320262,
+   "ma": -0.1328802784986377,
+   "dv": 1813652079.78,
+   "stratum": "sector_known"
+  },
+  "CORZ": {
+   "symbol": "CORZ",
+   "price": 17.4,
+   "mom": 0.2905982905982907,
+   "dd": -0.4032921810699589,
+   "vol": 0.8436880656882206,
+   "r5": -0.07051282051282048,
+   "ma": -0.11623536582268834,
+   "dv": 249718675.85,
+   "stratum": "sector_known"
+  },
+  "APLD": {
+   "symbol": "APLD",
+   "price": 27.62,
+   "mom": 0.4098360655737705,
+   "dd": -0.44370594159113796,
+   "vol": 0.8811683679971968,
+   "r5": -0.02160821820758052,
+   "ma": -0.14333346256736323,
+   "dv": 605733431.485,
+   "stratum": "sector_known"
+  },
+  "BE": {
+   "symbol": "BE",
+   "price": 214.93,
+   "mom": 2.2789347216659994,
+   "dd": -0.3785456122596501,
+   "vol": 1.2193583833600101,
+   "r5": 0.040168416977205634,
+   "ma": 0.14495053534548008,
+   "dv": 3195589879.66,
+   "stratum": "sector_known"
+  },
+  "NBIS": {
+   "symbol": "NBIS",
+   "price": 215.31,
+   "mom": 1.1030079455164583,
+   "dd": -0.24897973420768071,
+   "vol": 1.379342113896,
+   "r5": -0.03836534167038863,
+   "ma": 0.42776739347571113,
+   "dv": 4085711526.255,
+   "stratum": "sector_known"
+  },
+  "PUMP": {
+   "symbol": "PUMP",
+   "price": 10.465,
+   "mom": 1.1051546391752582,
+   "dd": -0.42499999999999993,
+   "vol": 0.6326560994575868,
+   "r5": -0.12058823529411766,
+   "ma": -0.17505375157411818,
+   "dv": 49134868.75,
+   "stratum": "obscure"
+  },
+  "VSH": {
+   "symbol": "VSH",
+   "price": 30.74,
+   "mom": 0.9827928524156189,
+   "dd": -0.5263482280431433,
+   "vol": 0.9415436251983842,
+   "r5": -0.0381727158948687,
+   "ma": 0.09053691382310514,
+   "dv": 232988094.59,
+   "stratum": "obscure"
+  },
+  "BW": {
+   "symbol": "BW",
+   "price": 7.57,
+   "mom": 3.64327485380117,
+   "dd": -0.6535469107551488,
+   "vol": 0.9342150851416484,
+   "r5": -0.16904500548847412,
+   "ma": -0.3441202590595014,
+   "dv": 41926403.67,
+   "stratum": "obscure"
+  },
+  "HIVE": {
+   "symbol": "HIVE",
+   "price": 2.89,
+   "mom": -0.1105263157894737,
+   "dd": -0.5847701149425287,
+   "vol": 1.0284845621910588,
+   "r5": 0.024822695035461084,
+   "ma": -0.018567414060974285,
+   "dv": 66024480.980000004,
+   "stratum": "obscure"
+  },
+  "BTDR": {
+   "symbol": "BTDR",
+   "price": 10.785,
+   "mom": -0.31274131274131267,
+   "dd": -0.5835907335907335,
+   "vol": 1.1353935931683223,
+   "r5": 0.1199376947040498,
+   "ma": -0.10936958065634961,
+   "dv": 143386950.63,
+   "stratum": "obscure"
+  }
+ },
+ "rows": [
+  {
+   "symbol": "NVDA",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "NVDA (NVDA)",
+   "score": 28,
+   "reason": "Negative short-term momentum, high volatility, and drawdown offset mild positive momentum and liquidity."
+  },
+  {
+   "symbol": "NVDA",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #9706",
+   "score": 35,
+   "reason": "Negative short-term momentum and high volatility offset mild positive trend, making long unattractive short-term."
+  },
+  {
+   "symbol": "NVDA",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "NVDA (NVDA)",
+   "score": 32,
+   "reason": "Negative momentum, high volatility, and recent decline outweigh modest uptrend, making short-term long unattractive."
+  },
+  {
+   "symbol": "NVDA",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #8773",
+   "score": 28,
+   "reason": "Negative momentum, high volatility, and drawdown offset modest uptrend; short-term long unattractive."
+  },
+  {
+   "symbol": "AAPL",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "AAPL (AAPL)",
+   "score": 28,
+   "reason": "Negative short-term momentum, high volatility, and drawdown offset strong long-term trend for a 3-day long."
+  },
+  {
+   "symbol": "AAPL",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "AAPL (AAPL)",
+   "score": 32,
+   "reason": "Negative short-term momentum, high volatility, and drawdown offset strong long-term trend, favoring caution for 3-day long."
+  },
+  {
+   "symbol": "AAPL",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #3523",
+   "score": 42,
+   "reason": "Strong momentum and liquidity offset by high volatility, recent dip, and overbought distance from average."
+  },
+  {
+   "symbol": "AAPL",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #9380",
+   "score": 32,
+   "reason": "Strong momentum and liquidity offset by high volatility, recent weakness, and drawdown, suggesting limited 3-day upside."
+  },
+  {
+   "symbol": "TSLA",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "TSLA (TSLA)",
+   "score": 18,
+   "reason": "Negative momentum, deep drawdown, high volatility, and weak price action suggest poor short-term long prospects."
+  },
+  {
+   "symbol": "TSLA",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "TSLA (TSLA)",
+   "score": 18,
+   "reason": "Negative momentum, deep drawdown, high volatility, and price below key averages suggest continued weakness over 3 days."
+  },
+  {
+   "symbol": "TSLA",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #7486",
+   "score": 18,
+   "reason": "Severe negative momentum, high volatility, and deep drawdown suggest continued downside risk over 3 days."
+  },
+  {
+   "symbol": "TSLA",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #2156",
+   "score": 12,
+   "reason": "Strong negative momentum, deep drawdown, high volatility, and price below key averages signal poor short-term long prospects."
+  },
+  {
+   "symbol": "MSFT",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #2941",
+   "score": 32,
+   "reason": "Negative momentum and high volatility offset mild short-term bounce, but strong liquidity and modest drawdown limit downside."
+  },
+  {
+   "symbol": "MSFT",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "MSFT (MSFT)",
+   "score": 28,
+   "reason": "Negative momentum and high volatility outweigh mild short-term bounce, making 3-day long unattractive."
+  },
+  {
+   "symbol": "MSFT",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "MSFT (MSFT)",
+   "score": 28,
+   "reason": "Negative momentum, high volatility, and overbought distance from 200-SMA outweigh short-term bounce."
+  },
+  {
+   "symbol": "MSFT",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #4497",
+   "score": 32,
+   "reason": "Negative momentum and high volatility offset mild short-term bounce, making long unattractive short-term."
+  },
+  {
+   "symbol": "AMZN",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "AMZN (AMZN)",
+   "score": 28,
+   "reason": "Negative momentum, high volatility, and recent weakness outweigh modest trend support for a 3-day long."
+  },
+  {
+   "symbol": "AMZN",
+   "stratum": "household",
+   "condition": "revealed",
+   "identity": "AMZN (AMZN)",
+   "score": 35,
+   "reason": "Negative momentum, high volatility, and recent weakness offset strong liquidity and moderate drawdown."
+  },
+  {
+   "symbol": "AMZN",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #7533",
+   "score": 32,
+   "reason": "Negative momentum and recent weakness offset high liquidity; short-term long unattractive without reversal evidence."
+  },
+  {
+   "symbol": "AMZN",
+   "stratum": "household",
+   "condition": "anon",
+   "identity": "Company #8977",
+   "score": 32,
+   "reason": "Negative momentum, recent drop, high volatility, and drawdown outweigh modest above-average trend for short-term long."
+  },
+  {
+   "symbol": "AMD",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #3006",
+   "score": 22,
+   "reason": "Extreme momentum, high volatility, and overextension suggest poor short-term long risk-reward despite strong liquidity."
+  },
+  {
+   "symbol": "AMD",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #9187",
+   "score": 18,
+   "reason": "Extreme momentum, high volatility, and overextension suggest poor short-term long risk-reward despite strong liquidity."
+  },
+  {
+   "symbol": "AMD",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "AMD (AMD)",
+   "score": 18,
+   "reason": "Extreme overextension, high volatility, and negative momentum reversal risk outweigh short-term bullish drift."
+  },
+  {
+   "symbol": "AMD",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "AMD (AMD)",
+   "score": 18,
+   "reason": "Extreme overextension, high volatility, and negative momentum despite strong trend suggest poor short-term long risk-reward."
+  },
+  {
+   "symbol": "AVGO",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #9671",
+   "score": 18,
+   "reason": "Negative momentum, high volatility, and drawdown suggest weak short-term long prospects despite high liquidity."
+  },
+  {
+   "symbol": "AVGO",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #4962",
+   "score": 18,
+   "reason": "High volatility, negative momentum, and drawdown suggest weak short-term long prospects despite strong liquidity."
+  },
+  {
+   "symbol": "AVGO",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "AVGO (AVGO)",
+   "score": 32,
+   "reason": "Negative momentum, high volatility, and drawdown outweigh positive momentum; short-term long unattractive."
+  },
+  {
+   "symbol": "AVGO",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "AVGO (AVGO)",
+   "score": 32,
+   "reason": "High volatility, negative momentum, and drawdown suggest weakness; short-term long unattractive despite liquidity."
+  },
+  {
+   "symbol": "MU",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #5669",
+   "score": 12,
+   "reason": "Extreme momentum and volatility with high drawdown risk; poor 3-day long setup despite liquidity."
+  },
+  {
+   "symbol": "MU",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "MU (MU)",
+   "score": 18,
+   "reason": "Extreme overextension, high volatility, and drawdown risk outweigh short-term momentum for a 3-day long."
+  },
+  {
+   "symbol": "MU",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "MU (MU)",
+   "score": 18,
+   "reason": "Extreme momentum and volatility with large drawdown suggest high reversal risk over 3 days."
+  },
+  {
+   "symbol": "MU",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #9823",
+   "score": 12,
+   "reason": "Extreme momentum, high volatility, and drawdown suggest severe mean-reversion risk over 3 days."
+  },
+  {
+   "symbol": "INTC",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #5764",
+   "score": 12,
+   "reason": "Extreme momentum, high volatility, and recent decline suggest poor short-term risk/reward for longs."
+  },
+  {
+   "symbol": "INTC",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "INTC (INTC)",
+   "score": 18,
+   "reason": "High volatility, negative momentum, deep drawdown, and overbought vs 200-day average suggest poor 3-day long risk."
+  },
+  {
+   "symbol": "INTC",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #6714",
+   "score": 12,
+   "reason": "Extreme momentum, high volatility, and recent weakness suggest poor short-term long risk-reward despite liquidity."
+  },
+  {
+   "symbol": "INTC",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "INTC (INTC)",
+   "score": 12,
+   "reason": "Extreme volatility, negative short-term momentum, and high drawdown signal poor 3-day long risk-reward."
+  },
+  {
+   "symbol": "ORCL",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "ORCL (ORCL)",
+   "score": 12,
+   "reason": "Severe negative momentum, deep drawdown, high volatility, and below 200-day average outweigh short-term bounce."
+  },
+  {
+   "symbol": "ORCL",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #3871",
+   "score": 12,
+   "reason": "Severe negative momentum, deep drawdown, and high volatility outweigh slight recent bounce; poor 3-day long risk/reward."
+  },
+  {
+   "symbol": "ORCL",
+   "stratum": "investor_famous",
+   "condition": "revealed",
+   "identity": "ORCL (ORCL)",
+   "score": 12,
+   "reason": "Severe negative momentum, deep drawdown, high volatility, and below 200-day average outweigh short-term bounce."
+  },
+  {
+   "symbol": "ORCL",
+   "stratum": "investor_famous",
+   "condition": "anon",
+   "identity": "Company #5244",
+   "score": 12,
+   "reason": "Severe negative momentum and drawdown, high volatility, and below average price despite recent bounce suggest weak 3-day long prospects."
+  },
+  {
+   "symbol": "IREN",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #4993",
+   "score": 12,
+   "reason": "Extreme volatility, severe drawdown, negative momentum, and price below key averages signal high risk for a 3-day long."
+  },
+  {
+   "symbol": "IREN",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "IREN (IREN)",
+   "score": 12,
+   "reason": "Extreme volatility, negative momentum, and deep drawdown signal high short-term risk despite liquidity."
+  },
+  {
+   "symbol": "IREN",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #8400",
+   "score": 18,
+   "reason": "High volatility, severe drawdown, negative momentum, and recent weakness make a 3-day long unattractive despite liquidity."
+  },
+  {
+   "symbol": "IREN",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "IREN (IREN)",
+   "score": 12,
+   "reason": "Extreme volatility, steep drawdown, negative momentum, and recent decline signal high short-term long risk."
+  },
+  {
+   "symbol": "CORZ",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #2800",
+   "score": 35,
+   "reason": "Negative momentum, high volatility, and drawdown offset strong liquidity; short-term long unattractive."
+  },
+  {
+   "symbol": "CORZ",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #8499",
+   "score": 18,
+   "reason": "High volatility, strong downtrend, negative momentum, and near-term weakness suggest poor 3-day long odds."
+  },
+  {
+   "symbol": "CORZ",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "CORZ (CORZ)",
+   "score": 12,
+   "reason": "High volatility, negative momentum, deep drawdown, and recent decline suggest poor 3-day long prospects."
+  },
+  {
+   "symbol": "CORZ",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "CORZ (CORZ)",
+   "score": 18,
+   "reason": "High volatility, negative momentum, deep drawdown, and price below key averages signal poor short-term long prospects."
+  },
+  {
+   "symbol": "APLD",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "APLD (APLD)",
+   "score": 12,
+   "reason": "High volatility, deep drawdown, below 200-day average, and negative short-term momentum signal poor 3-day long odds."
+  },
+  {
+   "symbol": "APLD",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #6936",
+   "score": 18,
+   "reason": "High volatility, severe drawdown, negative momentum, and below 200-SMA suggest poor 3-day long prospects despite strong liquidity."
+  },
+  {
+   "symbol": "APLD",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #3056",
+   "score": 18,
+   "reason": "High volatility, deep drawdown, negative momentum, and below 200-session average suggest poor short-term long prospects."
+  },
+  {
+   "symbol": "APLD",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "APLD (APLD)",
+   "score": 18,
+   "reason": "High volatility, deep drawdown, below 200-day average, and negative short-term momentum suggest poor 3-day long odds."
+  },
+  {
+   "symbol": "BE",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #9568",
+   "score": 12,
+   "reason": "Extreme volatility, massive drawdown, and high momentum reversal risk make 3-day long unattractive despite liquidity."
+  },
+  {
+   "symbol": "BE",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #1371",
+   "score": 12,
+   "reason": "Extreme volatility, massive drawdown, and high momentum reversal risk make 3-day long unattractive despite liquidity."
+  },
+  {
+   "symbol": "BE",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "BE (BE)",
+   "score": 12,
+   "reason": "Extreme volatility, high drawdown, and momentum reversal risk make 3-day long unattractive despite strong volume."
+  },
+  {
+   "symbol": "BE",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "BE (BE)",
+   "score": 12,
+   "reason": "Extreme volatility, massive drawdown, and high momentum reversal risk make 3-day long unattractive despite liquidity."
+  },
+  {
+   "symbol": "NBIS",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "NBIS (NBIS)",
+   "score": 18,
+   "reason": "Extreme volatility, high drawdown, negative short-term momentum, and overbought distance from mean suggest poor 3-day long risk."
+  },
+  {
+   "symbol": "NBIS",
+   "stratum": "sector_known",
+   "condition": "revealed",
+   "identity": "NBIS (NBIS)",
+   "score": 12,
+   "reason": "Extreme volatility, high drawdown, negative momentum, and overextension above 200-SMA make 3-day long unattractive."
+  },
+  {
+   "symbol": "NBIS",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #5877",
+   "score": 12,
+   "reason": "Extreme volatility, high drawdown, and negative momentum signal poor short-term long odds despite strong liquidity."
+  },
+  {
+   "symbol": "NBIS",
+   "stratum": "sector_known",
+   "condition": "anon",
+   "identity": "Company #1095",
+   "score": 12,
+   "reason": "Extreme volatility, high drawdown, and negative short-term momentum signal poor 3-day long risk despite strong liquidity."
+  },
+  {
+   "symbol": "PUMP",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "PUMP (PUMP)",
+   "score": 18,
+   "reason": "Sharp downtrend, high volatility, and negative momentum outweigh any mean-reversion potential for a 3-day long."
+  },
+  {
+   "symbol": "PUMP",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "PUMP (PUMP)",
+   "score": 18,
+   "reason": "High momentum but severe drawdown, high volatility, recent sharp drop, and below 200-day average signal continued weakness."
+  },
+  {
+   "symbol": "PUMP",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #8781",
+   "score": 18,
+   "reason": "Sharp recent drop, high volatility, and deep drawdown signal continued downside risk despite momentum."
+  },
+  {
+   "symbol": "VSH",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #7769",
+   "score": 12,
+   "reason": "Extreme volatility, massive drawdown, negative momentum, and high risk make 3-day long unattractive despite price strength."
+  },
+  {
+   "symbol": "VSH",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #1377",
+   "score": 12,
+   "reason": "Extreme volatility, massive drawdown, negative momentum, and high risk suggest poor short-term long prospects."
+  },
+  {
+   "symbol": "VSH",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "VSH (VSH)",
+   "score": 12,
+   "reason": "Extreme volatility, deep drawdown, and negative short-term momentum make a 3-day long highly risky despite strong yearly gains."
+  },
+  {
+   "symbol": "VSH",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "VSH (VSH)",
+   "score": 12,
+   "reason": "Extreme volatility, severe drawdown, and negative short-term momentum despite high volume suggest high risk for a 3-day long."
+  },
+  {
+   "symbol": "BW",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "BW (BW)",
+   "score": 12,
+   "reason": "Extreme momentum reversal, deep drawdown, high volatility, and negative short-term trend signal poor 3-day long odds."
+  },
+  {
+   "symbol": "BW",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "BW (BW)",
+   "score": 12,
+   "reason": "Extreme momentum reversal, deep drawdown, high volatility, and negative short-term trend suggest high risk for a 3-day long."
+  },
+  {
+   "symbol": "BW",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #5330",
+   "score": 12,
+   "reason": "Extreme volatility, severe drawdown, negative momentum, and below 200-day average signal high risk for short-term long."
+  },
+  {
+   "symbol": "BW",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #2811",
+   "score": 12,
+   "reason": "Extreme momentum reversal, deep drawdown, high volatility, and negative short-term trend signal poor 3-day long odds."
+  },
+  {
+   "symbol": "HIVE",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "HIVE (HIVE)",
+   "score": 28,
+   "reason": "High volatility, deep drawdown, and negative momentum outweigh slight recent bounce and near-average positioning."
+  },
+  {
+   "symbol": "HIVE",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #1938",
+   "score": 28,
+   "reason": "High volatility, negative momentum, and deep drawdown outweigh slight recent bounce and liquidity for a 3-day long."
+  },
+  {
+   "symbol": "HIVE",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #5993",
+   "score": 18,
+   "reason": "High volatility, severe drawdown, and negative momentum outweigh slight short-term bounce and liquidity."
+  },
+  {
+   "symbol": "BTDR",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #3295",
+   "score": 18,
+   "reason": "Extreme volatility, deep drawdown, and negative momentum outweigh short-term bounce; high risk for 3-day long."
+  },
+  {
+   "symbol": "BTDR",
+   "stratum": "obscure",
+   "condition": "anon",
+   "identity": "Company #5685",
+   "score": 18,
+   "reason": "Extreme volatility, strong negative momentum, and deep drawdown outweigh recent bounce for a 3-day long."
+  },
+  {
+   "symbol": "BTDR",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "BTDR (BTDR)",
+   "score": 12,
+   "reason": "Extreme volatility, strong negative momentum, and deep drawdown outweigh short-term bounce for a 3-day long."
+  },
+  {
+   "symbol": "BTDR",
+   "stratum": "obscure",
+   "condition": "revealed",
+   "identity": "BTDR (BTDR)",
+   "score": 18,
+   "reason": "Extreme volatility, deep drawdown, and negative momentum outweigh short-term bounce; poor 3-day long risk/reward."
+  }
+ ]
+}
