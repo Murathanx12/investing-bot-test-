@@ -94,6 +94,24 @@ tracks momentum, zero coverage stays None). Daily at 17:30 ET as `AegisAnalystPa
 72 destroyed 225 completed captures — it writes per row now; and the 1.15s rate-limit sleep was paced against
 a 429 that never comes (**30 back-to-back calls, no sleep, 30x HTTP 200 in 39.7s**).
 
+**13. exp1 IS LATCHED, AND IT VALIDATED THE MORNING'S FINDING.** At 12:45 ET: **dev +0.43%, exp1 −4.01% and
+LATCHED** (no new entries this session; exits unaffected) on a tape where SPY moved **−0.14%** and QQQ −0.19%.
+A ~4% loss on a flat day is a long-premium book paying theta — which is exactly what the counterfactual
+analysis said this morning about refused long premium (−9.7% over two flat sessions). **The finding predicted
+the live loss.** It also means exp1 goes into tonight's print long premium: a small NVDA move bleeds it
+further, a large one pays it. The daily latch, verified this morning, has now fired for real.
+
+**14. BOOK LIMITS EXIST AND ARE OFF.** `alpha/book_limits.py` + `scripts/preflight.py` prints every breach;
+a test asserts **no execution path** can import it. Turning them on is one attended line.
+Right now both books breach three of four: dev stress 54.9%/35%, NVDA 52.5%/20%, N 1.50/2.0; exp1 60.1%,
+SPY 42.5%, **N 1.26 — below the $20bn liquidation reference**.
+
+**15. THE WRITE-UP CLAIMED THINGS TODAY'S MEASUREMENTS REFUTE, AND NO LONGER DOES.** "dev runs the evidence
+champion" (nothing supports it — two days cannot rank a brain) and "a 5-minute exit pass that a slow entry
+pass **can never** starve" (that starvation *is* defect 4; it is now bounded at ~11 min, not prevented). Both
+corrected in `docs/WRITEUP.md` and `docs/STRATEGY.md`. A rubric that rewards admitted failure is not served by
+confident copy.
+
 **CORRECTIONS I OWE FROM THIS BLOCK.** I said the hackathon LLM path was dead (170 calls, 0 successes) —
 **wrong twice**: my parser tested a field that does not exist so everything read False, and my own test call
 omitted the `Authorization` header that `extract.py` passes explicitly, producing a 401 that looked exactly
@@ -101,7 +119,12 @@ like a dead key. The key is fine; the narrative brain has been working. Separate
 `fame_bias_report` charged the alpha budget **on every render** (0.100 → 0.047 → 0.023 for re-reading the
 same replies); fixed, and the wasted charges stay in the ledger. And a test that allowed +0.006 of slack so
 a fitted 0.084 could clear an 0.080 ceiling -- editing the test to fit the number; the band was widened to
-0.075-0.085 instead and must now CONTAIN the fitted value with no slack.
+0.075-0.085 instead and must now CONTAIN the fitted value with no slack. And the worst of the four: I
+committed "escalation wired into scripts.liveness" when the patch had asserted mid-script and written
+NOTHING, leaving a `print(esc.line())` against an unassigned name in the UNHEALTHY branch -- a latent
+NameError that would have fired the first time a loop actually died. Found by asking why
+`state/escalation.json` did not exist, not by any test. **Verify the artefact, not the narration.** An audit
+of all 33 features claimed today now shows 33/33 present.
 
 ## SESSION 13 (26 Aug, ~10:00-11:15 ET, Opus day) — the north star, the chain break, and what the refusals actually say
 
