@@ -1,0 +1,262 @@
+{
+ "subject": "NVDA",
+ "event": "Q2 FY2027 earnings",
+ "event_date": "2026-08-27",
+ "release_expected_utc": "2026-08-26T20:20:00+00:00",
+ "fields": [
+  {
+   "name": "q3_guide_surprise",
+   "rank": 1,
+   "question": "What does the company guide Q3 FY2027 revenue to, against the ~$104.2bn the street carries?",
+   "unit": "usd_bn",
+   "prior": "Street ~$104.2bn (+~83% y/y), as of 25 Aug previews. NVIDIA guides a point with a +/-2% band; the guide is the number the stock trades on.",
+   "resolution_rule": "Read the guidance paragraph of the CFO commentary. Record the midpoint in $bn and the band. Surprise = midpoint - 104.2.",
+   "sources": [
+    "nvda_ir",
+    "consensus_sellside"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "gross_margin_surprise",
+   "rank": 2,
+   "question": "Non-GAAP gross margin, reported and guided, against ~75%?",
+   "unit": "pct",
+   "prior": "Company guided ~75% for Q2. The live question is whether HBM cost inflation is being absorbed or passed through, and what the Q3 guide implies.",
+   "resolution_rule": "Record reported non-GAAP GM and the Q3 GM guide. Surprise = reported - 75.0. A Q3 GM guide below 74% is the bear trigger regardless of the revenue line.",
+   "sources": [
+    "nvda_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "HBM_cost_pressure",
+   "rank": 3,
+   "question": "Does management quantify memory cost inflation, and does it flow to price?",
+   "unit": "ordinal",
+   "prior": "Micron reports ~$22bn of committed long-term supply and tightness into 2027; customers were notified (22 Aug) of AI-system price rises above 15% for some early-2027 systems, linked to HBM. So the cost is real and the pass-through is attempted; whether it holds is unknown.",
+   "resolution_rule": "ordinal in {absorbed, passed_through, partially_passed, not_addressed}, plus any quantified figure. This is the MECHANISM behind field 2 and it forecasts the next three quarters, not this one.",
+   "sources": [
+    "nvda_ir",
+    "micron_ir",
+    "reuters"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "Rubin_timing_change",
+   "rank": 4,
+   "question": "Is Rubin on schedule, and what does the ramp language change?",
+   "unit": "ordinal",
+   "prior": "Rubin debut is the quarter's headline product question. Foxconn has said rack production prepares to start in Q4.",
+   "resolution_rule": "ordinal in {ahead, on_schedule, slipped, not_addressed}. Record the exact ramp phrasing -- 'production' vs 'sampling' vs 'volume' are different claims. A slip is a bigger fact than a revenue miss because it moves FY2028.",
+   "sources": [
+    "nvda_ir",
+    "foxconn_monthly"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "customer_financing_quality",
+   "rank": 5,
+   "question": "How much of the demand is internally funded, and how much is financing-dependent?",
+   "unit": "ordinal",
+   "prior": "NVIDIA has helped arrange very large AI-infrastructure financing and carries commitments connected to the buildout, while AI-related corporate borrowing has grown quickly. This is the question the street has started asking and nobody has a number for.",
+   "resolution_rule": "ordinal in {not_addressed, addressed_qualitatively, quantified}. Record any figure for vendor financing, backstops, guarantees or receivable concentration. NOT_ADDRESSED is itself informative and must be recorded as such, not left blank.",
+   "sources": [
+    "nvda_ir",
+    "reuters"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "future_capacity_constraint",
+   "rank": 6,
+   "question": "What is named as the binding constraint on the next four quarters?",
+   "unit": "ordinal",
+   "prior": "Candidates: CoWoS/advanced packaging, HBM supply, power availability, grid interconnect, or none.",
+   "resolution_rule": "ordinal in {packaging, memory, power, grid, none, not_addressed}. The named constraint decides which SUPPLIER the demand actually reaches -- it is the single most useful field for the propagation graph.",
+   "sources": [
+    "nvda_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "datacenter_surprise",
+   "rank": 7,
+   "question": "Data Center revenue against the ~$85bn the street carries?",
+   "unit": "usd_bn",
+   "prior": "Q1 Data Center was $75.2bn, +92% y/y. Street around $85bn for Q2.",
+   "resolution_rule": "Record reported Data Center revenue in $bn. Surprise = reported - 85.0.",
+   "sources": [
+    "nvda_ir",
+    "consensus_sellside"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "hyperscale_growth",
+   "rank": 8,
+   "question": "What share of Data Center revenue is the large cloud customers, and is concentration rising?",
+   "unit": "pct",
+   "prior": "Recent 10-Qs disclose significant customer concentration. AWS backlog ~$496bn with 2026 capex ~$220bn; Alphabet 2026 capex ~$195-205bn.",
+   "resolution_rule": "Record the disclosed large-customer percentage if given. Rising concentration raises the financing question in field 5 rather than settling it.",
+   "sources": [
+    "nvda_ir",
+    "hyperscaler_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "custom_silicon_competition",
+   "rank": 9,
+   "question": "Does the print or the call acknowledge accelerating custom-silicon substitution?",
+   "unit": "ordinal",
+   "prior": "Google/Marvell arrangement worth up to ~$120bn to Marvell through FY2033 if targets are met. Hyperscalers are building substitutes; that is a fact regardless of tonight.",
+   "resolution_rule": "ordinal in {denied, acknowledged, quantified, not_addressed}. Higher value = MORE competition. The graph's AVGO/MRVL nodes are signed off THIS field.",
+   "sources": [
+    "nvda_ir",
+    "reuters"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "Blackwell_demand",
+   "rank": 10,
+   "question": "Blackwell shipment/demand language: sold out, in balance, or normalising?",
+   "unit": "ordinal",
+   "prior": "The prior cycle's language was persistent supply shortage.",
+   "resolution_rule": "ordinal in {sold_out, tight, in_balance, normalising, not_addressed}.",
+   "sources": [
+    "nvda_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "ACIE_growth",
+   "rank": 11,
+   "question": "Non-data-centre segments (auto, robotics, gaming, professional viz) -- growth and any inflection?",
+   "unit": "pct",
+   "prior": "Small relative to Data Center; matters only as an option on a second engine.",
+   "resolution_rule": "Record segment revenue and y/y growth. A surprise here is a change in the STORY, not in the quarter.",
+   "sources": [
+    "nvda_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "China_optional_revenue",
+   "rank": 12,
+   "question": "Is any China revenue included in guidance, or explicitly excluded?",
+   "unit": "ordinal",
+   "prior": "Recent guidance practice has been to exclude uncertain China revenue, making it a free option on the guide rather than a component of it.",
+   "resolution_rule": "ordinal in {excluded, partially_included, included, not_addressed}, plus any $ figure. EXCLUDED is bullish for the quality of the guide in field 1.",
+   "sources": [
+    "nvda_ir"
+   ],
+   "realised": null,
+   "realised_note": ""
+  },
+  {
+   "name": "revenue_surprise",
+   "rank": 13,
+   "question": "Q2 headline revenue against consensus ~$92.05bn?",
+   "unit": "usd_bn",
+   "prior": "Consensus ~$92.05bn (+96.9% y/y) as of 25 Aug, ABOVE the company's own May guide of $91bn +/-2%. Adjusted EPS ~$2.07.",
+   "resolution_rule": "Record reported revenue in $bn. Surprise = reported - 92.05. RANKED LAST ON PURPOSE: the quarter is nine weeks old and largely pre-announced by the supply chain; the guide is the news.",
+   "sources": [
+    "nvda_ir",
+    "consensus_sellside"
+   ],
+   "realised": null,
+   "realised_note": ""
+  }
+ ],
+ "market_expectation": {
+  "consensus_revenue_usd_bn": 92.05,
+  "consensus_revenue_asof": "2026-08-25",
+  "consensus_eps_adj": 2.07,
+  "consensus_q3_revenue_usd_bn": 104.2,
+  "company_guide_usd_bn": 91.0,
+  "company_guide_band": 0.02,
+  "company_gm_guide_pct": 75.0,
+  "reported_implied_move_28aug": 0.0558,
+  "reported_implied_move_source": "reuters/moomoo previews 24-25 Aug (CROSS-CHECK ONLY)",
+  "bars_start": "2025-12-09",
+  "measured_at": "2026-08-26T11:50:17.205006+00:00",
+  "nvda_last_close": 213.05,
+  "nvda_last_bar_t": "2026-08-25T04:00:00Z",
+  "coverage": "24/24",
+  "implied_move_measured": 0.051,
+  "implied_move_expiry": "2026-08-28",
+  "options_feed": "indicative",
+  "implied_move_note": "measured from our own chain at the timestamp above. The evidence bundle's 0.0558 is a REPORTED figure from a 25 Aug preview and is kept only as a cross-check -- we cannot know what it was computed from.",
+  "our_own_backtest": "NVDA straddles 0/8 on the last 8 SEC-dated prints, median -46%",
+  "corroboration_of_the_bundle": {
+   "cited": 8,
+   "independent": 8,
+   "groups": {
+    "foxconn_issuer": [
+     "foxconn_monthly"
+    ],
+    "hyperscaler_issuers": [
+     "hyperscaler_ir"
+    ],
+    "micron_issuer": [
+     "micron_ir"
+    ],
+    "nvda_issuer": [
+     "nvda_ir"
+    ],
+    "sellside_consensus": [
+     "consensus_sellside"
+    ],
+    "taiwan_customs": [
+     "taiwan_moea"
+    ],
+    "tsmc_issuer": [
+     "tsmc_monthly"
+    ],
+    "wire": [
+     "reuters"
+    ]
+   },
+   "strongest_type": "company_ir",
+   "note": "every citation is an independent observer"
+  }
+ },
+ "control_record": "PH:NVDA:2026-08-27:b29d506d",
+ "action": "SHADOW_ONLY",
+ "schema": "EVENT_STATE_v1",
+ "sealed_at": "2026-08-26T11:50:20.473056+00:00",
+ "seal": "a1634ef3ce52b31a4acb40e904514a20",
+ "resolved_at": null,
+ "_reaction": null,
+ "hierarchy": [
+  "q3_guide_surprise",
+  "gross_margin_surprise",
+  "HBM_cost_pressure",
+  "Rubin_timing_change",
+  "customer_financing_quality",
+  "future_capacity_constraint",
+  "datacenter_surprise",
+  "hyperscale_growth",
+  "custom_silicon_competition",
+  "Blackwell_demand",
+  "ACIE_growth",
+  "China_optional_revenue",
+  "revenue_surprise"
+ ],
+ "seal_valid": true
+}
