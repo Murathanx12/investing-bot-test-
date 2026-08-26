@@ -170,15 +170,95 @@ def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None) 
     ))
 
 
+def _arbiter_pass(client: AlpacaPaper, summary: dict) -> tuple[dict[str, str], set[str]]:
+    """Run the position arbiter. Returns (leg -> structure action, legs to close now).
+
+    In `advise` mode (default) it records verdicts and changes nothing. In
+    `act` mode an arbiter CLOSE closes every leg of the structure, and a HOLD on
+    a structure whose event is still pending overrides a leg-level stop -- the
+    leg rules cannot see that a short call at -38% is one wing of a condor
+    whose other wing is +37%.
+    """
+    import os
+
+    from alpha import arbiter
+
+    m = arbiter.mode()
+    summary["arbiter_mode"] = m
+    if m == "off":
+        return {}, set()
+    try:
+        role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+        verdicts = arbiter.judge_book(client, account_role=role, record=_arbiter_record_due(role))
+    except Exception as exc:                                             # noqa: BLE001
+        logger.warning("arbiter failed (%s: %s); exit rules stand alone this pass", type(exc).__name__, exc)
+        summary["arbiter_error"] = f"{type(exc).__name__}: {exc}"
+        return {}, set()
+    summary["arbiter"] = [(v.symbol, v.kind, v.action, round(v.remaining_edge_usd)) for v in verdicts]
+    if m != "act":
+        return {}, set()
+    from alpha import book as book_mod
+
+    acct = client.account()
+    bk = book_mod.reconstruct(client.positions(), equity=float(acct.get("equity") or 0.0),
+                              account_role=role)
+    by_id = {s.decision_id: s for s in bk.structures}
+    leg_action: dict[str, str] = {}
+    to_close: set[str] = set()
+    for v in verdicts:
+        st = by_id.get(v.decision_id)
+        if st is None:
+            continue
+        for sym, _side, _ratio in st.legs:
+            if v.action == "CLOSE":
+                to_close.add(sym)
+            elif v.action == "HOLD" and v.event_pending:
+                leg_action[sym] = "HOLD_EVENT_PENDING"
+    return leg_action, to_close
+
+
+#: Verdicts are judged every exit pass and WRITTEN at most this often per account,
+#: so the ledger carries a graded series rather than a row per structure per
+#: five minutes. Overridable for tests.
+ARBITER_RECORD_EVERY_S = 1800.0
+
+
+def _arbiter_record_due(role: str | None) -> bool:
+    import os
+    import time
+    from pathlib import Path
+
+    marker = Path(ledger.LEDGER_DIR) / f"arbiter_last_{role or 'default'}.txt"
+    now = time.time()
+    try:
+        last = float(marker.read_text().strip())
+    except (OSError, ValueError):
+        last = 0.0
+    if now - last < ARBITER_RECORD_EVERY_S:
+        return False
+    try:
+        marker.write_text(f"{now:.0f}")
+    except OSError:
+        pass
+    return True
+
+
 def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> dict:
     """Evaluate every open position and close the ones that earned it."""
     positions = client.positions()
     summary = {"checked": 0, "closed": 0, "held": 0, "errors": 0, "actions": []}
+    leg_action, arbiter_close = _arbiter_pass(client, summary)
 
     for position in positions:
         summary["checked"] += 1
         verdict = evaluate(position, deadline_utc=deadline_utc)
         symbol = position.get("symbol", "")
+        if symbol in arbiter_close and not verdict.close:
+            verdict = ExitVerdict(True, "arbiter CLOSE: remaining edge below the close cost (act mode)")
+        elif verdict.close and verdict.urgency != "immediate" and leg_action.get(symbol) == "HOLD_EVENT_PENDING":
+            logger.info("arbiter overrides leg stop on %s: event pending -- %s", symbol, verdict.reason[:80])
+            summary["actions"].append(("override_hold", symbol, verdict.reason))
+            verdict = ExitVerdict(False, "arbiter HOLD: event pending; a pre-event mark is not the thesis")
         if not verdict.close:
             summary["held"] += 1
             logger.debug("hold %s: %s", symbol, verdict.reason)
