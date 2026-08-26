@@ -44,7 +44,14 @@ legs −0.03%; drift lives in cash-generative names) and BROKEN_NARRATIVE (DOWN 
 +0.92%, week t 2.33, 10/11 quarters — **excess/log numbers; re-run in raw simple before believing**); agent 4
 POST_PRINT_CALL_SIDE (post-print bear call spread; straddle paired t −7.7 never sold), DKS 130/140 Sep-18
 frozen; agent 9 above; agent 10 ten non-factor strategies, build the ADR overnight residual first, and the
-universe attack (max-of-4,634 noise z≈4.1/day).
+universe attack (max-of-4,634 noise z≈4.1/day); **agent 7 (microstructure, 15-min + full panel)**: the drift
+is SESSION drift (intradays +0.28%, overnights +0.07%; the overnight after day 0 goes AGAINST the short in
+every bucket), day+1 open→close is the one resolvable segment (t 4.2-4.9) — so the honest clock is short
+09:45-10:00 ET, cover MOC, flat overnight (no gap charge); the UP side shows the same raw clock, so the
+rival mechanism is attention (Lou-Polk-Skouras), to be settled by a non-print ≤−3.5% mover placebo; and the
+attack: on INTRADAY highs (not closes) the 3% stop / 2.5% target closes 77-91% of positions, net −0.26% to
++0.20%/leg — my close-basis "stop is harmless" (§6 of the finding) was a lower bound and is superseded.
+Options: none (edge < one bid-ask).
 
 **Next:** (1) after tonight's close `scripts.daily_autopsy` runs itself; 27 Aug close → `event_grade NVDA
 --post --resolve PH:NVDA:2026-08-27:b29d506d`, then IREN/AFRM/S/RBRK post-grades on the 28th; (2) build the
