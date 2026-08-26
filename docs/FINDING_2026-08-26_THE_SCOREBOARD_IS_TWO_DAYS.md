@@ -18,8 +18,8 @@ Taking the final mark per decision and grouping by the originating brain:
 Read naively this says two things: `vol_gap` is the best brain, and **every road
 not taken lost money**, so the engine's refusals were correct.
 
-The second may well be true. The first is an artefact, and so is most of the
-precision in both.
+**Neither survives.** The first is an artefact three times over; the second
+decomposes into option decay over two flat sessions.
 
 ## Three defects, in increasing order of severity
 
@@ -77,10 +77,32 @@ had shadow exposure to it.
 - **No brain can be ranked against another yet, and no brain is a "champion" on
   evidence.** The dev/exp1 champion split is a design choice, not a result — and
   it should be described that way in anything a judge reads.
-- **"Every refusal was correct" is also two days.** It is the more robust of the
-  two readings — it rests on 1,435–1,685 raw refusals rather than on 27 shadows,
-  and it survives collapsing to date blocks (−4.2% to −4.6%) — but two days is
-  two days.
+- **"Every refusal was correct" does NOT survive either.** It looked like the
+  robust reading — 1,435–1,685 raw refusals rather than 27 shadows, surviving the
+  date-block collapse at −4.2% to −4.6%. Splitting it by instrument kills it:
+
+  | refused / alternative | n | mean RoR | median | win% |
+  |---|---|---|---|---|
+  | **long premium** | 1802 | **−9.7%** | −12.3% | — |
+  | **short premium** | 417 | −2.2% | −0.2% | — |
+  | `bull_call_spread` | 497 | −17.8% | −22.3% | 31% |
+  | `long_call` | 585 | −13.4% | −21.1% | 24% |
+  | `bear_call_spread` | 468 | −0.8% | **+2.2%** | **59%** |
+  | `iron_condor` | 417 | −2.2% | −0.2% | 47% |
+
+  SPY was roughly **flat** across 25–26 August. Long premium bleeds over two flat
+  sessions whatever the thesis was, and that is where essentially all of the
+  "correct refusal" came from. On the **short**-premium side the engine refused
+  structures that would have been close to break-even, and `bear_call_spread`
+  refusals carry a **+2.2% median and a 59% win rate** — those refusals were
+  mildly *wrong*.
+
+  So the finding is not "the engine refuses well". It is **"the engine refused a
+  lot of long premium during two flat days, and long premium decays"**. That is
+  the calendar, not skill.
+
+  (`no_trade`, n=1377, marks at exactly +0.0% by construction — those are CASH
+  decisions and are correctly zero, not evidence of anything.)
 - **The scoreboard needs a date-block collapse before it is read again.**
   Reporting raw n over minute-derived ids will keep manufacturing significance
   from repeated marks of one position.
