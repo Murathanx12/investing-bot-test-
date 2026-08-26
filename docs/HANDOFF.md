@@ -1,5 +1,46 @@
 # HANDOFF — read this first
 
+## SESSION 11 (26 Aug, ~04:00-07:30 ET, Fable autonomous) — NIGHT LAB: four decisions for $0.00
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched (loops
+alive, PIDs 3896 / 31428; `alpha/` unchanged this session — `python -m scripts.night_guard` PASS). Independent
+selectors: unchanged. Candidates tested: 4 (pair executor, Nikkei-ADR fade, attention placebo, provenance
+interaction), 0 promoted, **2 decisions closed and 2 opened**. LLM spend: **$0.00** (every test was bars +
+arithmetic; bar cache `state/night_shadow/bars_daily.json.gz`, 3,068 names, 2.6M bars, gitignored — rebuild with
+`python -m scripts.night_bars`, ~15 min). **RESULT IMPROVEMENT: NONE in P&L.**
+
+**The four decisions** (`docs/night/2026-08-26_NIGHT_FINDINGS.md`):
+1. **Do NOT build the pair executor.** Short loser / long IWM net of 34 bp in simple returns from the next open
+   = **−0.05%**, 7/11 quarters negative. Only "vs QQQ" clears costs and that is QQQ's tape.
+2. **Nikkei → Japanese ADRs**: US session fades the Nikkei on all 8 ADRs (t −2 to −6 given gap, prior US
+   session, FX, parent; the Nikkei itself mean-reverts next day, t −2.6) — but the 5-year trade is t 1.4 with
+   2021-22 negative and April 2025 carrying it. DEPRIORITIZED; shadow quote only. Taiwan/Korea "leads" were
+   the prior US session's own reversal.
+3. **Attention rival REFUTED**: a non-print ≥5% loser BOUNCES (+0.37% raw/3d, +2.1%/21d; shorting it −3.5%
+   net), a print loser does not (diff t 5.0). The print stops the bounce → information mechanism for
+   Psychohistory. NEW candidate for the battery: the non-print drop's bounce (46k events).
+4. **Provenance v2**: inside Murat's list the DOCUMENT rule worked — high analyst upside × deep drawdown
+   +5% to +51% excess at 63d (22 names), high vol WITHOUT upside −26% to −55% (SLDP, QS, AMPX, RGTI, QBTS);
+   upside/rating marginals +33%/+29%, green mark +29% vs unmarked −18%. v1's "volatility screen" was the
+   pick-vs-control feature, not the winner-vs-loser rule. n=52, one date. **SLDP (30%) and DKNG (28%) sit in
+   opposite cells.** Next selector: `STALE_TARGET_v1` (upside × drawdown, whole universe, target ages).
+
+**Also shipped:** `docs/night/2026-08-26_EXTERNAL_PROJECTS_DIGEST.md` (9 rival repos cloned to
+`C:/Users/mrthn/reference-codes/trading-agents/`; none evidences alpha; DeepSeek V4 LAST of 7 in 1rok's
+contest; picks converge, SIZING labels diverge; code owns arithmetic) · `docs/night/2026-08-26_EXECUTION_AUDIT.md`
+(our surface has none of the rivals' bracket bugs but **no venue-side stop, no daily-loss latch, the tournament
+multiplier sizes UP on losses, open orders invisible to the one-position guard** — ranked 7 day patches) ·
+`docs/night/2026-08-26_STRATEGY_MARKET_DESIGN.md` (SleeveQuote contract, Thompson allocator, six-brain
+tournament with incompatible constraints, disagreement register) · `scripts/night_guard.py` +
+`tests_smoke_night.py` (night writes only `state/night_shadow/`, `docs/night/`, `scripts/night_*.py`).
+
+**DAY WORK QUEUE (Opus, in order):** (1) apply audit patches 1-3 (post-fill GTC stop, `last_equity` −3% latch +
+clamp multiplier ≤1 on losses, merge open orders into `held`) BEFORE 28 Aug 15:00 UTC, smoke green, loops
+restarted Friday with `--expiry 2026-09-04`; (2) after 27 Aug close `event_grade NVDA --post --resolve
+PH:NVDA:2026-08-27:b29d506d`, then IREN/AFRM/S/RBRK post-grades on the 28th; (3) run the non-print bounce
+through a `pead_adversarial`-style battery (bar cache is on disk); (4) STALE_TARGET_v1 probe (Finnhub
+`price-target`); (5) provenance scan at 3 more as-of dates.
+
 ## SESSION 10 (26 Aug, ~07:00-10:30 ET, Fable autonomous) — the three reviews' P0-P10
 
 **RESULTS SCOREBOARD.** Best historical net strategy: none survives — the whole-market short lane was CLOSED
