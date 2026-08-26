@@ -140,6 +140,27 @@ if scanned is not None:
 check("a receipt-only report still runs the scan",
       any(l.startswith("scan") for l in lines), str([l[:8] for l in lines]))
 
+print("\n-- defect 4: the entry pass must not be allowed to starve exits")
+import importlib
+al = importlib.import_module("scripts.agent_loop")
+# The old ceiling was 1500s -- a safety net someone typed, which I quoted in a
+# handoff as though it described behaviour. Ten measured entry passes: median
+# 368s, p90 and max 439s. The ceiling was 3.4x the worst pass ever seen, and it
+# bought that headroom with a 25-minute worst-case exit delay.
+check("the entry-pass ceiling is bounded by what was MEASURED, not by a safety net",
+      al.TIMEOUTS_S["scripts.run_pass"] <= 900, str(al.TIMEOUTS_S["scripts.run_pass"]))
+check("...and still clears the worst pass ever observed (439s) with margin",
+      al.TIMEOUTS_S["scripts.run_pass"] >= 550, str(al.TIMEOUTS_S["scripts.run_pass"]))
+check("exits are never given a LONGER ceiling than entries",
+      al.TIMEOUTS_S["scripts.manage"] <= al.TIMEOUTS_S["scripts.run_pass"])
+src = open(al.__file__, encoding="utf-8").read()
+check("an exit pass runs IMMEDIATELY after an entry pass, not on the next tick",
+      "EXITS IMMEDIATELY AFTER" in src and 'last["exit"] = time.time()' in src)
+check("...and it re-reads the clock rather than trusting the stale cycle-start time",
+      "_market_open(client)" in src)
+check("an unreadable clock skips the extra exit rather than assuming open",
+      "return False" in src.split("def _market_open")[1].split("\ndef ")[0])
+
 print("\n-- writes are atomic and a bad receipt does not crash the reader")
 liveness._path("torn").write_text("{ this is not json", encoding="utf-8")
 check("an unreadable receipt reads as absent, not as a crash",

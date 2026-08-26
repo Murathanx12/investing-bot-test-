@@ -47,10 +47,35 @@ log = logging.getLogger("loop")
 
 
 #: A pass that runs longer than this is killed and logged. The loop is
-#: sequential, so a 40-minute entry pass would starve the five-minute EXIT pass
-#: -- and exits are the one job that must never wait on an LLM call.
-TIMEOUTS_S = {"scripts.run_pass": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
+#: sequential, so a long entry pass starves the five-minute EXIT pass -- and
+#: exits are the one job that must never wait on an LLM call.
+#:
+#: run_pass was 1500s, chosen as a safety net rather than from evidence. MEASURED
+#: over 10 completed entry passes in `state/loop_exp1.log`: median 368s, p90
+#: 439s, max 439s. So the ceiling was 3.4x the worst pass ever observed, and it
+#: bought that headroom by letting a hung pass delay exits by 25 minutes.
+#:
+#: 600s sits ~37% above the worst observed pass and caps the exit delay at
+#: roughly 600 + 60 = 11 minutes instead of 26. A pass that exceeds it is not a
+#: slow pass, it is a stuck one, and the next cycle re-reads the venue anyway.
+#: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
+#: for why this is the proportionate fix and venue-side structure stops are not.)
+TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
               "scripts.fill_audit": 300}
+
+
+def _market_open(client) -> bool:
+    """Venue clock, treating an unreadable clock as CLOSED.
+
+    Closed is the safe default here: this gates an EXTRA exit pass, so a wrong
+    False costs one skipped pass that the next cycle picks up, while a wrong
+    True spends a `manage` run against a venue we cannot reach.
+    """
+    try:
+        return bool(client.clock().get("is_open"))
+    except BrokerRefusal as exc:
+        log.warning("clock unavailable after entry pass: %s -- skipping the immediate exit", exc)
+        return False
 
 
 def _commit() -> str | None:
@@ -169,6 +194,18 @@ def _cycle(client, args, last: dict) -> int:
             if args.universe:
                 extra += ["--universe", *args.universe]
             _run("scripts.run_pass", "--expiry", args.expiry, *extra, live=args.live); last["entry"] = now
+            # EXITS IMMEDIATELY AFTER, not on the next tick. The entry pass has
+            # just held this loop for ~6 minutes (measured median 368s), so the
+            # five-minute exit cadence is already overdue by the time it returns
+            # -- and waiting out the 60s sleep adds a minute to a stop that is
+            # late for reasons that have nothing to do with the position.
+            #
+            # Deliberately sequential rather than concurrent: two processes
+            # touching execution state is what broke the ledger hash chain on
+            # 25 Aug, in six places. Exits get priority in TIME, never a
+            # parallel writer.
+            if _market_open(client):
+                _run("scripts.manage", live=args.live); last["exit"] = time.time()
         if now - last["cf"] >= 3600:
             _run("scripts.counterfactual", "--record", live=False); last["cf"] = now
         if is_open and now - last["belief"] >= 3600:
