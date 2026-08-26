@@ -1,0 +1,43 @@
+{
+  "trigger": {
+    "symbol": "NVDA",
+    "event": "Q2 FY2027 earnings (quarter ended late July 2026)",
+    "event_date": "2026-08-27",
+    "release": "2026-08-26 after market close (SEC 8-K Item 2.02 expected)",
+    "type": "scheduled_print"
+  },
+  "horizon": {
+    "day0": "2026-08-27",
+    "sessions": 3,
+    "resolve_by": "2026-09-01",
+    "note": "day-0 move = 27 Aug close vs 26 Aug close; PEAD window = 28 Aug .. 1 Sep"
+  },
+  "market_expectation": {
+    "consensus_revenue_usd_bn": 92.05,
+    "consensus_revenue_yoy": 0.969,
+    "company_guide_usd_bn": 91.0,
+    "company_guide_band": 0.02,
+    "consensus_eps_adj": 2.07,
+    "reported_implied_move_28aug": 0.0558,
+    "iv_rank_note": "IV ~40%, IV rank ~36: subdued for a print (Kiplinger / moomoo previews, 24-25 Aug)",
+    "expiry": "2026-08-28",
+    "our_own_backtest": "NVDA straddles 0/8 on the last 8 SEC-dated prints, median -46%; last-8 mean |move| 3.8%, median 3.2% close-to-close",
+    "source_pead_rule": "+1.13%/3d in day-0 direction (t 2.72, n=108, 11 names); lives in the 3.5-8.2% |move| band"
+  },
+  "evidence": [
+    {"kind": "reported", "fact": "Consensus Q2 revenue $92.05bn (+96.9% y/y) and adj EPS ~$2.07, ABOVE the company's own May guide of $91bn +/-2%; the print is judged against consensus, not the guide", "source": "moomoo/Kiplinger earnings previews", "date": "2026-08-25"},
+    {"kind": "reported", "fact": "Reuters: Nvidia faces a growth test as the Rubin debut meets AI financing scrutiny; analysts expect quarterly revenue to nearly double to ~$92.18bn while options price ~5.4%", "source": "reuters.com/business/retail-consumer/nvidia-faces-growth-test-rubin-debut-meets-ai-financing-scrutiny-2026-08-25", "date": "2026-08-25"},
+    {"kind": "reported", "fact": "Reuters: Nvidia customers notified about AI-related price hikes above 15% for some 2027 systems, linked to higher memory (HBM) costs", "source": "reuters.com/business/nvidia-customers-notified-about-ai-related-price-hikes-above-15-bloomberg-news-2026-08-22", "date": "2026-08-22"},
+    {"kind": "measured", "fact": "Taiwan July exports +32.9% y/y, versus economists' expectation of +40.7% -- very strong absolute demand, weaker-than-expected acceleration", "source": "reuters.com/world/asia-pacific/taiwan-july-exports-misses-forecasts-ai-demand-remains-solid-2026-08-07", "date": "2026-08-07"},
+    {"kind": "measured", "fact": "Foxconn July revenue +54.2% y/y as AI server demand accelerated (Foxconn assembles a large share of Nvidia racks)", "source": "Reuters, Foxconn monthly revenue", "date": "2026-08-05"},
+    {"kind": "reported", "fact": "Micron: customers including Nvidia have committed ~$22bn to long-term memory supply arrangements; supply expected to remain tight into at least 2027", "source": "reuters.com/legal/transactional/micron-joins-rivals-pitching-ai-deals-cure-memorys-boom-bust-cycle-2026-06-25", "date": "2026-06-25"},
+    {"kind": "reported", "fact": "Samsung raised prices for some advanced foundry orders by up to 15% on a demand spike while TSMC advanced capacity is constrained", "source": "reuters.com/business/autos-transportation/samsung-hikes-chipmaking-prices-by-up-15-demand-spike-sources-say-2026-08-19", "date": "2026-08-19"},
+    {"kind": "measured", "fact": "China July exports +23.9% y/y; semiconductor export value in the first seven months nearly doubled; Reuters notes exporters rushing shipments ahead of higher tariffs (pull-forward)", "source": "reuters.com/world/asia-pacific/chinas-july-exports-climb-239-yy-imports-up-275-2026-08-07", "date": "2026-08-07"},
+    {"kind": "measured", "fact": "PJM transmission-constraint (congestion) costs reached $6bn in H1 2026, +43% y/y, with data-centre load among the drivers; transformer/switchgear lead times run multi-year", "source": "reuters.com/business/energy/largest-us-grids-transmission-constraint-costs-surge-6-billion-2026-2026-08-21", "date": "2026-08-21"},
+    {"kind": "reported", "fact": "China's export controls on specific rare earths and its rare-earth exports to the US for aerospace are a live policy variable for the supply chain", "source": "reuters.com/world/asia-pacific/china-exports-us-rise-rare-earth-critical-aerospace-sector-2026-08-20", "date": "2026-08-20"},
+    {"kind": "measured", "fact": "Our real-option straddle backtest: NVDA long straddles lost on 0 of the last 8 SEC-dated prints (median -46%); the chain systematically OVERprices this name's prints; last-8 mean close-to-close |move| 3.8%", "source": "docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md", "date": "2026-08-25"},
+    {"kind": "measured", "fact": "Attention: NVDA option volume 11.3x trailing median into the print (77% calls, 71% OTM); Wikipedia pageviews z 1.55; HN 26 stories/48h", "source": "state/cards/NVDA_2026-08-25.json", "date": "2026-08-26"},
+    {"kind": "measured", "fact": "Source PEAD (our measurement, 108 prints): the printer drifts +1.13% over 3 sessions in the day-0 direction, hit 64%, t 2.72; the DOWN side is stronger (hit 72%); dead below |3.5%| and weaker above |8.2%|", "source": "state/source_pead_decompose.json", "date": "2026-08-26"},
+    {"kind": "reported", "fact": "Rubin (next-generation platform) debut and hyperscaler AI-financing scrutiny (debt-funded capex, ROI questions) are the two narrative axes into the print", "source": "Reuters 2026-08-25", "date": "2026-08-25"}
+  ]
+}
