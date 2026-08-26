@@ -64,9 +64,12 @@ from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 PANEL = Path(__file__).resolve().parent.parent / "state" / "research" / "analyst_panel"
 BASE = "https://finnhub.io/api/v1"
-#: Free tier is 60 calls/minute. 1.15s between calls leaves headroom for the
-#: jitter that turns a 60/min budget into a 429 at exactly 60.
-SLEEP_S = 1.15
+#: MEASURED 2026-08-26: 30 back-to-back `profile2` calls with NO sleep at all
+#: returned 30x HTTP 200 in 39.7s -- network latency alone paces this at ~45
+#: calls/minute, already under the free tier's limit. The original 1.15s sleep
+#: was therefore delay bought against a 429 that does not happen, and it roughly
+#: doubled the job. 0.4s keeps a margin without paying for one twice.
+SLEEP_S = 0.4
 
 
 def _get(path: str, key: str, **kw):
@@ -169,6 +172,15 @@ def main() -> int:
     print(f"  bars for {len(bars)} names")
 
     captured = datetime.now(timezone.utc).isoformat()
+    # WRITE AS WE GO. The first version buffered every row and wrote once at the
+    # end, so killing a 40-minute job at minute 38 destroyed 225 completed
+    # captures -- which is exactly what happened on the first run. A long capture
+    # that writes once has no partial credit, and a panel row is worth having
+    # whether or not the run that produced it finished.
+    PANEL.mkdir(parents=True, exist_ok=True)
+    day = datetime.now(timezone.utc).date().isoformat()
+    path = PANEL / f"{day}.jsonl"
+    fh = path.open("w", encoding="utf-8")
     rows, forbidden, errors = [], 0, 0
     for i, m in enumerate(picked, 1):
         rec = _get("stock/recommendation", key, symbol=m.symbol)
@@ -204,16 +216,13 @@ def main() -> int:
         }
         row.update(price_features(bars.get(m.symbol, [])))
         rows.append(row)
+        fh.write(json.dumps(row) + "\n")
+        fh.flush()
         if i % 25 == 0 or i == len(picked):
             print(f"  [{i}/{len(picked)}] {m.symbol:6s} cov={row['coverage']:3d} "
                   f"nb={row['net_breadth']}", flush=True)
 
-    PANEL.mkdir(parents=True, exist_ok=True)
-    day = datetime.now(timezone.utc).date().isoformat()
-    path = PANEL / f"{day}.jsonl"
-    with path.open("w", encoding="utf-8") as fh:
-        for r in rows:
-            fh.write(json.dumps(r) + "\n")
+    fh.close()
     covered = sum(1 for r in rows if (r.get("coverage") or 0) > 0)
     print(f"\n{len(rows)} rows -> {path}")
     print(f"  with analyst coverage: {covered} ({100*covered/max(1,len(rows)):.0f}%)")
