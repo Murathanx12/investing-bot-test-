@@ -22,6 +22,15 @@ Commits `038791d → c95e619`, pushed; 273 smoke checks green.
 | Psychohistory v0.1 | evidence ids + origin roots + independence; checkpoints with due dates; edge ids persisted (`state/causal_graph.jsonl`); edge SHAPE | schema `PSYCHOHISTORY_v0.1` |
 | `docs/FINDING_2026-08-26_MURATS_LIST_GRADED.md` | Murat's Nov-2025 list graded to today | watchlist +47% (XBI +56%, SPY +15%); **analyst upside Spearman 0.017**; the red-coded (target < price) names +154% (MU, MRNA); portfolio median −15% from construction |
 
+**THE WIDE PEAD RESULT (`docs/FINDING_2026-08-26_PEAD_WIDE.md`, 2,532 names / 25,856 prints):** the two-sided
++1.13% drift is a property of the eleven mega-caps (reproduced +1.09%, t 2.72); across the market it is
+5 bp. What exists instead is an ASYMMETRY — **bad news drifts, good news fades**: after a 3.5-8.2% day-0 DROP
+the name keeps falling (+0.44%/3d in that direction, hit 54%, t 4.29, weekly-block t 2.30; small caps
++0.73%, t 4.08; positive in 2024/25/26; >8.2% drops +0.64%, t 5.16), after a RISE it reverses (−0.22%, t −1.99;
+>8.2% −0.44%, t −3.23). `post_event_drift` now REFUSES an UP print outside the eleven and SHORTS a DOWN one
+(wide numbers scaled to the sessions left; big band not discounted). Borrow (`shortable+ETB`) is the constraint.
+**So the first whole-market lane is a SHORT-the-losers lane**, and 28 Aug candidates will be shorts.
+
 **Loops:** dev `--profile conservative` + `AAT_RECOVERY=1`, exp1 challenger set; both take `--candidates`
 and run `scripts.candidates` every 6 h and `scripts.daily_autopsy` after the close. **`--expiry 2026-08-28`
 expires Friday — restart with `--expiry 2026-09-04` on Friday evening (and on the competition account at kickoff).**
