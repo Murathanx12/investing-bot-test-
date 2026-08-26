@@ -186,6 +186,13 @@ os.environ["AAT_DEV_SECRET_KEY"] = "fake-secret-never-used"
 os.environ["ALPACA_API_KEY_ID"] = "live-key-from-parent"       # the hazard
 os.environ["AAT_SMOKE_CANARY"] = "should-not-reach-the-child"
 check("`trading` withheld from LLM toolsets", "trading" not in tooling.LLM_SAFE_TOOLSETS)
+# This block is about the CHILD ENVIRONMENT, not about role resolution, so it
+# declares the role instead of inheriting it. Run with AAT_ACCOUNT_ROLE=exp1 in
+# the ambient environment, asking for "dev" here is a real ROLE DISAGREEMENT and
+# `config.credentials` refuses it -- correctly: orders would go to one account
+# and its ledger rows would be written under the other's name. The guard's own
+# advice is "set both, or neither", so this sets both.
+os.environ["AAT_ACCOUNT_ROLE"] = "dev"
 env = tooling.official_env("dev", toolsets=tooling.LLM_SAFE_TOOLSETS)
 check("child env drops parent live keys",
       not any(n in env for n in config._FORBIDDEN_INHERITED))

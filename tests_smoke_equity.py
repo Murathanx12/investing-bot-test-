@@ -182,7 +182,18 @@ check("row carries claim and node", sub[0]["outcome"]["claim"] == "direction" an
 qty = int(sub[0]["order"]["qty"])
 pos = [{"asset_class": "us_equity", "symbol": "NVDA", "qty": str(qty), "cost_basis": str(qty * 180.02),
         "avg_entry_price": "180.02", "current_price": "181.0", "unrealized_plpc": "0.0054"}]
-b = book.reconstruct(pos, equity=100_000, account_role=None, rows=rows)
+# The row is stamped with whatever AAT_ACCOUNT_ROLE is set in the ambient
+# environment (`runner._record`), and `reconstruct` drops rows whose stamp does
+# not equal the role asked for -- correctly, since the other account's rows must
+# never explain this account's legs. So reconstructing at None while the ledger
+# stamps "dev" silently explains NOTHING and every leg becomes a residual.
+#
+# This test used to pass only because nobody ran it with the variable set. It
+# read as a book-matching test and was really an ambient-environment test, which
+# is exactly the class of check that reports health it never measured. Ask the
+# ledger what it stamped rather than assuming it stamped nothing.
+role_in_effect = sub[0].get("account_role")
+b = book.reconstruct(pos, equity=100_000, account_role=role_in_effect, rows=rows)
 check("book matches the share row", len(b.structures) == 1 and b.structures[0].kind == "long_shares", b.summary()[:100])
 mlpu = float(sub[0]["max_loss_per_unit"])
 check("book charges shares at the row's stress charge", abs(b.max_loss_usd - qty * mlpu) < 1e-6 and abs(mlpu - 10.8) < 1e-9, f"{b.max_loss_usd:.0f} vs {qty * mlpu:.0f}")
@@ -190,6 +201,29 @@ check("node exposure carries the share risk", abs(b.by_node.get("print:2026-08-2
 check("premium-paid view excludes shares", b.premium_paid_usd == 0.0)
 res2 = runner.run_pass(FakeClient(pos), [f_up], expiry="2026-08-28", dry_run=False)
 check("already positioned -> the next pass refuses", res2.submitted == 0 and res2.refused == 1)
+
+# REFUSAL DECOMPOSITION. "48 forecasts, 48 refused, errors=0" is operationally
+# reassuring and says nothing about whether the alpha layer is barren or the risk
+# layer is too strict -- two states that print identically and call for opposite
+# work.
+check("the refusal names its CLASS, not just its count",
+      res2.by_reason == {"already_held": 1}, str(res2.by_reason))
+check("the decomposition is one readable line", res2.decomposition() == "already_held=1",
+      res2.decomposition())
+try:
+    _bad = runner.PassResult(); _bad.refuse("because I said so")
+    check("an unclassified refusal is REFUSED, not silently bucketed", False)
+except ValueError as exc:
+    check("an unclassified refusal is REFUSED, not silently bucketed",
+          "REFUSAL_CLASSES" in str(exc), str(exc)[:60])
+
+# A DRY RUN IS NOT A REFUSAL. It used to increment `refused`, so a pass that
+# BUILT every order and simply did not send it was indistinguishable from one
+# where risk blocked all of it -- the smoke run on 26 Aug reported "refused=48"
+# for a pass that had built 48 orders, and that reading went into a handoff.
+res_dry = runner.run_pass(FakeClient(), [f_up], expiry="2026-08-28", dry_run=True)
+check("a dry pass BUILDS and does not refuse",
+      res_dry.dry_run == 1 and res_dry.refused == 0 and res_dry.submitted == 0, str(res_dry))
 b_orphan = book.reconstruct([{**pos[0], "qty": "-5"}], equity=100_000, account_role=None, rows=[])
 check("unexplained SHORT shares -> book unbounded", b_orphan.unbounded)
 b_long = book.reconstruct(pos, equity=100_000, account_role=None, rows=[])

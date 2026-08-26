@@ -107,9 +107,13 @@ def main() -> int:
     )
     ok, msg = ledger.verify_chain()
     logging.info("brains=%d forecasts=%d declined=%d | considered=%d submitted=%d refused=%d "
-                 "shadow=%d errors=%d | ledger: %s", len(names), len(forecasts), len(declined),
-                 result.considered, result.submitted, result.refused, result.shadow,
-                 result.errors, msg)
+                 "dry_run=%d shadow=%d errors=%d | ledger: %s", len(names), len(forecasts),
+                 len(declined), result.considered, result.submitted, result.refused,
+                 result.dry_run, result.shadow, result.errors, msg)
+    # WHY it refused, which is the only part that says what to work on next. A
+    # pass that refused everything on `risk` and one that refused everything on
+    # `evidence` print the same headline and call for opposite work.
+    logging.info("refusals by class: %s", result.decomposition())
     return 0 if ok else 1
 
 

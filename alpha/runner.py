@@ -92,6 +92,45 @@ def event_node(forecast: Forecast) -> str | None:
     return None
 
 
+def _priced_out(reason: str) -> bool:
+    """Did the arbiter decline on PRICE/liquidity rather than on the forecast?
+
+    Deliberately conservative: anything not recognisably about the market
+    microstructure is attributed to EVIDENCE, so the alpha layer is blamed by
+    default and the execution number can only be under-stated. A decomposition
+    that flatters the signal is worse than none.
+    """
+    r = (reason or "").lower()
+    return any(k in r for k in (
+        "spread", "no quote", "quotes", "illiquid", "liquidity", "no chain",
+        "unquotable", "bid", "ask", "wide", "no strike", "no expiry", "stale"))
+
+
+#: WHY an entry did not happen, and the reason this enumeration exists.
+#:
+#: `48 forecasts, 48 refused, errors=0` is operationally excellent and says
+#: NOTHING about the only question worth asking of it: is the alpha layer barren,
+#: or is the risk layer so strict the system cannot trade? Those two states print
+#: identically, and they call for opposite work. A count without a decomposition
+#: is a reassurance, not a measurement.
+#:
+#: `dry_run` is deliberately NOT a refusal. It used to increment `refused`, which
+#: made a dry pass -- where every order was built successfully and simply not
+#: sent -- indistinguishable from a pass where risk blocked all of it. The smoke
+#: run on 26 Aug reported "refused=48" for a pass that had in fact BUILT 48
+#: orders. That is the failure this whole enumeration exists to stop, and it was
+#: sitting inside the counter itself.
+REFUSAL_CLASSES = (
+    "evidence",           # the forecast did not earn a structure
+    "execution",          # no tradeable structure at an acceptable price
+    "risk",               # admission, event-node cap, latch, unbounded book
+    "already_held",       # a position or a resting order exists for this symbol
+    "capital",            # approved size does not buy one unit
+    "insufficient_data",  # the inputs to decide were not there
+    "cash",               # a structure cleared and CASH still beat it on EV
+)
+
+
 @dataclass
 class PassResult:
     considered: int = 0
@@ -101,10 +140,30 @@ class PassResult:
     errors: int = 0
     cash: int = 0
     """Symbols where a structure cleared the gate and CASH still beat it on EV."""
+    dry_run: int = 0
+    """Orders BUILT and deliberately not sent. Not a refusal -- see REFUSAL_CLASSES."""
+    by_reason: dict[str, int] = None
     decisions: list[str] = None
 
     def __post_init__(self) -> None:
         self.decisions = self.decisions or []
+        self.by_reason = self.by_reason or {}
+
+    def refuse(self, why: str) -> None:
+        """Count one refusal AND its class. Never increment `refused` directly."""
+        if why not in REFUSAL_CLASSES:
+            raise ValueError(f"unknown refusal class {why!r}; add it to REFUSAL_CLASSES "
+                             "rather than passing a free string -- an unclassified "
+                             "refusal is the thing this exists to prevent")
+        self.refused += 1
+        self.by_reason[why] = self.by_reason.get(why, 0) + 1
+
+    def decomposition(self) -> str:
+        """The one-line summary that says which half of the system to work on."""
+        if not self.by_reason:
+            return "none"
+        return " ".join(f"{k}={v}" for k, v in sorted(
+            self.by_reason.items(), key=lambda kv: -kv[1]))
 
 
 def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = None,
@@ -498,7 +557,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     if day.latched:
         for forecast in forecasts:
             result.considered += 1
-            result.refused += 1
+            result.refuse("risk")
             _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None,
                     None, state, action="refused", reason=day.reason)
         logger.error("%s", day.reason)
@@ -508,7 +567,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     if book.unbounded:
         for forecast in forecasts:
             result.considered += 1
-            result.refused += 1
+            result.refuse("risk")
             _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None,
                     None, state, action="refused",
                     reason="BOOK UNBOUNDED: a short option leg has no protective long in this "
@@ -540,7 +599,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
             # (QQQ straddle x4 became x8, a second NVDA condor at new strikes).
             for forecast in group:
                 result.considered += 1
-                result.refused += 1
+                result.refuse("already_held")
                 pending = in_flight.get(symbol, 0)
                 why = (f"{symbol} has {pending} order(s) IN FLIGHT at the venue and unfilled; "
                        "a resting entry is not a position and used to be invisible here, "
@@ -575,9 +634,15 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                         action="refused" if not alt_verdict.approved else "alternative",
                         reason=alt_verdict.reason)
             if structure is None:
-                result.refused += 1
                 if verdict.reason.startswith("CASH:"):
                     result.cash += 1
+                    result.refuse("cash")
+                else:
+                    # The arbiter declined. Whether that was the EVIDENCE (the
+                    # forecast never earned a structure) or EXECUTION (nothing
+                    # was quotable at an acceptable price) is the split that
+                    # decides where the next session's work goes.
+                    result.refuse("execution" if _priced_out(verdict.reason) else "evidence")
                 _record(decision_id, forecast, None, verdict, snapshot, state,
                         action="refused", reason=verdict.reason)
                 continue
@@ -612,7 +677,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         if node is not None:
             already = node_committed.get(node, 0.0)
             if already + champion[3].risk_fraction > EVENT_NODE_CAP:
-                result.refused += 1
+                result.refuse("risk")
                 _record(champion[0], champion[1], champion[2], champion[3], champion[4], state,
                         action="refused",
                         reason=(f"event node {node} already carries {already:.1%} of equity across "
@@ -655,13 +720,13 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             new_theta_usd_per_day=t_new, new_daily_sigma=sig_new)
         verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
         if not adm.ok:
-            result.refused += 1
+            result.refuse("risk")
             _record(decision_id, forecast, structure, verdict, snapshot, state,
                     action="refused", reason=f"ADMISSION: {adm.reason}", contracts=n)
             logger.info("ADMISSION refused %s %s x%d: %s", forecast.symbol, structure.kind, n, adm.reason[:100])
             return committed
     if n < 1:
-        result.refused += 1
+        result.refuse("capital")
         _record(decision_id, forecast, structure, verdict, snapshot, state,
                 action="refused",
                 reason=(f"approved {verdict.risk_fraction:.2%} of ${state.equity:,.0f} "
@@ -674,7 +739,7 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     order = build_order(structure, n)
     add = (structure.max_loss * n) / state.equity if state.equity else 0.0
     if dry_run:
-        result.refused += 1
+        result.dry_run += 1
         _record(decision_id, forecast, structure, verdict, snapshot, state,
                 action="dry_run", reason="dry run: order built and not sent", order=order,
                 contracts=n)
