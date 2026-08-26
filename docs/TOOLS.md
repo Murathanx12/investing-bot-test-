@@ -38,6 +38,8 @@ reading code or eyeballing the venue, there is probably already a tool.
 | `python -m scripts.analyst_panel` | Capture today's PIT slice: recommendation counts by period, net breadth and its delta, market cap, industry, price features. Runs daily at 17:30 ET as `AegisAnalystPanelDaily`. |
 | `python -m scripts.analyst_panel_calibrate` | **Run this before trusting the panel.** Coverage rises with size, sell-side optimism present but not saturated, breadth tracks momentum, zero coverage stays None. A failure invalidates everything downstream. |
 
+| `python -m scripts.depreciation_gap` | **Is accounting useful life being stretched?** PP&E / depreciation from SEC XBRL. Flags missing years, and runs Apple as the control that stops a clean AI narrative. |
+
 ## Modules worth knowing
 
 | module | why |
@@ -55,5 +57,7 @@ reading code or eyeballing the venue, there is probably already a tool.
   ranked against another yet (`FINDING_..._THE_SCOREBOARD_IS_TWO_DAYS`).
 - `EVENT_NODE_CAP` counts **tags**, and no brain tags
   (`FINDING_..._THE_EVENT_CAP_COUNTS_TAGS`).
+- Implied useful life is rising across big tech — **but Apple is up 85%**, so it
+  is not cleanly an AI story (`FINDING_..._DEPRECIATION_IS_RISING_BUT_NOT_ONLY_AI`).
 - Both books behave like **1.3–1.5 independent bets**
   (`FINDING_..._EFFECTIVE_N_BY_RISK`).

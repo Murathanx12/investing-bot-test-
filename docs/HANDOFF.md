@@ -122,6 +122,15 @@ are excluded and **named**, never FX-converted.
 residual. First run: **not one of ten names cleared its own one-event MDE** (6.1%-16.6% vs a ~5% anchor move),
 which is the power limit working. Shadow only.
 
+**17. `AI_DEPRECIATION_REALITY_GAP_v1` PHASE 1, FROM SEC XBRL.** Implied useful life = gross PP&E / annual
+depreciation. It **is** rising: AMZN +92%, **AAPL +85%**, ORCL +61%, MSFT +54%, META +26% — MSFT and ORCL on
+seven clean consecutive years. **NVDA moves the other way (−7%)**, which is exactly the correction on record:
+the concern is customer accounting, not NVIDIA's books.
+**But the control ruins the clean version.** Apple is not building AI datacentres at hyperscaler scale and is
+the second-largest riser, so this is large-cap tech generally or a mix shift toward long-lived assets — **not
+cleanly an AI story.** AMZN's series has a five-year hole and the run says so. A **lead, not a finding**;
+nothing trades on it. Decisive next step is splitting PP&E by asset class.
+
 **CORRECTIONS I OWE FROM THIS BLOCK.** I said the hackathon LLM path was dead (170 calls, 0 successes) —
 **wrong twice**: my parser tested a field that does not exist so everything read False, and my own test call
 omitted the `Authorization` header that `extract.py` passes explicitly, producing a 401 that looked exactly
