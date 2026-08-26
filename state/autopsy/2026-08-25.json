@@ -1,0 +1,1144 @@
+{
+ "session": "2026-08-25",
+ "generated_utc": "2026-08-26T06:10:40.232982+00:00",
+ "universe_n": 3059,
+ "median_1d_return": 0.002,
+ "movers": [
+  {
+   "symbol": "TENX",
+   "side": "WIN",
+   "ret_1d": 0.2541,
+   "ret_5d": 0.3647,
+   "median_dollar_volume": 19383449.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 86823494.39999998,
+   "cap_bucket": "micro",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "12 Health Care Stocks Moving In Tuesday's Intraday Session",
+    "12 Health Care Stocks Moving In Tuesday's Pre-Market Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No specific news or catalyst is provided; the stock moved up 25.4% on high volume with only generic sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Not all large moves have identifiable precursors; avoid forcing explanations."
+   }
+  },
+  {
+   "symbol": "CAPR",
+   "side": "WIN",
+   "ret_1d": 0.2191,
+   "ret_5d": 0.1709,
+   "median_dollar_volume": 29890539.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 481972228.3191176,
+   "cap_bucket": "small",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday",
+    "Why Is Capricor Therapeutics Stock Trading Higher on Monday?",
+    "Capricor Therapeutics Says FDA Extends PDUFA Target Action Date For Its BLA For Deramiocel, Investigational Cell Therapy For Duchenne Muscul"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "regulatory_decision",
+    "why": "The FDA extended the PDUFA date for its BLA for deramiocel, a regulatory update that likely drove the stock higher.",
+    "knowable_before": "partly",
+    "precursor": "PDUFA date was scheduled; extension was not known beforehand.",
+    "lesson": "Regulatory decisions are scheduled but outcomes are uncertain; monitor FDA calendars."
+   }
+  },
+  {
+   "symbol": "RZLV",
+   "side": "WIN",
+   "ret_1d": 0.2181,
+   "ret_5d": 0.2082,
+   "median_dollar_volume": 24695319.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1180529747.1604936,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Intuit, DICK'S Sporting Goods, Zoom, Oklo and Rezolve AI: Why These 5 Stocks Are on Investors' Radars Today",
+    "Crude Oil Down Over 3%; US Home Prices Surge In June",
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No specific company news; the stock rose 21.8% with only generic market headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are unexplained by available data; avoid over-attribution."
+   }
+  },
+  {
+   "symbol": "CRML",
+   "side": "WIN",
+   "ret_1d": 0.2144,
+   "ret_5d": 0.3171,
+   "median_dollar_volume": 41969267.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1189798873.1784108,
+   "cap_bucket": "small",
+   "industry": "Metals & Mining",
+   "had_print": false,
+   "headlines": [
+    "Critical Metals Stock Jumps Tuesday: What's Happening?",
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Headline mentions 'Critical Metals Stock Jumps Tuesday' but no specific catalyst is provided; the move appears news-driven but details are absent.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Headlines can indicate news but without specifics, the move is not predictable."
+   }
+  },
+  {
+   "symbol": "REAX",
+   "side": "WIN",
+   "ret_1d": 0.1846,
+   "ret_5d": 0.0728,
+   "median_dollar_volume": 7627711.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 5261124756.0,
+   "cap_bucket": "mid",
+   "industry": "Real Estate",
+   "had_print": false,
+   "headlines": [
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday",
+    "Trading Halt: Halt status updated at 8:55:00 AM ET: Quotation Resumption: News and Resumption Times",
+    "Real REMAX Launches Post-Merger Stock Buyback of up to $450 Million"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "m_and_a",
+    "why": "The company announced a post-merger stock buyback of up to $450 million, which is a capital return event that likely boosted the stock.",
+    "knowable_before": "partly",
+    "precursor": "Merger completion was known; buyback announcement was not.",
+    "lesson": "Post-merger buybacks can be catalysts; monitor merger completions."
+   }
+  },
+  {
+   "symbol": "DFNS",
+   "side": "WIN",
+   "ret_1d": 0.1844,
+   "ret_5d": -0.5206,
+   "median_dollar_volume": 3063539.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 21696031.353315163,
+   "cap_bucket": "micro",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "12 Information Technology Stocks Moving In Tuesday's Intraday Session",
+    "What's Going On With T3 Defense Stock Tuesday?",
+    "12 Information Technology Stocks Moving In Tuesday's Pre-Market Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No specific news; the stock rose 18.4% despite a 5-day decline of 52.1%, with only generic IT sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sharp reversals can occur without clear precursors; be cautious."
+   }
+  },
+  {
+   "symbol": "ABCL",
+   "side": "WIN",
+   "ret_1d": 0.1781,
+   "ret_5d": 0.1241,
+   "median_dollar_volume": 44810603.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 4050591909.754949,
+   "cap_bucket": "mid",
+   "industry": "Life Sciences Tools & Services",
+   "had_print": false,
+   "headlines": [
+    "What'sGoing On With AbCellera Biologics Stock On Tuesday?",
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Headline asks 'What's Going On With AbCellera Biologics Stock On Tuesday?' but no specific catalyst is provided; the move is unexplained.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "When headlines pose questions, the cause is often unknown."
+   }
+  },
+  {
+   "symbol": "INBX",
+   "side": "WIN",
+   "ret_1d": 0.1694,
+   "ret_5d": 0.297,
+   "median_dollar_volume": 25856867.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1806151270.9845624,
+   "cap_bucket": "small",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "HC Wainwright & Co. Initiates Coverage On Inhibrx Biosciences with Buy Rating, Announces Price Target of $245"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "HC Wainwright initiated coverage with a Buy rating and a $245 price target, a positive analyst action that likely drove the stock up.",
+    "knowable_before": "partly",
+    "precursor": "Analyst initiation was scheduled; the rating and target were not known.",
+    "lesson": "Analyst initiations can be catalysts; monitor upcoming coverage."
+   }
+  },
+  {
+   "symbol": "CUE",
+   "side": "WIN",
+   "ret_1d": 0.1544,
+   "ret_5d": 0.0412,
+   "median_dollar_volume": 4024989.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 194395716.88524595,
+   "cap_bucket": "micro",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 15.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are purely idiosyncratic and not predictable."
+   }
+  },
+  {
+   "symbol": "CABO",
+   "side": "WIN",
+   "ret_1d": 0.1537,
+   "ret_5d": -0.0616,
+   "median_dollar_volume": 8956935.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 149451182.48094615,
+   "cap_bucket": "micro",
+   "industry": "Media",
+   "had_print": false,
+   "headlines": [
+    "11 Communication Services Stocks Moving In Tuesday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Only generic sector headline; no company-specific news is provided.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sector moves can be misleading; without specifics, cause is unknown."
+   }
+  },
+  {
+   "symbol": "GENB",
+   "side": "WIN",
+   "ret_1d": 0.1501,
+   "ret_5d": 0.2674,
+   "median_dollar_volume": 9573033.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 2615822467.504514,
+   "cap_bucket": "mid",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 15.0% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are common; avoid over-analysis."
+   }
+  },
+  {
+   "symbol": "MEI",
+   "side": "WIN",
+   "ret_1d": 0.144,
+   "ret_5d": 0.0025,
+   "median_dollar_volume": 8030458.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 569693803.9308625,
+   "cap_bucket": "small",
+   "industry": "Electrical Equipment",
+   "had_print": false,
+   "headlines": [
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday",
+    "12 Information Technology Stocks Moving In Tuesday's Pre-Market Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No specific news; the stock rose 14.4% with only generic sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Generic headlines do not provide a clear cause."
+   }
+  },
+  {
+   "symbol": "MRNA",
+   "side": "WIN",
+   "ret_1d": 0.1436,
+   "ret_5d": 1.5227,
+   "median_dollar_volume": 349787772.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 63410633011.04854,
+   "cap_bucket": "large",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "Moderna Shares Rise Over 5% After Key Trading Signal",
+    "10 Health Care Stocks Whale Activity In Today\u2019s Session",
+    "Bitcoin Tops $80,000, Oil Sinks As Navy Clears Hormuz Mines: Stock Market Today"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Headline mentions 'key trading signal' but no specific fundamental catalyst; the stock rose 14.4% on high volume.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Trading signals are not fundamental precursors; cause remains unclear."
+   }
+  },
+  {
+   "symbol": "PRME",
+   "side": "WIN",
+   "ret_1d": 0.1415,
+   "ret_5d": 0.2164,
+   "median_dollar_volume": 9807319.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 672908156.3076923,
+   "cap_bucket": "small",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 14.1% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "RHLD",
+   "side": "WIN",
+   "ret_1d": 0.124,
+   "ret_5d": 0.1403,
+   "median_dollar_volume": 20916505.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1131026205.513211,
+   "cap_bucket": "small",
+   "industry": "Professional Services",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 12.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are common; avoid forcing a narrative."
+   }
+  },
+  {
+   "symbol": "DKS",
+   "side": "LOSS",
+   "ret_1d": -0.3068,
+   "ret_5d": -0.3509,
+   "median_dollar_volume": 269302270.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 11126106563.74187,
+   "cap_bucket": "large",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "Intuit, DICK'S Sporting Goods, Zoom, Oklo and Rezolve AI: Why These 5 Stocks Are on Investors' Radars Today",
+    "10 Consumer Discretionary Stocks Whale Activity In Today\u2019s Session",
+    "Nike Stock Slides After Dick's Disappointing Q2 Results"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Reported disappointing Q2 results, causing a 30.7% drop; the earnings report was scheduled and the surprise was negative.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative surprise was not known.",
+    "lesson": "Earnings are scheduled but outcomes are uncertain; monitor guidance."
+   }
+  },
+  {
+   "symbol": "SDOT",
+   "side": "LOSS",
+   "ret_1d": -0.294,
+   "ret_5d": 0.6108,
+   "median_dollar_volume": 8388030.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 21582246.379533682,
+   "cap_bucket": "micro",
+   "industry": "Food Products",
+   "had_print": false,
+   "headlines": [
+    "Sadot CFO Resigns for \u2018Personal Reasons,\u2019 Stock Falls",
+    "Sadot Group Files Prospectus For Resale Of Up To 4,254,386 Shares By Selling Stockholders",
+    "Sadot Group Appoints CEO Haggai Ravid As Interim CFO Following Departure Of Oren Attiya; Board Has Commenced Search For A Permanent CFO"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "dilution_or_financing",
+    "why": "CFO resignation and prospectus for resale of shares by selling stockholders likely pressured the stock, down 29.4%.",
+    "knowable_before": "partly",
+    "precursor": "CFO resignation and prospectus were announced before the move; the market reaction was not predictable.",
+    "lesson": "Management changes and share resale filings can be negative catalysts."
+   }
+  },
+  {
+   "symbol": "GRRR",
+   "side": "LOSS",
+   "ret_1d": -0.1131,
+   "ret_5d": -0.0763,
+   "median_dollar_volume": 17291813.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 389714946.1174984,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "12 Information Technology Stocks Moving In Tuesday's Intraday Session",
+    "Why Is Gorilla Technology Stock Falling Tuesday?",
+    "Stock Market Today: Dow Jones, S&P 500, Nasdaq 1000 Futures Advance as Scott Bessent Expands Sanctions on Iran\u2014NTS, GRRR, REAX, ZM, LGVN in "
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Headline asks 'Why Is Gorilla Technology Stock Falling Tuesday?' but no specific catalyst is provided; the drop is unexplained.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "When headlines ask why, the cause is often unknown."
+   }
+  },
+  {
+   "symbol": "SHOE",
+   "side": "LOSS",
+   "ret_1d": -0.0839,
+   "ret_5d": -0.0629,
+   "median_dollar_volume": 8641325.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 388535215.68437904,
+   "cap_bucket": "small",
+   "industry": "Retail",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 8.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some declines are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "BBWI",
+   "side": "LOSS",
+   "ret_1d": -0.0829,
+   "ret_5d": -0.1139,
+   "median_dollar_volume": 102410942.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 3543456692.5226912,
+   "cap_bucket": "mid",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "Nvidia Could Swing By $286 Billion After Earnings",
+    "Bitcoin Tops $80,000, Oil Sinks As Navy Clears Hormuz Mines: Stock Market Today"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No specific news; the stock fell 8.3% despite being a retailer, possibly due to sector weakness from DKS earnings, but no direct link is provided.",
+    "knowable_before": "partly",
+    "precursor": "DKS earnings were scheduled and could have sector impact.",
+    "lesson": "Sector contagion from earnings can affect peers; monitor related companies."
+   }
+  },
+  {
+   "symbol": "FFAI",
+   "side": "LOSS",
+   "ret_1d": -0.0797,
+   "ret_5d": -0.1631,
+   "median_dollar_volume": 4002736.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 10679183.760797344,
+   "cap_bucket": "micro",
+   "industry": "Automobiles",
+   "had_print": false,
+   "headlines": [
+    "Reported Earlier, Faraday Future Announces \"Built In USA\" Global Industry Alliance Initiative And Robotics Acceleration Program Roadmap At A",
+    "Faraday Future Intelligent Electric Terminates The Obligation To Issue A Total Of ~237,615 Warrants;  All Five Investors Have Executed The A",
+    "Reported Sunday, Faraday Future CEO YT Jia Shares Weekly Update, Signs New FF Par Agreement With Leading US Robotics Distributor"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Multiple headlines about initiatives and warrant termination, but no clear negative catalyst; the stock fell 8.0%.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Complex news flow can be ambiguous; cause may be unclear."
+   }
+  },
+  {
+   "symbol": "DY",
+   "side": "LOSS",
+   "ret_1d": -0.0765,
+   "ret_5d": -0.1517,
+   "median_dollar_volume": 194048865.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 10565066556.762306,
+   "cap_bucket": "large",
+   "industry": "Construction",
+   "had_print": true,
+   "headlines": [
+    "Dycom Earnings Are Imminent; These Most Accurate Analysts Revise Forecasts Ahead Of Earnings Call"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Earnings were imminent and analysts revised forecasts ahead of the call; the stock fell 7.6% likely due to negative expectations or results.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative reaction was not known.",
+    "lesson": "Earnings are scheduled but outcomes are uncertain; monitor analyst revisions."
+   }
+  },
+  {
+   "symbol": "BETA",
+   "side": "LOSS",
+   "ret_1d": -0.0726,
+   "ret_5d": -0.1738,
+   "median_dollar_volume": 24251878.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 5172436851.995385,
+   "cap_bucket": "mid",
+   "industry": "Aerospace & Defense",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 7.3% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "EH",
+   "side": "LOSS",
+   "ret_1d": -0.0712,
+   "ret_5d": -0.1481,
+   "median_dollar_volume": 5355172.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 390369638.0,
+   "cap_bucket": "small",
+   "industry": "Aerospace & Defense",
+   "had_print": false,
+   "headlines": [
+    "EHang Withdraws Outlook After Industry Air Incident Spurs Regulatory Caution",
+    "EHang Holdings Q2 2026 Earnings Call: Complete Transcript",
+    "TryHard Holdings Announces Strategic Collaboration With SBI MUSIC CIRCUS, EHang, And SKYTEK To Develop Next-Gen Drone Light Show Entertainme"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "regulatory_decision",
+    "why": "Withdrew outlook after an industry air incident spurred regulatory caution, a negative regulatory/operational update.",
+    "knowable_before": "partly",
+    "precursor": "Air incident was reported; the outlook withdrawal was not known.",
+    "lesson": "Regulatory caution can lead to guidance withdrawals; monitor industry incidents."
+   }
+  },
+  {
+   "symbol": "SSL",
+   "side": "LOSS",
+   "ret_1d": -0.0668,
+   "ret_5d": -0.0338,
+   "median_dollar_volume": 14420044.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 126556932464.0,
+   "cap_bucket": "large",
+   "industry": "Chemicals",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 6.7% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "JACK",
+   "side": "LOSS",
+   "ret_1d": -0.0634,
+   "ret_5d": -0.0018,
+   "median_dollar_volume": 11428688.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 320294823.2697701,
+   "cap_bucket": "small",
+   "industry": "Hotels, Restaurants & Leisure",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 6.3% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "CTRN",
+   "side": "LOSS",
+   "ret_1d": -0.0624,
+   "ret_5d": -0.0309,
+   "median_dollar_volume": 8873312.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 580673646.1367855,
+   "cap_bucket": "small",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "Why Is Citi Trends Stock Falling Tuesday?",
+    "Citi Trends Q2 2026 Earnings Call Transcript",
+    "Citi Trends Files $100M Common Stock Shelf Registration"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Reported Q2 earnings and filed a $100M shelf registration; the stock fell 6.2% likely due to earnings or dilution concerns.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative reaction was not known.",
+    "lesson": "Earnings and shelf filings can be negative catalysts; monitor both."
+   }
+  },
+  {
+   "symbol": "ALB",
+   "side": "LOSS",
+   "ret_1d": -0.0589,
+   "ret_5d": 0.0035,
+   "median_dollar_volume": 289503430.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 15715913052.625257,
+   "cap_bucket": "large",
+   "industry": "Chemicals",
+   "had_print": false,
+   "headlines": [
+    "Albemarle\u2019s Lithium Math Turns Brutal",
+    "Bitcoin Tops $80,000, Oil Sinks As Navy Clears Hormuz Mines: Stock Market Today",
+    "JP Morgan Maintains Neutral on Albemarle, Lowers Price Target to $140"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "Headline 'Albemarle's Lithium Math Turns Brutal' and JP Morgan lowered price target, indicating negative guidance or outlook.",
+    "knowable_before": "partly",
+    "precursor": "Analyst actions and lithium market conditions were observable; the specific guidance change was not known.",
+    "lesson": "Analyst downgrades and commodity weakness can signal negative moves."
+   }
+  },
+  {
+   "symbol": "ASO",
+   "side": "LOSS",
+   "ret_1d": -0.058,
+   "ret_5d": -0.0726,
+   "median_dollar_volume": 66181086.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 2696248793.5411706,
+   "cap_bucket": "mid",
+   "industry": "Retail",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 5.8% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  {
+   "symbol": "DBI",
+   "side": "LOSS",
+   "ret_1d": -0.0564,
+   "ret_5d": -0.0612,
+   "median_dollar_volume": 3226052.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 280290944.16410255,
+   "cap_bucket": "micro",
+   "industry": "Retail",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 5.6% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  }
+ ],
+ "industry_clusters": {
+  "WIN:Biotechnology": [
+   "TENX",
+   "CAPR",
+   "INBX",
+   "CUE",
+   "GENB",
+   "MRNA",
+   "PRME"
+  ],
+  "WIN:Technology": [
+   "RZLV",
+   "DFNS"
+  ],
+  "LOSS:Retail": [
+   "DKS",
+   "SHOE",
+   "BBWI",
+   "CTRN",
+   "ASO",
+   "DBI"
+  ],
+  "LOSS:Aerospace & Defense": [
+   "BETA",
+   "EH"
+  ],
+  "LOSS:Chemicals": [
+   "SSL",
+   "ALB"
+  ]
+ },
+ "compiled": {
+  "movers": {
+   "TENX": {
+    "template": "unknown",
+    "why": "No specific news or catalyst is provided; the stock moved up 25.4% on high volume with only generic sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Not all large moves have identifiable precursors; avoid forcing explanations."
+   },
+   "CAPR": {
+    "template": "regulatory_decision",
+    "why": "The FDA extended the PDUFA date for its BLA for deramiocel, a regulatory update that likely drove the stock higher.",
+    "knowable_before": "partly",
+    "precursor": "PDUFA date was scheduled; extension was not known beforehand.",
+    "lesson": "Regulatory decisions are scheduled but outcomes are uncertain; monitor FDA calendars."
+   },
+   "RZLV": {
+    "template": "unknown",
+    "why": "No specific company news; the stock rose 21.8% with only generic market headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are unexplained by available data; avoid over-attribution."
+   },
+   "CRML": {
+    "template": "unknown",
+    "why": "Headline mentions 'Critical Metals Stock Jumps Tuesday' but no specific catalyst is provided; the move appears news-driven but details are absent.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Headlines can indicate news but without specifics, the move is not predictable."
+   },
+   "REAX": {
+    "template": "m_and_a",
+    "why": "The company announced a post-merger stock buyback of up to $450 million, which is a capital return event that likely boosted the stock.",
+    "knowable_before": "partly",
+    "precursor": "Merger completion was known; buyback announcement was not.",
+    "lesson": "Post-merger buybacks can be catalysts; monitor merger completions."
+   },
+   "DFNS": {
+    "template": "unknown",
+    "why": "No specific news; the stock rose 18.4% despite a 5-day decline of 52.1%, with only generic IT sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sharp reversals can occur without clear precursors; be cautious."
+   },
+   "ABCL": {
+    "template": "unknown",
+    "why": "Headline asks 'What's Going On With AbCellera Biologics Stock On Tuesday?' but no specific catalyst is provided; the move is unexplained.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "When headlines pose questions, the cause is often unknown."
+   },
+   "INBX": {
+    "template": "unknown",
+    "why": "HC Wainwright initiated coverage with a Buy rating and a $245 price target, a positive analyst action that likely drove the stock up.",
+    "knowable_before": "partly",
+    "precursor": "Analyst initiation was scheduled; the rating and target were not known.",
+    "lesson": "Analyst initiations can be catalysts; monitor upcoming coverage."
+   },
+   "CUE": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 15.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are purely idiosyncratic and not predictable."
+   },
+   "CABO": {
+    "template": "unknown",
+    "why": "Only generic sector headline; no company-specific news is provided.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sector moves can be misleading; without specifics, cause is unknown."
+   },
+   "GENB": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 15.0% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are common; avoid over-analysis."
+   },
+   "MEI": {
+    "template": "unknown",
+    "why": "No specific news; the stock rose 14.4% with only generic sector headlines.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Generic headlines do not provide a clear cause."
+   },
+   "MRNA": {
+    "template": "unknown",
+    "why": "Headline mentions 'key trading signal' but no specific fundamental catalyst; the stock rose 14.4% on high volume.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Trading signals are not fundamental precursors; cause remains unclear."
+   },
+   "PRME": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 14.1% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   },
+   "RHLD": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock rose 12.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are common; avoid forcing a narrative."
+   },
+   "DKS": {
+    "template": "earnings_surprise",
+    "why": "Reported disappointing Q2 results, causing a 30.7% drop; the earnings report was scheduled and the surprise was negative.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative surprise was not known.",
+    "lesson": "Earnings are scheduled but outcomes are uncertain; monitor guidance."
+   },
+   "SDOT": {
+    "template": "dilution_or_financing",
+    "why": "CFO resignation and prospectus for resale of shares by selling stockholders likely pressured the stock, down 29.4%.",
+    "knowable_before": "partly",
+    "precursor": "CFO resignation and prospectus were announced before the move; the market reaction was not predictable.",
+    "lesson": "Management changes and share resale filings can be negative catalysts."
+   },
+   "GRRR": {
+    "template": "unknown",
+    "why": "Headline asks 'Why Is Gorilla Technology Stock Falling Tuesday?' but no specific catalyst is provided; the drop is unexplained.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "When headlines ask why, the cause is often unknown."
+   },
+   "SHOE": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 8.4% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some declines are not explainable from available data."
+   },
+   "BBWI": {
+    "template": "unknown",
+    "why": "No specific news; the stock fell 8.3% despite being a retailer, possibly due to sector weakness from DKS earnings, but no direct link is provided.",
+    "knowable_before": "partly",
+    "precursor": "DKS earnings were scheduled and could have sector impact.",
+    "lesson": "Sector contagion from earnings can affect peers; monitor related companies."
+   },
+   "FFAI": {
+    "template": "unknown",
+    "why": "Multiple headlines about initiatives and warrant termination, but no clear negative catalyst; the stock fell 8.0%.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Complex news flow can be ambiguous; cause may be unclear."
+   },
+   "DY": {
+    "template": "earnings_surprise",
+    "why": "Earnings were imminent and analysts revised forecasts ahead of the call; the stock fell 7.6% likely due to negative expectations or results.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative reaction was not known.",
+    "lesson": "Earnings are scheduled but outcomes are uncertain; monitor analyst revisions."
+   },
+   "BETA": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 7.3% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   },
+   "EH": {
+    "template": "regulatory_decision",
+    "why": "Withdrew outlook after an industry air incident spurred regulatory caution, a negative regulatory/operational update.",
+    "knowable_before": "partly",
+    "precursor": "Air incident was reported; the outlook withdrawal was not known.",
+    "lesson": "Regulatory caution can lead to guidance withdrawals; monitor industry incidents."
+   },
+   "SSL": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 6.7% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   },
+   "JACK": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 6.3% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   },
+   "CTRN": {
+    "template": "earnings_surprise",
+    "why": "Reported Q2 earnings and filed a $100M shelf registration; the stock fell 6.2% likely due to earnings or dilution concerns.",
+    "knowable_before": "partly",
+    "precursor": "Earnings date was scheduled; the negative reaction was not known.",
+    "lesson": "Earnings and shelf filings can be negative catalysts; monitor both."
+   },
+   "ALB": {
+    "template": "guidance_change",
+    "why": "Headline 'Albemarle's Lithium Math Turns Brutal' and JP Morgan lowered price target, indicating negative guidance or outlook.",
+    "knowable_before": "partly",
+    "precursor": "Analyst actions and lithium market conditions were observable; the specific guidance change was not known.",
+    "lesson": "Analyst downgrades and commodity weakness can signal negative moves."
+   },
+   "ASO": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 5.8% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   },
+   "DBI": {
+    "template": "unknown",
+    "why": "No headlines or specific news; the stock fell 5.6% with no apparent catalyst.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves are not explainable from available data."
+   }
+  },
+  "themes": [
+   {
+    "theme": "Biotech/Pharma regulatory and analyst catalysts",
+    "symbols": [
+     "CAPR",
+     "INBX",
+     "EH"
+    ],
+    "template": "regulatory_decision"
+   },
+   {
+    "theme": "Retail sector weakness after DKS earnings",
+    "symbols": [
+     "DKS",
+     "BBWI",
+     "CTRN"
+    ],
+    "template": "earnings_surprise"
+   }
+  ],
+  "day_lesson": "Today's winners were largely unexplained by available data, with many biotech and tech names moving on unknown catalysts. The losers were more predictable: DKS and CTRN reported earnings, and SDOT had a CFO resignation and share resale filing. A disciplined approach would have avoided chasing unexplained winners and instead focused on scheduled events like earnings and regulatory decisions, which offer partial predictability. However, even scheduled events have uncertain outcomes, so risk management is essential."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "52d804f1687e",
+  "cost_usd": 0.003865,
+  "latency_s": 19.0
+ },
+ "grade": {
+  "winners_with_print": 0,
+  "losers_with_print": 4,
+  "winners_in_candidates": 0,
+  "losers_in_candidates": 0,
+  "candidates_right_way": 0,
+  "candidates_wrong_way": 0,
+  "movers_in_old_universe": 0,
+  "movers_in_control_holdings": [],
+  "knowable_before": {
+   "yes": 0,
+   "partly": 10,
+   "no": 20
+  }
+ }
+}

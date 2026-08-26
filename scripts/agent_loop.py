@@ -47,7 +47,7 @@ log = logging.getLogger("loop")
 #: A pass that runs longer than this is killed and logged. The loop is
 #: sequential, so a 40-minute entry pass would starve the five-minute EXIT pass
 #: -- and exits are the one job that must never wait on an LLM call.
-TIMEOUTS_S = {"scripts.run_pass": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900,
+TIMEOUTS_S = {"scripts.run_pass": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
               "scripts.fill_audit": 300}
 
 
@@ -77,7 +77,7 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper()
 
-    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0}
+    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0, "autopsy": 0.0}
     while True:
         now = time.time()
         try:
@@ -89,6 +89,10 @@ def main() -> int:
 
         if is_open and now - last["exit"] >= args.exit_minutes * 60:
             _run("scripts.manage", live=args.live); last["exit"] = now
+        et_hour = (datetime.now(timezone.utc).hour - 4) % 24
+        if not is_open and 16 <= et_hour < 20 and now - last["autopsy"] >= 20 * 3600:
+            # After the close: what won, what lost, why, and did the engine hold it.
+            _run("scripts.daily_autopsy", live=False); last["autopsy"] = now
         if now - last["candidates"] >= 6 * 3600:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.

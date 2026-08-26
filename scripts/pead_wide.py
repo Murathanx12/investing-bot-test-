@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 CACHE = Path("state") / "sec_cache"
 OUT = Path("state") / "pead_wide.json"
 FORWARD = 3
+HOLD_HORIZONS = (10, 21)
 BETA_WINDOW = 120
 BANDS = (("<3.5%", 0.0, 0.035), ("3.5-8.2%", 0.035, 0.082), (">8.2%", 0.082, 9.0))
 
@@ -70,14 +71,15 @@ def _t(xs: list[float]) -> float:
     return statistics.mean(xs) / (sd / math.sqrt(len(xs))) if sd > 0 else 0.0
 
 
-def grade(rows: list[dict]) -> dict:
-    xs = [r["signed"] for r in rows]
+def grade(rows: list[dict], key: str = "signed") -> dict:
+    xs = [r[key] for r in rows if key in r]
     if not xs:
         return {"n": 0}
     weeks: dict[str, list[float]] = {}
     for r in rows:
         d = datetime.fromisoformat(r["day0"])
-        weeks.setdefault(f"{d.isocalendar()[0]}-{d.isocalendar()[1]:02d}", []).append(r["signed"])
+        if key in r:
+            weeks.setdefault(f"{d.isocalendar()[0]}-{d.isocalendar()[1]:02d}", []).append(r[key])
     wk = [statistics.mean(v) for v in weeks.values()]
     return {"n": len(xs), "mean": round(statistics.mean(xs), 5), "median": round(statistics.median(xs), 5),
             "hit": round(sum(1 for x in xs if x > 0) / len(xs), 3), "t": round(_t(xs), 2),
@@ -159,9 +161,17 @@ def main() -> int:
             beta = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 0 else 1.0
             fwd_days = days[i0 + 1:i0 + 1 + FORWARD]
             fwd = sum(rets.get(dd, 0.0) for dd in fwd_days) - beta * sum(qr.get(dd, 0.0) for dd in fwd_days)
+            # HOLD horizons: the same excess over 10 and 21 sessions, so the question
+            # "hold the winners for weeks?" is measured on the same legs, not assumed.
+            hold = {}
+            for h in HOLD_HORIZONS:
+                hd = days[i0 + 1:i0 + 1 + h]
+                if len(hd) == h:
+                    hold[f"signed_{h}"] = round((sum(rets.get(dd, 0.0) for dd in hd)
+                                                 - beta * sum(qr.get(dd, 0.0) for dd in hd)) * (1 if r0 > 0 else -1), 5)
             band = next(name for name, lo, hi in BANDS if lo <= abs(r0) < hi)
             rows.append({"symbol": sym, "day0": target, "session": r["session"], "r0": round(r0, 5),
-                         "fwd_excess": round(fwd, 5), "signed": round(fwd * (1 if r0 > 0 else -1), 5),
+                         "fwd_excess": round(fwd, 5), "signed": round(fwd * (1 if r0 > 0 else -1), 5), **hold,
                          "beta": round(beta, 3), "band": band, "dv_bucket": by_sym[sym].dv_bucket,
                          "dollar_volume": by_sym[sym].median_dollar_volume})
         if (k + 1) % 200 == 0:
@@ -182,6 +192,9 @@ def main() -> int:
                                for bk in ("micro", "small", "mid", "large", "mega")},
         "by_sign_mid_band": {"up": sub(lambda r: r["band"] == "3.5-8.2%" and r["r0"] > 0),
                              "down": sub(lambda r: r["band"] == "3.5-8.2%" and r["r0"] < 0)},
+        "hold_horizons_mid_band": {f"{h}_sessions": grade([r for r in rows if r["band"] == "3.5-8.2%"], f"signed_{h}") for h in HOLD_HORIZONS},
+        "hold_horizons_mid_band_by_bucket": {bk: {f"{h}_sessions": grade([r for r in rows if r["band"] == "3.5-8.2%" and r["dv_bucket"] == bk], f"signed_{h}")
+                                                  for h in HOLD_HORIZONS} for bk in ("micro", "small", "mid", "large", "mega")},
         "old_universe_only": sub(lambda r: r["symbol"] in universe.OLD_UNIVERSE),
         "not_old_universe": sub(lambda r: r["symbol"] not in universe.OLD_UNIVERSE),
         "mechanism_note": ("measured on ELEVEN mega-caps before this run; every bucket here is a NEW measurement "
@@ -203,6 +216,9 @@ def main() -> int:
     print("  MID band (3.5-8.2%) by bucket:")
     for bk, g in report["mid_band_by_bucket"].items():
         print(f"    {bk:6s}       {_fmt(g)}")
+    print("  HOLD the mid band longer (same legs):")
+    for h, g in report["hold_horizons_mid_band"].items():
+        print(f"    {h:12s} {_fmt(g)}")
     print(f"  mid band UP    {_fmt(report['by_sign_mid_band']['up'])}")
     print(f"  mid band DOWN  {_fmt(report['by_sign_mid_band']['down'])}")
     print(f"\nreceipt -> {OUT}")
