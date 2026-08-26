@@ -55,8 +55,31 @@ causal cluster, on the eve of that cluster's event. NVDA is net short premium (�
 consistent with our own "the chain overprices mega-cap prints" result. Bounded contractual loss per structure
 does not make that a diversified book.
 
-**STILL OPEN.** `REPEATED_INVARIANT_ESCALATION` (a warning may not print 53 times unread) · `LOOP_LIVENESS_v1`
-· defect 4 (option structures have no venue stop) · **Friday's restart to `--expiry 2026-09-04`** · tonight's
+**7. `LOOP_LIVENESS_v1` LANDED.** `alpha/liveness.py`, `python -m scripts.liveness`, and a panel at the TOP
+of the dashboard. The loop writes a heartbeat every completed cycle; DEAD / STALE / DEGRADED / HEALTHY are
+distinguished, and the process-table scan (what actually caught the 26 Aug death) is printed always.
+**No watchdog daemon, deliberately** -- a second process here dies of the same transient and its silence means
+nothing either. **The PID probe is measured, not assumed:** against a process killed one second earlier,
+`os.kill(pid, 0)` reports **ALIVE** on Windows while `tasklist` reports DEAD. os.kill fails toward "healthy",
+which would certify a dead loop; both cases are proven in the test.
+
+**8. DEFECT 4 CLOSED, AND I HAD MIS-SIZED IT.**
+`docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md`. I quoted "the entry pass may hold the loop for up
+to 1500s" from a **configured constant**, not from behaviour: ten measured passes run median **368s**, p90/max
+**439s**. And "option structures have no venue stop" does not imply exposure -- the live book is
+`unbounded: False` with **7 of 9 structures LONG-ONLY**, whose max loss is the premium already charged at
+entry. `exits.py` line 29 had written that argument down and I had not read it. **Slippage, not ruin.**
+Fixed proportionately: ceiling 1500s -> **600s**, and an exit pass now runs **immediately** after every entry
+pass. Typical lateness ~430s -> ~0. **Venue-side option stops REFUSED**: a stop filling one leg of a condor
+leaves a naked short -- unbounding a bounded book to protect it.
+
+**RECOMMENDED, NOT DONE: restart both loops.** They are running the code from 09:41, so they carry neither the
+heartbeat nor the 600s ceiling nor the immediate-exit pass. Restarting would make liveness authoritative and
+cut exit lateness **before tonight's print**, which is the moment the concentrated AI book is most likely to
+hit stops. Not done unilaterally because the standing instruction is not to touch the loops unnecessarily --
+say the word, or fold it into Friday's already-scheduled `--expiry 2026-09-04` restart.
+
+**STILL OPEN.** `REPEATED_INVARIANT_ESCALATION` (a warning may not print 53 times unread) · **Friday's restart to `--expiry 2026-09-04`** · tonight's
 NVDA resolution after ~16:20 ET.
 
 ## URGENT / OPEN AT HANDOFF (26 Aug 09:45 ET)
