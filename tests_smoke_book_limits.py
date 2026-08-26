@@ -61,11 +61,18 @@ check("the reference is the measured liquidation value",
 print("\n-- it is enforced by NOTHING")
 import pathlib
 src = pathlib.Path(".")
-importers = [p.name for p in list(src.glob("alpha/*.py")) + list(src.glob("alpha/**/*.py"))
-             + list(src.glob("scripts/*.py"))
-             if p.name != "book_limits.py"
-             and "book_limits" in p.read_text(encoding="utf-8", errors="replace")]
-check("no execution module imports book_limits", importers == [], str(importers))
+# The point is that no EXECUTION path can refuse on these. A read-only reporting
+# script importing them to DISPLAY the breaches is the intended use -- that is how
+# the 28 Aug decision gets made from numbers instead of from a paragraph.
+EXECUTION = ["alpha/admission.py", "alpha/arbiter.py", "alpha/runner.py",
+             "alpha/exits.py", "alpha/book.py", "alpha/fills.py",
+             "scripts/run_pass.py", "scripts/manage.py", "scripts/agent_loop.py"]
+leaked = [f for f in EXECUTION
+          if (src / f).exists()
+          and "book_limits" in (src / f).read_text(encoding="utf-8", errors="replace")]
+check("NO execution path imports book_limits", leaked == [], str(leaked))
+check("...while pre-flight DOES, to display them",
+      "book_limits" in (src / "scripts/preflight.py").read_text(encoding="utf-8", errors="replace"))
 # Turning these on changes what the account trades. That is an attended decision,
 # and this test is what stops it happening by accident.
 

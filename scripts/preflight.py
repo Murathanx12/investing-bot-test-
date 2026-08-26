@@ -36,7 +36,8 @@ import math
 import sys
 from datetime import datetime, timedelta, timezone
 
-from alpha import (book as book_mod, concentration, config, daybreak, liveness)
+from alpha import (book as book_mod, book_limits, concentration, config, daybreak,
+                   liveness)
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 
@@ -104,6 +105,19 @@ def main() -> int:
         print(f"    largest single thesis: {top[0]} at {100*top[1]/tw:.1f}% of book max loss")
     else:
         print("\n  CONCENTRATION     no structures -- nothing to measure (a clean book)")
+
+    # THE PROPOSED LIMITS, SHOWN AND NOT ENFORCED. Nothing refuses on these;
+    # printing them is how the 28 Aug decision gets made from numbers rather
+    # than from a paragraph. See docs/PROPOSAL_2026-08-26_COMPETITION_ADMISSION.md
+    breaches = book_limits.evaluate(
+        equity=equity, true_max_loss=tml, free_capital=cash,
+        thesis_weights=weights or None,
+        n_risk=(c.n_risk if weights and c else None))
+    print("\n  PROPOSED LIMITS (not enforced -- nothing refuses on these)")
+    if not breaches:
+        print("    within every declared book limit")
+    for br in breaches:          # not `b` -- that is the book, still in scope
+        print(f"    [{br.limit}] {br.detail}")
 
     try:
         day = daybreak.read(client)
