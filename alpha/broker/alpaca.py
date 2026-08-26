@@ -82,6 +82,20 @@ class AlpacaPaper:
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode(errors="replace")[:500]
             raise BrokerRefusal(f"{method} {path} -> HTTP {exc.code}: {detail}") from exc
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            # A TRANSPORT failure is a refusal too, and it must arrive as one.
+            #
+            # Until 2026-08-26 only HTTPError was converted, so a DNS blip raised
+            # a raw URLError that sailed past every `except BrokerRefusal` in the
+            # repo. `scripts/agent_loop.py` guards its clock call with exactly
+            # that, and on 26 Aug at 09:19 ET a `getaddrinfo failed` killed BOTH
+            # paper loops mid-session -- the forward record, which is the
+            # deliverable, simply stopped. Session 9 found both loops dead once
+            # before and the cause was never traced; this was it.
+            #
+            # HTTPError is a subclass of URLError and is caught above, so the
+            # order of these two handlers is load-bearing.
+            raise BrokerRefusal(f"{method} {path} -> transport failure: {exc}") from exc
 
     # ------------------------------------------------------------------ account
     def account(self) -> dict[str, Any]:

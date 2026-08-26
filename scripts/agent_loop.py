@@ -78,7 +78,31 @@ def main() -> int:
     client = AlpacaPaper()
 
     last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0, "autopsy": 0.0}
+    consecutive_errors = 0
     while True:
+        try:
+            consecutive_errors = _cycle(client, args, last)
+        except Exception:
+            # THE SUPERVISOR MUST OUTLIVE THE WORK.
+            #
+            # Every job below already runs as a subprocess and cannot take this
+            # process down. The clock call does not, and on 26 Aug a DNS blip
+            # ended both loops mid-session. `alpha.broker.alpaca` now converts
+            # transport failures into BrokerRefusal, which is the real fix; this
+            # is the belt to that pair of braces, because a loop whose whole job
+            # is to still be running in nine days may not die of an unforeseen
+            # exception either. Silence has been read as health here before.
+            consecutive_errors += 1
+            log.exception("cycle failed (%d in a row); continuing", consecutive_errors)
+            time.sleep(min(300, 30 * consecutive_errors))
+        if args.once:
+            return 0
+        time.sleep(60)
+
+
+def _cycle(client, args, last: dict) -> int:
+    """One pass of the schedule. Returns the consecutive-error count (0 = fine)."""
+    if True:
         now = time.time()
         try:
             clock = client.clock()
@@ -121,9 +145,7 @@ def main() -> int:
         if is_open and now - last["fill"] >= 900:
             _run("scripts.fill_audit", "--record", live=False); last["fill"] = now
 
-        if args.once:
-            return 0
-        time.sleep(60)
+        return 0
 
 
 if __name__ == "__main__":
