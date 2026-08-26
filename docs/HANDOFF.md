@@ -1,5 +1,64 @@
 # HANDOFF — read this first
 
+## SESSION 12b (26 Aug, ~09:00-09:40 ET, Opus day) — the second review, and a candidate killed by 35 rows
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched and alive
+(PIDs 3896 / 31428; 2 transient DNS errors in `scripts.candidates` overnight, connectivity verified fine).
+Independent selectors: unchanged. Candidates tested: 1, **0 promoted, 1 CLOSED**. LLM spend: **$0.00** — every
+number came from bars already on disk. **RESULT IMPROVEMENT: NONE in P&L.**
+
+**1. `NON_PRINT_BOUNCE_v1` is FAILED_VARIANT**
+(`docs/FINDING_2026-08-26_NON_PRINT_BOUNCE_IS_BETA_AND_CONVEXITY.md`, `python -m scripts.bounce_battery`).
+
+STEP 0 was the one that mattered. **35 rows of 46,361 — 0.075% — carried 81.4% of the summed simple return.**
+Alpaca's `adjustment=all` does not adjust a Chapter 11 share exchange (WOLF closes 1.21, opens 18.00 — new
+shares, not a +1,388% return), and the placebo treated a GAP in a symbol's bar list as consecutive sessions
+(AKTS has no bar after 2024-12-17; its "3-day" window jumped the delisting). Guarded vs contaminated: long 3d
+simple **+0.79% vs +4.11%**; the micro cell as a short **-0.52% vs -12.69%**. A whole mechanistic "shorting
+microcaps is crushed by convexity" story evaporated with 35 rows.
+
+Clean verdict: the bounce is real in RAW terms (+0.31%/3d, +2.08%/21d) and **entirely BETA** — excess over
+beta*QQQ is -0.07% at 3d and -0.36% at 21d, both |t2w| < 0.5. Of the +0.79% simple 3-day return, **+0.48% is
+CONVEXITY**, a variance harvest available from any equal-weighted basket of high-variance names. Excess
+positive in 6/11 quarters at 3d, 3/11 at 21d. The wide-PEAD trap in reverse: there the benchmark-relative
+number looked like an edge and raw was nothing; here raw looks like an edge and benchmark-relative is nothing.
+The print-suppresses-bounce ASYMMETRY stands as an information result.
+
+**2. `RESEARCH_ALPHA_BUDGET` built** (`alpha/alpha_budget.py`), motivated by a live example rather than in the
+abstract: the battery sliced 8 cells, best t2w 1.99, expected max |t| from 8 noise draws **1.78**, p_adj 0.317
+-> NOT PROMOTABLE, family wealth 0.100 -> 0.047. Online alpha-investing because BH-FDR/Holm are BATCH
+procedures and an autonomous researcher's family is never closed. Charges for every cell LOOKED AT.
+Two self-inflicted bugs found and fixed: the Gumbel approximation UNDERSTATES the noise bar by 0.13-0.32 (the
+dangerous direction — now exact integration, matching 200k Monte-Carlo draws to <0.002), and halving the
+wealth each time never reaches zero, so the guard could never fire (`MIN_ALPHA`).
+
+**3. Audit defects 5 and 6 CLOSED; 4 and 7 assessed explicitly.**
+Defect 5: a partial SHORT-shares fill read as UNBOUNDED and refused every entry in the account for the rest of
+the day; single-leg SHARE rows now match at `min(row, held)`. Option STRUCTURES still fail to match on a
+partial fill deliberately — half a condor is two naked legs with a different worst case.
+Defect 6: `--role` and `AAT_ACCOUNT_ROLE` could disagree silently; `credentials()` now REFUSES. A first draft
+also SET the variable when blank and that was wrong — it turned an accessor into a global mutation and one
+test's credential check silently re-stamped every later test's ledger rows. The flag is made authoritative in
+`run_pass`/`manage` instead, where it is visible. **Defect 4 CAN still affect the competition account**
+(option structures have no venue stop and wait on `exits.manage`) — NOT CLOSED. **Defect 7 CANNOT affect
+execution** — it corrupts grading/recovery only.
+
+**4. The MDE correction the review asked for, and it was right to ask.** The session-12 handoff compared the
+MDE to NVDA's implied move. That is a category error and is withdrawn: the implied move is NVDA's OWN move,
+the MDE is the smallest ABNORMAL return a node can show once its NVDA and SMH loadings are removed. The
+capacity group's mean beta is 0.734, so on a +5% NVDA move it is expected to move +3.67%, and clearing a 3.8%
+MDE requires it to land at **<= -0.13% or >= +7.47%**. Replace "nothing is resolvable" with: **only a
+near-total non-response is resolvable on one event; an ordinary 1-2% underreaction is not.**
+
+**5. Roadmap §4-6** assess the second review (largely valid; three pushbacks recorded) and log its 24 ideas
+UNSCHEDULED, triaged by whether the data exists today — 6 runnable now, 10 need one collector, 6 need data we
+do not have.
+
+**DAY WORK QUEUE (unchanged, in order):** (1) **tonight after ~16:20 ET** resolve the state vector FROM THE
+RELEASE before looking at the after-hours move; (2) after the 27 Aug close `event_grade NVDA --post --resolve
+PH:NVDA:2026-08-27:b29d506d`; (3) audit defect 4 (options have no venue stop) before 28 Aug 15:00 UTC;
+(4) loops restarted Friday with `--expiry 2026-09-04`; (5) STALE_TARGET, two-way until PIT vintages exist.
+
 ## SESSION 12 (26 Aug, ~07:30-08:30 ET, Opus day) — the audit patches, and a power check that arrived in time
 
 **RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev / exp1 untouched and
