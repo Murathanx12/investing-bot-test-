@@ -39,7 +39,7 @@ neither `alpha/` nor the loops nor Aegis night, and can be done in dead time.
 
 Status key: `DONE` - `IN PROGRESS` - `QUEUED` - `DEFERRED`
 
-### A1. `NVDA_EARNINGS_STATE_VECTOR_v1` — freeze before the print — **IN PROGRESS**
+### A1. `NVDA_EARNINGS_STATE_VECTOR_v1` — freeze before the print — **DONE (sealed 11:50 UTC, `a1634ef3...`)**
 
 Not a `beat/miss` scalar. A typed vector of the twelve fields the brief names:
 `revenue_surprise` - `datacenter_surprise` - `hyperscale_growth` -
@@ -62,7 +62,13 @@ first.
 and it is the control. The new vector is a supplementary, separately hashed
 preregistration so the two can be graded against the same outcome.
 
-### A2. `NVDA_SHOCK_PROPAGATION_v1` — freeze before the print — **IN PROGRESS**
+### A2. `NVDA_SHOCK_PROPAGATION_v1` — freeze before the print — **DONE (sealed `4d3ad6fa...`), AND AMENDED**
+
+> **AMENDMENT, same day.** The power check says this graph cannot resolve an
+> underreaction on ONE event: per-node MDE 5.9%-24.0% against a 5.1% implied
+> move. It is a REPEATED-measurement instrument, not a next-day trade
+> generator, and must not be presented as one.
+> `docs/FINDING_2026-08-26_THE_SHOCK_GRAPH_CANNOT_RESOLVE_ONE_EVENT.md`.
 
 A causal graph frozen with pre-print prices, each edge declaring **sign, lag,
 exposure estimate and the observable intermediate outcome** — not a story.
@@ -83,7 +89,7 @@ tonight that could still produce a trade, because **the competition account does
 not exist for tonight's print** (kickoff 28 Aug 15:00 UTC). NVDA tonight is a
 CALIBRATION EVENT. The 28 Aug opportunity, if any, is the second-order laggard.
 
-### A3. Parse the packet before reading the reaction — **QUEUED (tonight)**
+### A3. Parse the packet before reading the reaction — **BUILT; runs tonight**
 
 Fill the state vector from the release itself **before** revealing the
 after-hours print. Price contaminates interpretation; the ordering is the guard.
@@ -123,7 +129,7 @@ fresh conviction and looks identical in any snapshot. Requires **point-in-time
 IBES target vintages** — a snapshot of today's targets cannot answer this and
 must not be used to pretend it did.
 
-### A7. `DATA_SOURCE_REGISTRY_v0` — **IN PROGRESS (seeded by A1)**
+### A7. `DATA_SOURCE_REGISTRY_v0` — **DONE v0 (`alpha/sources/registry.py`)**
 
 Every source carries: `source` - `source_type` - `metric` - `entity` -
 `frequency` - `publication_lag` - `observed_at` - `effective_period` -
@@ -151,7 +157,7 @@ Foxconn monthly server mix, hyperscaler capex and backlog, HBM contract terms,
 custom-silicon awards, and ODM production schedules are all answers to
 "is demand accelerating" that do not come from a price series.
 
-### A9. Spend rule: `WHY_THIS_CALL_CAN_CHANGE_A_DECISION` — **QUEUED**
+### A9. Spend rule: `WHY_THIS_CALL_CAN_CHANGE_A_DECISION` — **DONE (`alpha/spend.py`)**
 
 A paid LLM call must carry a short field naming the decision it can change. If
 the field cannot be filled, the call is refused. Night lab already ran a whole
@@ -189,14 +195,16 @@ From `docs/night/2026-08-26_EXECUTION_AUDIT.md`. These are not research; they ar
 the difference between a judged book and a bled one, and **they must be green
 before the competition account exists at 28 Aug 15:00 UTC**.
 
-1. **No stop at the venue.** Positions are naked from 16:00 to the first `manage`
-   pass. Post-fill GTC `stop` sized to `filled_qty`, id from
+1. **DONE** (`alpha/protect.py`). ~~No stop at the venue.~~ Positions were naked
+   from 16:00 to the first `manage` pass. Post-fill GTC `stop` sized to `filled_qty`, id from
    `decision_id + ":stop"`, recorded on the row. The "3% stop" the book was
    charged for was never a stop — it was a charge.
-2. **No daily-loss latch, and the tournament multiplier sizes UP on losses**
+2. **DONE** (`alpha/daybreak.py`). ~~No daily-loss latch, and the tournament
+   multiplier sizes UP on losses~~
    (1.6-2.0x when behind). Read `account.last_equity`, refuse entries at -3%,
    clamp the multiplier to <=1.0 when `ret < 0`.
-3. **Unfilled entry orders are invisible to the one-position-per-symbol guard.**
+3. **DONE** (`runner.open_order_underlyings`). ~~Unfilled entry orders are
+   invisible to the one-position-per-symbol guard.~~
    Merge `client.orders(status="open")` into `held`.
 
 4-7 (exit sampling starved by the entry pass; partial short-shares read as
