@@ -54,6 +54,8 @@ def main() -> int:
     p.add_argument("--shadow", default=DEFAULT_SHADOW,
                    help="comma list of brains that may not execute (pass '' to let all execute)")
     p.add_argument("--live", action="store_true", help="actually send orders")
+    p.add_argument("--candidates", action="store_true",
+                   help="add today's whole-market candidates (state/candidates/<date>.json) to the universe")
     p.add_argument("--field-leader", type=float, default=None,
                    help="estimated podium return, e.g. 0.25 for +25%%")
     args = p.parse_args()
@@ -62,6 +64,20 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper(role=args.role)
 
+    universe_syms = list(args.universe)
+    if args.candidates:
+        import json
+        from pathlib import Path
+
+        files = sorted((Path("state") / "candidates").glob("*.json"))
+        if files:
+            data = json.loads(files[-1].read_text(encoding="utf-8"))
+            extra = [c["symbol"] for c in data.get("candidates", []) if c["symbol"] not in universe_syms]
+            universe_syms += extra
+            logging.info("candidates from %s: +%d symbols (%s)", files[-1].name, len(extra), ",".join(extra[:12]))
+        else:
+            logging.warning("--candidates given but no state/candidates/*.json exists; universe unchanged")
+    args.universe = universe_syms
     names = [b.strip() for b in args.brains.split(",") if b.strip()]
     unknown = [b for b in names if b not in brains.BRAINS]
     if unknown:

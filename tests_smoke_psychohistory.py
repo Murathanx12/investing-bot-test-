@@ -85,6 +85,37 @@ check("revenue +1.6% vs consensus = above", out2["revenue_vs_consensus_realised"
 check("a flat print: the model that put 0.5 on the flat bucket beats the market's 0.38", out2["brier_model"] < out2["brier_market"], f"{out2['brier_model']} vs {out2['brier_market']}")
 check("per-template calibration rows exist", "capex_echo" in out2["per_template"])
 
+print("\n-- v0.1: provenance, independence, edge ids, checkpoints, graph")
+ev = [{"kind": "reported", "fact": "Micron committed $22bn", "source": "reuters.com/..."},
+      {"kind": "reported", "fact": "Micron committed $22bn", "source": "reuters.com/..."},          # exact duplicate
+      {"kind": "reported", "fact": "Micron 10-Q shows LT supply agreements", "source": "sec.gov filing"},
+      {"kind": "measured", "fact": "Taiwan July exports +32.9%", "source": "customs release"},
+      {"kind": "crowd", "fact": "Polymarket GM 74-76 at 0.93", "source": "polymarket"}]
+st = ph.stamp_evidence(ev)
+check("exact duplicate dropped, ids assigned", len(st) == 4 and all(e["id"].startswith("E") for e in st))
+check("origin roots inferred", [e["origin"] for e in st] == ["newswire", "company_filing", "customs", "prediction_market"], str([e["origin"] for e in st]))
+ind = ph.independence(st)
+check("independence counts ROOTS not items", ind["independent_roots"] == 4 and ind["items"] == 4)
+raw2 = dict(raw, scenarios=[dict(s, checkpoints=[{"observation": "HBM contract price", "expected": "up", "due": "2026-09-15", "source": "TrendForce"},
+                                                  {"observation": "no date", "expected": "x"}]) for s in scen])
+c2 = ph.validate_compiled(raw2)
+check("edge ids stamped and stable", c2["causal_chain"][0]["edge_id"] == ph.edge_id("a", "b", "SUPPLIES") and ph.edge_id("A ", "b", "supplies") == ph.edge_id("a", "b", "SUPPLIES"))
+check("dated checkpoints kept, undated dropped", all(len(s["checkpoints"]) == 1 for s in c2["scenarios"]))
+g = Path(tempfile.mkdtemp()) / "graph.jsonl"
+rec3 = ph.make_record(trigger, {}, ev, {"implied_move_to_expiry": 0.05}, c2, {}, asof="2026-08-26T06:00:00+00:00")
+check("record carries independence", rec3.compiled["evidence_independence"]["independent_roots"] == 4)
+ph.append(rec3, Path(tempfile.mkdtemp()) / "s.jsonl", g)
+rec4 = ph.make_record(trigger, {}, ev, {"implied_move_to_expiry": 0.05}, c2, {}, asof="2026-08-27T06:00:00+00:00")
+ph.append(rec4, Path(tempfile.mkdtemp()) / "s.jsonl", g)
+gs = ph.graph_summary(g)
+check("the same edge across two records is ONE edge with n_records 2", len(gs) == 1 and list(gs.values())[0]["n_records"] == 2, str(gs))
+due = ph.checkpoints_due(rec3.__dict__ | {"compiled": rec3.compiled}, today="2026-09-16")
+check("checkpoints come due by date", len(due) == 3 and due[0]["observation"] == "HBM contract price")
+check("not due before the date", ph.checkpoints_due(rec3.__dict__ | {"compiled": rec3.compiled}, today="2026-09-01") == [])
+resolved = dict(rec3.__dict__, outcome={"x": 1})
+ph.append(ph.Record(**resolved), Path(tempfile.mkdtemp()) / "s.jsonl", g)
+check("a resolved copy does not re-assert edges", list(ph.graph_summary(g).values())[0]["n_records"] == 2)
+
 if __name__ == "__main__":
     print(f"\n{len(fails)} failures" + (": " + ", ".join(fails) if fails else ""))
     raise SystemExit(1 if fails else 0)
