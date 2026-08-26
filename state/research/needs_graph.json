@@ -1,0 +1,281 @@
+{
+ "nodes": [
+  {
+   "node": "accelerators",
+   "summary": {
+    "growth": 55.11,
+    "gm_delta": 5.795000000000005,
+    "constrained": true,
+    "n": 2
+   },
+   "members": [
+    {
+     "symbol": "NVDA",
+     "growth": 70.68,
+     "gm": 74.15,
+     "gm_5y": 68.13,
+     "gm_delta": 6.02000000000001,
+     "torque": 0.003976052079284387
+    },
+    {
+     "symbol": "AMD",
+     "growth": 39.54,
+     "gm": 53.2,
+     "gm_5y": 47.63,
+     "gm_delta": 5.57,
+     "torque": 0.024631838076897814
+    }
+   ]
+  },
+  {
+   "node": "memory / HBM",
+   "summary": {
+    "growth": 166.98,
+    "gm_delta": 39.879999999999995,
+    "constrained": true,
+    "n": 3
+   },
+   "members": [
+    {
+     "symbol": "MU",
+     "growth": 166.98,
+     "gm": 72.57,
+     "gm_5y": 27.2,
+     "gm_delta": 45.36999999999999,
+     "torque": 0.0112304971051243
+    },
+    {
+     "symbol": "SNDK",
+     "growth": 175.3,
+     "gm": 71.47,
+     "gm_5y": 31.59,
+     "gm_delta": 39.879999999999995,
+     "torque": 0.052359034361090566
+    },
+    {
+     "symbol": "WDC",
+     "growth": 35.7,
+     "gm": 48.85,
+     "gm_5y": 34.06,
+     "gm_delta": 14.79,
+     "torque": 0.08735838135368812
+    }
+   ]
+  },
+  {
+   "node": "foundry+packaging",
+   "summary": {
+    "growth": 11.71,
+    "gm_delta": 2.0700000000000003,
+    "constrained": true,
+    "n": 5
+   },
+   "members": [
+    {
+     "symbol": "TSM",
+     "growth": 31.41,
+     "gm": 64.46,
+     "gm_5y": 56.31,
+     "gm_delta": 8.149999999999991,
+     "torque": null
+    },
+    {
+     "symbol": "AMAT",
+     "growth": 7.77,
+     "gm": 49.4,
+     "gm_5y": 47.33,
+     "gm_delta": 2.0700000000000003,
+     "torque": null
+    },
+    {
+     "symbol": "LRCX",
+     "growth": 26.02,
+     "gm": 50.47,
+     "gm_5y": 47.51,
+     "gm_delta": 2.960000000000001,
+     "torque": null
+    },
+    {
+     "symbol": "KLAC",
+     "growth": 11.71,
+     "gm": 61.57,
+     "gm_5y": 61.91,
+     "gm_delta": -0.3399999999999963,
+     "torque": null
+    },
+    {
+     "symbol": "ENTG",
+     "growth": 3.19,
+     "gm": 45.55,
+     "gm_5y": 44.31,
+     "gm_delta": 1.2399999999999949,
+     "torque": 0.30282101241694853
+    }
+   ]
+  },
+  {
+   "node": "networking/optics",
+   "summary": {
+    "growth": 61.85,
+    "gm_delta": 5.550000000000004,
+    "constrained": true,
+    "n": 5
+   },
+   "members": [
+    {
+     "symbol": "ANET",
+     "growth": 32.57,
+     "gm": 63.0,
+     "gm_5y": 63.0,
+     "gm_delta": 0.0,
+     "torque": 0.09613536449977247
+    },
+    {
+     "symbol": "CRDO",
+     "growth": 205.68,
+     "gm": 68.04,
+     "gm_5y": 62.49,
+     "gm_delta": 5.550000000000004,
+     "torque": 0.7738996366832193
+    },
+    {
+     "symbol": "ALAB",
+     "missing": true
+    },
+    {
+     "symbol": "COHR",
+     "growth": 22.51,
+     "gm": 37.5,
+     "gm_5y": 34.67,
+     "gm_delta": 2.8299999999999983,
+     "torque": 0.14519661839282755
+    },
+    {
+     "symbol": "LITE",
+     "growth": 83.22,
+     "gm": 41.67,
+     "gm_5y": 33.34,
+     "gm_delta": 8.329999999999998,
+     "torque": 0.3607839792575188
+    },
+    {
+     "symbol": "AAOI",
+     "growth": 61.85,
+     "gm": 28.92,
+     "gm_5y": 22.96,
+     "gm_delta": 5.960000000000001,
+     "torque": 1.7057117271856825
+    }
+   ]
+  },
+  {
+   "node": "servers / ODM",
+   "summary": {
+    "growth": 47.405,
+    "gm_delta": -4.585,
+    "constrained": false,
+    "n": 2
+   },
+   "members": [
+    {
+     "symbol": "SMCI",
+     "growth": 56.24,
+     "gm": 8.39,
+     "gm_5y": 14.65,
+     "gm_delta": -6.26,
+     "torque": 0.031754273631261286
+    },
+    {
+     "symbol": "DELL",
+     "growth": 38.57,
+     "gm": 19.07,
+     "gm_5y": 21.98,
+     "gm_delta": -2.91,
+     "torque": 0.0075534250595430275
+    }
+   ]
+  },
+  {
+   "node": "power / thermal",
+   "summary": {
+    "growth": 27.450000000000003,
+    "gm_delta": 2.474999999999998,
+    "constrained": true,
+    "n": 4
+   },
+   "members": [
+    {
+     "symbol": "VRT",
+     "growth": 26.23,
+     "gm": 38.04,
+     "gm_5y": 33.36,
+     "gm_delta": 4.68,
+     "torque": 0.08886619672782205
+    },
+    {
+     "symbol": "MPWR",
+     "growth": 28.67,
+     "gm": 55.2,
+     "gm_5y": 56.36,
+     "gm_delta": -1.1599999999999966,
+     "torque": 0.3063236106319384
+    },
+    {
+     "symbol": "POWI",
+     "growth": 1.56,
+     "gm": 53.72,
+     "gm_5y": 53.45,
+     "gm_delta": 0.269999999999996,
+     "torque": 2.264304471783958
+    },
+    {
+     "symbol": "BE",
+     "growth": 56.53,
+     "gm": 29.57,
+     "gm_5y": 20.97,
+     "gm_delta": 8.600000000000001,
+     "torque": 0.44323123073771925
+    }
+   ]
+  },
+  {
+   "node": "datacentre ops",
+   "summary": {
+    "growth": 364.92,
+    "gm_delta": 7.280000000000001,
+    "constrained": true,
+    "n": 3
+   },
+   "members": [
+    {
+     "symbol": "APLD",
+     "growth": 364.92,
+     "gm": 22.38,
+     "gm_5y": 17.21,
+     "gm_delta": 5.169999999999998,
+     "torque": 1.7015745797730584
+    },
+    {
+     "symbol": "IREN",
+     "missing": true
+    },
+    {
+     "symbol": "CORZ",
+     "growth": 26.37,
+     "gm": 28.35,
+     "gm_5y": 21.07,
+     "gm_delta": 7.280000000000001,
+     "torque": 2.2993709408572456
+    },
+    {
+     "symbol": "NBIS",
+     "growth": 488.15,
+     "gm": 74.26,
+     "gm_5y": -1.14,
+     "gm_delta": 75.4,
+     "torque": 0.8149135104991705
+    }
+   ]
+  }
+ ]
+}
