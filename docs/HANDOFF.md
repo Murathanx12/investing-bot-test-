@@ -4,6 +4,33 @@
 Competition derivative of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.
 
+## SESSION 9 (26 Aug 02:30-05:30 ET, market closed) — the second review: "stop looking under the streetlamp"
+
+**RESULT IMPROVEMENT: no P&L (market closed). Two facts that change the book: (1) BOTH PAPER LOOPS WERE DEAD —
+the "two python processes" were the Optimus MCP server; the last dev entry pass was 03:30 UTC. Restarted
+detached (`Start-Process`), PIDs in `state/loop_*_s9.log`. Silence had been read as health. (2) The engine now
+searches the WHOLE market: HIGH_DISPERSION_US_v1 = 4,634 names, candidates every 6 h, autopsy after every close.**
+Commits `038791d → c95e619`, pushed; 273 smoke checks green.
+
+| built | what it does | first reading |
+|---|---|---|
+| `alpha/universe.py` | every active US common equity, price ≥ $2, median $3M/day on **SIP** (IEX volume is 2-4% of consolidated — the first build with IEX bars dropped 9 of Murat's 12 holdings), ETF-like flagged, $-volume buckets, market cap read per candidate | 4,634 members; 11/12 control holdings inside (AARD < $3M/day) |
+| `scripts/candidates.py` | market-wide earnings calendar → SEC-confirmed → `post_event_drift` → ranked ticker-blind; `UNIVERSE_COLLAPSE` audit; control holdings | 152 printers / 74 in universe / **3 candidates: BJ, OSIS, HOV** — 0 from the old fifteen |
+| `scripts/daily_autopsy.py` | best/worst movers, measured why (print / headlines / industry cluster), compiled why (template, knowable-before, precursor), graded against the candidate lane; templates tallied over days | 25 Aug: winners = a biotech cluster (7/15), losers = prints (DKS −31%) + retail cluster; **20/30 movers had no visible precursor; the lane held none** |
+| `scripts/pead_wide.py` | source PEAD across the universe by size bucket + 10/21-session HOLD horizons | RUNNING (bars phase, ~1 h); result → `state/pead_wide.json` |
+| equity semantics | `max_loss` for shares = **stress-loss charge** (stop 3% + measured p95 overnight gap, raised to the implied move when an event is inside the horizon); theoretical loss recorded; shorts UNBOUNDED on the row | NVDA into the print: 3% + 5.1% |
+| Psychohistory v0.1 | evidence ids + origin roots + independence; checkpoints with due dates; edge ids persisted (`state/causal_graph.jsonl`); edge SHAPE | schema `PSYCHOHISTORY_v0.1` |
+| `docs/FINDING_2026-08-26_MURATS_LIST_GRADED.md` | Murat's Nov-2025 list graded to today | watchlist +47% (XBI +56%, SPY +15%); **analyst upside Spearman 0.017**; the red-coded (target < price) names +154% (MU, MRNA); portfolio median −15% from construction |
+
+**Loops:** dev `--profile conservative` + `AAT_RECOVERY=1`, exp1 challenger set; both take `--candidates`
+and run `scripts.candidates` every 6 h and `scripts.daily_autopsy` after the close. **`--expiry 2026-08-28`
+expires Friday — restart with `--expiry 2026-09-04` on Friday evening (and on the competition account at kickoff).**
+
+**For the morning, added to session 8's list:** (6) read `state/pead_wide.json` — if the mid band holds t > 2
+in small/mid buckets the candidate lane is measured, not borrowed; (7) `python -m scripts.daily_autopsy`
+after tonight's close (the loop does it; check `state/autopsy/2026-08-26.json`); (8) `scripts.candidates`
+output on 28 Aug morning is what the competition account's first pass will see.
+
 ## SESSION 8 (26 Aug 00:00-02:30 ET, market closed) — Murat's review executed in its order
 
 **RESULT IMPROVEMENT: no P&L (market closed; both books unchanged: dev $96,160 / exp1 $97,779,

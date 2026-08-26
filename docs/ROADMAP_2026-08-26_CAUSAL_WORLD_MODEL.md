@@ -83,6 +83,32 @@ mechanism with strong evidence. Not fitted in v0 — the terms are recorded so i
 - [ ] **Dashboard**: the record's scenario tree, its falsifiers, and after resolution the Brier line — the "why this and not the five alternatives" screen a judge asked for.
 - [ ] **v1**: edge shapes; template-weighted probabilities; the score in §4; agent-based simulation only after the graph has calibrated edges (parameters would otherwise be fiction).
 
+## 5b. Built the same day, from Murat's second review (afternoon 26 Aug)
+
+- [x] **`alpha/universe.py` — HIGH_DISPERSION_US_v1**: the whole listed market (4,634 names after price ≥ $2
+  and median $3M/day on SIP), ETF-like flagged, dollar-volume buckets, market cap read per candidate. The
+  IEX feed's volume is 2-4% of consolidated; the screen MUST read SIP (`stock_bars_multi(feed="sip")`).
+- [x] **`scripts/candidates.py`** — every printer on the market-wide calendar through `post_event_drift`,
+  with `UNIVERSE_COLLAPSE` instrumentation and the CONTROL holdings; fed into the loop every 6 h and into
+  `run_pass --candidates`. First run: BJ / OSIS / HOV, zero from the old fifteen.
+- [x] **`scripts/pead_wide.py`** — source PEAD measured across the universe by size bucket, with 10/21-session
+  HOLD horizons on the same legs (the "hold the winners longer" question, measured not assumed).
+- [x] **`scripts/daily_autopsy.py`** — after every close: best/worst movers, measured why, compiled why
+  (template, knowable-before, precursor), industry clusters, graded against the candidate lane; templates
+  tallied in `state/autopsy_templates.jsonl`. **This is the daily self-improvement loop Murat asked for**:
+  the engine does not learn "buy what went up"; it learns which KINDS of reason explained the winners and
+  which were visible beforehand, and tomorrow's candidate report is read beside yesterday's autopsy.
+- [x] Equity risk semantics: `max_loss` for shares is a **stress-loss charge** (stop + measured p95 overnight
+  gap, raised to the implied move into an event), theoretical loss recorded, shorts flagged UNBOUNDED.
+- [x] Psychohistory v0.1: evidence ids + origin roots + independence by root; per-scenario checkpoints with
+  due dates (`checkpoints_due`); causal-edge ids persisted in `state/causal_graph.jsonl`; edge SHAPE.
+- [ ] Causal-thesis concentration in admission (event node exists; sector/factor/theme nodes do not yet).
+- [ ] Opportunity Replacement: every mega-cap candidate challenged by ten causal alternatives + cash.
+- [ ] Lanes: BIOTECH_CATALYST (benchmark XBI), CONTRARIAN_BOTTLENECK (target < price AND physical signal up),
+  REVISION_INFLECTION (Finnhub recommendation trends as evidence only — prior Spearman 0.017).
+- [ ] Trade Pulse v0 (US Census HS-level, quantity vs value vs partner), EIA hourly demand, NY Fed GSCPI.
+- [ ] RED_TEAM_CAUSAL (falsifier agent), reverse propagation, counterfactual worlds — after resolved records exist.
+
 ## 6. Back into Aegis Finance
 
 Three things port directly, in this order, after the competition:
@@ -90,5 +116,13 @@ Three things port directly, in this order, after the competition:
 1. **`alpha/engine/equity.py` + `alpha/admission.py`** → the arena. Shares as a bounded structure with a declared stop+gap; the prospective post-trade admission check (free headroom for tomorrow, per-name cap, theta burn, delta stress). The arena's books have never had the second.
 2. **Psychohistory records** → `backend/data/optimus/` as a new gradeable output beside IIF-1, with `session_briefing` surfacing unresolved records. The Brier-per-template table is the first "which kinds of reasoning is Aegis good at" measurement.
 3. **Every Aegis decision as one of `BUY / SHORT / HOLD / EXIT / CASH / INSUFFICIENT_EDGE`** with a counterfactual row — the competition ledger already does this (`action` + `CASH:` refusals + shadow rows); the arena should adopt the vocabulary.
+
+4. **A HOLD lane for the real book.** Murat's stated aim for Aegis proper is to pick winners and hold them
+   mid-to-long term, selling at the right time. The competition engine cannot express that (5 sessions).
+   Aegis can: the farm already replays holding periods over 32 years; `pead_wide`'s 10/21-session horizons
+   are the first measurement of whether an event-driven entry should be HELD; the daily autopsy's
+   "knowable-before" tally says which precursors are worth waiting for. The sell rule is the research
+   question, and it must be pre-registered as one (thesis invalidation / checkpoint failure / target),
+   never "it went up a lot".
 
 Then Murat's brokerage account, attended, under `CAPITAL_CANDIDATE` — nothing here relaxes that.
