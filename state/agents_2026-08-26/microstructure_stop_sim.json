@@ -1,0 +1,212 @@
+{
+ "stop": 0.03,
+ "target": 0.025,
+ "note": "short at open1, daily H/L touch, stop assumed first when both touch same day, exit close2 otherwise (RAW, not beta-adjusted)",
+ "results": {
+  "all": {
+   "how": {
+    "stop": 672,
+    "target": 671,
+    "horizon": 265
+   },
+   "with_rules": "n=1608 mean -0.26% t -4.11",
+   "no_rules": "n=1608 mean +0.05% t +0.36"
+  },
+  "mid_band": {
+   "how": {
+    "stop": 305,
+    "target": 320,
+    "horizon": 192
+   },
+   "with_rules": "n=817 mean -0.22% t -2.55",
+   "no_rules": "n=817 mean +0.32% t +1.98"
+  },
+  "big_band": {
+   "how": {
+    "stop": 367,
+    "horizon": 73,
+    "target": 351
+   },
+   "with_rules": "n=791 mean -0.31% t -3.25",
+   "no_rules": "n=791 mean -0.23% t -1.15"
+  },
+  "small": {
+   "how": {
+    "stop": 332,
+    "target": 297,
+    "horizon": 65
+   },
+   "with_rules": "n=694 mean -0.41% t -4.05",
+   "no_rules": "n=694 mean +0.14% t +0.65"
+  }
+ }
+}{
+ "note": "RAW short P&L (not beta-adjusted), 500-symbol sample; cur_tfirst = current impl with target-first tie-break (optimistic); intr1 = short open1 cover close1 flat overnight; *_stop = 3% stop via daily high, stop-first (conservative)",
+ "results": {
+  "all": {
+   "cur_tfirst": {
+    "n": 1608,
+    "mean": 0.00196,
+    "t": 3.11
+   },
+   "intr1": {
+    "n": 1608,
+    "mean": 0.00116,
+    "t": 1.17
+   },
+   "intr1_stop": {
+    "n": 1608,
+    "mean": 0.00113,
+    "t": 1.36
+   },
+   "intr12": {
+    "n": 1608,
+    "mean": 0.00059,
+    "t": 0.47
+   },
+   "intr12_stop": {
+    "n": 1608,
+    "mean": 0.00077,
+    "t": 0.73
+   },
+   "how_target_first": {
+    "target": 805,
+    "stop": 538,
+    "horizon": 265
+   },
+   "stop_rate_intraday_day1": 0.349
+  },
+  "mid_band": {
+   "cur_tfirst": {
+    "n": 817,
+    "mean": 0.00082,
+    "t": 0.96
+   },
+   "intr1": {
+    "n": 817,
+    "mean": 0.002,
+    "t": 1.65
+   },
+   "intr1_stop": {
+    "n": 817,
+    "mean": 0.00134,
+    "t": 1.26
+   },
+   "intr12": {
+    "n": 817,
+    "mean": 0.00293,
+    "t": 1.89
+   },
+   "intr12_stop": {
+    "n": 817,
+    "mean": 0.00149,
+    "t": 1.1
+   },
+   "how_target_first": {
+    "target": 365,
+    "stop": 260,
+    "horizon": 192
+   },
+   "stop_rate_intraday_day1": 0.283
+  },
+  "big_band": {
+   "cur_tfirst": {
+    "n": 791,
+    "mean": 0.00313,
+    "t": 3.4
+   },
+   "intr1": {
+    "n": 791,
+    "mean": 0.00028,
+    "t": 0.18
+   },
+   "intr1_stop": {
+    "n": 791,
+    "mean": 0.0009,
+    "t": 0.7
+   },
+   "intr12": {
+    "n": 791,
+    "mean": -0.00183,
+    "t": -0.91
+   },
+   "intr12_stop": {
+    "n": 791,
+    "mean": 2e-05,
+    "t": 0.01
+   },
+   "how_target_first": {
+    "target": 440,
+    "stop": 278,
+    "horizon": 73
+   },
+   "stop_rate_intraday_day1": 0.417
+  },
+  "small": {
+   "cur_tfirst": {
+    "n": 694,
+    "mean": 0.0026,
+    "t": 2.64
+   },
+   "intr1": {
+    "n": 694,
+    "mean": 0.00076,
+    "t": 0.47
+   },
+   "intr1_stop": {
+    "n": 694,
+    "mean": 0.00028,
+    "t": 0.21
+   },
+   "intr12": {
+    "n": 694,
+    "mean": 0.00078,
+    "t": 0.36
+   },
+   "intr12_stop": {
+    "n": 694,
+    "mean": 0.00056,
+    "t": 0.32
+   },
+   "how_target_first": {
+    "stop": 248,
+    "target": 381,
+    "horizon": 65
+   },
+   "stop_rate_intraday_day1": 0.428
+  },
+  "mid": {
+   "cur_tfirst": {
+    "n": 677,
+    "mean": 0.00181,
+    "t": 1.91
+   },
+   "intr1": {
+    "n": 677,
+    "mean": 0.0015,
+    "t": 1.04
+   },
+   "intr1_stop": {
+    "n": 677,
+    "mean": 0.00168,
+    "t": 1.39
+   },
+   "intr12": {
+    "n": 677,
+    "mean": -0.00021,
+    "t": -0.12
+   },
+   "intr12_stop": {
+    "n": 677,
+    "mean": 0.00064,
+    "t": 0.43
+   },
+   "how_target_first": {
+    "horizon": 139,
+    "target": 322,
+    "stop": 216
+   },
+   "stop_rate_intraday_day1": 0.301
+  }
+ }
+}

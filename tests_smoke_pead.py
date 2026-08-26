@@ -164,17 +164,27 @@ try:
     check("wide universe: a 4% drop is refused (response curve dead below 5%)", False)
 except ped.NotApplicable as exc:
     check("wide universe: a 4% drop is refused (response curve dead below 5%)", "less than 5%" in str(exc), str(exc)[:80])
-wd = run(day0_move=-0.06, elapsed=1, symbol="TEST")
-check("wide universe: a DOWN print is a SHORT", wd.centre < 0 and wd.claim == "direction", f"centre {wd.centre:+.3%}")
-check("wide DOWN centre = RAW 0.272% x 2/3 sessions left (NOT the 0.44% excess-vs-QQQ)",
-      abs(wd.centre + 0.00272 * 2 / 3) < 1e-9, f"{wd.centre:+.4%}")
-check("wide DOWN sd floor = 6.73% x sqrt(2/3)", wd.sd >= 0.0673 * math.sqrt(2 / 3) - 1e-9, f"{wd.sd:.2%}")
-check("wide rule named on the row with its receipt", wd.evidence["universe_rule"].startswith("wide") and "pead_wide" in wd.evidence["receipts"][0])
-check("the hedged pair number rides along for the expression that does not exist yet",
-      wd.evidence["hedged_vs_iwm"]["t"] == 3.95 and wd.evidence["raw_2026_3d"] < 0)
-check("wide conviction is cut (raw t 1.9, 2026 negative)", wd.conviction < 1.0, f"{wd.conviction}")
-wb = run(day0_move=-0.15, elapsed=1, symbol="TEST")
-check("wide big band is NOT discounted (raw t 2.51 > 1.87)", wb.conviction == wd.conviction and abs(wb.centre) > abs(wd.centre), f"{wb.centre:+.3%}")
+# The wide DOWN side: in SIMPLE returns the unhedged short earns +0.04% / +0.00%
+# (the log drift was the index rising). REFUSED until a pair structure exists.
+for mv, label in ((-0.06, "5-8.2%"), (-0.15, ">8.2%")):
+    try:
+        run(day0_move=mv, elapsed=1, symbol="TEST")
+        check(f"wide universe: a {label} DROP is refused unhedged (simple-return short is worth nothing)", False)
+    except ped.NotApplicable as exc:
+        check(f"wide universe: a {label} DROP is refused unhedged (simple-return short is worth nothing)",
+              "SIMPLE returns" in str(exc) and "PAIR" in str(exc), str(exc)[:90])
+check("the refusal is a switch, not a deletion: the pair numbers are on record",
+      ped.WIDE_UNHEDGED_SHORT_ENABLED is False and ped.WIDE_HEDGED_IWM_SIMPLE["mid"][1] > 2.0)
+# If the switch is ever flipped, the forecast must be the RAW from-open number, not the excess.
+ped.WIDE_UNHEDGED_SHORT_ENABLED = True
+try:
+    wd = run(day0_move=-0.06, elapsed=1, symbol="TEST")
+    check("(switch on) wide DOWN centre = RAW 0.272% x 2/3 sessions left, NOT the 0.44% excess-vs-QQQ",
+          abs(wd.centre + 0.00272 * 2 / 3) < 1e-9, f"{wd.centre:+.4%}")
+    check("(switch on) wide conviction is cut and the hedged number rides along",
+          wd.conviction < 1.0 and wd.evidence["hedged_vs_iwm"]["t"] == 3.95 and wd.evidence["raw_2026_3d"] < 0)
+finally:
+    ped.WIDE_UNHEDGED_SHORT_ENABLED = False
 check("the eleven keep their two-sided rule", run(day0_move=0.06, elapsed=1, symbol="AVGO").centre > 0)
 
 # ----------------------------------------------------------------- provenance

@@ -1,5 +1,58 @@
 # HANDOFF — read this first
 
+## SESSION 10 (26 Aug, ~07:00-10:30 ET, Fable autonomous) — the three reviews' P0-P10
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none survives — the whole-market short lane was CLOSED
+by its own adversarial battery (below). Best forward paper: dev / exp1 unchanged (loops alive, PIDs 3896 /
+31428, passes run as subprocesses so code changes are live). Independent selectors: still the mega-11
+`post_event_drift` and the vol brains. Farm/oracle candidates tested: 1 lane attacked and closed, 1 pair
+hypothesis opened, 0 promoted. New actionable finding: **a print detaches the stock from the index for a
+week** (losers stay down while it rises, winners rise less) — a PAIR statement, not a short. LLM spend this
+session ≈ $0.02 (4 Psychohistory records, 5 triages, 1 void record). **RESULT IMPROVEMENT: NONE in P&L;
+one lane that would have bled was stopped before the competition account exists.**
+
+**What the battery said** (`docs/FINDING_2026-08-26_PEAD_ADVERSARIAL.md`, `scripts/pead_adversarial.py`):
+the +0.44%/3d "drift" was excess over β·QQQ on a tape where QQQ averaged +0.60% per window; raw +0.03%
+(t 0.25); in SIMPLE returns (a short pays −(e^r−1)) the unhedged raw short is **+0.04% / +0.00%**; the pair
+(short loser / long IWM) keeps +0.35% / +0.26% (t 2.2 / 2.0 iid, less clustered). Edge starts at a 5% drop
+(3.5-5% dead); two-way clustered t 2.15 mid / 3.08 big on the EXCESS; **6 of 11 quarters negative; 2026 raw
+negative**; UP prints RISE raw (+0.25%, t 2.5) — "good news fades" is retired. Next-open entry is right
+(it misses a −0.11% bounce); drift peaks at 5 sessions; the 3% stop is harmless (+0.17% net either way).
+**Code:** `post_event_drift.py` `WIDE_UNHEDGED_SHORT_ENABLED=False` — wide DOWN refused with the numbers
+in the text; if ever flipped it can only quote RAW (test-pinned). The mega-11 rule is untouched.
+
+**Selection oracle + book** (`docs/FINDING_2026-08-26_SELECTION_ORACLE.md`): 61 Nov-25 picks vs 2,343
+liquidity-matched controls — no rank edge (63s median −14%, beat controls 33%); picks' pre-selection vol 72%
+vs 35% (the method was a VOLATILITY screen). Biotechs β_XBI 1.4-2.0 with NEGATIVE residuals (NTLA −79%,
+AARD −117% at 252d), residual corr 0.07. Agent 9: book effective N **1.85**, SLDP 50% of variance, net XBI
+beta 0.00, actual weights 0.898× vs equal 1.097× vs XBI 1.977×; proposed common-shock admission test.
+
+**Shadow tools built:** `alpha/state_change.py` + `scripts/state_change.py` — ticker-blind loser triage
+(HUBS falsification case → PRICE_OVERREACTION from day-0 facts; DKS 0.65; HOV/OSIS/DKNG CANNOT_DETERMINE
+without guidance/balance-sheet facts) and STATE_CHANGE_OPTIONALITY with BIO base rates as priors (needs an
+EDGAR XBRL runway/dilution collector before it is scored on live names). `scripts/selection_oracle.py`.
+
+**Preregistered / recorded:** 27 Aug AMC prints frozen in `state/event_grade/` (IREN 9.66%, AFRM 9.28%,
+S 9.23%, RBRK 11.47% implied to 08-28; ESTC 13.3% to 09-18). Vol agent's prereg: BUY ESTC event variance,
+SELL S up-side 22/24 bear call, REFUSE IREN/AFRM/RBRK, all conditional on ≤10% relative spread at the RTH
+pass. Psychohistory: `PH:DKS:2026-08-25:e1c64749` (21-session; the earlier DKS record that bucketed the KNOWN
+day-0 is VOID), HOV, OSIS, BJ (21-session; resolve with `--day0-move <horizon move>` on 19-24 Sep).
+
+**Agent round** (`docs/agents_2026-08-26/`, six briefs): agent 1 DEPARTURE PRINT (8-K 2.02 + 5.02 C-suite,
+n=48, +2.4%, post-hoc) and the log-vs-simple attack; agent 2 FINANCING_SHADOW refuted in-sample (runway <4Q
+legs −0.03%; drift lives in cash-generative names) and BROKEN_NARRATIVE (DOWN print after a prior UP print,
++0.92%, week t 2.33, 10/11 quarters — **excess/log numbers; re-run in raw simple before believing**); agent 4
+POST_PRINT_CALL_SIDE (post-print bear call spread; straddle paired t −7.7 never sold), DKS 130/140 Sep-18
+frozen; agent 9 above; agent 10 ten non-factor strategies, build the ADR overnight residual first, and the
+universe attack (max-of-4,634 noise z≈4.1/day).
+
+**Next:** (1) after tonight's close `scripts.daily_autopsy` runs itself; 27 Aug close → `event_grade NVDA
+--post --resolve PH:NVDA:2026-08-27:b29d506d`, then IREN/AFRM/S/RBRK post-grades on the 28th; (2) build the
+PAIR structure (short stock / long IWM) and re-grade the wide legs in simple returns per quarter before any
+lane; (3) re-run agent 2's BROKEN_NARRATIVE and agent 1's DEPARTURE PRINT in raw simple returns with the
+battery; (4) Friday evening restart both loops with `--expiry 2026-09-04`; (5) kickoff 28 Aug 15:00 UTC —
+competition keys, preflight, no test order.
+
 **Updated 2026-08-26 ~02:30 ET, session 8 (Fable, autonomous; market closed throughout).**
 Competition derivative of the Aegis-Finance research project (`AEGIS_SOURCE_COMMIT=44c8352`).
 Previous handoff text is in git history (`2561449`); this one supersedes it.

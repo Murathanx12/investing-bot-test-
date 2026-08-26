@@ -107,7 +107,15 @@ MEGA_MEASURED = frozenset({"AAPL", "AMD", "AMZN", "AVGO", "GOOGL", "META", "MSFT
 #:   * the raw short is NEGATIVE in 2026 (-0.14%, t -0.8) and 6 of 11 quarters are
 #:     negative in the mid band: conviction is cut, and `hedged_vs_iwm` travels on the row
 #:     so a pair expression can be built later without re-measuring.
+#:   * AND THEN (agent 1's attack, same day): the legs are LOG returns and a short is paid
+#:     in SIMPLE returns (-(exp(r)-1)); a -113% log leg costs a real short -211%. In
+#:     simple terms the unhedged raw short is +0.04% (5-8.2%, t 0.22) and +0.00% (>8.2%,
+#:     t 0.03): NOTHING. The pair keeps +0.35% / +0.26% (t 2.2 / 2.0). So the wide DOWN
+#:     side is REFUSED until a pair structure exists; the constants stay as the record.
 WIDE_MIN_ABS_MOVE = 0.05
+WIDE_UNHEDGED_SHORT_ENABLED = False
+WIDE_DOWN_SIMPLE = {"mid": (0.00036, 0.22), "big": (0.00004, 0.03)}
+WIDE_HEDGED_IWM_SIMPLE = {"mid": (0.00346, 2.22), "big": (0.00259, 1.96)}
 #: Wide-universe DOWN side: (3-session RAW short-from-next-open centre, 3-session sd).
 WIDE_DOWN: dict[str, tuple[float, float]] = {"mid": (0.00272, 0.0673), "big": (0.00319, 0.0780)}
 WIDE_HEDGED_IWM = {"mid": (0.00555, 3.95), "big": (0.00548, 4.49)}
@@ -172,6 +180,14 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
         raise NotApplicable(
             f"{symbol}: day-0 move {r0:+.2%} is a drop of less than {WIDE_MIN_ABS_MOVE:.0%}; on the response curve "
             f"({WIDE_HEADLINE['receipt']}) the 3.5-5% zone is dead (raw short -0.05%, t -0.3). Refused.")
+    if wide and not WIDE_UNHEDGED_SHORT_ENABLED:
+        band_key = "big" if abs(r0) > OVEREXTENDED_MOVE else "mid"
+        raise NotApplicable(
+            f"{symbol}: day-0 move {r0:+.2%} is a wide-universe DROP, and the unhedged short of it is worth "
+            f"{WIDE_DOWN_SIMPLE[band_key][0]:+.2%}/3d in SIMPLE returns (t {WIDE_DOWN_SIMPLE[band_key][1]}) -- the "
+            f"log-return drift was the index rising and the short being paid in simple terms. The PAIR (short "
+            f"stock / long IWM) keeps {WIDE_HEDGED_IWM_SIMPLE[band_key][0]:+.2%} (t {WIDE_HEDGED_IWM_SIMPLE[band_key][1]}) "
+            f"and the engine has no pair structure yet. Refused: nothing to sell unhedged.")
     base_centre, floor_sd, sessions_left = ARRIVAL[elapsed]
     sign = 1.0 if r0 > 0 else -1.0
     centre = sign * base_centre

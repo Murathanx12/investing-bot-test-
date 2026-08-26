@@ -109,6 +109,30 @@ mechanism with strong evidence. Not fitted in v0 — the terms are recorded so i
 - [ ] Trade Pulse v0 (US Census HS-level, quantity vs value vs partner), EIA hourly demand, NY Fed GSCPI.
 - [ ] RED_TEAM_CAUSAL (falsifier agent), reverse propagation, counterfactual worlds — after resolved records exist.
 
+## 5c. Evening 26 Aug — the three reviews' P0-P10, and what they changed
+
+| item | state | receipt |
+|---|---|---|
+| P0 freeze | held; one confirmed defect fixed (a benchmark-relative, log-return centre in an unhedged short) | `post_event_drift.py` |
+| P1 horizon curve 1..21 | done — DOWN drift peaks at 5 sessions; UP trail-behind grows to 21 | `state/pead_adversarial.json` |
+| P2 40 checks | done for what the data carries; **the lane closed** (raw simple +0.04%/+0.00%) | `docs/FINDING_2026-08-26_PEAD_ADVERSARIAL.md` |
+| P3 selection oracle | done — no rank edge; picks are a 72%-vol screen; SHAP NOT run (no PIT panel) | `scripts/selection_oracle.py` |
+| P4 state-change score | built, shadow, not scored on live names (needs XBRL runway/dilution) | `alpha/state_change.py` |
+| P5 loser triage | built, ticker-blind; HUBS falsification passes; refuses without balance-sheet facts | `state/state_change.jsonl` |
+| P6 bio residual | done — XBI beta 1.4-2.0, negative residuals, corr 0.07 | `state/bio_residual_2026-08-26.json` |
+| P7 six expressions | shares variants measured (entry, horizon, stop, hedge, cost); option expressions argued by agent 4, NOT backtested on option bars | `docs/agents_2026-08-26/agent4_volatility_trader.md` |
+| P8 shadow records | DKS live, HOV/OSIS/BJ post-window 21-session | `state/psychohistory.jsonl` |
+| P9 Aug-27 prereg | IREN/AFRM/S/RBRK/ESTC baselines frozen + vol agent's calls | `state/event_grade/` |
+| P10 agent round | six briefs, each with a strategy and an attack | `docs/agents_2026-08-26/` |
+
+**Standing rule from the day:** every drift/reversal number is printed RAW beside its excess line, in the
+trade's compounding convention, and the row says which one the trade earns. The whole-market lane is now a
+PAIR to build (short loser / long IWM), not a short to run.
+
+**Queue after the pair:** BROKEN_NARRATIVE (agent 2) and DEPARTURE PRINT (agent 1) re-graded raw-simple with
+the battery; ADR overnight residual (agent 10, no LLM, 40 gradeable rows/week); common-shock admission test
+(agent 9); XBRL companyfacts collector (runway, shares outstanding) — the input three shadow tools refused on.
+
 ## 6. Back into Aegis Finance
 
 Three things port directly, in this order, after the competition:

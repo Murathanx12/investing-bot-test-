@@ -95,7 +95,27 @@ LOWER bound on hits): stop 3% hit on **38%** of legs, 5% on 24%, 8% on 12% — a
 **+0.171% / +0.180% / +0.188%** against +0.167% with no stop. The stop clips both tails about equally; the traded
 object is worth what the measurement said. No change to `equity.py`.
 
+## 6b. Log versus simple — the attack that closed the unhedged lane (agent 1)
+
+The legs are LOG returns; a short is paid in SIMPLE returns, −(e^r − 1). A −113% log leg costs a real short
+−211%. Recomputed on the ≥5% DOWN legs, raw, short from the next open, 3 sessions:
+
+| band | raw short, log | **raw short, simple** | pair (long IWM), simple |
+|---|---|---|---|
+| 5-8.2% | +0.27% (t 1.87) | **+0.04% (t 0.22)** | +0.35% (t 2.22) |
+| >8.2% | +0.32% (t 2.51) | **+0.00% (t 0.03)** | +0.26% (t 1.96) |
+
+The unhedged short of a wide-universe loser is worth nothing. The pair keeps a third of a percent at t ~2 iid,
+which after §3's clustering is a hypothesis, not a lane. Agent 1's other numbers (30 bp cost leaves +0.06%;
+non-ETB legs carry the drift, ETB legs +0.36%) point the same way.
+
 ## 7. What changed in code (P0: a confirmed forecast-semantics defect, not a new idea)
+
+**Final state:** `WIDE_UNHEDGED_SHORT_ENABLED = False` — outside the mega-11 the brain REFUSES the DOWN side
+too, with the simple-return numbers in the refusal text and the pair numbers (`WIDE_HEDGED_IWM_SIMPLE`) on
+record. The whole-market lane is therefore CLOSED as an unhedged short and OPEN as a pair to build. The
+paragraphs below describe the intermediate state the switch guards (pinned by test so that flipping it can
+only ever quote the raw number).
 
 `alpha/brains/post_event_drift.py`: the wide rule quoted an EXCESS-over-QQQ centre into a structure that is an
 UNHEDGED short, and the MDM gate sizes an absolute move. The brain now quotes the **RAW short-from-next-open**
