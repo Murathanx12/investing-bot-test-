@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "optimus": {
+      "command": "C:\\Users\\mrthn\\optimus\\.venv\\Scripts\\python.exe",
+      "args": [
+        "C:\\Users\\mrthn\\optimus\\mcp\\server.py"
+      ],
+      "env": {
+        "AEGIS_REPO": "C:\\Users\\mrthn\\aegis-finance"
+      }
+    }
+  }
+}
