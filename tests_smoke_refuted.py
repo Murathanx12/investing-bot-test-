@@ -103,6 +103,54 @@ check("the untested routes are recorded rather than inferred from silence",
 for r in (amd, nvda):
     check(f"{r.route} prints the scope of its own sample", bool(r.scope) and r.scope in r.line())
 
+# --- INDEX STRADDLES: the $14,711 the guard did not cover (2026-08-27) ------
+# SPY -$7,849 and QQQ -$6,862 are 63% of both books' realised losses, and neither
+# carried a print or a peer relation, so nothing refused them. Measured now:
+# scripts/index_premium_backtest, 381 weekly ATM straddles held to expiry.
+
+for sym in ("SPY", "QQQ", "IWM"):
+    r = refuted.check(symbol=sym, kind="long_straddle", event_ahead_on_symbol=False,
+                      originators_printing=[])
+    check(f"{sym} weekly straddle to expiry is REFUSED",
+          r is not None and r.route == "INDEX_STRADDLE_TO_EXPIRY", str(r))
+    check(f"  and cites {sym}'s OWN measurement, not the pool",
+          r is not None and sym in r.evidence and "n=127" in r.evidence)
+
+spy = refuted.check(symbol="SPY", kind="long_straddle", event_ahead_on_symbol=False,
+                    originators_printing=[])
+check("the refusal carries the caveat that 2026 does NOT resolve",
+      "2026 -1.8%" in spy.evidence and "NOT resolvable" in spy.evidence,
+      "pooled t -5.90 read alone would overstate what this shows")
+check("  and says QQQ 2026 is POSITIVE for the buyer",
+      "+14.9%" in spy.evidence,
+      "a refusal that hides its own strongest counter-example is not arguable")
+check("  and names what the refusal actually rests on -- the median",
+      "MEDIAN" in spy.evidence and "median path" in spy.evidence)
+check("it reopens for a structure NOT held to expiry",
+      "NOT held to expiry" in spy.reopens_if,
+      "the loss mechanism is theta; a spread-financed or early-exit trade is a different object")
+check("  and it names the theta decomposition that says so",
+      "theta -$5,048" in spy.reopens_if)
+
+# A DIRECTIONAL index trade is untouched. QQQ and SPY calls are the structures
+# the reviews called winners, and refusing them on straddle evidence would be
+# the same inheritance-by-analogy this file was rewritten to remove.
+for sym in ("SPY", "QQQ", "IWM"):
+    for kind in ("long_call", "long_put"):
+        check(f"{sym} {kind} is still ADMISSIBLE",
+              refuted.check(symbol=sym, kind=kind, event_ahead_on_symbol=False,
+                            originators_printing=[]) is None,
+              "the measurement is of the ABSOLUTE move; a call bets the signed move")
+
+check("a non-measured index (DIA) straddle is ADMISSIBLE",
+      refuted.check(symbol="DIA", kind="long_straddle", event_ahead_on_symbol=False,
+                    originators_printing=[]) is None,
+      "no sample, so no refusal -- unmeasured is not refuted")
+check("short premium on an index is untouched",
+      refuted.check(symbol="SPY", kind="iron_condor", event_ahead_on_symbol=False,
+                    originators_printing=[]) is None,
+      "realised, condors are -$284 across both books")
+
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):
     check(f"{r.route} states what would REOPEN it", bool(r.reopens_if and len(r.reopens_if) > 20))

@@ -80,6 +80,29 @@ MEASURED_OWN_PRINT: dict[str, str] = {
              "(docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md)"),
 }
 
+#: Broad index ETFs whose weekly ATM straddle has been measured to expiry.
+#: `scripts/index_premium_backtest`, 381 weeks 2024-02 -> 2026-08, 1.3% haircut
+#: per side. This is the row that closes the gap named in
+#: `docs/FINDING_2026-08-27_NINETY_FOUR_PERCENT_WAS_ONE_STRUCTURE.md`: SPY and
+#: QQQ straddles cost $14,711 of the $23,306 realised loss, and nothing refused
+#: them because they carried no print and no peer relation.
+MEASURED_INDEX_STRADDLE: dict[str, str] = {
+    "SPY": "SPY weekly ATM straddle to expiry: buyer -31.8%/wk, t -5.90, hit 24.4%, n=127",
+    "QQQ": "QQQ weekly ATM straddle to expiry: buyer -2.5%/wk, t -0.39, hit 38.6%, n=127",
+    "IWM": "IWM weekly ATM straddle to expiry: buyer -25.1%/wk, t -4.83, hit 29.1%, n=127",
+}
+
+#: The honest caveat, carried on the refusal itself so it cannot be read as
+#: stronger than it is. Pooled the buyer is -19.8%/wk on t -5.90 against an MDE
+#: of 9.4% -- resolvable. BY YEAR it decays hard and 2026 does NOT resolve.
+INDEX_STRADDLE_CAVEAT = (
+    "pooled buyer -19.8%/wk t -5.90 n=381 (RESOLVABLE, MDE 9.4%); but 2024 -31.7%, "
+    "2025 -19.5%, 2026 -1.8% t -0.24 (NOT resolvable), and QQQ 2026 is +14.9% for the "
+    "buyer. The refusal rests on the MEDIAN, which is negative in every year including "
+    "2026 (-15.9%), and on hit rate staying a minority (42.2% in 2026). Over a five-"
+    "decision window terminal wealth follows the median path, not the mean"
+)
+
 #: Routes that are simply untested. Kept in code so a reader can tell "we looked
 #: and it lost" from "we never looked" without reading eight documents, and so
 #: that adding evidence has an obvious home.
@@ -138,6 +161,26 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
             reopens_if=("a forward sample of >=20 prints on this symbol in which the realised "
                         "absolute move beats the entry straddle after costs"),
             scope=f"{sym} only, long_straddle/long_strangle only, own print ahead",
+        )
+
+    if sym in MEASURED_INDEX_STRADDLE:
+        return Refusal(
+            route="INDEX_STRADDLE_TO_EXPIRY",
+            reason=(f"{kind} on {sym}. Buying the broad index's ABSOLUTE move and holding it "
+                    "to expiry is measured negative: the buyer wins a minority of weeks and "
+                    "the median week is a large loss. This project has one more negative "
+                    "sample of its own -- SPY and QQQ straddles opened 2026-08-25 realised "
+                    "-$14,711, 63% of both books' losses, with slippage only 3.2% of it."),
+            evidence=f"{MEASURED_INDEX_STRADDLE[sym]}; {INDEX_STRADDLE_CAVEAT}",
+            reopens_if=("a forward sample on this symbol clearing zero after costs, OR a "
+                        "structure that is NOT held to expiry -- the measurement is of the "
+                        "hold-to-expiry payoff and the loss mechanism is theta (exp1's open "
+                        "book decomposes to delta +$3,106, gamma +$1,054, vega +$1,168 "
+                        "against theta -$5,048: right three ways and still losing to rent). "
+                        "A spread-financed or early-exit expression is a different object "
+                        "and this says nothing about it"),
+            scope=(f"{sym} only, long_straddle/long_strangle only, weekly ATM held to expiry, "
+                   "2024-02 to 2026-08"),
         )
 
     if originators_printing:
