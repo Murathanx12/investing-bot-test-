@@ -8,6 +8,25 @@ none of them is advisory, and none is a judgement call made on the morning.
 
 ---
 
+## ⚠️ −2. REGISTER. BEFORE 11:00 ET. NOTHING ELSE MATTERS IF THIS IS MISSED.
+
+Pulled from the live dashboard on 27 Aug (`docs/RULES_SNAPSHOT_2026-08-27_REPULL.md`):
+
+> **Fri, Aug 28 · 15:00 UTC · Kickoff · Registration closes · All participants**
+> *"Registration closes the moment the event starts."*
+
+**There is no entry after kickoff.** This was not in the 25 Aug snapshot. It is a
+hard, irreversible gate that no amount of engineering recovers from, and every
+other step in this document is worthless if it is missed.
+
+Sign-up: `https://lablab.ai/ai-hackathons/alpaca-ai-trading-agents-hackathon?enroll=true`
+
+Also new from that pull: prize pool **$6,000**; the track is called
+**"Options Alpha Agents"** — the options requirement is in the name of the track,
+not just a rules line; **727 teams** forming, against 555 at the last count.
+
+---
+
 ## −1. TONIGHT (27 Aug, after 16:00 ET) — the only time-gated item
 
 This cannot be moved earlier and cannot be parallelised: it needs a session that
@@ -38,6 +57,12 @@ not as flat.
 # save the live page, then:
 git add docs/RULES_SNAPSHOT_2026-08-28.md
 ```
+
+A re-pull was already done on 27 Aug — `docs/RULES_SNAPSHOT_2026-08-27_REPULL.md`.
+Kickoff, deadline and the Trading-API/MCP/CLI line are all **confirmed unchanged**.
+But the judging-criteria card and the fresh-$100k line **did not render** to our
+fetcher, so they are UNCONFIRMED rather than absent, and the 25 Aug capture stays
+the authority on them. Diff the morning pull against the 27 Aug one.
 
 Diff it against the 25 Aug snapshot and **stop** if any of these four moved:
 
