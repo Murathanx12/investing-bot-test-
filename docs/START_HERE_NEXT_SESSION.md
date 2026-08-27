@@ -65,6 +65,37 @@ never reachable from a session started there. It is now.
   (stock quotes + community) is the one most worth the trade-off.
 - **`mcporter`** — how Exa was registered.
 
+### Plugin `marketplace add` is SLOW, not broken (2026-08-27)
+
+`EBUSY: resource busy or locked` on `~/.claude/plugins/marketplaces/<dir>` does
+NOT mean a permissions problem. It means **a git clone from a previous attempt is
+still running** and holding `.git/objects/pack/tmp_pack_*` and
+`.git/shallow.lock`. Retrying kills nothing and starts a second clone competing
+for the same bandwidth.
+
+The installer clones with `--depth 1 --recurse-submodules`, and this machine
+manages roughly **9 MB/min** to GitHub:
+
+| repo | size | ~clone |
+|---|---|---|
+| `nextlevelbuilder/ui-ux-pro-max-skill` | 7.8 MB | 1 min |
+| `affaan-m/ECC` | 46.7 MB | 5 min |
+| `headroomlabs-ai/headroom` | 74.8 MB | 8 min |
+| `thedotmack/claude-mem` | **432 MB** | **48 min** |
+
+**Procedure:** one `add` at a time, smallest first, and DO NOT RETRY. Verify the
+marketplace lands in `known_marketplaces.json` before running its `install`.
+
+**If it is genuinely wedged:** kill the clone processes
+(`Get-CimInstance Win32_Process -Filter "Name='git.exe'"` filtered on the repo
+name), then `rm -rf` the directory, then ONE clean add.
+
+**Measuring progress:** `Get-ChildItem -Recurse` reports **0 MB** on these
+directories because it cannot stat the locked files and `-ErrorAction
+SilentlyContinue` turns that into a zero -- it read "STALLED" on a clone that was
+downloading 4.5 MB per 30s. Open the `tmp_pack_*` file with
+`FileShare.ReadWrite` and read its `.Length` instead.
+
 ---
 
 ## 2 — MODEL PROVIDERS
