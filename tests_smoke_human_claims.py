@@ -34,7 +34,7 @@ print("human thesis arm + claim/expression matrix")
 _tmp = tempfile.mkdtemp(prefix="aat_human_")
 os.environ["AAT_LEDGER_DIR"] = _tmp
 
-from alpha import claims, human                              # noqa: E402
+from alpha import claims, human, runner                      # noqa: E402
 
 human.STATE_DIR = Path(_tmp)
 
@@ -103,16 +103,87 @@ check("the falsifier travels onto the forecast", "104bn" in f.evidence["falsifie
 check("the catalyst becomes an event_date, so the event-node cap sees it",
       f.evidence["event_date"] == SOON[:10])
 
-wf = width_only.to_forecast(implied_move=0.054)
-check("a width thesis is scaled off the CHAIN's implied move",
-      abs(wf.sd - 0.054 * 0.75) < 1e-9, f"sd={wf.sd}")
+# NOTE: two checks stood here asserting that `to_forecast(implied_move=...)`
+# returned `implied_move * tilt`, and that it REFUSED without one. Both encoded
+# the units bug -- they were green while the module chose a long straddle for a
+# thesis that the chain was too expensive. A test that pins a bug is worse than
+# no test, because it defends it. The replacement is the block further down,
+# which resolves the multiplier against a structure and checks the sqrt(pi/2).
+
+# --- THE UNITS BUG THIS MODULE SHIPPED WITH FOR TWO HOURS -------------------
+# A thesis saying "the chain OVERPRICES this move" chose a LONG STRADDLE against
+# a live AVGO chain -- buying the thing it had just called too expensive. Two
+# errors, and together they are the third of the three unit errors behind the
+# 96.4%-cheap disaster, reproduced inside the module written to fix it:
+#   1. implied_move is E|move|, not a sigma. sigma = E|move| * sqrt(pi/2). So
+#      `implied * 1.25` is numerically the chain's OWN sigma -- a disagreement of
+#      zero, dressed as a view;
+#   2. a sd derived from the chain is already over the option's LIFE, and
+#      payoff.economics rescaled it AGAIN by horizon_days. Two days against a
+#      one-day option is sqrt(2) wider, which is how NARROWER came out wide.
+import math                                                   # noqa: E402
+
+check("a width thesis carries a MULTIPLIER, not a sigma",
+      thesis(magnitude="wider").width_multiplier == 1.25
+      and thesis(direction="none", magnitude="narrower",
+                 expected_move=None).width_multiplier == 0.75)
+check("a pure direction thesis has no width multiplier",
+      thesis().width_multiplier is None)
+check("the multiplier travels on the forecast for the runner to resolve",
+      thesis(magnitude="wider").to_forecast().evidence["width_multiplier"] == 1.25)
+check("EVERY human forecast's sd is a placeholder now, not just direction ones",
+      all(t.to_forecast().evidence["sd_is_placeholder"] is True
+          for t in (thesis(), thesis(magnitude="wider"),
+                    thesis(direction="none", magnitude="narrower", expected_move=None))),
+      "one number chosen at forecast time cannot describe several expiries")
+check("to_forecast no longer needs an implied move at all",
+      thesis(direction="none", magnitude="narrower",
+             expected_move=None).to_forecast().sd > 0,
+      "it used to REFUSE without one, which was the wrong shape of fix")
+
+
+class _Struct:
+    kind = "long_straddle"
+
+    def __init__(self, im):
+        self.implied_move = im
+
+
+_f_wide = thesis(direction="none", magnitude="wider", expected_move=None).to_forecast()
+_f_narrow = thesis(direction="none", magnitude="narrower", expected_move=None).to_forecast()
+_sd_w, _note_w = runner.effective_sd(_f_wide, _Struct(0.086))
+_sd_n, _note_n = runner.effective_sd(_f_narrow, _Struct(0.086))
+_chain_sigma = 0.086 * math.sqrt(math.pi / 2.0)
+
+check("a 'wider' claim resolves ABOVE the chain's own sigma", _sd_w > _chain_sigma,
+      f"{_sd_w:.5f} vs chain sigma {_chain_sigma:.5f}")
+check("a 'narrower' claim resolves BELOW it", _sd_n < _chain_sigma,
+      f"{_sd_n:.5f} vs chain sigma {_chain_sigma:.5f}")
+check("  and the sqrt(pi/2) is applied, so 1.25x is not accidentally 1.0x",
+      abs(_sd_w - _chain_sigma * 1.25) < 1e-9,
+      f"{_sd_w:.5f}; without the conversion it would be {0.086*1.25:.5f}, "
+      f"which is the chain's sigma {_chain_sigma:.5f} -- a view of nothing")
+check("the source names the multiplier so the ledger row can be argued with",
+      _note_w == "chain_implied_move x1.25" and _note_n == "chain_implied_move x0.75",
+      f"{_note_w!r} / {_note_n!r}")
+
 try:
-    width_only.to_forecast(implied_move=None)
-    got = None
-except human.ThesisRefusal as exc:
-    got = str(exc)
-check("a width thesis with NO chain width REFUSES rather than substituting realised vol",
-      got is not None and "realised-vol" in got, str(got))
+    runner.effective_sd(_f_wide, _Struct(0.0))
+    _no_width = None
+except runner.ChainWidthUnavailable as exc:
+    _no_width = str(exc)
+check("a width claim with NO chain width REFUSES, never falls back to a guess",
+      _no_width is not None and "nothing to be wrong about" in _no_width, str(_no_width))
+check("  and says why the fallback would be wrong",
+      _no_width is not None and "made every long option look cheap" in _no_width)
+
+_rsrc = Path("alpha/runner.py").read_text(encoding="utf-8")
+check("a chain-derived sd is NOT rescaled by a declared horizon",
+      'horizon_days=None if sd_note.startswith("chain")' in _rsrc,
+      "a 2-day view on a 1-day option inflates it by sqrt(2)")
+check("  and the rule is keyed on WHERE the sd came from, not on the claim word",
+      "not off the claim word" in _rsrc,
+      "keying on the word missed the width claims entirely")
 
 # --- persistence ------------------------------------------------------------
 tid = human.record(t)

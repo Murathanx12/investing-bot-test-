@@ -208,36 +208,54 @@ class Thesis:
         return hashlib.sha256(body.encode()).hexdigest()[:16]
 
     # --------------------------------------------------------------- forecast
+    @property
+    def width_multiplier(self) -> float | None:
+        """How wide the outcome is, as a multiple of THE CHAIN'S OWN sigma.
+
+        `None` for a pure direction claim. A fixed +/-25% rather than a number
+        the human picks, because a human who could name that number would have
+        named a sigma instead of a word.
+        """
+        if self.magnitude == "unknown":
+            return None
+        return 1.25 if self.magnitude == "wider" else 0.75
+
     def to_forecast(self, *, implied_move: float | None = None) -> Forecast:
         """The tournament's own object. No special privileges attach to it.
 
-        For a `direction` claim the sd is a placeholder the runner replaces with
-        the chain's implied move. For a width claim it must come from somewhere
-        real, so `implied_move` is REQUIRED and the thesis's own magnitude word
-        tilts it: `wider` says the outcome exceeds the quote, `narrower` says it
-        falls short. The tilt is a fixed 25% rather than a number the human
-        picks, because a human who could name that number would have named a
-        sigma instead of a word.
-        """
-        if self.claim == "direction":
-            sd = _SD_PLACEHOLDER_UNUSED
-        else:
-            if not implied_move or implied_move <= 0:
-                raise ThesisRefusal(
-                    f"a {self.claim!r} claim is a claim that the CHAIN's width is wrong, so it "
-                    "needs the chain's width to be relative to. None was available for "
-                    f"{self.symbol}; refusing rather than substituting a realised-vol estimate, "
-                    "which is the substitution that made every long option look cheap."
-                )
-            tilt = 1.25 if self.magnitude == "wider" else 0.75
-            sd = implied_move * tilt
+        THE SD IS ALWAYS A PLACEHOLDER, and it is resolved against each
+        STRUCTURE'S OWN chain width in `runner.effective_sd`.
 
+        The first version of this method took an `implied_move` and returned
+        `implied_move * tilt`. That was wrong twice over, and the second run of
+        the human arm against a live AVGO chain caught it: a thesis saying *the
+        chain OVERPRICES this move* chose a **long straddle** -- buying the exact
+        thing it had just called too expensive.
+
+        1. `implied_move` is E|move|, not a sigma. sigma = E|move| * sqrt(pi/2)
+           (`sizing.implied_probability_beyond`). Multiplying the raw implied by
+           1.25 produced a "25% wider" claim numerically EQUAL to the chain's own
+           sigma -- a disagreement of zero, dressed as a view.
+        2. The chain's implied move is over the OPTION'S LIFE, and a non-direction
+           forecast is then rescaled again by `horizon_days` in
+           `payoff.economics`. A 2-day horizon against a 1-day option inflates it
+           by sqrt(2), which is how a NARROWER claim came out wider than the
+           chain.
+
+        Both together are the third of the three unit errors that produced the
+        96.4%-cheap disaster -- "a payoff sd that rescaled UP but never DOWN" --
+        reproduced in the module written to fix the consequences of it.
+
+        So the conversion happens in exactly ONE place, per structure, where the
+        direction claim's conversion already lives. `implied_move` is accepted
+        and ignored, kept only so older callers do not break; it is not used.
+        """
         return Forecast(
             brain=self.brain,
             symbol=self.symbol,
             horizon_days=float(self.horizon_days),
             centre=float(self.expected_move or 0.0),
-            sd=sd,
+            sd=_SD_PLACEHOLDER_UNUSED,
             conviction=float(self.conviction),
             claim=self.claim,
             rationale=f"{self.reason} [catalyst: {self.catalyst}]",
@@ -251,7 +269,8 @@ class Thesis:
                 "falsifier": self.falsifier,
                 "direction": self.direction,
                 "magnitude": self.magnitude,
-                "sd_is_placeholder": self.claim == "direction",
+                "sd_is_placeholder": True,
+                "width_multiplier": self.width_multiplier,
                 **self.evidence,
             },
         )
@@ -296,19 +315,16 @@ def open_theses(now: datetime | None = None) -> list[Thesis]:
 
 def forecasts_for(symbols, *, implied_moves: dict[str, float] | None = None,
                   now: datetime | None = None) -> list[Forecast]:
-    """Forecasts from every open thesis on `symbols`. Skips what it cannot build.
+    """Forecasts from every open thesis on `symbols`.
 
-    A width thesis with no chain width available is DROPPED with its reason, not
-    substituted -- see `to_forecast`.
+    `implied_moves` is accepted and unused: a width claim is resolved against
+    each STRUCTURE'S own chain width in `runner.effective_sd`, not against one
+    number chosen here. Passing a single implied move per symbol was the shape
+    of the units bug this module shipped with for two hours.
     """
     wanted = {s.upper() for s in symbols}
-    implied_moves = implied_moves or {}
     out = []
     for t in open_theses(now):
-        if t.symbol.upper() not in wanted:
-            continue
-        try:
-            out.append(t.to_forecast(implied_move=implied_moves.get(t.symbol.upper())))
-        except ThesisRefusal:
-            continue
+        if t.symbol.upper() in wanted:
+            out.append(t.to_forecast())
     return out

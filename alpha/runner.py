@@ -321,6 +321,27 @@ def effective_sd(forecast: Forecast, structure: sizing.Structure) -> tuple[float
     the brain's sd -- a fallback here would silently restore the bug on exactly
     the illiquid names where it does the most damage.
     """
+    # A WIDTH CLAIM STATED AS A MULTIPLE OF THE CHAIN, resolved here.
+    #
+    # `alpha/human.py` lets a person say the chain is 25% too wide or too narrow.
+    # That is a claim ABOUT the chain, so it can only be evaluated against the
+    # chain -- and against THIS structure's chain, not one number picked at
+    # forecast time. Its first implementation multiplied the raw implied move by
+    # the tilt, which (a) skipped the sqrt(pi/2) that turns E|move| into a sigma,
+    # making a "25% wider" claim numerically equal to the chain's own sigma, and
+    # (b) was then rescaled AGAIN by horizon_days. A thesis saying the chain
+    # OVERPRICES the move came out buying a straddle.
+    mult = (forecast.evidence or {}).get("width_multiplier")
+    if mult:
+        implied = getattr(structure, "implied_move", 0.0) or 0.0
+        if implied <= 0:
+            raise ChainWidthUnavailable(
+                f"{structure.kind}: this forecast claims the CHAIN's width is wrong by a factor "
+                f"of {mult:g}, and the chain quotes no implied move for this expiry. There is "
+                "nothing to be wrong about. Refused rather than substituting a realised-vol "
+                "estimate -- that substitution is what made every long option look cheap.")
+        return implied * math.sqrt(math.pi / 2.0) * float(mult), f"chain_implied_move x{mult:g}"
+
     if forecast.claim != "direction":
         return forecast.sd, "brain"
     implied = getattr(structure, "implied_move", 0.0) or 0.0
@@ -402,7 +423,14 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             # over the structure's LIFE, so it must not be re-scaled by horizon.
             econ = payoff.economics(
                 structure, snapshot.spot, forecast.centre, sd_used,
-                horizon_days=None if forecast.claim == "direction" else forecast.horizon_days)
+                # A sd that CAME FROM THE CHAIN is already stated over the
+                # structure's own life. Rescaling it by a declared horizon
+                # inflates it by sqrt(horizon/life) -- a 2-day view on a 1-day
+                # option becomes sqrt(2) wider, which turned a "the chain is too
+                # expensive" thesis into a long straddle. Keyed off where the sd
+                # came from, not off the claim word, so every chain-derived path
+                # gets it.
+                horizon_days=None if sd_note.startswith("chain") else forecast.horizon_days)
         except ValueError as exc:
             rejected.append((structure, sizing.SizingVerdict(
                 False, 0.0, verdict.mdm_edge, f"payoff could not be integrated: {exc}")))
