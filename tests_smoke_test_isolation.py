@@ -21,10 +21,13 @@ from pathlib import Path
 from alpha import config
 
 fails: list[str] = []
+ran = 0
 ROOT = Path(__file__).parent
 
 
 def check(name: str, cond: bool, why: str = "") -> None:
+    global ran
+    ran += 1
     if cond:
         print(f"  ok   {name}")
     else:
@@ -43,10 +46,9 @@ try:
     socket.create_connection(("data.alpaca.markets", 443), timeout=5)
     check("outbound connection refused", False, "it CONNECTED")
 except config.NetworkRefusal as e:
-    # the message names an IP, not the host: create_connection resolves the
-    # name FIRST and hands connect() an address tuple. So DNS does leave the
-    # machine; application data does not, which is the property being claimed.
-    check("outbound connection refused", "refusing an outbound connection" in str(e))
+    # Now refused at RESOLUTION, before connect() is ever reached -- so the
+    # message names the host again. That is the zero-egress property.
+    check("outbound connection refused", "data.alpaca.markets" in str(e), str(e)[:120])
 except Exception as e:  # noqa: BLE001 -- any other error is the wrong reason
     check("outbound connection refused", False, f"blocked, but by {type(e).__name__}: {e}")
 
@@ -130,6 +132,20 @@ offenders = [p.name for p in ROOT.glob("tests_smoke*.py")
              if p.name != Path(__file__).name
              and "AAT_TEST_MODE" in p.read_text(encoding="utf-8")]
 check("no other suite touches the guard", not offenders, f"{offenders}")
+
+# --- 9. ZERO EGRESS: the DNS query does not leave either -------------------
+try:
+    socket.getaddrinfo("data.alpaca.markets", 443)
+    check("a remote NAME is not even resolved", False, "DNS went out")
+except config.NetworkRefusal:
+    check("a remote NAME is not even resolved", True)
+except Exception as e:  # noqa: BLE001
+    check("a remote NAME is not even resolved", False, f"{type(e).__name__}: {e}")
+try:
+    socket.getaddrinfo("localhost", 0)
+    check("loopback names still resolve", True)
+except Exception as e:  # noqa: BLE001
+    check("loopback names still resolve", False, f"{type(e).__name__}: {e}")
 
 if not under_runner:
     os.environ.pop(config.TEST_MODE_ENV, None)

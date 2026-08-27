@@ -151,11 +151,16 @@ def _install_network_block() -> None:
     Loopback stays open: a blocked localhost breaks tooling without protecting
     anything, since the accident being prevented is reaching a REMOTE venue.
 
-    SCOPE, stated exactly: this blocks `connect`, so no application data
-    leaves. It does NOT block `getaddrinfo`, and `socket.create_connection`
-    resolves before it connects -- so a DNS query for the venue can still go
-    out. A DNS lookup is not an order and not a ledger row; blocking it would
-    also break loopback resolution for no gain.
+    SCOPE, stated exactly: ZERO EGRESS to a remote host. Both `connect` and
+    `getaddrinfo` are refused, so neither application data nor a DNS query for
+    the venue leaves the machine. Loopback names and addresses still resolve and
+    still connect.
+
+    A first cut blocked `connect` only, on the argument that a DNS lookup is not
+    an order. True, and it was still wrong: this switch is described as "no
+    network in tests", so a name resolution going out meant the words and the
+    guarantee disagreed. An ambiguous safety claim becomes a bug the first time
+    someone reasons from the claim instead of reading the code.
     """
     if not test_mode():
         return
@@ -166,7 +171,29 @@ def _install_network_block() -> None:
 
     _real_connect = socket.socket.connect
     _real_connect_ex = socket.socket.connect_ex
+    _real_getaddrinfo = socket.getaddrinfo
     _local = ("127.0.0.1", "::1", "localhost", "0.0.0.0", "")
+
+    def _blocked_name(host) -> bool:
+        return isinstance(host, str) and host not in _local
+
+    def _guard_dns(host, *a, **kw):
+        """Refuse to RESOLVE a remote name, so the block is genuinely zero-egress.
+
+        `connect` alone already stops any order -- no application data can leave.
+        But this switch is described as "no network in tests", and a DNS query for
+        the venue is a packet on the wire, so the words and the guarantee did not
+        match. An ambiguous safety claim becomes a bug the first time someone
+        reasons from the claim instead of the code.
+        """
+        if _blocked_name(host):
+            raise NetworkRefusal(
+                f"{TEST_MODE_ENV} is set: refusing to resolve {host!r}. A unit test must not "
+                "touch the network -- mock the call, or run it deliberately with "
+                "`python run_tests.py --allow-venue`.")
+        return _real_getaddrinfo(host, *a, **kw)
+
+    socket.getaddrinfo = _guard_dns
 
     def _guard(fn):
         def inner(self, address, *a, **kw):

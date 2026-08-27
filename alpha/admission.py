@@ -39,9 +39,10 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from alpha import book as book_mod
+from alpha import book_limits, concentration
 from alpha.engine import sizing
 
 logger = logging.getLogger(__name__)
@@ -148,12 +149,48 @@ def structure_greeks(structure: sizing.Structure, contracts: int, snapshot) -> t
     return delta, theta
 
 
+def book_n_risk(book: book_mod.BookRisk, client, *, days: int = 60) -> float | None:
+    """Effective N by RISK for the CURRENT book, or None if it cannot be measured.
+
+    One batched bars call, meant to be made ONCE PER CYCLE by the runner and
+    threaded into every `admit()` in that pass -- not once per order. A network
+    round trip inside the per-order admission path would bolt a new failure mode
+    onto the one path that must not fail.
+
+    Returns None on any failure, and None is the SAFE direction: `book_limits`
+    treats an unmeasured concentration as a binding breach once the book is large
+    enough for the limit to bind at all.
+    """
+    import math
+
+    try:
+        weights = concentration.weights_from_book(book)
+        if len(weights) < 2:
+            return None            # n_risk is definitionally 1.0; nothing to measure
+        start = (datetime.now(timezone.utc) - timedelta(days=days)).date().isoformat()
+        bars = client.stock_bars_multi(sorted(weights), start=start, timeframe="1Day")
+        returns: dict[str, list[float]] = {}
+        for sym, rows in bars.items():
+            closes = [float(r["c"]) for r in rows if r.get("c")]
+            if len(closes) > 5:
+                returns[sym] = [math.log(closes[i] / closes[i - 1])
+                                for i in range(1, len(closes))]
+        c = concentration.measure(weights, returns)
+        return c.n_risk if c else None
+    except Exception as exc:  # noqa: BLE001 -- an unmeasured value is a state, not a crash
+        logger.warning("book n_risk could not be measured (%s); admission will treat "
+                       "concentration as UNMEASURED, which refuses once the book is large "
+                       "enough for the limit to bind", exc)
+        return None
+
+
 def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, *,
           equity: float, aggregate_cap: float, committed_usd: float = 0.0,
           own_event: str | None = None, reserved_events: dict[str, float] | None = None,
           greeks: BookGreeks | None = None, new_delta_usd: float | None = None,
           new_theta_usd_per_day: float | None = None, new_daily_sigma: float | None = None,
-          per_underlying_cap: float = PER_UNDERLYING_CAP) -> Admission:
+          per_underlying_cap: float = PER_UNDERLYING_CAP,
+          n_risk: float | None = None) -> Admission:
     """Admit or refuse `contracts` units of `structure` on the POST-trade book.
 
     `per_underlying_cap` defaults to 15% and the runner raises it to the
@@ -230,6 +267,37 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
                 "delta only. The book is carrying a directional bet the brains did not make."), m)
     else:
         m["stress"] = "CANNOT DETERMINE"
+
+    # -- BOOK-WIDE BACKSTOP (alpha/book_limits.py) ---------------------------
+    # Every check above is per-ORDER or per-UNDERLYING. None of them asks a
+    # question about the book AS A WHOLE, which is how the rehearsal book reached
+    # 72.9% of equity in true max loss with every individual check passing and
+    # nothing violated. These limits were written weeks ago and called by nothing.
+    #
+    # LAST, not first. A first cut ran them at the top of admit() and it was
+    # wrong twice: the specific reason (CONCENTRATION, TOMORROW'S OPTIONALITY)
+    # should beat the general one in the refusal message, and running first
+    # bypassed the reserved-event exemption below -- so a reserved event's own
+    # expression, which is deliberately allowed to spend the reserve, was refused
+    # by a limit that knows nothing about reserves.
+    #
+    # Evaluated on the POST-trade book, so the order that WOULD cause the breach
+    # is the one refused rather than the one after it.
+    post_weights = {**book.by_underlying, sym: post_sym}
+    breaches = book_limits.evaluate(
+        equity=equity, true_max_loss=post_total,
+        # free EQUITY, not room under the policy ceiling. `free_after` is the
+        # latter and answers a different question; conflating them would make one
+        # limit shadow the other.
+        free_capital=equity - post_total,
+        thesis_weights=post_weights, n_risk=n_risk, n_positions=len(post_weights))
+    m["book_limits"] = [b.line() for b in breaches]
+    refusing = [b for b in book_limits.refusing(breaches)
+                # Same carve-out the free-capital check above already makes: the
+                # reserved event's OWN expression may spend the reserve.
+                if not (is_reserved_expression and b.limit == "MIN_FREE_CAPITAL")]
+    if refusing:
+        return Admission(False, "BOOK LIMIT: " + " | ".join(b.line() for b in refusing), m)
 
     return Admission(True, (
         f"admitted: post-trade true max loss {post_total / equity:.1%}, {free_after / equity:.1%} free, "

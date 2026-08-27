@@ -58,19 +58,61 @@ check("the effective-N floor sits ABOVE every measured failure state",
 check("the reference is the measured liquidation value",
       abs(B.REFERENCE_N_RISK_AT_LIQUIDATION - 1.43) < 1e-9)
 
-print("\n-- it is enforced by NOTHING")
+print("\n-- it is ENFORCED at the admission choke point (was: by nothing)")
 import pathlib
 src = pathlib.Path(".")
-# The point is that no EXECUTION path can refuse on these. A read-only reporting
-# script importing them to DISPLAY the breaches is the intended use -- that is how
-# the 28 Aug decision gets made from numbers instead of from a paragraph.
-EXECUTION = ["alpha/admission.py", "alpha/arbiter.py", "alpha/runner.py",
-             "alpha/exits.py", "alpha/book.py", "alpha/fills.py",
-             "scripts/run_pass.py", "scripts/manage.py", "scripts/agent_loop.py"]
-leaked = [f for f in EXECUTION
-          if (src / f).exists()
-          and "book_limits" in (src / f).read_text(encoding="utf-8", errors="replace")]
-check("NO execution path imports book_limits", leaked == [], str(leaked))
+# INVERTED 2026-08-27. This check used to assert that NO execution path imported
+# book_limits -- it pinned the module's "written but never called" status. That
+# status is now closed, so the same check asserts the opposite: admission must
+# enforce them, or the limits are decoration again.
+adm = (src / "alpha/admission.py").read_text(encoding="utf-8", errors="replace")
+check("admission imports book_limits", "book_limits" in adm)
+check("and REFUSES on a binding breach", "BOOK LIMIT" in adm and "book_limits.refusing" in adm)
+check("evaluated on the POST-trade book, not the current one", "true_max_loss=post_total" in adm,
+      "a limit checked before the order is a limit checked too late")
+
+# THE PROPERTY THAT MADE THIS SAFE TO TURN ON: a pristine account must be able to
+# place its first order. Both diversification limits are arithmetic identities on
+# a one-position book, so enforcing them from trade #1 deadlocks the account
+# forever -- and a gate that cannot go green is a broken gate, not a strict one.
+first = B.evaluate(equity=100_000, true_max_loss=2_000, free_capital=98_000,
+                   thesis_weights={"NVDA": 2_000}, n_risk=1.0, n_positions=1)
+check("a healthy FIRST trade on a pristine $100k account is not refused",
+      B.refusing(first) == [], str([b.limit for b in B.refusing(first)]))
+check("but the breach is still MEASURED and reported, not hidden",
+      len(first) == 2 and all(not b.binding for b in first),
+      "a small book with 100% in one name must not read as clean")
+check("the warm-up is stated on the breach itself",
+      any("not yet binding" in b.line() for b in first))
+
+sixth = B.evaluate(equity=100_000, true_max_loss=10_000, free_capital=90_000,
+                   thesis_weights={"NVDA": 10_000}, n_risk=1.0,
+                   n_positions=B.DIVERSIFICATION_BINDS_AT)
+check("once five positions are held, the sixth is bound by both",
+      len(B.refusing(sixth)) == 2, str([b.limit for b in B.refusing(sixth)]))
+
+# UNMEASURED tracks the same schedule. Binding it always refused every fresh
+# account for failing to measure something that is arithmetic at one position.
+un_small = B.evaluate(equity=100_000, true_max_loss=2_000, free_capital=98_000,
+                      thesis_weights={"NVDA": 2_000}, n_risk=None, n_positions=1)
+un_big = B.evaluate(equity=100_000, true_max_loss=2_000, free_capital=98_000,
+                    thesis_weights={"A": 500, "B": 500, "C": 500, "D": 500, "E": 500},
+                    n_risk=None, n_positions=5)
+check("an UNMEASURED concentration does not refuse a one-position book",
+      not any(b.limit == "MIN_EFFECTIVE_N_RISK" and b.binding for b in un_small))
+check("but it DOES refuse once the limit binds",
+      any(b.limit == "MIN_EFFECTIVE_N_RISK" and b.binding for b in un_big),
+      "there, 'we could not look' really is different from 'it is fine'")
+
+unknown = B.evaluate(equity=100_000, true_max_loss=2_000, free_capital=98_000,
+                     thesis_weights={"NVDA": 2_000}, n_risk=1.0, n_positions=None)
+check("an UNKNOWN position count binds", len(B.refusing(unknown)) == 2,
+      "a caller that cannot say how many positions it holds does not get the warm-up")
+
+dev = B.evaluate(equity=100_000, true_max_loss=72_900, free_capital=27_100,
+                 thesis_weights={"NVDA": 38_200, "QQQ": 34_700}, n_risk=1.51, n_positions=8)
+check("the 25 Aug dev book (72.9%, n_risk 1.51) is refused on all three",
+      len(B.refusing(dev)) == 3, str([b.limit for b in B.refusing(dev)]))
 check("...while pre-flight DOES, to display them",
       "book_limits" in (src / "scripts/preflight.py").read_text(encoding="utf-8", errors="replace"))
 # Turning these on changes what the account trades. That is an attended decision,

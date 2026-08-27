@@ -1,9 +1,9 @@
 {
  "role": "exp1",
  "pid": 59544,
- "cycle": 49,
- "started_utc": "2026-08-27T07:51:14.308108+00:00",
- "completed_utc": "2026-08-27T07:51:15.690366+00:00",
+ "cycle": 126,
+ "started_utc": "2026-08-27T09:16:01.421882+00:00",
+ "completed_utc": "2026-08-27T09:16:02.797249+00:00",
  "last_broker_ok_utc": null,
  "last_error": null,
  "consecutive_errors": 0,

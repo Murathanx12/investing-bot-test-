@@ -41,12 +41,32 @@ check("metrics say what was checked and what could not be", a.metrics["post_true
 a = admission.admit(bk(36_000.0, {"AVGO": 36_000.0}), strad, 5, equity=EQ, aggregate_cap=0.50)
 check("36% held + 6% -> 42%, only 8% free -> REFUSED for tomorrow's optionality", not a.ok and "OPTIONALITY" in a.reason, a.reason[:90])
 a = admission.admit(bk(30_000.0, {"AVGO": 30_000.0}), strad, 5, equity=EQ, aggregate_cap=0.50)
-check("30% held + 6% -> 14% free -> admitted", a.ok, a.reason[:80])
+# POLICY CHANGE 2026-08-27: this used to be ADMITTED. The book-wide backstop
+# (alpha/book_limits.MAX_BOOK_STRESS = 35%) now binds before the aggregate cap
+# does. Those two numbers contradicted each other -- 50% aggregate minus 10% free
+# let the book reach 40% -- and the 35% cap is the one with a derivation behind
+# it (a real unlevered book lost 23.3% over 41 sessions and survived).
+check("30% held + 6% -> 36% stress -> REFUSED by the book-wide cap, not the aggregate one",
+      not a.ok and "MAX_BOOK_STRESS" in a.reason, a.reason[:90])
 a = admission.admit(bk(30_000.0, {"AVGO": 30_000.0}), strad, 5, equity=EQ, aggregate_cap=0.50, committed_usd=8_000.0)
 check("what THIS pass already committed counts", not a.ok, a.reason[:60])
+# The reserve exemption is about FREE CAPITAL, never about total stress: a stress
+# cap that may be exceeded for a favourite trade is not a stress cap. So it is
+# exercised at an aggregate_cap where the exempt region actually exists.
+a = admission.admit(bk(26_000.0, {"AVGO": 26_000.0}), strad, 5, equity=EQ, aggregate_cap=0.40,
+                    own_event="print:2026-09-04", reserved_events={"2026-09-04": 0.10})
+check("the reserved event's OWN expression may spend the reserve",
+      a.ok and a.metrics["reserved_expression"], a.reason[:80])
 a = admission.admit(bk(36_000.0, {"AVGO": 36_000.0}), strad, 5, equity=EQ, aggregate_cap=0.50,
                     own_event="print:2026-09-04", reserved_events={"2026-09-04": 0.10})
-check("the reserved event's OWN expression may spend the reserve", a.ok and a.metrics["reserved_expression"], a.reason[:80])
+check("but it does NOT exempt the stress cap", not a.ok and "MAX_BOOK_STRESS" in a.reason, a.reason[:90])
+# AND THE FINDING THAT FALLS OUT OF IT: the exemption needs free_after < 10% of
+# equity while stress stays under 35%, i.e. post-trade max loss in
+# ((cap-0.10), 0.35). At cap >= 45% that interval is EMPTY, so the whole reserve
+# feature is unreachable there -- dead code that reads as a live policy.
+check("the reserve exemption is unreachable at aggregate_cap >= 45%",
+      (0.50 - 0.10) >= 0.35 and (0.40 - 0.10) < 0.35,
+      "if this flips, re-check which profiles can actually reserve an event")
 
 print("\n-- concentration")
 a = admission.admit(bk(10_000.0, {"NVDA": 10_000.0}), strad, 5, equity=EQ, aggregate_cap=0.50)
@@ -88,7 +108,14 @@ for sym, ml in orders:
         refused.append((sym, a.reason.split(":")[0]))
 check("the second NVDA condor is refused on concentration", ("NVDA", "CONCENTRATION") in refused, str(refused))
 check("the book never passes 40% (50% cap - 10% free)", total / EQ <= 0.40 + 1e-9, f"{total / EQ:.1%} after {len(admitted)} orders")
-check("most of the book still trades", len(admitted) >= 7, f"{len(admitted)} admitted, {len(refused)} refused")
+# Was ">= 7" under the old 40% ceiling. The book-wide cap stops this book at 5
+# orders / 32.5% instead of letting it reach the 72.9% it actually reached on the
+# day -- which is the entire point of the limits, so the number moving DOWN here
+# is the result, not a regression.
+check("the book still trades, but the 25 Aug book is stopped much earlier",
+      4 <= len(admitted) <= 6, f"{len(admitted)} admitted, {len(refused)} refused")
+check("and it never approaches the 72.9% it actually reached", total / EQ <= 0.35 + 1e-9,
+      f"{total / EQ:.1%}")
 
 print("\n-- runner integration: an admission refusal is a ledger row, not an exception")
 import importlib, tempfile

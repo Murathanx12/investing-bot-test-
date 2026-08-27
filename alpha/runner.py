@@ -550,6 +550,15 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     greeks = admission.book_greeks(client, account_role=role)
     if not greeks.derived:
         logger.warning("book greeks not derived: %s -- theta/stress admission checks will say so", greeks.note)
+    # ONCE PER CYCLE, not once per order: one batched bars call feeds the
+    # book-wide concentration limit for every admission in this pass. Putting a
+    # network round trip inside the per-order path would bolt a new failure mode
+    # onto the one path that must not fail.
+    book_n_risk = admission.book_n_risk(book, client) if book is not None else None
+    logger.info("book effective N by RISK: %s",
+                f"{book_n_risk:.2f}" if book_n_risk is not None
+                else "UNMEASURED (binds once the book holds "
+                     f"{admission.book_limits.DIVERSIFICATION_BINDS_AT}+ positions)")
     scores = recovery.live_scores(account_role=role) if recovery.active() else {}
     if recovery.active():
         logger.info("%s", recovery.summary(scores))
@@ -688,7 +697,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         before = committed
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
-                             reserved=reserve_for)
+                             reserved=reserve_for, n_risk=book_n_risk)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -698,7 +707,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              structure: sizing.Structure, verdict: sizing.SizingVerdict, snapshot,
              state: sizing.TournamentState, committed: float, *, dry_run: bool,
              book=None, greeks=None, risk_profile: str | None = None,
-             reserved: dict[str, float] | None = None) -> float:
+             reserved: dict[str, float] | None = None,
+             n_risk: float | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
@@ -717,7 +727,7 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             per_underlying_cap=max(admission.PER_UNDERLYING_CAP, env["per_thesis"] * env["edge_scale_cap"]),
             committed_usd=committed * state.equity, own_event=event_node(forecast),
             reserved_events=reserved, greeks=greeks, new_delta_usd=d_new,
-            new_theta_usd_per_day=t_new, new_daily_sigma=sig_new)
+            new_theta_usd_per_day=t_new, new_daily_sigma=sig_new, n_risk=n_risk)
         verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
         if not adm.ok:
             result.refuse("risk")
