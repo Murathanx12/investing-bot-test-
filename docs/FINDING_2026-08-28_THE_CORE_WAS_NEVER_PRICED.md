@@ -134,3 +134,61 @@ correction found along the way made the refuted thing look *better*, not worse.
 > We found that **this** structure, at **this** horizon, over **these** thirty
 > years, loses to simply holding the index on all three underlyings — and that
 > nothing we had run before could have told us either way.
+
+---
+
+## Addendum: the conditional question, asked and also answered no
+
+*`scripts/vrp_state_gate` (Aegis repo), same blocks.*
+
+A global negative does not answer a conditional question that was never asked.
+Selling variance is not supposed to pay unconditionally — it is supposed to pay
+when the market charges **more** for variance than the underlying goes on to
+deliver. If that compensation is visible at entry, the structure is conditional
+rather than dead.
+
+Two state variables, both known strictly before the decision:
+
+- `vrp` = short-leg implied vol − trailing 20-session realised vol (`shift(1)`,
+  so the entry session's own return is not inside the vol it is compared to);
+- `credit_ratio` = the credit actually received, as a fraction of width.
+
+Blocks sorted into quintiles, ranked on **terminal wealth**:
+
+| | SPY | QQQ | IWM |
+|---|---|---|---|
+| rank corr, `vrp` vs return | +0.025 | −0.022 | +0.034 |
+| rank corr, `credit_ratio` vs return | **+0.143** | −0.005 | **+0.174** |
+| wealth monotonicity, `vrp` | +0.10 | −0.10 | +0.90 |
+| wealth monotonicity, `credit_ratio` | −0.10 | **−0.60** | +0.50 |
+| top bin beats buy-and-hold? | no | no | no |
+
+**`vrp` carries no information at all** — every rank correlation is within noise
+of zero, which is the more surprising of the two results, since implied-minus-
+realised is the textbook definition of the thing being sold.
+
+`credit_ratio` is more interesting and still does not rescue the structure. On
+SPY and IWM it correlates **+0.143** and **+0.174** with the block return, which
+is not nothing. But it does not survive the two tests that were set in advance:
+the wealth ordering across bins is **−0.10** and **+0.50** rather than monotone,
+and **in six of six cells the highest-paying bin still loses to simply holding
+the index over its own blocks.**
+
+That gap between a positive rank correlation and a non-monotone wealth ordering
+is the same effect as the headline result — being paid more raises the median
+and not the compounded outcome.
+
+QQQ is the sharpest version: sorted by credit, monotonicity is **−0.60** — the
+more you are paid, the worse you do. The top bin collects 15-25% of width and
+returns **0.25x**, with a +1.27% median and a −3.21% mean. That is what a
+correctly priced risk premium looks like: a bigger payment is compensation for a
+bigger risk, and it is compensation in full.
+
+IWM is the only symbol with any positive ordering (`vrp` monotonicity +0.90),
+and its top bin still returns **1.02x** against **2.48x** for holding. A rise
+that never clears the benchmark is not an edge.
+
+**So the refutation stands unconditionally, not merely on average.** There is no
+gate to build, which is the useful part: a conditional version of this structure
+would have been the natural next thing to try, and it is now closed with
+evidence rather than left as an open maybe.
