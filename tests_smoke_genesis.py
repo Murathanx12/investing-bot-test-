@@ -166,6 +166,44 @@ i_gen = src_run.find("genesis.verify(")
 i_pass = src_run.find("runner.")
 check("checked BEFORE the pass runs", -1 < i_gen < i_pass, f"{i_gen} vs {i_pass}")
 
+# --- THE JUDGED ARM AND THE JUDGED ACCOUNT ARE ONE OBJECT -------------------
+# Until 2026-08-27 the one account that gets judged was the one account with no
+# declared hypothesis and no falsifier, so `arms.validate()` could not refuse a
+# duplicate alpha source it had never been told about.
+from dataclasses import replace as _replace                  # noqa: E402
+
+from alpha import arms                                       # noqa: E402
+
+comp = [a for a in arms.ARMS if a.role == "competition"]
+check("the judged account has a declared arm", len(comp) == 1,
+      "an undeclared arm cannot collide, and cannot be refused either")
+if comp:
+    c = comp[0]
+    check("it declares a falsifier", len(c.falsifier.strip()) > 40)
+    check("it does not inherit a LIVE arm's alpha source",
+          c.alpha_source not in {a.alpha_source for a in arms.ARMS
+                                 if a.status == "live" and a.role != "competition"},
+          "two accounts running one bet is the arena bottleneck, rebuilt")
+    check("it names the account, genesis and rules blockers", len(c.depends_on) >= 3)
+    check("its instruments include options (the rules require them)",
+          any("call" in i or "put" in i or "spread" in i for i in c.instruments))
+    check("its notes name the vol_gap quarantine as a hard constraint",
+          "quarantined" in c.notes)
+
+    # genesis.path is redirected to the temp dir above and the record was unlinked,
+    # so a live competition arm must refuse for want of a birth certificate.
+    try:
+        arms.validate(tuple(a if a.role != "competition" else _replace(a, status="live",
+                                                                      depends_on=())
+                            for a in arms.ARMS))
+        got = None
+    except arms.ArmRefusal as exc:
+        got = str(exc)
+    check("a LIVE competition arm with no genesis record is REFUSED",
+          got is not None and "no genesis record exists" in got, str(got))
+
+check("the registry as declared validates", arms.validate() is None)
+
 print(f"\n{ran} checks")
 print("ALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":

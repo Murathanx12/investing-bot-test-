@@ -225,6 +225,43 @@ ARMS: tuple[Arm, ...] = (
               "carry net-positive breadth, so it conditions on nothing. The target gap is a "
               "different variable and is still missing.",
     ),
+    Arm(
+        role="competition",
+        alpha_source="human_thesis_plus_direct_expression",
+        hypothesis="A human-generated, falsifiable thesis on a dated catalyst, adjudicated by "
+                   "the engine and expressed through the DIRECT instrument unless a proxy "
+                   "beats it on expected net payoff, produces terminal wealth over five "
+                   "sessions that the statistical arms do not.",
+        falsifier="over the window the human arm's theses, marked against the direct "
+                  "underlying and against cash at the same timestamps, do not clear either. "
+                  "One window cannot resolve this and the arm says so -- it is a "
+                  "PRODUCT_EXPERIMENT with a frozen contract, never a RESEARCH_CLAIM.",
+        instruments=("shares", "long_call", "long_put", "bull_call_spread", "bear_put_spread",
+                     "bull_put_spread", "bear_call_spread"),
+        universe="liquid optionable names carrying a dated catalyst inside the window",
+        status="proposed",
+        brains=("human", "post_event_drift"),
+        depends_on=(
+            "the account does not exist: AAT_COMPETITION_KEY_ID is empty. Manual, Alpaca "
+            "dashboard, brand new, $100,000, options enabled",
+            "genesis must be frozen before the first order "
+            "(`python -m scripts.genesis --freeze`) -- alpha/genesis.py refuses any of the "
+            "four legacy account numbers",
+            "the rules must be re-pulled at kickoff; docs/RULES_SNAPSHOT_2026-08-25.md says "
+            "so in its own text, and its hash goes into the genesis record",
+        ),
+        notes="DECLARED so that the judged account cannot quietly inherit another arm's alpha "
+              "source. It was absent from this registry until 2026-08-27, which meant the one "
+              "account that gets judged was the one account with no declared hypothesis and no "
+              "falsifier -- and `validate()` could not refuse a duplicate it had never been "
+              "told about. THREE HARD CONSTRAINTS: `vol_gap` is quarantined, so "
+              "`realised_vs_implied_variance` is not available here; `narrative_dispersion` "
+              "and `options_attention` measured 1.16-1.17x sigma inflation and a 16% "
+              "inflation alone flips a straddle's sign; and the rules require options to "
+              "appear in the strategy, so a shares-only book does not satisfy criterion 2. "
+              "The final source is Murat's call at kickoff -- this row exists so that call is "
+              "made explicitly and carries a falsifier, not so it is made here.",
+    ),
 )
 
 
@@ -250,6 +287,23 @@ def validate(arms: tuple[Arm, ...] = ARMS) -> None:
         if a.status in ("live", "ready") and a.depends_on:
             raise ArmRefusal(
                 f"{a.role} is {a.status} but still declares blockers: {a.depends_on}")
+        # THE JUDGED ARM AND THE JUDGED ACCOUNT ARE THE SAME OBJECT.
+        #
+        # `alpha/genesis.py` guards the ACCOUNT: the right number, $100,000, no
+        # history. This guards the ARM: a declared hypothesis and a frozen birth
+        # certificate before it may be called live. Without this the registry
+        # would happily show `competition: live` on an account that does not
+        # exist, and `scripts.arms` is one of the places a person checks at 10:55
+        # ET on the last morning.
+        if a.role == "competition" and a.status in ("live", "ready"):
+            from alpha import genesis
+
+            if genesis.load("competition") is None:
+                raise ArmRefusal(
+                    "the `competition` arm is marked live/ready and no genesis record exists "
+                    f"at {genesis.path('competition')}. The judged account has no frozen birth "
+                    "state, so nothing can attest that it started clean at $100,000. Run "
+                    "`python -m scripts.genesis --freeze` first.")
 
 
 def readiness(arms: tuple[Arm, ...] = ARMS) -> list[dict]:
