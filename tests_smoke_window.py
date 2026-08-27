@@ -88,6 +88,53 @@ check("it REFUSES when the receipt is missing",
 check("the reason is recorded where the next reader will hit it",
       "report in the last\n        # week of JULY" in rp or "week of JULY" in rp)
 
+# --- THE ENTRY-SIDE DEADLINE GUARD -----------------------------------------
+# The runner's docstring claimed `must_close_by` was "threaded through every
+# entry". It was not an identifier anywhere in the repo, and MAX_EXPIRY_SLACK_DAYS
+# was read by nothing. exits.py always liquidated at 10:45 ET on judging day, so
+# the failure was never a stuck position -- it was paying a full option bid-ask
+# on the last morning for a thesis that never completed.
+from datetime import datetime, timezone                        # noqa: E402
+
+from alpha import runner                                       # noqa: E402
+
+DL = datetime(2026, 9, 4, 15, 0, tzinfo=timezone.utc)
+
+
+def expiry_ok(e, **kw):
+    try:
+        runner.check_expiry_against_deadline(e, deadline=DL, **kw)
+        return None
+    except runner.ExpiryPastDeadline as exc:
+        return str(exc)
+
+
+check("an expiry inside the window is allowed", expiry_ok("2026-08-28") is None)
+check("the deadline day itself is allowed", expiry_ok("2026-09-04") is None,
+      "an option expiring the morning of judging is liquidated at 10:45, which is fine")
+check("one day past the deadline is REFUSED",
+      (r := expiry_ok("2026-09-05")) is not None and "after the judging deadline" in r, str(r))
+check("  and the refusal says what it will COST, not merely that it is disallowed",
+      r is not None and "10:45" in r and "spread exists" in r)
+check("  and it names the override rather than being absolute",
+      r is not None and "--allow-expiry-past-deadline" in r,
+      "a guard with no stated escape is a permanent red line")
+check("a monthly expiry is REFUSED", expiry_ok("2026-09-18") is not None)
+check("slack widens it explicitly", expiry_ok("2026-09-05", slack_days=7) is None)
+check("a malformed expiry is REFUSED, not silently allowed",
+      (r := expiry_ok("next friday")) is not None and "not a date" in r, str(r))
+
+_runner_src = Path("alpha/runner.py").read_text(encoding="utf-8")
+check("MAX_EXPIRY_SLACK_DAYS is now READ, not merely defined",
+      "slack_days: float = MAX_EXPIRY_SLACK_DAYS" in _runner_src,
+      "it sat unused from the beginning beside a docstring claiming it was enforced")
+check("the docstring no longer claims a guard that does not exist",
+      "must_close_by` is threaded through every entry" not in _runner_src,
+      "the sentence outlived the code it described")
+check("run_pass calls the guard", "check_expiry_against_deadline(" in rp)
+_ig, _ir = rp.find("check_expiry_against_deadline("), rp.find("runner.run_pass(")
+check("  before the pass runs", -1 < _ig < _ir, f"{_ig} vs {_ir}")
+
 print(f"\n{ran} checks")
 print("ALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":

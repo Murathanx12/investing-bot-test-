@@ -36,9 +36,15 @@ gradeable centre and spread on every pass.
 THE DEADLINE IS A FIRST-CLASS INPUT
 ===================================
 Judging happens at 11:00 ET on 4 September -- ninety minutes after the opening
-bell, not at a close. So `must_close_by` is threaded through every entry: a
-structure whose expiry or thesis needs time we do not have is refused at
-selection, not discovered on the last morning.
+bell, not at a close. Two halves, and until 2026-08-27 only one of them existed:
+
+* EXIT -- real from the start. `alpha/exits.py` liquidates at 10:45 ET on judging
+  day and that verdict outranks a winning thesis.
+* ENTRY -- this docstring used to claim `must_close_by` was "threaded through
+  every entry". It was not an identifier anywhere in the repo; it appeared in
+  that sentence and nowhere else, next to a `MAX_EXPIRY_SLACK_DAYS` that nothing
+  read. `check_expiry_against_deadline` is the guard the sentence described,
+  and `scripts/run_pass` calls it before a single chain is fetched.
 """
 
 from __future__ import annotations
@@ -47,7 +53,7 @@ import math
 import logging
 import os
 from dataclasses import dataclass, replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from alpha import admission
 from alpha import book as book_mod
@@ -63,7 +69,52 @@ logger = logging.getLogger(__name__)
 KICKOFF = datetime.fromisoformat(config.COMPETITION["kickoff_utc"].replace("Z", "+00:00"))
 DEADLINE = datetime.fromisoformat(config.COMPETITION["deadline_utc"].replace("Z", "+00:00"))
 
+#: How far past the judging deadline an expiry may sit. 0.0 = it may not.
+#:
+#: This constant existed from the beginning and was USED NOWHERE, while the
+#: module docstring above claimed `must_close_by` was "threaded through every
+#: entry". `must_close_by` is not an identifier in this repo -- it appears in
+#: that sentence and nowhere else. Found by `python -m scripts.reachability` on
+#: 2026-08-27, the same audit that found `shape.py` had no importer.
+#:
+#: The EXIT side was always real: `alpha/exits.py` liquidates at 10:45 ET on
+#: judging day and that verdict outranks a winning thesis. So the failure mode
+#: was never a stuck position -- it was paying a full option bid-ask on the last
+#: morning to close something the judge would never see resolve, chosen by an
+#: `--expiry` flag nothing checked.
 MAX_EXPIRY_SLACK_DAYS = 0.0
+
+
+class ExpiryPastDeadline(ValueError):
+    """The chosen expiry outlives the judged window."""
+
+
+def check_expiry_against_deadline(expiry: str, *, slack_days: float = MAX_EXPIRY_SLACK_DAYS,
+                                  deadline: datetime | None = None) -> None:
+    """Refuse an expiry the contest will not live to see.
+
+    An option expiring BEFORE the deadline is ordinary and fine. One expiring
+    after it must be SOLD at 10:45 ET on the final morning, into whatever spread
+    exists then, having been bought for a thesis that never completed.
+    """
+    dl = deadline or DEADLINE
+    try:
+        exp = datetime.fromisoformat(expiry).replace(tzinfo=timezone.utc)
+    except ValueError as exc:
+        raise ExpiryPastDeadline(f"expiry {expiry!r} is not a date (YYYY-MM-DD).") from exc
+    latest = dl + timedelta(days=slack_days)
+    if exp.date() > latest.date():
+        raise ExpiryPastDeadline(
+            f"expiry {expiry} is after the judging deadline {dl.date()} "
+            f"(slack {slack_days:g}d). A structure that outlives the judged window has to be "
+            f"SOLD at {LIQUIDATE_BY_ET_TEXT} ET on the final morning, into whatever spread "
+            "exists then, for a thesis that never got to complete. Choose an expiry inside "
+            "the window, or pass --allow-expiry-past-deadline and say why in the handoff.")
+
+
+#: Printed in the refusal above. Kept as text so this module does not import
+#: `exits` (which imports the broker) merely to format a message.
+LIQUIDATE_BY_ET_TEXT = "10:45"
 
 #: EVENT CLUSTER RISK. NVDA, AVGO and SMH structures that all exist because of
 #: one NVDA print are ONE bet wearing three tickers. Position risk is capped per

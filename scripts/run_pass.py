@@ -58,6 +58,9 @@ def main() -> int:
     p.add_argument("--shadow", default=DEFAULT_SHADOW,
                    help="comma list of brains that may not execute (pass '' to let all execute)")
     p.add_argument("--live", action="store_true", help="actually send orders")
+    p.add_argument("--allow-expiry-past-deadline", action="store_true",
+                   help=("permit an expiry after the judging deadline. It will be liquidated "
+                         "at 10:45 ET on the final morning at whatever the spread is."))
     p.add_argument("--window-universe", action="store_true",
                    help=("add every name with an earnings event whose drift window reaches "
                          "inside the competition (state/window_universe.json). The hardcoded "
@@ -95,6 +98,20 @@ def main() -> int:
             for line in gen_lines:
                 logging.error("  %s", line)
             return 2
+
+    # -- THE EXPIRY MUST BE ONE THE CONTEST LIVES TO SEE ---------------------
+    # Checked here, before a single chain is fetched, because the cost of getting
+    # it wrong is paid on the last morning: exits liquidates at 10:45 ET on
+    # judging day, so an option that outlives the window is SOLD into whatever
+    # spread exists then, for a thesis that never completed.
+    try:
+        runner.check_expiry_against_deadline(
+            args.expiry,
+            slack_days=(365.0 if args.allow_expiry_past_deadline
+                        else runner.MAX_EXPIRY_SLACK_DAYS))
+    except runner.ExpiryPastDeadline as exc:
+        logging.error("REFUSED: %s", exc)
+        return 2
 
     universe_syms = list(args.universe)
     if args.window_universe:
