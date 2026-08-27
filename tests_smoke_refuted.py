@@ -1,0 +1,86 @@
+"""The 25 Aug losses, replayed against the guard that should have stopped them.
+
+Every case here is a REAL position from the dev book, with its real P/L. The test
+is not "does the guard have rules" -- it is "would this specific loss have been
+refused". A guard written from a finding and never run against the trade the
+finding describes is a guard tuned to a paraphrase.
+"""
+from __future__ import annotations
+
+from alpha import refuted
+
+fails: list[str] = []
+ran = 0
+
+
+def check(name: str, cond: bool, why: str = "") -> None:
+    global ran
+    ran += 1
+    if cond:
+        print(f"  ok   {name}")
+    else:
+        fails.append(name)
+        print(f"  FAIL {name}  {why}")
+
+
+print("refuted routes -- replaying the 25 Aug book")
+
+# --- the two that actually lost money ---------------------------------------
+amd = refuted.check(symbol="AMD", kind="long_straddle", event_ahead_on_symbol=False,
+                    originators_printing=refuted.peers_printing("AMD", {"NVDA"}))
+check("AMD long straddle into NVDA's print is REFUSED (-$4,125 on 25 Aug)",
+      amd is not None and amd.route == "PEER_LONG_PREMIUM_INTO_PRINT",
+      str(amd))
+check("and it cites the 290-leg measurement, not an opinion",
+      amd is not None and "290" in amd.evidence)
+
+nvda = refuted.check(symbol="NVDA", kind="long_straddle", event_ahead_on_symbol=True,
+                     originators_printing=[])
+check("NVDA long premium into its OWN print is REFUSED",
+      nvda is not None and nvda.route == "LONG_PREMIUM_INTO_MEGACAP_PRINT", str(nvda))
+check("and it cites the 0-for-8", nvda is not None and "0 for 8" in nvda.evidence)
+
+# --- what must STILL be allowed ---------------------------------------------
+# A guard that also blocks the working trades is a worse outcome than the losses:
+# QQQ (+56%) and SPY (+23%) were the only winners in that book.
+for sym, kind in (("QQQ", "long_call"), ("SPY", "long_call")):
+    r = refuted.check(symbol=sym, kind=kind, event_ahead_on_symbol=False, originators_printing=[])
+    check(f"{sym} {kind} with no event ahead is ALLOWED (it was a winner)", r is None, str(r))
+
+# SHORT premium is not refuted by these findings. The NVDA condors lost, but they
+# lost because the implied move they were priced against was computed with the
+# 0.85 haircut -- an ARITHMETIC failure, fixed separately. Blocking short vol here
+# would be attributing that loss to the wrong cause.
+cond = refuted.check(symbol="NVDA", kind="iron_condor", event_ahead_on_symbol=True,
+                     originators_printing=[])
+check("short premium into a print is NOT refused by these rules", cond is None,
+      "the condor loss was an arithmetic bug, not this route")
+
+# A peer with NO pending print is an ordinary name.
+quiet = refuted.check(symbol="AMD", kind="long_straddle", event_ahead_on_symbol=False,
+                      originators_printing=refuted.peers_printing("AMD", set()))
+check("AMD straddle with nobody printing is ALLOWED", quiet is None, str(quiet))
+
+# --- the rules must be arguable, not obeyed ---------------------------------
+for r in (amd, nvda):
+    check(f"{r.route} states what would REOPEN it", bool(r.reopens_if and len(r.reopens_if) > 20))
+
+# --- and the guard must actually be WIRED, not merely written ---------------
+import inspect
+
+from alpha import runner
+
+src = inspect.getsource(runner)
+check("runner imports refuted", "refuted" in src)
+check("runner refuses on it", "refuted.check(" in src)
+i_ref, i_size = src.find("refuted.check("), src.find("n = contracts_for(")
+check("checked BEFORE sizing -- a refuted route is not priced, only declined",
+      -1 < i_ref < i_size, f"refuted at {i_ref}, sizing at {i_size}")
+check("the printing set is pooled across ALL brains",
+      "for f in forecasts:" in src and "printing.add" in src,
+      "vol_gap opened the NVDA condors with no event in its own evidence")
+
+print(f"\n{ran} checks")
+print("ALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
+if __name__ == "__main__":
+    raise SystemExit(1 if fails else 0)

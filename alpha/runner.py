@@ -51,7 +51,7 @@ from datetime import datetime, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import config, daybreak, ledger, recovery
+from alpha import config, daybreak, ledger, recovery, refuted
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -546,6 +546,17 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                 state.fraction_of_window_remaining * 100, risk * 100,
                 (book.premium_paid_usd / state.equity * 100) if state.equity else 0.0)
     record_forecasts(forecasts, note=f"pass expiry={expiry} dry_run={dry_run}")
+    # WHICH NAMES HAVE A PRINT AHEAD, pooled across every brain in this pass.
+    # Pooled deliberately: on 25 Aug `vol_gap` opened NVDA condors carrying no
+    # event in its own evidence while `event_move` knew the print was on the
+    # 26th. The book does not care which brain knew -- the same reasoning the
+    # arbiter already uses in `_event_pending`.
+    _today = datetime.now(timezone.utc).date().isoformat()
+    printing: set[str] = set()
+    for f in forecasts:
+        d = (f.evidence or {}).get("event_date")
+        if d and str(d) >= _today:
+            printing.add(f.symbol.upper())
     role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
     greeks = admission.book_greeks(client, account_role=role)
     if not greeks.derived:
@@ -697,7 +708,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         before = committed
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
-                             reserved=reserve_for, n_risk=book_n_risk)
+                             reserved=reserve_for, n_risk=book_n_risk, printing=printing)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -708,13 +719,33 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              state: sizing.TournamentState, committed: float, *, dry_run: bool,
              book=None, greeks=None, risk_profile: str | None = None,
              reserved: dict[str, float] | None = None,
-             n_risk: float | None = None) -> float:
+             n_risk: float | None = None,
+             printing: set | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
     candidates cannot each pass a 50% test and total 300%. Then the PROSPECTIVE
     admission controller looks at the whole post-trade book (`alpha/admission.py`).
     """
+    # -- REFUTED ROUTES (alpha/refuted.py) -----------------------------------
+    # Checked FIRST, before sizing: a route we have already measured as negative
+    # should not be priced, sized or admitted, only declined. On 25 Aug this book
+    # opened a long AMD straddle into NVDA's print (-$4,125) and long NVDA
+    # premium into NVDA's own print -- both routes this project had killed in
+    # writing, with 290 legs and an 0-for-8 respectively. The findings existed;
+    # the code did not know them.
+    _printing = {s.upper() for s in (printing or set())}
+    _refusal = refuted.check(
+        symbol=forecast.symbol, kind=structure.kind,
+        event_ahead_on_symbol=forecast.symbol.upper() in _printing,
+        originators_printing=refuted.peers_printing(forecast.symbol, _printing))
+    if _refusal is not None:
+        result.refuse("evidence")
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="refused", reason=_refusal.line(), contracts=0)
+        logger.info("REFUTED %s %s: %s", forecast.symbol, structure.kind, _refusal.route)
+        return committed
+
     n = contracts_for(structure, verdict.risk_fraction, state.equity)
     if n >= 1 and book is not None:
         d_new, t_new = admission.structure_greeks(structure, n, snapshot)

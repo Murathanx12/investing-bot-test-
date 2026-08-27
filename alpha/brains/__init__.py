@@ -34,11 +34,40 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
 }
 
 
+#: Brains that may NOT trade until re-validated, and the reason.
+#:
+#: A quarantine is not a deletion: the brain still runs in shadow, still records
+#: forecasts, and is still gradeable. What it may not do is spend money on a
+#: model whose inputs were wrong when its track record was made.
+QUARANTINED: dict[str, str] = {
+    "vol_gap": (
+        "QUARANTINED 2026-08-27. It opened 5 of the 6 losing structures in the dev book on "
+        "25 Aug (NVDA condors -$5,629, AMD straddle -$4,125, TSLA put -$1,131) by comparing "
+        "its realised-vol forecast against an implied move computed with the 0.85 haircut, "
+        "calendar-days scaling a per-TRADING-day vol, and a payoff rescale that only ever "
+        "scaled UP. Those three errors made the chain look CHEAP on 96.4% of 6,070 decisions "
+        "(median sigma/implied 1.96). They were fixed on 2026-08-27 -- TWO DAYS AFTER these "
+        "positions were opened -- so every number in this brain's track record was produced "
+        "by arithmetic that no longer exists. "
+        "REOPENS WHEN: its decisions are re-scored against the corrected implied move and it "
+        "clears zero after costs on a held-out window. Not before."
+    ),
+}
+
+
 def forecast_all(client, symbols: list[str], horizon_days: float, *, brains: list[str],
-                 expiries: list[str]) -> tuple[list[Forecast], list[dict[str, Any]]]:
+                 expiries: list[str], allow_quarantined: bool = False
+                 ) -> tuple[list[Forecast], list[dict[str, Any]]]:
     """Every (brain, symbol) that speaks, and every one that declined, with why."""
     out, declined = [], []
     for name in brains:
+        if name in QUARANTINED and not allow_quarantined:
+            # Declined LOUDLY and once per pass, not silently dropped: a brain
+            # that vanishes from the output reads exactly like a brain that had
+            # nothing to say.
+            logger.warning("brain %s is QUARANTINED and will not trade: %s", name, QUARANTINED[name])
+            declined.append({"brain": name, "symbol": "*", "why": QUARANTINED[name]})
+            continue
         fn = BRAINS[name]
         for sym in symbols:
             try:
