@@ -18,7 +18,12 @@
 
 param(
     [Parameter(Mandatory = $true)][string]$Expiry,
-    [string]$Tag = "s14"
+    [string]$Tag = "s14",
+    # LEGACY MODE. Exits, fills and marking continue; the entry pass never runs,
+    # so the book can only get smaller. This is how dev and exp1 are wound down
+    # as PRE_UNITS_FIX books: their positions were opened under the pricing bug
+    # fixed on 27 Aug, so their exits are still wanted and their entries are not.
+    [switch]$ManageOnly
 )
 
 $repo = Split-Path -Parent $PSScriptRoot
@@ -47,6 +52,7 @@ foreach ($l in $loops) {
     $out  = Join-Path $repo "state\loop_${role}_${Tag}.log"
     $err  = Join-Path $repo "state\loop_${role}_${Tag}.err"
     $argv = @("-m", "scripts.agent_loop", "--expiry", $Expiry, "--live") + $l.Args
+    if ($ManageOnly) { $argv += "--manage-only" }
 
     # Per-process role. Set in the CHILD's environment only -- setting it in this
     # shell would leak into the second loop and silently point both at one account.
@@ -54,7 +60,8 @@ foreach ($l in $loops) {
     $p = Start-Process -FilePath $py -ArgumentList $argv `
         -WorkingDirectory $repo -RedirectStandardOutput $out -RedirectStandardError $err `
         -WindowStyle Hidden -PassThru
-    Write-Host ("started {0,-5} pid {1,-6} expiry {2}  -> {3}" -f $role, $p.Id, $Expiry, $out)
+    $mode = if ($ManageOnly) { "MANAGE-ONLY (no new risk)" } else { "trading" }
+    Write-Host ("started {0,-5} pid {1,-6} expiry {2}  {3}  -> {4}" -f $role, $p.Id, $Expiry, $mode, $out)
     Start-Sleep -Milliseconds 1500
 }
 Remove-Item Env:\AAT_ACCOUNT_ROLE -ErrorAction SilentlyContinue

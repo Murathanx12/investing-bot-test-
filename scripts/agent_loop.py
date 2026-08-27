@@ -110,6 +110,11 @@ def main() -> int:
     p.add_argument("--shadow", default=None, help="comma list passed to run_pass (recorded, never executed)")
     p.add_argument("--profile", default=None, help="risk profile passed to run_pass")
     p.add_argument("--universe", nargs="*", default=None, help="symbols passed to run_pass")
+    p.add_argument("--manage-only", action="store_true",
+                   help="LEGACY MODE: run exits, fills, counterfactual and autopsy, but NEVER "
+                        "an entry pass. The book can only get smaller. Use for a book that is "
+                        "being wound down rather than traded -- it keeps stops, exits and the "
+                        "forward record alive while prohibiting new risk.")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
     config.load_env()
@@ -183,7 +188,15 @@ def _cycle(client, args, last: dict) -> int:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.
             _run("scripts.candidates", "--sessions", "3", live=False); last["candidates"] = now
-        if is_open and now - last["entry"] >= args.entry_minutes * 60:
+        if is_open and getattr(args, "manage_only", False) and now - last["entry"] >= 3600:
+            # Say it OUT LOUD, hourly. A legacy book that silently stopped
+            # entering looks exactly like a book whose entry pass is broken, and
+            # this repo has paid twice for an absence that read as a decision.
+            log.info("MANAGE-ONLY: entry pass skipped by flag; exits, fills and marking continue. "
+                     "This book can only get smaller.")
+            last["entry"] = now
+        if is_open and not getattr(args, "manage_only", False) \
+                and now - last["entry"] >= args.entry_minutes * 60:
             extra: list[str] = ["--candidates"]
             if args.brains is not None:
                 extra += ["--brains", args.brains]
