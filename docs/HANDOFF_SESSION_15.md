@@ -147,6 +147,71 @@ is `jgalea/agent-reach` 0.1.0, not `Panniantong/Agent-Reach` 1.5.0. Uninstalled.
 Check `project_urls` on the PyPI JSON API before installing anything derived from
 a GitHub link.
 
+## 8 — Model providers and research tooling (added late in session 15)
+
+**`backend/services/model_provider.py`** (aegis-finance) — ONE OpenAI-compatible
+contract for DeepSeek, NVIDIA NIM and Hugging Face. A provider is a ROW (base
+url, key env var, default model), not a class, so adding Fireworks or a local
+vLLM is data. **No trading authority, and it is NOT a router** — choosing which
+model does which job needs benchmark evidence that does not exist yet, and a
+router built before it is a preference wearing a measurement's clothes.
+
+`status()` reports three states and never collapses them: **absent /
+configured / live**. `--probe` is what turns the second into the third, and it
+earned itself immediately:
+
+| provider | state | note |
+|---|---|---|
+| deepseek | **live** | |
+| nvidia | **live** | on `openai/gpt-oss-20b`, after three dead defaults |
+| huggingface | absent | `HF_TOKEN` slot added to `.env`, empty — Murat fills it |
+
+**Three things `--probe` found that a config read never would:**
+
+1. the first NVIDIA default, `meta/llama-3.3-70b-instruct`, returned **HTTP 410
+   end-of-life dated 2026-08-26** — the day before it was written;
+2. **being listed by `/v1/models` is not being callable.** Of six candidates on
+   this account: two 410 EOL, one 404 not-available, three timed out at 45s, one
+   answered;
+3. `gpt-oss-20b` is a REASONING model — it spends tokens thinking before writing
+   `content`. At `max_tokens=16` content came back **empty** with only
+   `reasoning_content` populated; at 300 it answered in 120 tokens. **A small
+   budget on a reasoning model reads exactly like a dead model.** `complete()`
+   now refuses an empty message rather than returning `None` — the first version
+   handed callers a `None` that failed one frame later naming neither provider
+   nor model.
+
+**Research tooling:**
+
+- **Exa MCP** wired into `.mcp.json` in BOTH repos — free whole-web semantic
+  search (`web_search_exa`, `web_fetch_exa`), no key. Verified live with
+  `mcporter list exa`, not assumed from config.
+- **The terminal repo had no `.mcp.json` at all**, so optimus was never
+  available in a session started here. Now it is.
+- **`agent-reach` 1.5.0** installed from the repo. 4/15 channels work with no
+  credentials: RSS/Atom, V2EX, any webpage via Jina Reader, Bilibili search.
+  The remaining channels (Twitter, Reddit, Xueqiu, LinkedIn) need **browser
+  session cookies** — not configured, and that is a decision for Murat on a
+  machine holding broker credentials.
+- **`graphify` 0.9.50** installed as a user skill; optimus reads three skill
+  roots and sees all 9 skills.
+
+**A supply-chain near-miss worth keeping:** `pip install agent-reach` installs
+**`jgalea/agent-reach` 0.1.0**, a different author's project, not
+`Panniantong/Agent-Reach` 1.5.0. The version gap was the tell. Before installing
+anything derived from a GitHub link, check `project_urls` on the PyPI JSON API
+and require the owner to match.
+
+**Plugin install failure, diagnosed:** the `addy-agent-skills` marketplace was
+added at 09:30 but **no cache directory was ever created**, so the plugin
+download never ran — and `/plugin install` printed `(no content)` rather than an
+error. Network was fine when re-checked. Re-run the install and verify with:
+
+    cat ~/.claude/plugins/installed_plugins.json   # the plugin must appear here
+
+A marketplace being listed in `known_marketplaces.json` is NOT evidence its
+plugin installed. Same shape as everything else in this handoff.
+
 ## 6 — The next discriminating test
 
 1. **Grade the 27-Aug session** — `contagion`, `anchor_to_torque`, condors vs the
