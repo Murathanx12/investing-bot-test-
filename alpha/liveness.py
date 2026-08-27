@@ -134,6 +134,15 @@ class Beat:
     expiry: str | None = None
     live: bool = False
     argv: list[str] = field(default_factory=list)
+    failing_steps: dict[str, int] = field(default_factory=dict)
+    """Sub-steps exiting non-zero, and for how many cycles in a row.
+
+    A loop can cycle perfectly while the step that places orders refuses on
+    every pass -- a bad --expiry, an unverified genesis, a missing window
+    universe. The heartbeat said HEALTHY throughout, because from the loop's
+    point of view nothing was wrong: `_run` returns an exit code and every
+    caller discards it. A refusing pass reads exactly like a quiet market, which
+    is the same shape as the dead loops on 26 Aug."""
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -215,6 +224,13 @@ def status(role: str, *, now: datetime | None = None,
                           f"carries {beat.consecutive_errors} consecutive error(s)"
                           + (f", backing off for {_fmt(-backoff)}" if backoff is not None and backoff < 0 else "")
                           + (f"; last: {beat.last_error[:120]}" if beat.last_error else "") + ".")
+    if beat.failing_steps:
+        worst = ", ".join(f"{m} x{n}" for m, n in sorted(
+            beat.failing_steps.items(), key=lambda kv: -kv[1]))
+        return DEGRADED, (f"pid {beat.pid} is cycling ({_fmt(age)} since cycle {beat.cycle}) "
+                          f"but a sub-step keeps exiting non-zero: {worst}. The loop is fine "
+                          "and the work is not happening -- run the step by hand and read "
+                          "the refusal.")
     return HEALTHY, (f"pid {beat.pid} completed cycle {beat.cycle} {_fmt(age)} ago"
                      + (f", expiry {beat.expiry}" if beat.expiry else "")
                      + (", LIVE" if beat.live else ", dry") + ".")

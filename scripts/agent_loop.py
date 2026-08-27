@@ -89,14 +89,58 @@ def _commit() -> str | None:
         return None
 
 
+#: Consecutive non-zero exits from one step before the loop says so LOUDLY.
+#: Two, not one: a single failure is usually a transient venue refusal and the
+#: next cycle re-reads. Three in a row is a configuration error nobody has seen.
+NOISY_AFTER = 2
+
+#: mod -> how many times in a row it has exited non-zero.
+_consecutive_failures: dict[str, int] = {}
+
+
 def _run(mod: str, *args: str, live: bool) -> int:
+    """Run one step. A NON-ZERO EXIT IS NOT SILENT.
+
+    Every caller below discards this return value, and for most steps that is
+    right -- a failed autopsy should not stop the loop. But the failure it hides
+    is the one this repo keeps paying for: `scripts.run_pass` exiting 2 on every
+    cycle (a bad --expiry, an unverified genesis, a missing window universe)
+    produces a loop that logs "run scripts.run_pass" forever, a heartbeat that
+    stays HEALTHY, and a book that never trades.
+
+    **A refusing pass reads exactly like a quiet market.** That is the same shape
+    as the dead loops on 26 Aug, which read exactly like a quiet market too.
+
+    So the count lives here, where every step passes through, rather than in each
+    caller -- which is how it would be forgotten on the next one added.
+    """
     cmd = [sys.executable, "-m", mod, *args] + (["--live"] if live else [])
     log.info("run %s", " ".join(cmd[2:]))
     try:
-        return subprocess.call(cmd, timeout=TIMEOUTS_S.get(mod, 900))
+        rc = subprocess.call(cmd, timeout=TIMEOUTS_S.get(mod, 900))
     except subprocess.TimeoutExpired:
         log.error("%s exceeded %ss and was killed; the next cycle re-reads the venue", mod, TIMEOUTS_S.get(mod, 900))
+        _consecutive_failures[mod] = _consecutive_failures.get(mod, 0) + 1
         return 124
+    if rc == 0:
+        if _consecutive_failures.get(mod):
+            log.info("%s recovered after %d consecutive failure(s)", mod, _consecutive_failures[mod])
+        _consecutive_failures[mod] = 0
+        return rc
+    n = _consecutive_failures[mod] = _consecutive_failures.get(mod, 0) + 1
+    if n >= NOISY_AFTER:
+        log.error("%s HAS EXITED NON-ZERO %d TIMES IN A ROW (last rc=%d). This loop is "
+                  "cycling and doing nothing, which looks identical to a quiet market. "
+                  "Run it by hand and read the refusal: %s",
+                  mod, n, rc, " ".join(cmd[2:]))
+    else:
+        log.warning("%s exited rc=%d", mod, rc)
+    return rc
+
+
+def failing_steps() -> dict[str, int]:
+    """Steps currently failing, and for how many cycles. Read by the heartbeat."""
+    return {m: n for m, n in _consecutive_failures.items() if n}
 
 
 def main() -> int:
@@ -139,6 +183,7 @@ def main() -> int:
             consecutive_errors = _cycle(client, args, last)
             beat.cycle += 1
             beat.completed_utc = datetime.now(timezone.utc).isoformat()
+            beat.failing_steps = failing_steps()
             beat.consecutive_errors = 0
             beat.last_error = None
             beat.backoff_until_utc = None

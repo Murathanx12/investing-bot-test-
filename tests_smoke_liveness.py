@@ -168,6 +168,48 @@ check("an unreadable receipt reads as absent, not as a crash",
 st, _ = liveness.status("torn", now=NOW)
 check("...and classifies UNKNOWN", st == liveness.UNKNOWN)
 
+print("\n-- a REFUSING sub-step must not read like a quiet market either")
+# The loop can cycle perfectly while the step that places orders exits 2 on every
+# pass: a bad --expiry, an unverified genesis, a missing window universe. `_run`
+# returns an exit code and every caller discards it, so from the loop's point of
+# view nothing is wrong and the heartbeat said HEALTHY throughout. That is the
+# same shape as the dead loops on 26 Aug, one layer down.
+import os                                                            # noqa: E402
+
+_pid = os.getpid()
+liveness.write(liveness.Beat(role="refusing", pid=_pid, cycle=40,
+                             completed_utc=at(seconds=-30).isoformat(),
+                             started_utc=at(seconds=-60).isoformat(),
+                             live=True, failing_steps={"scripts.run_pass": 6}))
+_st, _why = liveness.status("refusing", now=NOW)
+check("a loop whose entry pass keeps failing is DEGRADED, not HEALTHY",
+      _st == liveness.DEGRADED, f"{_st}: {_why[:130]}")
+check("  and the message names the step and the count",
+      "scripts.run_pass" in _why and "x6" in _why, _why[:160])
+check("  and says the loop is fine while the WORK is not happening",
+      "work is not happening" in _why, _why[:160])
+
+liveness.write(liveness.Beat(role="working", pid=_pid, cycle=40,
+                             completed_utc=at(seconds=-30).isoformat(),
+                             started_utc=at(seconds=-60).isoformat(),
+                             live=True, failing_steps={}))
+_st2, _ = liveness.status("working", now=NOW)
+check("a loop with no failing steps is still HEALTHY", _st2 == liveness.HEALTHY, _st2)
+
+_b = liveness.read("refusing")
+check("failing_steps survives the write/read round trip",
+      _b is not None and _b.failing_steps == {"scripts.run_pass": 6},
+      str(getattr(_b, "failing_steps", None)))
+
+_src = Path("scripts/agent_loop.py").read_text(encoding="utf-8")
+check("_run counts consecutive non-zero exits", "_consecutive_failures" in _src)
+check("  and shouts after a threshold rather than on the first blip",
+      "NOISY_AFTER" in _src and "HAS EXITED NON-ZERO" in _src,
+      "one failure is usually a transient venue refusal")
+check("  and resets on recovery", "recovered after" in _src)
+check("the loop publishes them on the heartbeat",
+      "beat.failing_steps = failing_steps()" in _src)
+
 print()
 if fails:
     print(f"{len(fails)} FAILED: {fails}")
