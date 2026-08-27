@@ -747,6 +747,25 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
                     structure.kind, n, verdict.risk_fraction * 100)
         return committed + add
 
+    # INTENT BEFORE POST. The order below is written to the ledger twice: once as
+    # an `intent` before it is sent, once as `submitted` after the broker accepts
+    # it. The two rows are not redundant -- the gap between them is where an order
+    # can exist at the venue with nothing local describing it.
+    #
+    # That is not hypothetical. On 2026-08-27 `seed_market` POSTed successfully
+    # and then raised inside ledger.record, leaving a real 126-share SPY position
+    # with no row. Recovery needed the decision_id to find the order by its
+    # client_order_id -- and the decision_id only existed in the row that was
+    # never written. Persisting intent first breaks that circularity: after any
+    # crash, every order that COULD exist has a local row naming the
+    # client_order_id to reconcile against (`python -m scripts.reconcile`).
+    #
+    # Safe to add mid-flight: every consumer of the ledger filters on explicit
+    # action values ("submitted", or a named tuple), so an `intent` row is
+    # invisible to the book, exits, recovery, counterfactual and fill_audit.
+    _record(decision_id, forecast, structure, verdict, snapshot, state,
+            action="intent", reason="intent persisted before POST", order=order,
+            contracts=n)
     try:
         placed = client.submit(order, decision_id=decision_id,
                                quote_snapshot=_quote_snapshot(structure, snapshot))
@@ -821,7 +840,10 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         mdm_edge=verdict.mdm_edge if verdict else None,
         quote_snapshot=_quote_snapshot(structure, snapshot) if (structure and snapshot) else {},
         action=action,
-        refusal_reason=None if action in ("submitted",) else reason,
+        # An `intent` row is not a refusal; putting its reason in refusal_reason
+        # would make every pre-POST row read as a decline in the dashboard's
+        # refusal census.
+        refusal_reason=None if action in ("submitted", "intent") else reason,
         risk_fraction=verdict.risk_fraction if verdict else 0.0,
         max_loss_usd=(structure.max_loss * contracts) if structure else 0.0,
         order=order,
