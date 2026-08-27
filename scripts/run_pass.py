@@ -58,6 +58,11 @@ def main() -> int:
     p.add_argument("--shadow", default=DEFAULT_SHADOW,
                    help="comma list of brains that may not execute (pass '' to let all execute)")
     p.add_argument("--live", action="store_true", help="actually send orders")
+    p.add_argument("--window-universe", action="store_true",
+                   help=("add every name with an earnings event whose drift window reaches "
+                         "inside the competition (state/window_universe.json). The hardcoded "
+                         "UNIVERSE is fifteen mega-caps and they all report in late July, so "
+                         "in late August it produces zero forecasts."))
     p.add_argument("--candidates", action="store_true",
                    help="add today's whole-market candidates (state/candidates/<date>.json) to the universe")
     p.add_argument("--field-leader", type=float, default=None,
@@ -92,6 +97,29 @@ def main() -> int:
             return 2
 
     universe_syms = list(args.universe)
+    if args.window_universe:
+        # THE UNIVERSE IS A CONSEQUENCE OF THE CALENDAR, NOT A CONSTANT.
+        #
+        # `UNIVERSE` above is fifteen mega-caps, and mega-caps report in the last
+        # week of JULY. On 27 Aug a dry pass over it produced ZERO forecasts --
+        # every line `NotApplicable`, every name 19-25 sessions past its print
+        # against a drift window of +1..+3. The agent was pointed at the one
+        # slice of the market guaranteed to have no events during the contest,
+        # and a book that refuses everything scores zero while looking careful.
+        import json as _json
+        from pathlib import Path as _Path
+
+        src = _Path("state") / "window_universe.json"
+        if not src.exists():
+            logging.error("--window-universe needs state/window_universe.json; run "
+                          "`python -m scripts.window_universe --json` first")
+            return 2
+        data = _json.loads(src.read_text(encoding="utf-8"))
+        extra = [s for s in data.get("universe", []) if s not in universe_syms]
+        universe_syms += extra
+        logging.info("window universe from %s (generated %s): +%d names with an event "
+                     "reaching inside the contest", src.name,
+                     data.get("generated_utc", "?")[:16], len(extra))
     if args.candidates:
         import json
         from pathlib import Path
