@@ -76,8 +76,21 @@ LONG_PREMIUM = LONG_VOL
 #: because one name has been measured. Adding a symbol here requires adding its
 #: sample -- the dict IS the evidence scope, not a convenience list.
 MEASURED_OWN_PRINT: dict[str, str] = {
-    "NVDA": ("NVDA straddle into its own print: 0 for 8 "
-             "(docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md)"),
+    # 1 FOR 9, and the ONE is the most recent event. Recorded 2026-08-27 by
+    # pricing the 26 Aug print straddle directly, because the backtest could not
+    # reconstruct it yet (the 28 Aug contracts have not expired):
+    #   NVDA260828 @210, entry 26 Aug close $12.45 (implied 5.94%), exit 27 Aug
+    #   $20.01 -> +60.7%. Realised +9.61% CLEARED the breakeven.
+    # Hiding an inconvenient winner is the same failure as hiding a loser, and
+    # this is the first observation toward this row's own reopening condition.
+    # The other eight average -45.8% at t -4.37, so the row STANDS -- but see
+    # docs/FINDING_2026-08-27_THE_NINTH_EVENT.md: the CALL paid +219% against the
+    # straddle's +60.7%, so even on the event that broke the streak the sign-blind
+    # structure was the wrong way to own it.
+    "NVDA": ("NVDA straddle into its own print: 1 for 9, mean about -34%; the 8 "
+             "reconstructed events run -45.8% at paired t -4.37 and the 9th (2026-08-26) "
+             "PAID +60.7% (docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md, "
+             "docs/FINDING_2026-08-27_THE_NINTH_EVENT.md)"),
     # Measured 2026-08-27 because PANW prints on 1 Sep, inside the contest, and
     # was admissible only because nobody had looked. Six reconstructed prints,
     # ATM straddle bought at the close before and sold at the close after:
@@ -226,7 +239,9 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
                     "documented losing side. A DIRECTIONAL structure is not covered by this."),
             evidence=MEASURED_OWN_PRINT[sym],
             reopens_if=("a forward sample of >=20 prints on this symbol in which the realised "
-                        "absolute move beats the entry straddle after costs"),
+                        "absolute move beats the entry straddle after costs. ONE of those "
+                        "twenty now exists: 2026-08-26 paid +60.7%. Nineteen to go, and the "
+                        "count is kept on the row rather than in a document"),
             scope=(f"{sym} only, long_straddle/long_strangle only, own print ahead, "
                    f"<= {PRINT_STRADDLE_MAX_DTE:g} days to expiry (the sample reconstructs "
                    "the NEAREST expiry after the print)"),

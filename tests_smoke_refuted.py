@@ -38,7 +38,16 @@ nvda = refuted.check(symbol="NVDA", kind="long_straddle", event_ahead_on_symbol=
                      originators_printing=[])
 check("NVDA long premium into its OWN print is REFUSED",
       nvda is not None and nvda.route == "LONG_VOL_INTO_OWN_MEASURED_PRINT", str(nvda))
-check("and it cites the 0-for-8", nvda is not None and "0 for 8" in nvda.evidence)
+check("and it cites the record HONESTLY -- 1 for 9, not the old 0 for 8",
+      nvda is not None and "1 for 9" in nvda.evidence,
+      "the 26 Aug print PAID +60.7%; hiding an inconvenient winner is the same "
+      "failure as hiding a loser")
+check("  it still names the eight losers and their t",
+      nvda is not None and "-45.8%" in nvda.evidence and "-4.37" in nvda.evidence)
+check("  and the reopening condition COUNTS the one that now exists",
+      nvda is not None and "ONE of those twenty now exists" in nvda.reopens_if
+      and "Nineteen to go" in nvda.reopens_if,
+      "a reopening condition nobody is counting against is a permanent red line")
 
 # --- what must STILL be allowed ---------------------------------------------
 # A guard that also blocks the working trades is a worse outcome than the losses:
