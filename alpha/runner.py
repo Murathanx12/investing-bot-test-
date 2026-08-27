@@ -858,7 +858,11 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     _refusal = refuted.check(
         symbol=forecast.symbol, kind=structure.kind,
         event_ahead_on_symbol=forecast.symbol.upper() in _printing,
-        originators_printing=refuted.peers_printing(forecast.symbol, _printing))
+        originators_printing=refuted.peers_printing(forecast.symbol, _printing),
+        # The index-straddle sample is a WEEKLY straddle held to expiry. Without
+        # this the rule refuses a 0DTE structure too, and the 0DTE SPY straddle
+        # into NFP is the best-evidenced trade in the contest window.
+        days_to_expiry=getattr(structure, "days_to_expiry", None))
     if _refusal is not None:
         result.refuse("evidence")
         _record(decision_id, forecast, structure, verdict, snapshot, state,

@@ -161,8 +161,30 @@ class Refusal:
         return f"REFUTED ROUTE {self.route}: {self.reason} [{self.evidence}]{tail}"
 
 
+#: Below this many days to expiry, the index-straddle sample says NOTHING.
+#:
+#: The measurement is a WEEKLY ATM straddle HELD TO EXPIRY -- entry about five
+#: sessions out, carrying overnight theta the whole way. A 0DTE structure opened
+#: at a prior close and closed at 10:45 the next morning is a different object
+#: with a different sample: 28 NFP releases, SPY 0DTE ATM straddle, prior close
+#: -> 10:45 ET, mean +16.8%, median +6.8%, hit 57%, 9 of the last 12 positive
+#: (`scripts/nfp_trade.py`, a frozen contract with two gates).
+#:
+#: THIS CONSTANT EXISTS BECAUSE THE FIRST VERSION OF THE INDEX RULE DID NOT HAVE
+#: IT. Its `scope` string said "weekly ATM held to expiry" while `check()` looked
+#: only at symbol and kind, so it refused EVERY SPY straddle -- including the NFP
+#: trade, which is the best-evidenced opportunity in the contest window. Written
+#: on 2026-08-27, four hours after this same file was rewritten to stop evidence
+#: inheriting by analogy. A scope that lives in a docstring is not a scope.
+#:
+#: 2, not 1: the SPY and QQQ straddles that cost $14,711 were opened 25 Aug
+#: against a 28 Aug expiry -- three days -- and must stay refused.
+INDEX_STRADDLE_MIN_DTE = 2.0
+
+
 def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
-          originators_printing: list[str] | None = None) -> Refusal | None:
+          originators_printing: list[str] | None = None,
+          days_to_expiry: float | None = None) -> Refusal | None:
     """The refusal for this (symbol, structure) pair, or None.
 
     `event_ahead_on_symbol` -- this symbol's OWN print is still ahead.
@@ -191,7 +213,8 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
             scope=f"{sym} only, long_straddle/long_strangle only, own print ahead",
         )
 
-    if sym in MEASURED_INDEX_STRADDLE:
+    if sym in MEASURED_INDEX_STRADDLE and (days_to_expiry is None
+                                           or days_to_expiry >= INDEX_STRADDLE_MIN_DTE):
         return Refusal(
             route="INDEX_STRADDLE_TO_EXPIRY",
             reason=(f"{kind} on {sym}. Buying the broad index's ABSOLUTE move and holding it "
@@ -207,8 +230,10 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
                         "against theta -$5,048: right three ways and still losing to rent). "
                         "A spread-financed or early-exit expression is a different object "
                         "and this says nothing about it"),
-            scope=(f"{sym} only, long_straddle/long_strangle only, weekly ATM held to expiry, "
-                   "2024-02 to 2026-08"),
+            scope=(f"{sym} only, long_straddle/long_strangle only, >= "
+                   f"{INDEX_STRADDLE_MIN_DTE:g} days to expiry (the sample is a WEEKLY straddle "
+                   "held to expiry; a 0DTE intraday structure is a different object with its "
+                   "own 28-release sample), 2024-02 to 2026-08"),
         )
 
     if originators_printing:

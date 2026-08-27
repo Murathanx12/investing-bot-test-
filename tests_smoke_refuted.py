@@ -217,6 +217,39 @@ check("only NVDA and PANW are refusable on their own prints",
       set(refuted.MEASURED_OWN_PRINT) == {"NVDA", "PANW"},
       "any addition needs its own resolvable sample")
 
+# --- THE SCOPE MUST LIVE IN THE CODE, NOT IN THE SCOPE STRING --------------
+# The index rule's `scope` said "weekly ATM held to expiry" while `check()`
+# looked only at symbol and kind. It therefore refused EVERY SPY straddle --
+# including the 0DTE NFP trade, which has its own 28-release sample (mean
+# +16.8%, median +6.8%, hit 57%, 9 of the last 12 positive) and is the
+# best-evidenced opportunity in the contest window. Written four hours after
+# this file was rewritten to stop exactly this. A scope in a docstring is not a
+# scope.
+
+def _idx(dte):
+    return refuted.check(symbol="SPY", kind="long_straddle", event_ahead_on_symbol=False,
+                         originators_printing=[], days_to_expiry=dte)
+
+check("a 0DTE SPY straddle is ADMISSIBLE -- the NFP trade", _idx(0.0) is None,
+      "the sample is a WEEKLY straddle held to expiry; 0DTE is a different object")
+check("and a 1-day one is too", _idx(1.0) is None)
+check("a THREE-day SPY straddle is still REFUSED", _idx(3.0) is not None,
+      "the straddles that cost $14,711 were opened 25 Aug against a 28 Aug expiry")
+check("a five-day one is refused", _idx(5.0) is not None)
+check("UNKNOWN days-to-expiry is REFUSED, not waved through",
+      _idx(None) is not None,
+      "an absent input must not be read as a passing one")
+check("the threshold is 2 days and says why it is not 1",
+      refuted.INDEX_STRADDLE_MIN_DTE == 2.0)
+check("the scope string now describes what the code actually does",
+      "days to expiry" in _idx(None).scope and "0DTE" in _idx(None).scope)
+
+from pathlib import Path as _P
+_rs = _P("alpha/runner.py").read_text(encoding="utf-8")
+check("the runner passes days_to_expiry into the guard",
+      "days_to_expiry=getattr(structure" in _rs,
+      "the parameter is useless if the one caller never supplies it")
+
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):
     check(f"{r.route} states what would REOPEN it", bool(r.reopens_if and len(r.reopens_if) > 20))
