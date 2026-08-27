@@ -17,7 +17,7 @@ import argparse
 import logging
 import sys
 
-from alpha import brains, config, genesis, human, ledger, runner
+from alpha import brains, config, genesis, human, ledger, runner, sentinels
 from alpha.broker.alpaca import AlpacaPaper
 
 #: Starting universe. Liquid, optionable, spanning several volatility regimes.
@@ -42,6 +42,27 @@ DEFAULT_BRAINS = "vol_gap,event_move,options_attention,narrative_dispersion,rela
 DEFAULT_SHADOW = "options_attention,narrative_dispersion,relay"
 
 
+def sentinels_rows() -> list[dict]:
+    """The decision rows the sentinels judge. One read per pass, not per brain."""
+    import json
+    from pathlib import Path
+
+    p = Path(__import__("os").getenv("AAT_LEDGER_DIR") or "state") / "decisions.jsonl"
+    if not p.exists():
+        return []
+    out = []
+    with p.open(encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                out.append(json.loads(line))
+            except Exception:                                          # noqa: BLE001
+                continue
+    return out
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--expiry", required=True, help="YYYY-MM-DD")
@@ -61,6 +82,10 @@ def main() -> int:
     p.add_argument("--allow-expiry-past-deadline", action="store_true",
                    help=("permit an expiry after the judging deadline. It will be liquidated "
                          "at 10:45 ET on the final morning at whatever the spread is."))
+    p.add_argument("--no-sentinels", action="store_true",
+                   help=("skip the sanity sentinels. They withdraw NEW-POSITION authority "
+                         "from a brain that is one-sided against the chain on >90%% of its "
+                         "decisions -- the 96.4%% pathology, generalised."))
     p.add_argument("--window-universe", action="store_true",
                    help=("add every name with an earnings event whose drift window reaches "
                          "inside the competition (state/window_universe.json). The hardcoded "
@@ -167,6 +192,32 @@ def main() -> int:
     if horizon <= 0:
         logging.error("horizon resolved to %.2f sessions; refusing to forecast a zero-length window", horizon)
         return 2
+    # -- SANITY SENTINELS (alpha/sentinels.py) -------------------------------
+    # A brain that thinks the chain is cheap on >90% of its decisions is holding
+    # a ruler that reads long, not finding an edge. Measured on the whole ledger:
+    # relay 99.0%, narrative_dispersion 96.1%, options_attention 95.4%, vol_gap
+    # 93.1% -- four of five, not just the one quarantined by hand. event_move,
+    # the only brain that never executed, is the only one that reads balanced.
+    #
+    # It withdraws NEW-POSITION authority and nothing else, by adding the brain
+    # to the shadow set: it still forecasts, still enumerates, still gets graded
+    # in the counterfactual. Exits, marking and management are untouched --
+    # quarantining those would turn a measurement problem into a trapped book.
+    shadow_list = [b.strip() for b in args.shadow.split(",") if b.strip()]
+    if not args.no_sentinels:
+        try:
+            _rows = sentinels_rows()
+            _broken = sentinels.broken(_rows)
+        except Exception as exc:                                       # noqa: BLE001
+            logging.warning("sentinels could not run (%s); proceeding WITHOUT them and "
+                            "saying so rather than treating silence as a pass", exc)
+            _broken = set()
+        for b in sorted(_broken - set(shadow_list)):
+            logging.warning("SENTINEL: %s loses NEW-POSITION authority this pass", b)
+            shadow_list.append(b)
+        if _broken:
+            logging.info("run `python -m scripts.sentinels` for the numbers behind that")
+
     forecasts, declined = brains.forecast_all(
         client, args.universe, horizon, brains=names, expiries=[args.expiry])
     for d in declined:
@@ -203,7 +254,7 @@ def main() -> int:
     result = runner.run_pass(
         client, forecasts, expiry=args.expiry, risk_profile=args.profile,
         dry_run=not args.live, field_leader_estimate=args.field_leader,
-        shadow_brains=tuple(b.strip() for b in args.shadow.split(",") if b.strip()),
+        shadow_brains=tuple(shadow_list),
     )
     ok, msg = ledger.verify_chain()
     logging.info("brains=%d forecasts=%d declined=%d | considered=%d submitted=%d refused=%d "
