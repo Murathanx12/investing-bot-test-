@@ -218,6 +218,29 @@ python -m scripts.window_universe --json     # re-run each morning
 +3 session never arrives. That is priced in at selection, not discovered on the
 last morning.
 
+### AND THE HARD LIMIT: THE WHOLE CONTEST IS THREE EVENTS
+
+`post_event_drift` is two-sided on ELEVEN names only (`MEGA_MEASURED`). Outside
+them an UP print has no edge and a DOWN print needs a pair structure the engine
+does not have. Intersect that with the window and you get:
+
+| name | reacts | usable |
+|---|---|---|
+| **NVDA** | Thu 27 Aug | **day one only** — 28 Aug, then spent |
+| **PANW** | Wed 2 Sep | full window |
+| **AVGO** | Thu 3 Sep | truncated, 2 sessions |
+
+Each still needs its day-0 move to clear the flat-tercile floor, so **three is a
+ceiling, not a forecast.**
+
+**So this brain alone contributes near-zero P&L in either direction, and the
+human thesis arm (step 7) is the PRIMARY decision source, not a supplement.**
+Plus NFP at 08:30 ET on 4 Sep, for which `EVENT_RESERVE` already holds 10% of
+the cap. Full reasoning: `docs/FINDING_2026-08-27_THREE_EVENTS.md`.
+
+Hundreds of `NotApplicable` lines in the log mean *the universe is barren for
+this brain*, not *the engine is broken*. Every refusal names its measurement.
+
 ## 9. FIRST LIVE PASS
 
 ```
