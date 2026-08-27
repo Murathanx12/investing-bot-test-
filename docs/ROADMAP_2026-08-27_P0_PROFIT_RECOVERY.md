@@ -63,6 +63,47 @@ not a role.
 
 ---
 
+## OVERNIGHT UPDATE (27 Aug, ~14:00 ET) — three P0 items closed, and the ordering changed
+
+| item | status |
+|---|---|
+| **P0.1 `PNL_FORENSICS_v1`** | **DONE.** −$23,306 realised is **94.5% one structure**. NVDA cost $284; SPY+QQQ are 63%; slippage 3.2%. `scripts/pnl_forensics`, reconciles with the venue |
+| **P0.2 `BELIEF_TO_POSITION_AUDIT_v1`** | **DONE.** `scripts/belief_to_position`. **0 of 6 proxies beat the source**; AMD −1.24% and MU −2.65% went the wrong way |
+| **P0.6 `EXECUTION_REACHABILITY`** | **DONE.** `scripts/reachability`, in the suite. Found `shape.py` with zero importers and `must_close_by` as a docstring sentence |
+| P0.3 `ALPHA_REGRET_LEDGER` | partial — `counterfactual.jsonl` marks alternatives; the **mandatory challenger set** is not enforced |
+| P0.4 `DIRECT_FIRST` / `PROXY_PENALTY` / `CAUSAL_DISTANCE` | **evidence gathered, and it argues for LESS machinery, not more** — see below |
+| P0.5 `SANITY_SENTINELS` | not started. `vol_gap` is quarantined by hand |
+
+### THE EVIDENCE CHANGED P0.4
+
+The reviews asked for causal-distance scoring, proxy penalties and torque
+estimation — a substantial modelling layer to decide *which* beneficiary to
+trade. The one event where the causal chain was independently confirmed by the
+primary document says something simpler and harsher:
+
+**Buy the source.** NVDA +9.61%; every proxy lost to it; the two the graph most
+strongly implied (AMD, MU) were **negative**. MU fell 2.65% on the day NVIDIA
+disclosed $160bn of memory commitments — the exact prediction `NEEDS_GRAPH` had
+made hours earlier from filed fundamentals.
+
+A causal arrow that exists is not an edge with a sign you can spend. So P0.4
+collapses from *"score causal distance and pick the best beneficiary"* to
+**"the source is the default and a proxy must beat it on measurednet payoff"** —
+which is already how `runner.evaluate` enumerates, with shares competing beside
+options. **One rule, not a scoring system.** The scoring system can come back
+when a proxy has actually won something.
+
+### AND A NEW P0.7, FROM THE SAME EVENT
+
+**`INSTRUMENT_MATCHES_CLAIM` is worth more than any of the causal work.** On the
+26 Aug print the call paid **+219%** and the straddle **+60.7%** — same name,
+same entry, same event. Two thirds of the return was given away by owning the
+absolute move when the view was about the sign. `alpha/claims.py` now refuses
+that pairing structurally, and it is the highest-value guard added this session
+because it is the one with a measured price tag.
+
+---
+
 ## P0 — OPEN, IN ORDER
 
 ### P0.1 `PNL_FORENSICS_v1` — account for every dollar, in dollars
