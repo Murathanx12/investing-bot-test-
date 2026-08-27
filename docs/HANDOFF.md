@@ -1,7 +1,64 @@
-> **SESSION 15 (2026-08-27) is in `docs/HANDOFF_SESSION_15.md`.** RESULT IMPROVEMENT: NONE --
-> all guardrail work. Suite is now `python run_tests.py` (917 checks, venue blocked, zero
-> egress). Book-wide limits ENFORCED; effective ceiling moved 40% -> 35%. Intent-before-POST
-> plus `scripts/reconcile`. 0 lost rows on market/dev/exp1.
+> ## SESSION 16 (2026-08-27, midday) — SCOPE EVERY REFUSAL TO ITS OWN SAMPLE
+>
+> **RESULT IMPROVEMENT: NONE.** No strategy tested, no candidate promoted, no P&L moved.
+> What moved is what the machine is *allowed* to do. Suite **1045 checks** (was 917),
+> venue blocked, all pass. Roadmap: `docs/ROADMAP_2026-08-27_P0_PROFIT_RECOVERY.md`.
+> **Kickoff sequence: `docs/RUNBOOK_2026-08-28_KICKOFF.md` — run it in order.**
+>
+> **THE GUARD WOULD HAVE BLOCKED THE ONE TRADE THE RESEARCH WAS RIGHT ABOUT.**
+> `alpha/refuted.py` refused `{straddle, strangle, call, put}` × eight mega caps on the
+> strength of one sample: NVDA straddles, 0 for 8. That sample has no AAPL, no MSFT and
+> **not one directional leg** — it and the 290 relay legs both buy ATM straddles and test
+> ONE claim, that the chain does not underprice E|move|. A call bets the *signed* move.
+> As written it would have refused a bullish NVDA call into the 26 Aug print. Rewritten:
+> `LONG_VOL` is the refusable set, `MEASURED_OWN_PRINT` holds one symbol, every refusal
+> prints its scope, and `UNMEASURED` records what nobody tested so absence stays visible.
+>
+> **ROLE→ACCOUNT, READ FROM THE VENUE** (`python -m scripts.accounts`) — the reviews'
+> premise was wrong three ways. `PA32Q5IW7TAS` is the **`dev`** role; "hackathon" is an
+> Alpaca UI nickname, not a role. **There is no `competition` role at all**
+> (`AAT_COMPETITION_KEY_ID` is empty), so the losing book could not have been submitted.
+> `market` is `PA3I7VTCC0BM`, **$100,000.00, 0 positions, 1 SPY order, status `expired`**.
+>
+> | role | account | equity | pos | ord |
+> |---|---|---|---|---|
+> | dev | `PA32Q5IW7TAS` | $86,333 | 8 | 27 |
+> | exp1 | `PA3AOJPJTSBW` | $95,880 | 8 | 16 |
+> | market | `PA3I7VTCC0BM` | $100,000.00 | 0 | 1 (expired) |
+> | pead | `PA3LY4QK3A6A` | $100,000.00 | 0 | 0 |
+>
+> **FIVE THINGS ARE NEW AND ALL FIVE REFUSE RATHER THAN REPORT.**
+> `alpha/genesis.py` — the judged account gets a birth certificate or nothing trades;
+> denylist keyed on the **venue's account_number**, not the role, because every other
+> guard here is role-keyed and a role pointed at the wrong account passes all of them;
+> `orders(status="all")` because `open` would call an account holding one expired OPG
+> order clean. Wired into `preflight` **and** `run_pass`.
+> `alpha/claims.py` — a `direction` claim is *structurally* barred from a sign-blind
+> payoff, before pricing. `effective_sd` already made the condor score badly; that is an
+> arithmetic fix, and three of six defects this project paid for were arithmetic pointing
+> the wrong way while every structural check passed.
+> `alpha/human.py` — the wire that did not exist on 26 Aug. Typed, falsifiable,
+> prospective; refuses a direction with no expected move, a sign disagreement, a missing
+> falsifier, and a thesis stated after its own catalyst. No broker import, no order verb.
+> `alpha/benchmark.py` — SUBMITTED may no longer read as SEEDED. Nine days of "our arms
+> versus the market" had no market in them.
+>
+> **TWO REVIEW CLAIMS CORRECTED.** The Alpaca CLI **and** MCP exist (`alpha/tooling.py`,
+> 8/8 probe PASS, MCP runs with the `trading` toolset withheld so the LLM has no order
+> verb) — criterion 2 is satisfied. And `AAT_TEST_MODE` is already zero-egress:
+> `getaddrinfo` is blocked alongside `connect`.
+>
+> **DUE TONIGHT AFTER 16:00 ET — the only genuinely time-gated item:**
+> `scripts.contagion --event 2026-08-27`, `scripts.anchor_to_torque --event 2026-08-27`,
+> and the condors against `FINDING_2026-08-26_WHAT_THE_CONDORS_ARE_BETTING.md`.
+>
+> **NEXT TO BUILD: `PNL_FORENSICS_v1`** — every dollar of the two losing books, in
+> dollars, deduped by `alpaca_order_id` first (summing `pnl_usd_if_closed_now` over
+> `fills.jsonl` gives −$302,818 and is nonsense: the auditor re-marks 22 orders hundreds
+> of times).
+>
+> **SESSION 15 is in `docs/HANDOFF_SESSION_15.md`.** Book-wide limits ENFORCED (ceiling
+> 40% -> 35%), intent-before-POST plus `scripts/reconcile`, 0 lost rows.
 
 # HANDOFF — read this first
 
