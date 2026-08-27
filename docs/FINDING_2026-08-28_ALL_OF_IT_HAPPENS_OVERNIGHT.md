@@ -92,6 +92,32 @@ The cost objection applies to *round-tripping daily*. It does not apply to
    a market-on-close order is available. The competition book should enter MOC,
    not next-open.
 
+## Out of sample: 2023-2026, on the instruments we would actually trade
+
+CRSP stops at 2024 and the competition trades now, so the same split was run on
+Alpaca SIP bars, 755 sessions, 2023-08-24 to 2026-08-27:
+
+| | close-close | overnight | intraday |
+|---|---|---|---|
+| equal-weight, 214 names | 1.969x | 1.665x | 1.187x |
+| | +25.95%/yr | **+18.95%/yr** | +6.01%/yr |
+| | 17.6% vol | **11.1% vol** | 14.7% vol |
+
+Overnight is **73% of the return at 63% of the volatility** — the tilt survives.
+Two honest qualifications:
+
+- **Intraday is POSITIVE here (+6.01%)**, against −7.26% over 32 years. "The
+  trading day destroys value" is a 32-year statement and it is *not* true of the
+  last three years. What is true in both samples is that overnight pays more per
+  unit of risk.
+- **AAPL reverses it completely**: overnight **0.786x** against intraday
+  **2.295x**. SMH (4.362x / 0.888x) and NVDA (5.125x / 0.939x) are the extreme
+  version of the effect; Apple is the extreme version of its opposite.
+
+That single row is the reason this stays a tilt and never becomes a rule. Same
+shape as `[[run-the-control-you-would-not-have-chosen]]`: the name that was in
+the list by convenience is the most informative one in it.
+
 ## Status
 
 `PRODUCT_EXPERIMENT` measurement. It is a decomposition, not a selection: one
