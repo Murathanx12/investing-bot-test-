@@ -274,7 +274,16 @@
    "why": "a 10.2% wide indicative quote around the close is not a price. The `nvda_last` of 209.50 is the 16:00 ET regular-session trade, NOT a post-print print. Recorded as UNRESOLVED rather than converted into a number the feed cannot support."
   },
   "graded_session": "2026-08-27",
-  "note": "The sealed vector's event_date is 2026-08-27 -- the SESSION AFTER the print -- so the graded reaction is tomorrow's move, not tonight's after-hours indication. This entry records what was observable at resolution time and is deliberately not a verdict."
+  "note": "The sealed vector's event_date is 2026-08-27 -- the SESSION AFTER the print -- so the graded reaction is tomorrow's move, not tonight's after-hours indication. This entry records what was observable at resolution time and is deliberately not a verdict.",
+  "post_close_final": {
+   "measured_et": "2026-08-26 21:37",
+   "last_trade": 209.37,
+   "prev_close": 209.66,
+   "move": -0.0014,
+   "quote_frozen_at": "201.81/223.13, 10.03% wide, unchanged since 16:00 ET",
+   "verdict": "UNMEASURABLE FROM THIS FEED",
+   "why": "after-hours ended at 20:00 ET and the last trade our feed shows is 209.37, 0.14% from the close, on a quote that has not moved since 16:00. The free IEX-derived feed does not carry NVDA's after-hours tape. This is an INSTRUMENT limit, not a market reading -- the move may have been large and we simply cannot see it. Recorded as unmeasurable rather than as ~0%."
+  }
  },
  "hierarchy": [
   "q3_guide_surprise",
