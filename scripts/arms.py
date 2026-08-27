@@ -79,7 +79,11 @@ def main() -> int:
     if seedable:
         print("  ready to seed (ATTENDED -- see .claude/skills or the seed-a-lane discipline): "
               + ", ".join(r["role"] for r in seedable))
-    need_creds = [r["role"] for r in rows if not r["credentials_present"]]
+    # A RETIRED arm is not waiting for an account -- listing it under "needed for"
+    # would send someone to the Alpaca dashboard to provision a decision that has
+    # already been made.
+    need_creds = [r["role"] for r in rows
+                  if not r["credentials_present"] and r["status"] != "retired"]
     if need_creds:
         print("\nTO ADD AN ACCOUNT (the Trading API cannot create one -- this is manual):")
         print("  1. Alpaca dashboard -> new PAPER account")

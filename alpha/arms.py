@@ -115,13 +115,34 @@ ARMS: tuple[Arm, ...] = (
         alpha_source="null_no_position",
         hypothesis="None. This is the null, and it has beaten live arms before "
                    "(session 5: cash was a champion).",
-        falsifier="Cannot be falsified; it is the benchmark the others must clear. "
-                  "It is here because a null that is not RUN is a null that gets argued with.",
+        falsifier="Cannot be falsified; it is the benchmark the others must clear.",
         instruments=(),
         universe="none",
+        status="retired",
+        notes="RETIRED FROM THE ACCOUNT QUEUE on 27 Aug, not as a benchmark. A paper account "
+              "holding $100,000 and never trading has an NAV of exactly $100,000 forever -- "
+              "Alpaca pays no interest on paper cash -- so running it consumes an account to "
+              "learn a number already known analytically. Keep charging every arm against "
+              "zero; just do not spend a broker account proving that zero is zero. The null "
+              "that DOES need an account is `market`, because its path is not known in advance.",
+    ),
+    Arm(
+        role="market",
+        alpha_source="passive_beta",
+        hypothesis="None -- it is the bar. Buy the index at the open and never trade again. "
+                   "Any arm that cannot beat this after costs is an expensive way to own beta.",
+        falsifier="Cannot be falsified. It is the 'better than WHAT?' answer for the PRODUCT "
+                  "question ('should I hold this instead of an index'), which is the question "
+                  "the competition is judged on. It is NOT the right control for a claim about "
+                  "a signal -- two books can beat the market for the same reason and neither "
+                  "of them be the reason. Use the paired construction for that.",
+        instruments=("shares",),
+        universe="SPY (or SPY/QQQ/IWM equal-weight)",
         status="proposed",
-        notes="Costs one account and zero attention. Every ranked claim about another arm "
-              "is a claim relative to this one.",
+        notes="Costs one account, one order, and zero attention thereafter. Unlike cash its "
+              "path is NOT known in advance, which is the whole reason it is worth an account: "
+              "the drawdown it takes on the way is the number every arm is really competing "
+              "against, and it cannot be reconstructed after the fact from a closing level.",
     ),
     Arm(
         role="pead",
@@ -177,7 +198,12 @@ ARMS: tuple[Arm, ...] = (
         instruments=("shares",),
         universe="whole-market, dollar-volume stratified",
         status="proposed",
-        depends_on=("no code yet",),
+        depends_on=("no code yet",
+                    "needs its OWN paper account. The spare key offered on 27 Aug "
+                    "(PKLL7KBIPZ...) is NOT spare -- it is ALPACA_ARENA_API_KEY_ID in the "
+                    "aegis-finance repo, the arena's account with its own seeded NAV history. "
+                    "Pointing a second strategy at it would write foreign fills into a track "
+                    "record that CANON forbids mutating. Provision a new one."),
         notes="The hardest arm to keep honest. Unsupervised methods always FIND clusters; the "
               "question is never whether clusters exist but whether they beat the free label. "
               "It ships with the control or it does not ship.",
