@@ -106,14 +106,28 @@ def economics(structure: Structure, spot: float, centre: float, sd: float,
               *, horizon_days: float | None = None) -> Economics:
     """Integrate the payoff over a normal forecast of the return to expiry.
 
-    `centre`/`sd` describe the return over the brain's horizon. If the horizon
-    is shorter than the structure's life the sd is scaled by sqrt(dte/horizon)
-    -- a brain that forecasts three days of movement is not asked to underwrite
-    ten days of it at three days' width.
+    `centre`/`sd` describe the return over the brain's horizon; the structure
+    pays at ITS expiry. So the sd is rescaled to the structure's life by
+    sqrt(dte/horizon) -- IN BOTH DIRECTIONS.
+
+    Until 27 Aug this scaled UP when the structure outlived the horizon and did
+    nothing when the horizon outlived the structure. That asymmetry is not a
+    conservatism: it is a one-directional error that always widens the forecast
+    relative to the quote, so long premium always looks cheap and short premium
+    always looks dear. With a hardcoded 3-day horizon it priced a 1-session
+    option at sqrt(3) = 1.73x its real width, and it got WORSE as expiry
+    approached -- exactly when theta is most lethal.
+    See docs/FINDING_2026-08-27_THE_CHAIN_WAS_NEVER_CHEAP.md.
+
+    Pass `horizon_days=None` to disable rescaling entirely. That is the right
+    call for a sd that is not diffusive -- a `direction` brain's sd is already
+    the chain's width over the structure's life, and an EVENT sd does not shrink
+    with sqrt(time) because the event either falls inside the life or it does
+    not. The caller owns that judgement; this function will not guess it.
     """
     if sd <= 0 or spot <= 0:
         raise ValueError("economics needs a positive spot and forecast sd")
-    if horizon_days and horizon_days > 0 and structure.days_to_expiry > horizon_days:
+    if horizon_days and horizon_days > 0:
         sd = sd * math.sqrt(structure.days_to_expiry / horizon_days)
     if not structure.legs:
         raise ValueError(f"{structure.kind} has no legs; its payoff cannot be integrated")

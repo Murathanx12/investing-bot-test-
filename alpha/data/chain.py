@@ -180,9 +180,24 @@ class ChainSnapshot:
         if not call or not put or self.spot <= 0:
             return None
         straddle = (call.adjusted_mid or call.mid) + (put.adjusted_mid or put.mid)
-        # A straddle costs roughly 0.8 * E|move| for a lognormal; the standard
-        # rule-of-thumb 0.85 multiplier converts price to expected move.
-        return 0.85 * straddle / self.spot
+        # NO multiplier. At the money the straddle price IS the expected absolute
+        # move: straddle = E[(S-K)+] + E[(K-S)+] = E|S-K| when K is the forward.
+        # That is an identity, not an approximation -- verified numerically to
+        # 1.0000 across sigma 10%-80% and 1-30 days
+        # (docs/FINDING_2026-08-27_THE_CHAIN_WAS_NEVER_CHEAP.md).
+        #
+        # This carried a `0.85 *` haircut until 27 Aug, which understated the
+        # chain's own quoted width by 15% on EVERY quote, on every symbol, on
+        # every pass. Downstream the sizer multiplies by sqrt(pi/2) to turn an
+        # expected absolute move into a standard deviation -- correct only if
+        # what it is handed really is E|move|. With the haircut the chain read
+        # 17.6% cheaper than it was quoting, which is most of the reason the
+        # books were long premium: the trade that looked +EV was arithmetic.
+        #
+        # The old comment argued the opposite of what the old code did -- if a
+        # straddle really cost 0.8 * E|move| the conversion would be DIVIDE by
+        # 0.8, i.e. x1.25, not x0.85.
+        return straddle / self.spot
 
     def parity_gap(self, expiry: str, *, r: float = 0.045) -> dict[str, Any] | None:
         """Spot implied by ATM put-call parity minus the spot we used, as a fraction.

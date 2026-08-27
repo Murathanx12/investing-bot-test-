@@ -79,7 +79,7 @@ def geometry(snap: ChainSnapshot, expiry: str, *, asof: date | None = None) -> d
     cu, pd = _nearest(snap, expiry, "C", k + w), _nearest(snap, expiry, "P", k - w)
     cu2, pd2 = _nearest(snap, expiry, "C", k + 2 * w), _nearest(snap, expiry, "P", k - 2 * w)
     out: dict[str, Any] = {"expiry": expiry, "days": round(t * 365), "atm_strike": k, "atm_iv": round(atm_iv, 4),
-                           "implied_move": round(0.85 * straddle / s, 4), "wing_dollars": round(w, 2)}
+                           "implied_move": round(straddle / s, 4), "wing_dollars": round(w, 2)}
     if cu and pd and cu.strike != k and pd.strike != k:
         ivc = _invert(_mid(cu), lambda v: _bs_price(s, cu.strike, t, v, "C", R))
         ivp = _invert(_mid(pd), lambda v: _bs_price(s, pd.strike, t, v, "P", R))

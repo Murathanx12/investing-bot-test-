@@ -48,7 +48,11 @@ def main() -> int:
     p.add_argument("--role", default=None, help="account role (default: AAT_ACCOUNT_ROLE)")
     p.add_argument("--profile", default=None, choices=sorted(__import__(
         "alpha.engine.sizing", fromlist=["x"]).PROFILES))
-    p.add_argument("--horizon", type=float, default=3.0, help="forecast horizon in days")
+    p.add_argument("--horizon", type=float, default=None,
+                   help="forecast horizon in TRADING SESSIONS. Default: derived from --expiry. "
+                        "This was hardcoded to 3.0 until 27 Aug, so every brain was asked for "
+                        "three sessions of movement however long the option actually had -- and "
+                        "on the last day before expiry that overstated the width by sqrt(3).")
     p.add_argument("--universe", nargs="*", default=UNIVERSE)
     p.add_argument("--brains", default=DEFAULT_BRAINS, help="comma list of brains to run")
     p.add_argument("--shadow", default=DEFAULT_SHADOW,
@@ -92,8 +96,20 @@ def main() -> int:
     if unknown:
         logging.error("unknown brains %s; have %s", unknown, sorted(brains.BRAINS))
         return 2
+    horizon = args.horizon
+    if horizon is None:
+        from datetime import datetime, timezone
+        from alpha.engine.structures import _days as _sessions_to
+
+        class _Now:                       # _days only reads .fetched_at
+            fetched_at = datetime.now(timezone.utc)
+        horizon = _sessions_to(_Now(), args.expiry)
+        logging.info("horizon derived from expiry %s: %.2f trading sessions", args.expiry, horizon)
+    if horizon <= 0:
+        logging.error("horizon resolved to %.2f sessions; refusing to forecast a zero-length window", horizon)
+        return 2
     forecasts, declined = brains.forecast_all(
-        client, args.universe, args.horizon, brains=names, expiries=[args.expiry])
+        client, args.universe, horizon, brains=names, expiries=[args.expiry])
     for d in declined:
         logging.info("declined %-20s %-6s %s", d["brain"], d["symbol"], d["why"])
     if not forecasts:

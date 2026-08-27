@@ -62,11 +62,63 @@ def _by(chain: ChainSnapshot, expiry: str, right: str) -> list[Contract]:
     )
 
 
-def _days(chain: ChainSnapshot, expiry: str) -> float:
-    from datetime import datetime, timezone
+#: US market holidays that fall inside the window this repo can replay. Listed
+#: explicitly rather than pulled from a calendar library: a missing dependency
+#: that silently degrades to weekday-counting is exactly the failure this file
+#: is trying to stop, and a wrong list is visible where a wrong import is not.
+_HOLIDAYS = frozenset({
+    "2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03", "2026-05-25",
+    "2026-06-19", "2026-07-03", "2026-09-07", "2026-11-26", "2026-12-25",
+    "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26", "2027-05-31",
+    "2027-06-18", "2027-07-05", "2027-09-06", "2027-11-25", "2027-12-24",
+})
 
-    exp = datetime.strptime(expiry, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-    return max((exp - chain.fetched_at).total_seconds() / 86400.0, 0.01)
+
+def _days(chain: ChainSnapshot, expiry: str) -> float:
+    """TRADING SESSIONS remaining, not calendar days.
+
+    Every consumer of `Structure.days_to_expiry` uses it to scale a VOLATILITY
+    (`payoff.economics`, `equity.stress_charge`, `runner`'s vol-of-vol check),
+    and the volatilities it scales are estimated per TRADING day from daily
+    bars. Calendar days and trading days are not the same clock: a Friday
+    position facing a Monday expiry has three calendar days and one session, so
+    counting calendar days claimed sqrt(3) = 1.73x the variance the market can
+    actually deliver -- always in the direction that makes long premium look
+    cheap. Black-Scholes discounting still uses calendar time and lives on
+    `Contract.years_to_expiry`; this is deliberately a different clock.
+
+    The part-session in progress counts as a fraction. Floored at 0.05 rather
+    than 0 so an expiring structure still divides.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    now = chain.fetched_at
+    exp_d = datetime.strptime(expiry, "%Y-%m-%d").replace(tzinfo=timezone.utc).date()
+    today = now.date()
+    if exp_d < today:
+        return 0.05
+
+    def is_session(d) -> bool:
+        return d.weekday() < 5 and d.isoformat() not in _HOLIDAYS
+
+    # Whole sessions strictly after today, up to and including expiry day.
+    n = 0.0
+    d = today + timedelta(days=1)
+    while d <= exp_d:
+        if is_session(d):
+            n += 1.0
+        d += timedelta(days=1)
+
+    # Today's remaining fraction, if today is itself a session. 13:30-20:00 UTC
+    # is the regular session; before the open the whole session is ahead.
+    if is_session(today):
+        open_s, close_s = 13.5 * 3600, 20.0 * 3600
+        secs = now.hour * 3600 + now.minute * 60 + now.second
+        if secs <= open_s:
+            n += 1.0
+        elif secs < close_s:
+            n += (close_s - secs) / (close_s - open_s)
+    return max(n, 0.05)
 
 
 def _spread_pct(legs: list[tuple[Contract, int]]) -> float:
