@@ -49,6 +49,39 @@ not as flat.
 
 ---
 
+## −0.5. WHAT CHANGED OVERNIGHT (session 17) — READ BEFORE STEP 8
+
+Three things in this runbook are now WRONG in emphasis, and one is wrong in fact.
+
+**THE BRAIN LOOP WILL OPEN ALMOST NOTHING, AND THAT IS CORRECT.**
+`python -m scripts.sentinels` over 8,771 decisions withdraws new-position
+authority from **four of five brains** — `narrative_dispersion` (96.1%
+one-sided), `options_attention` (95.4%), `relay` (99.0%), `vol_gap` (93.1%).
+Only `event_move` may open, on n=56. So steps 8-9 will produce a nearly empty
+book. That is the guard working, not a failure — but it means **the brain loop
+is not the trading plan.**
+
+**THE TRADING PLAN IS `python -m scripts.competition_book`.**
+It is attended: it prints orders and sends nothing. Built beta-first because
+over CRSP 1993-2024 at a five-day hold the market compounded at **+10.61%/yr**
+while our best configuration managed **+5.36%** and the candidate our own lab
+crowned returned **−7.23%**
+(`docs/FINDING_2026-08-28_VARIANCE_DRAG_ATE_THE_EDGE.md`).
+
+**YOU NEED OPTIONS LEVEL 3, NOT LEVEL 2.** Step 1 treats level 2 as
+sufficient. The book's core is short put SPREADS and level 2 cannot place them
+at all. `playbook.structure_for_level` falls back to cash-secured puts, which
+keep the long-delta/long-theta posture but whose loss runs to the STRIKE, so
+the same risk dollar buys far fewer contracts. **Ask for level 3 when the
+account is created.**
+
+**ENTER MARKET-ON-CLOSE.** Overnight (close→open) compounded at +17.31% over
+32 years while intraday (open→close) returned −7.26%, positive overnight in all
+four decades (`docs/FINDING_2026-08-28_ALL_OF_IT_HAPPENS_OVERNIGHT.md`). Filling
+at the open donates the only segment that has ever paid.
+
+---
+
 ## 0. RE-PULL THE RULES. They are a fact about a web page on one day.
 
 `docs/RULES_SNAPSHOT_2026-08-25.md` says so in its own text.
