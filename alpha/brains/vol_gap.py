@@ -103,7 +103,7 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback: int = 90) ->
             f"{drift_per_day * 5:+.2%}, damped to a {centre:+.2%} tilt because momentum "
             f"is a cross-sectional tail signal, not a single-name point forecast."
         ),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={
             "daily_sd": daily_sd,
             "annualised_sd": daily_sd * math.sqrt(252),

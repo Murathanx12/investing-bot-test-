@@ -85,6 +85,23 @@ class Forecast:
                 f"of {sorted(CLAIMS)} -- an undeclared claim is how a directional reading gets "
                 "spent on a short-volatility structure."
             )
+        # A SHAPE CLAIM MUST CARRY ITS PROVENANCE.
+        #
+        # `signal_shape` was a free string written onto every ledger row and read
+        # by nothing. Five of six brains hardcoded "tail" -- the shape whose
+        # entry in `alpha/engine/shape.py` reads "the payoff IS an option -> buy
+        # convexity" -- so the standing justification for buying premium was a
+        # literal asserted six times and measured zero times, while the chain was
+        # overpricing exactly that. `python -m scripts.reachability` found the
+        # module had no importer at all.
+        #
+        # Validated HERE rather than in the runner because this is the only
+        # constructor every forecast passes through: a brain called from a
+        # script, a backtest or a notebook must not be able to skip it.
+        from alpha.engine import shape as _shape
+
+        _shape.validate_claim(self.signal_shape, brain=self.brain)
+
         if self.claim == "dispersion" and self.centre != 0.0:
             raise ValueError(
                 f"{self.brain} claims dispersion only but returned centre={self.centre:+.4f} for "

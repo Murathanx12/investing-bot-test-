@@ -116,7 +116,7 @@ def forecast(client, symbol: str, horizon_days: float, *, shocks: list[schema.Na
             f"impact {a['market_impact_probability']:.2f}, priced {a['already_priced_fraction']:.2f} "
             f"=> {gap['case']}: {gap['reading']}. {why}.{refuse_note}"
         ),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={
             "shocks": [s.to_dict() for s in shocks], "attention": att, "daily_sd": daily_sd,
             "prediction_markets": markets, "theme": lead_shock.theme,

@@ -232,7 +232,7 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             f"{sessions_left:.0f} of the measured +1..+3 drift window remain, worth {centre:+.2%} "
             f"excess over beta*QQQ (n=108, t {2.17 if elapsed == 1 else 1.67:.2f}). Spread {sd:.1%} "
             f"= max(live {daily_sd:.2%}/day over {sessions_left:.0f}d, measured floor {floor_sd:.1%})."),
-        signal_shape="gradient",
+        signal_shape="declared:gradient",
         evidence={
             # `event_date` is the key `runner.event_node` reads. The drift trade is
             # deliberately booked under the SAME node as the print it follows: a

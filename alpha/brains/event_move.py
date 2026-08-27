@@ -201,7 +201,7 @@ def forecast(client, symbol: str, horizon_days: float, *, event_date: str | None
             f"Event sd {sd_event:.1%} + {ordinary_days:.0f} ordinary days at {daily_sd:.2%}/day "
             f"= {sd:.1%} over {horizon_days:.1f}d. Centre 0: a print is not a direction."
         ),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={
             "event_date": event_date, "event_hour": event_hour, "date_source": date_source,
             "event_days": events, "mean_abs_event_move": mean_abs,

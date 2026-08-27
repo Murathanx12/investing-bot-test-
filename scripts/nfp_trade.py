@@ -110,7 +110,7 @@ def main() -> int:
                    f"0DTE straddle mean {h['mean_straddle_return']:+.0%}, hit {h['hit']:.0%}. Gates: implied "
                    f"{(g['implied_0dte'] or 0):.2%} <= {MAX_IMPLIED:.2%} [{g['gate1_cheap_enough']}], crowd tail mass "
                    f"{g['kalshi_tail_mass']} >= {MIN_TAIL_MASS} [{g['gate2_crowd_wide']}]. Width only; centre 0."),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={"event_date": RELEASE, "policy_hash": policy_hash(), "gates": g, "history": h, "last_close": g["spot"]},
     )
     shadow = () if ok else ("nfp_event",)

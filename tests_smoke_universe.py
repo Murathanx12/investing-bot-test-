@@ -37,8 +37,8 @@ print("\n-- FAME_BIAS: the ranking score cannot see the ticker")
 def score(f: Forecast) -> float:
     return abs(f.centre) / f.sd * f.conviction
 
-famous = Forecast("post_event_drift", "NVDA", 2.0, 0.0072, 0.03, 1.0, "x", "gradient", {"r_day0": 0.05}, claim="direction")
-anon = Forecast("post_event_drift", "ENTITY_48391", 2.0, 0.0072, 0.03, 1.0, "x", "gradient", {"r_day0": 0.05}, claim="direction")
+famous = Forecast("post_event_drift", "NVDA", 2.0, 0.0072, 0.03, 1.0, "x", "declared:gradient", {"r_day0": 0.05}, claim="direction")
+anon = Forecast("post_event_drift", "ENTITY_48391", 2.0, 0.0072, 0.03, 1.0, "x", "declared:gradient", {"r_day0": 0.05}, claim="direction")
 check("identical numbers, different name -> identical score", score(famous) == score(anon), f"{score(famous):.4f} vs {score(anon):.4f}")
 import inspect
 from scripts import candidates as cand_mod

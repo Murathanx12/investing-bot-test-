@@ -430,3 +430,116 @@ def _rank(values: list[float]) -> list[float]:
             ranks[order[k]] = shared
         i = j + 1
     return ranks
+
+
+# ---------------------------------------------------------------------------
+# SHAPE CLAIMS ON A FORECAST -- measured, or said out loud to be otherwise.
+#
+# Found by `python -m scripts.reachability` on 2026-08-27: this module, whose
+# own first line calls it "the idea this whole agent is built on", was imported
+# by NOTHING. Zero call sites. `construction_for` -- the function that decides
+# whether a curve licenses convexity at all -- had never run in production.
+#
+# Meanwhile five of six brains hardcode `signal_shape="tail"` on every forecast
+# they emit, and TAIL is the shape whose entry above reads "the payoff IS an
+# option -> buy convexity". So the justification for buying premium was a string
+# literal, asserted six times, measured zero times, and written onto every
+# ledger row where a later reader would see six brains agreeing.
+#
+# The two namespaces had also drifted apart without anyone noticing:
+# `SHAPE_PRIOR` is keyed by SIGNAL name (`mom_12_1`, `profit_roe` -- the parent
+# project's cross-sectional characteristics), while `Forecast.signal_shape`
+# holds a SHAPE name (`tail`). `construction_for("vol_gap")` would have returned
+# REFUSE. Nothing was wrong with either half; they simply never met.
+#
+# The fix is NOT to gate on the prior. These brains forecast a time-series
+# volatility gap; the prior describes cross-sectional decile curves. They are
+# different objects and forcing one through the other would refuse everything.
+#
+# The fix is that a shape claim must carry its own provenance. `declared:tail`
+# is a hypothesis about geometry that nobody has measured for this brain, and it
+# reads that way on the row. `tail` unqualified is reserved for a claim backed
+# by a curve in `SHAPE_PRIOR`, and `Forecast` refuses anything else.
+
+DECLARED_PREFIX = "declared:"
+
+#: Shapes for which a measured decile curve exists in this module, by shape.
+#: Derived, never typed twice -- a literal list here could disagree with the
+#: prior and there would be no test that noticed.
+def measured_shapes() -> set[str]:
+    return {s.shape.value for s in SHAPE_PRIOR.values()}
+
+
+def parse_claim(signal_shape: str | None) -> tuple[str | None, bool]:
+    """(shape, is_measured) for a `Forecast.signal_shape` value.
+
+    `None` -> (None, False). A brain that makes no shape claim is honest and
+    this says nothing against it.
+    """
+    if not signal_shape:
+        return None, False
+    if signal_shape.startswith(DECLARED_PREFIX):
+        return signal_shape[len(DECLARED_PREFIX):], False
+    return signal_shape, True
+
+
+def validate_claim(signal_shape: str | None, *, brain: str = "") -> None:
+    """Raise unless the claim is either measured FOR THIS SIGNAL, or declared.
+
+    Called from `Forecast.__post_init__`, which is the only place every forecast
+    in the system must pass through -- and the reason this check lives there
+    rather than in the runner is that a brain used in a script, a backtest or a
+    notebook must not be able to skip it.
+
+    The measurement must belong to THIS signal. An earlier draft asked only
+    whether any curve in `SHAPE_PRIOR` had the claimed shape, which passes
+    `"tail"` for every brain on the strength of `mom_12_1`'s curve -- borrowing
+    a measurement from an unrelated signal because the two share an adjective.
+    That is the same evidence-by-analogy the refuted-routes rewrite removed
+    this morning, reintroduced in the check written to prevent it.
+    """
+    if signal_shape is None:
+        return
+    shape, measured = parse_claim(signal_shape)
+    if shape not in {s.value for s in Shape}:
+        raise ValueError(
+            f"{brain}: signal_shape={signal_shape!r} is not a shape. Valid: "
+            f"{sorted(s.value for s in Shape)}, optionally prefixed {DECLARED_PREFIX!r}.")
+    if not measured:
+        return
+    curve = SHAPE_PRIOR.get(brain)
+    if curve is None:
+        raise ValueError(
+            f"{brain}: claims signal_shape={signal_shape!r} unqualified, which asserts a "
+            f"decile curve measured for {brain!r}. SHAPE_PRIOR has no entry for it -- it "
+            "forecasts a time-series volatility gap, not a cross-sectional characteristic, "
+            f"so there is no curve to have. Write {DECLARED_PREFIX + shape!r} if the shape is "
+            "a hypothesis about geometry. Five brains asserted 'tail' -- 'the payoff IS an "
+            "option, buy convexity' -- as a string literal, and that literal was the standing "
+            "justification for buying premium while the chain was overpricing it.")
+    if curve.shape.value != shape:
+        raise ValueError(
+            f"{brain}: claims shape {shape!r} but its measured curve is "
+            f"{curve.shape.value!r} ({curve.source}).")
+
+
+def licenses_convexity(signal_shape: str | None, *, brain: str = "") -> tuple[bool, str]:
+    """May this shape claim be CITED as evidence for buying convexity?
+
+    Not a refusal on its own -- `alpha/claims.py` decides admissibility and the
+    sizer decides economics. This answers the narrower question a ledger reader
+    needs: was 'tail' on this row a measurement, or a word?
+    """
+    shape, measured = parse_claim(signal_shape)
+    if measured and brain and brain not in SHAPE_PRIOR:
+        return False, (f"{shape!r} is claimed as measured but SHAPE_PRIOR has no curve for "
+                       f"{brain!r}; the claim borrows another signal's geometry")
+    if shape is None:
+        return False, "no shape claim"
+    if not measured:
+        return False, (f"{shape!r} is DECLARED, not measured -- no decile curve backs it, so "
+                       "it is a hypothesis about geometry and may not be cited as evidence "
+                       "that a tail exists to buy")
+    if shape != Shape.TAIL.value:
+        return False, f"{shape!r} is measured and is not TAIL; convexity is not what it licenses"
+    return True, "measured TAIL curve"

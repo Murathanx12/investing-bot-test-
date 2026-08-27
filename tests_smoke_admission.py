@@ -154,7 +154,7 @@ runner.admission.book_greeks = lambda client, **k: admission.BookGreeks(note="fa
 # reached. These checks are about ADMISSION arithmetic, so the event is moved
 # behind us; the refuted route gets its own coverage immediately below and in
 # tests_smoke_refuted.py.
-loud = Forecast("event_move", "NVDA", 3, 0.0, 0.20, 1.0, "print", "tail", {"last_close": 213.0, "event_date": "2026-08-20"})
+loud = Forecast("event_move", "NVDA", 3, 0.0, 0.20, 1.0, "print", "declared:tail", {"last_close": 213.0, "event_date": "2026-08-20"})
 res = runner.run_pass(FakeClient(), [loud], expiry="2026-08-28", dry_run=False)
 rows = ledger.read_all()
 adm_rows = [r for r in rows if r["action"] == "refused" and (r["refusal_reason"] or "").startswith("ADMISSION")]

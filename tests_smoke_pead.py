@@ -135,7 +135,7 @@ check("sd is never below the measured floor", f1.sd >= ped.ARRIVAL[1][1] - 1e-12
 check("sd is positive", f1.sd > 0)
 check("the edge is a TILT, not a tail", f1.centre / f1.sd < 0.5, f"{f1.centre / f1.sd:.2f}")
 check("labelled a gradient, so shape.py does not buy convexity for it",
-      f1.signal_shape == "gradient")
+      f1.signal_shape == "declared:gradient")
 
 # a violently volatile name must widen the spread above the floor, not sit on it
 vol_bars, event_day = bars_with_print(day0_move=0.06, elapsed=1)

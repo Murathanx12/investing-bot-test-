@@ -132,6 +132,6 @@ def forecast(client, symbol: str, horizon_days: float, *, expiries: list[str]) -
             f"({ratio:.2f}x); calls {att['call_share']:.0%}, near-term {att['near_term_share']:.0%}, "
             f"OTM {att['otm_share']:.0%}. Attention widens sigma x{widen:.2f}; no direction claimed."
         ),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={**att, "daily_sd": daily_sd, "widen": widen, "last_close": closes[-1]},
     )

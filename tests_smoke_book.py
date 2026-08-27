@@ -156,15 +156,15 @@ class FakeChain:
 runner.chain_mod.fetch = lambda *a, **k: FakeChain()
 runner.structures.enumerate_all = lambda snapshot, expiry: [strad, condor]
 state = sizing.TournamentState(equity=100_000, starting_equity=100_000, fraction_of_window_remaining=0.9)
-quiet_f = Forecast("vol_gap", "XYZ", 3, 0.0, 0.02, 1.0, "quiet", "step", {"last_close": 100})
-loud_f = Forecast("event_move", "XYZ", 3, 0.0, 0.10, 1.0, "print", "tail", {"last_close": 100, "event_date": "2026-08-26"})
+quiet_f = Forecast("vol_gap", "XYZ", 3, 0.0, 0.02, 1.0, "quiet", "declared:step", {"last_close": 100})
+loud_f = Forecast("event_move", "XYZ", 3, 0.0, 0.10, 1.0, "print", "declared:tail", {"last_close": 100, "event_date": "2026-08-26"})
 s_q, v_q, _, rej_q = runner.evaluate(None, quiet_f, state=state, expiry="2026-08-28", open_risk=0.0)
 check("quiet forecast -> the condor is the champion", s_q is not None and s_q.kind == "iron_condor", getattr(s_q, "kind", None))
 check("verdict carries the economics", v_q.economics is not None and v_q.economics["ev_usd"] > 0)
 s_l, v_l, _, rej_l = runner.evaluate(None, loud_f, state=state, expiry="2026-08-28", open_risk=0.0)
 check("loud forecast -> the straddle is the champion", s_l is not None and s_l.kind == "long_straddle", getattr(s_l, "kind", None))
 # A structure that clears MDM but cannot beat cash: forecast sd just above implied, straddle EV negative after spread.
-mid_f = Forecast("vol_gap", "XYZ", 3, 0.0, 0.08, 1.0, "meh", "tail", {"last_close": 100})
+mid_f = Forecast("vol_gap", "XYZ", 3, 0.0, 0.08, 1.0, "meh", "declared:tail", {"last_close": 100})
 wide_strad = sizing.Structure("X", "long_straddle", direction="both", entry_cost=600, max_loss=600,
                               breakeven_move=0.06, implied_move=0.05, quote_spread_pct=0.20, days_to_expiry=3,
                               legs=strad.legs)

@@ -126,13 +126,13 @@ class FakeClient:
 print("\n-- runner.evaluate: shares enumerated beside the options for a direction brain")
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.03)
 runner.structures.enumerate_all = lambda snapshot, expiry: [call]
-f_up = Forecast("post_event_drift", "NVDA", 2.0, 0.0072, 0.03, 1.0, "drift", "gradient",
+f_up = Forecast("post_event_drift", "NVDA", 2.0, 0.0072, 0.03, 1.0, "drift", "declared:gradient",
                 {"last_close": 180.0, "event_date": "2026-08-27"}, claim="direction")
 st, v, snap, rej = runner.evaluate(FakeClient(), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
 check("champion is long_shares", st is not None and st.kind == "long_shares", getattr(st, "kind", v.reason[:80]))
 check("verdict integrated at the chain's width", v.economics and v.economics.get("sd_source") == "chain_implied_move")
 check("the call is in the rejected list", any(x.kind == "long_call" for x, _ in rej))
-f_dn = Forecast("post_event_drift", "NVDA", 2.0, -0.0072, 0.03, 1.0, "drift", "gradient",
+f_dn = Forecast("post_event_drift", "NVDA", 2.0, -0.0072, 0.03, 1.0, "drift", "declared:gradient",
                 {"last_close": 180.0, "event_date": "2026-08-27"}, claim="direction")
 st_d, v_d, _, _ = runner.evaluate(FakeClient(), f_dn, state=state, expiry="2026-08-28", open_risk=0.0)
 check("DOWN centre -> short_shares (the sign is spent)", st_d is not None and st_d.kind == "short_shares", getattr(st_d, "kind", v_d.reason[:80]))
@@ -141,7 +141,7 @@ check("DOWN centre, not shortable -> nothing clears", st_ns is None, v_ns.reason
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.054)
 st_p, v_p, _, _ = runner.evaluate(FakeClient(), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
 check("pre-print chain width -> shares refused as well", st_p is None, v_p.reason[:90])
-dist_f = Forecast("vol_gap", "NVDA", 2.0, 0.0, 0.03, 1.0, "quiet", "step", {"last_close": 180.0})
+dist_f = Forecast("vol_gap", "NVDA", 2.0, 0.0, 0.03, 1.0, "quiet", "declared:step", {"last_close": 180.0})
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.03)
 _, _, _, rej_dist = runner.evaluate(FakeClient(), dist_f, state=state, expiry="2026-08-28", open_risk=0.0)
 check("a dispersion/distribution brain never sees a share structure", not any(x.kind in equity.KINDS for x, _ in rej_dist))

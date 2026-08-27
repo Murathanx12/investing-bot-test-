@@ -140,9 +140,9 @@ def fake_evaluate(client, forecast, *, state, expiry, risk_profile=None, open_ri
 
 
 runner.evaluate = fake_evaluate
-f1 = Forecast("vol_gap", "X", 3, 0.0, 0.02, 1.0, "quiet", "tail", {"last_close": 100})
-f2 = Forecast("event_move", "X", 3, 0.0, 0.06, 1.0, "print", "tail", {"last_close": 100})
-f3 = Forecast("narrative_dispersion", "X", 3, 0.0, 0.09, 1.0, "loud", "tail", {"last_close": 100})
+f1 = Forecast("vol_gap", "X", 3, 0.0, 0.02, 1.0, "quiet", "declared:tail", {"last_close": 100})
+f2 = Forecast("event_move", "X", 3, 0.0, 0.06, 1.0, "print", "declared:tail", {"last_close": 100})
+f3 = Forecast("narrative_dispersion", "X", 3, 0.0, 0.09, 1.0, "loud", "declared:tail", {"last_close": 100})
 res = runner.run_pass(FakeClient(), [f1, f2, f3], expiry="2026-08-28", dry_run=False,
                       shadow_brains=("narrative_dispersion",))
 rows = ledger.read_all()
@@ -160,9 +160,9 @@ check("ledger chain intact", ledger.verify_chain()[0] and ledger.verify_chain("f
 
 # event cluster risk: four names, one print, 8% each -> the fourth breaches the 25% node cap
 print("\n-- event node cap: correlated expressions of one event are one bet")
-node_fs = [Forecast("event_move", sym, 3, 0.0, 0.08, 1.0, "print", "tail",
+node_fs = [Forecast("event_move", sym, 3, 0.0, 0.08, 1.0, "print", "declared:tail",
                     {"last_close": 100, "event_date": "2026-08-26"}) for sym in ("N1", "N2", "N3", "N4")]
-free_f = Forecast("vol_gap", "Q1", 3, 0.0, 0.08, 1.0, "quiet", "tail", {"last_close": 100})
+free_f = Forecast("vol_gap", "Q1", 3, 0.0, 0.08, 1.0, "quiet", "declared:tail", {"last_close": 100})
 res2 = runner.run_pass(FakeClient(), node_fs + [free_f], expiry="2026-08-28", dry_run=False, shadow_brains=())
 rows2 = ledger.read_all()
 node_refused = [r for r in rows2 if r["action"] == "refused" and "event node" in (r.get("refusal_reason") or "")]
@@ -245,8 +245,8 @@ def recording_evaluate(client, forecast, *, state, expiry, risk_profile=None, op
 runner.evaluate = recording_evaluate
 _saved = runner.EVENT_RESERVE
 runner.EVENT_RESERVE = {"2099-01-01": 0.10}
-ordinary = Forecast("vol_gap", "R1", 3, 0.0, 0.02, 1.0, "", "tail", {"last_close": 100})
-reserved = Forecast("nfp_event", "R2", 1, 0.0, 0.012, 1.0, "", "tail", {"last_close": 100, "event_date": "2099-01-01"})
+ordinary = Forecast("vol_gap", "R1", 3, 0.0, 0.02, 1.0, "", "declared:tail", {"last_close": 100})
+reserved = Forecast("nfp_event", "R2", 1, 0.0, 0.012, 1.0, "", "declared:tail", {"last_close": 100, "event_date": "2099-01-01"})
 runner.run_pass(FakeClient(), [ordinary, reserved], expiry="2099-01-01", dry_run=True, shadow_brains=())
 runner.EVENT_RESERVE = _saved
 runner.evaluate = fake_evaluate
@@ -261,7 +261,7 @@ check("ARM relays NVDA", "NVDA" in relay.originators_for("ARM"))
 check("nobody relays SPY", relay.originators_for("SPY") == [])
 check("relay registered as a brain", "relay" in BRAINS)
 check("relay is shadow by default", "relay" in __import__("scripts.run_pass", fromlist=["x"]).DEFAULT_SHADOW)
-rf = Forecast("relay", "ARM", 3, 0.0, 0.05, 1.0, "", "tail", {"originator": "NVDA", "event_date": "2026-08-26"})
+rf = Forecast("relay", "ARM", 3, 0.0, 0.05, 1.0, "", "declared:tail", {"originator": "NVDA", "event_date": "2026-08-26"})
 check("relay forecast lands in the originator print node", runner.event_node(rf) == "print:2026-08-26")
 
 print("\nALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")

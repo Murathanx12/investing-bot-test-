@@ -97,7 +97,7 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 8
         rationale=(f"{symbol} relays {orig}'s print on {event_date} {hour or '?'}: on {orig}'s last {len(moves)} "
                    f"prints {symbol} moved RMS {sd_relay:.1%}. Plus {ordinary_days:.0f} ordinary days at "
                    f"{daily_sd:.2%}/day = {sd:.1%}. Centre 0."),
-        signal_shape="tail",
+        signal_shape="declared:tail",
         evidence={"originator": orig, "event_date": event_date, "event_hour": hour, "relay_days": days,
                   "relay_moves": moves, "sd_relay": sd_relay, "sd_ordinary": sd_ordinary,
                   "daily_sd_ordinary": daily_sd, "last_close": closes[-1]},

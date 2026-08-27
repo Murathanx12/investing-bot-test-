@@ -95,7 +95,7 @@ tmp = tempfile.mkdtemp(); os.environ["AAT_LEDGER_DIR"] = tmp
 import importlib; importlib.reload(ledger)
 d = ledger.Decision(decision_id=ledger.new_decision_id("AVGO","dispersion"),
     ts_utc="2026-09-02T20:00:00Z", symbol="AVGO", brain="dispersion",
-    signal_shape="tail", instrument="long_convexity", thesis="t",
+    signal_shape="declared:tail", instrument="long_convexity", thesis="t",
     predicted_move=0.06, predicted_sd=0.05, implied_move=0.05, breakeven_move=0.04,
     mdm_edge=0.12, quote_snapshot={"bid":1.9,"ask":2.1}, action="submitted",
     refusal_reason=None, risk_fraction=0.05, max_loss_usd=5000, order={})
