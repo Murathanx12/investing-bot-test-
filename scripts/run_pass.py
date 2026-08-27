@@ -17,7 +17,7 @@ import argparse
 import logging
 import sys
 
-from alpha import brains, config, genesis, ledger, runner
+from alpha import brains, config, genesis, human, ledger, runner
 from alpha.broker.alpaca import AlpacaPaper
 
 #: Starting universe. Liquid, optionable, spanning several volatility regimes.
@@ -126,6 +126,31 @@ def main() -> int:
         client, args.universe, horizon, brains=names, expiries=[args.expiry])
     for d in declined:
         logging.info("declined %-20s %-6s %s", d["brain"], d["symbol"], d["why"])
+
+    # -- THE HUMAN ARM (alpha/human.py) --------------------------------------
+    # A module with no caller is the failure this whole session is about:
+    # `book_limits.py` was "implemented, tested, and called by NOTHING" while
+    # the book it should have bounded reached 72.9% of equity. So the human
+    # theses enter HERE, in the one function that produces the forecast list,
+    # and they enter as ordinary forecasts with no privileges -- the same claim
+    # matrix, chain width, sizer, refuted routes, admission and latch.
+    #
+    # Their symbols are UNIONED into the universe rather than filtered against
+    # it. A thesis about a name nobody put on the command line is exactly the
+    # case this exists for: on 26 Aug the view existed and the universe did not
+    # contain the expression that would have paid.
+    human_forecasts = human.forecasts_for(
+        set(args.universe) | {t.symbol.upper() for t in human.open_theses()})
+    for f in human_forecasts:
+        args.universe = list(dict.fromkeys(list(args.universe) + [f.symbol]))
+        logging.info("HUMAN THESIS %-6s %-12s centre %+.2f%% conv %.2f  falsifier: %s",
+                     f.symbol, f.claim, f.centre * 100, f.conviction,
+                     str(f.evidence.get("falsifier"))[:70])
+    forecasts = list(forecasts) + human_forecasts
+    if human_forecasts:
+        logging.info("human arm contributed %d forecast(s); %d open thesis/theses on file",
+                     len(human_forecasts), len(human.open_theses()))
+
     if not forecasts:
         logging.error("no forecasts produced; refusing to run an empty pass")
         return 1

@@ -183,6 +183,26 @@ check("filtered BEFORE sizing -- an inexpressible structure is never priced",
 check("the removed structures are RECORDED, not dropped in silence",
       "inexpressible" in rsrc and "rejected.append" in rsrc)
 
+# --- REACHABILITY: a module with no caller is the failure being fixed -------
+# `book_limits.py` was "implemented, tested, and called by NOTHING" while the
+# book it should have bounded reached 72.9% of equity. Testing alpha/human.py in
+# isolation and calling it done would reproduce exactly that.
+psrc = Path("scripts/run_pass.py").read_text(encoding="utf-8")
+check("run_pass imports the human arm", " human," in psrc)
+check("run_pass CALLS it", "human.forecasts_for(" in psrc,
+      "a human arm nobody calls is the book_limits failure again")
+i_h = psrc.find("human.forecasts_for(")
+i_run = psrc.find("runner.run_pass(")
+check("human forecasts enter BEFORE the pass runs", -1 < i_h < i_run, f"{i_h} vs {i_run}")
+check("they join the ordinary forecast list, not a separate path",
+      "forecasts = list(forecasts) + human_forecasts" in psrc,
+      "a separate path would bypass the champion ranking and the event-node cap")
+check("a thesis symbol is unioned into the universe, not filtered against it",
+      "open_theses()" in psrc and "set(args.universe)" in psrc,
+      "on 26 Aug the view existed and the universe lacked the expression that paid")
+check("the empty-pass refusal still stands after the human arm is added",
+      psrc.find("no forecasts produced") > i_h)
+
 print(f"\n{ran} checks")
 print("ALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":
