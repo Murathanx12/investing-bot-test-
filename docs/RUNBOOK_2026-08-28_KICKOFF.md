@@ -190,19 +190,114 @@ sizer, the refuted routes, admission, the book limits, the daily latch.
 
 ---
 
-## 8. FIRST LIVE PASS
+## 8. POINT IT AT NAMES THAT HAVE AN EVENT — this is not optional
+
+**The default universe produces ZERO forecasts.** `scripts/run_pass.UNIVERSE` is
+fifteen hardcoded mega-caps and they all report in the last week of *July*, so
+by late August every one is 19–25 sessions past its print against a drift window
+of +1..+3. A dry pass on 27 Aug returned `NotApplicable` on every single line.
+
+A book that refuses everything scores zero, and **P&L is criterion #1.**
+
+```
+python -m scripts.window_universe --json     # re-run each morning
+```
+
+95 names have an event whose drift window reaches inside the contest:
+
+| reacts | names | note |
+|---|---|---|
+| **Fri 28 Aug** | MRVL WDAY ADSK AFRM ESTC RBRK S | **day one**, plus NVDA/CRM/CRWD/VEEV/OKTA/SNPS at +1 |
+| Mon 31 Aug | SAIC FRO | thin |
+| Tue 1 Sep | NIO MDT ASO AEO | |
+| Wed 2 Sep | DLTR M PANW MDB CRDO GTLB | |
+| **Thu 3 Sep** | **AVGO** HPE LULU NTAP SNOW CIEN | truncated: 2 sessions left |
+| Fri 4 Sep | **DELL** ZS DOCU GWRE PATH IOT | truncated: 1 session, deadline morning |
+
+`AVGO` on 2 Sep amc is the marquee event and it is `TRUNCATED_BY_DEADLINE` — the
++3 session never arrives. That is priced in at selection, not discovered on the
+last morning.
+
+## 9. FIRST LIVE PASS
 
 ```
 AAT_ACCOUNT_ROLE=competition python -m scripts.run_pass --role competition \
-    --profile conservative                       # DRY. No --live.
+    --profile conservative --expiry 2026-09-04 \
+    --brains post_event_drift --shadow "" --window-universe       # DRY
 ```
 
-Read the refusal decomposition before sending anything. `run_pass --live` under
-the `competition` role verifies genesis first and exits 2 if it does not match.
+Read the refusal decomposition before sending anything. Under the `competition`
+role, `--live` verifies genesis first and exits 2 if it does not match, and
+`--expiry` is refused if it outlives the deadline.
 
 Then, and only then, `--live`.
 
+### What it will actually pick
+
+Measured 27 Aug against **live chains**, with the brain's own +0.72% directional
+forecast:
+
+| name | chosen | EV/max-loss | P(profit) | median |
+|---|---|---|---|---|
+| NVDA | `long_call` | +38% | 33% | −$137 |
+| CRM | `bull_call_spread` | +16% | 29% | −$104 |
+| DG | `long_shares` | +11% | 56% | +$1 |
+| SNPS | `long_shares` | +9% | 54% | +$3 |
+
+Straddles and condors were **refused before pricing** by the claim matrix.
+Options win where the edge pays for the spread; shares win where it doesn't — so
+the options requirement is satisfied without forcing an instrument.
+
+### ONE DECISION IS YOURS, AND IT IS NOT MADE
+
+The champion is ranked on **expected value**, which picks the NVDA `long_call`
+at 33% hit rate over `long_shares` at 56%. Over a long series the mean is right;
+over **five sessions** terminal wealth follows the median path.
+
+Full argument both ways: `docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md`.
+
+1. **Leave it** — option-heavy, choppy curve, real upside. No code change.
+2. **Rank on median** — one line in `runner._ev_ratio`. Shares-and-spreads book,
+   smoother curve, lower ceiling.
+3. **Cap the risk budget in sub-50% structures** — most code, least tested.
+
+The runner now logs `MEAN-RANKED` whenever it takes a champion with P(profit)
+below 50%, naming the majority-win alternative it passed over. So you can watch
+the trade-off live and change it mid-contest if the curve looks wrong.
+
+## 10. WHAT DOES **NOT** GET CAPITAL
+
+- **`vol_gap`** — quarantined. It opened 5 of the 6 losing structures and cost
+  **−$14,335 realised**. Reopens only when re-scored on corrected arithmetic.
+- **Long straddles on SPY / QQQ / IWM** — refused. 381 weekly ATM straddles,
+  buyer −19.8%/wk pooled, and this book's own SPY+QQQ straddles cost **−$14,711**.
+- **Long straddles into NVDA's own print, or a peer's** — refused, 0-for-8 and
+  290 relay legs.
+- **`narrative_dispersion` / `options_attention`** — shadow. Measured 1.16–1.17×
+  sigma inflation, and a 16% inflation alone flips a straddle's sign.
+
+Still fully admissible: calls, puts, debit and credit verticals, condors on
+anything with a directional or width claim behind it, and shares.
+
 ---
+
+## 11. THE ONE-LINE MORNING ROUTINE, once the account exists
+
+```
+python -m scripts.window_universe --json
+AAT_ACCOUNT_ROLE=competition python -m scripts.preflight
+AAT_ACCOUNT_ROLE=competition python -m scripts.run_pass --role competition     --expiry 2026-09-04 --brains post_event_drift --shadow ""     --window-universe --profile conservative --live
+AAT_ACCOUNT_ROLE=competition python -m scripts.pnl_forensics --role competition
+```
+
+Then start the loop for the day:
+
+```
+AAT_ACCOUNT_ROLE=competition python -m scripts.agent_loop --expiry 2026-09-04 --live
+```
+
+`scripts/manage` runs inside it and liquidates at **10:45 ET on 4 Sep** — that
+verdict outranks a winning thesis.
 
 ## WHAT IS DIFFERENT FROM THE 25 AUG BOOK
 
