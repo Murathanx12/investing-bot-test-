@@ -250,6 +250,40 @@ check("the runner passes days_to_expiry into the guard",
       "days_to_expiry=getattr(structure" in _rs,
       "the parameter is useless if the one caller never supplies it")
 
+# --- THE SAME QUESTION ASKED OF EVERY OTHER ROW ----------------------------
+# The index rule's scope was fixed by adding INDEX_STRADDLE_MIN_DTE. Asking the
+# same question of the PRINT rows: both samples (NVDA 0/8, PANW 0/6, 290 relay
+# legs) reconstruct the ATM straddle at the NEAREST EXPIRY AFTER the print --
+# 0-7 days, almost entirely event variance. A 30-day straddle into the same
+# print is mostly ordinary vol and nothing here has measured it.
+
+def _own(dte):
+    return refuted.check(symbol="NVDA", kind="long_straddle", event_ahead_on_symbol=True,
+                         originators_printing=[], days_to_expiry=dte)
+
+
+def _peer(dte):
+    return refuted.check(symbol="AMD", kind="long_straddle", event_ahead_on_symbol=False,
+                         originators_printing=refuted.peers_printing("AMD", {"NVDA"}),
+                         days_to_expiry=dte)
+
+check("a NEAR-dated straddle into NVDA's print is REFUSED (the sample)", _own(1.0) is not None)
+check("and at the sample's outer edge", _own(7.0) is not None)
+check("a 30-DAY straddle into the same print is ADMISSIBLE", _own(30.0) is None,
+      "the sample is the nearest expiry; a 30-day structure is mostly ordinary vol")
+check("the boundary is where the constant says", _own(10.0) is not None and _own(11.0) is None)
+check("UNKNOWN dte stays REFUSED on the print rows too", _own(None) is not None,
+      "an absent input must not read as a passing one")
+check("the peer rule is bounded the same way",
+      _peer(3.0) is not None and _peer(30.0) is None and _peer(None) is not None)
+check("both print scopes now say the dte bound out loud",
+      "days to expiry" in _own(1.0).scope and "days to expiry" in _peer(3.0).scope)
+check("  and name WHY -- the nearest expiry after the print",
+      "NEAREST expiry" in _own(1.0).scope and "nearest expiry" in _peer(3.0).scope)
+check("the bound is generous relative to the 0-7 day sample",
+      refuted.PRINT_STRADDLE_MAX_DTE == 10.0,
+      "refusing slightly outside the sample costs a trade; inside it is where the money went")
+
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):
     check(f"{r.route} states what would REOPEN it", bool(r.reopens_if and len(r.reopens_if) > 20))

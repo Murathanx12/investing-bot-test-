@@ -181,6 +181,21 @@ class Refusal:
 #: against a 28 Aug expiry -- three days -- and must stay refused.
 INDEX_STRADDLE_MIN_DTE = 2.0
 
+#: Above this many days to expiry, the PRINT-straddle samples say nothing.
+#:
+#: Both print samples -- NVDA 0-for-8, PANW 0-for-6, and the 290 relay legs --
+#: reconstruct the ATM straddle at the NEAREST EXPIRY AFTER the print, which is
+#: 0-7 days out. That structure is almost entirely event variance. A 30-day
+#: straddle opened into the same print is mostly ordinary vol with the event as a
+#: minority of its price, and nothing here has measured it.
+#:
+#: Added in the same pass that fixed the index rule, by asking the same question
+#: of every other row rather than only of the one that had just bitten. The bound
+#: is generous (10 vs a 0-7 sample) because the direction of error matters:
+#: refusing slightly outside the sample costs a trade, and the trades inside the
+#: sample are the ones that lost the money.
+PRINT_STRADDLE_MAX_DTE = 10.0
+
 
 def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
           originators_printing: list[str] | None = None,
@@ -201,7 +216,9 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
 
     sym = symbol.upper()
 
-    if event_ahead_on_symbol and sym in MEASURED_OWN_PRINT:
+    _dte_in_scope = days_to_expiry is None or days_to_expiry <= PRINT_STRADDLE_MAX_DTE
+
+    if event_ahead_on_symbol and sym in MEASURED_OWN_PRINT and _dte_in_scope:
         return Refusal(
             route="LONG_VOL_INTO_OWN_MEASURED_PRINT",
             reason=(f"{kind} on {sym} whose own print is still ahead. On the sample below the "
@@ -210,7 +227,9 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
             evidence=MEASURED_OWN_PRINT[sym],
             reopens_if=("a forward sample of >=20 prints on this symbol in which the realised "
                         "absolute move beats the entry straddle after costs"),
-            scope=f"{sym} only, long_straddle/long_strangle only, own print ahead",
+            scope=(f"{sym} only, long_straddle/long_strangle only, own print ahead, "
+                   f"<= {PRINT_STRADDLE_MAX_DTE:g} days to expiry (the sample reconstructs "
+                   "the NEAREST expiry after the print)"),
         )
 
     if sym in MEASURED_INDEX_STRADDLE and (days_to_expiry is None
@@ -236,7 +255,7 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
                    "own 28-release sample), 2024-02 to 2026-08"),
         )
 
-    if originators_printing:
+    if originators_printing and _dte_in_scope:
         orig = ", ".join(sorted(originators_printing))
         return Refusal(
             route="PEER_LONG_VOL_INTO_PRINT",
@@ -246,7 +265,9 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
             evidence="290 relay legs, mean -4.2%, hit 34%, t -2.0 (scripts/relay_backtest.py)",
             reopens_if=("a pre-registered re-test on >=100 fresh legs clearing zero after costs; "
                         "the 2026-08-25 AMD straddle (-$4,125) is one more negative sample"),
-            scope="peer ATM straddles/strangles only, originator print ahead",
+            scope=(f"peer ATM straddles/strangles only, originator print ahead, <= "
+                   f"{PRINT_STRADDLE_MAX_DTE:g} days to expiry (the 290 legs are all at the "
+                   "nearest expiry after the originator's print)"),
         )
     return None
 
