@@ -1,3 +1,49 @@
+> ## SESSION 18 (2026-08-28) -- THE CORE WAS NEVER PRICED, AND COULD NOT HAVE BEEN PLACED
+>
+> **RESULT IMPROVEMENT: NONE in P&L. One 70%-of-risk allocation REFUTED before
+> it was funded, and one unplaceable order type caught before kickoff.**
+>
+> **REGISTER BEFORE 11:00 ET TODAY.** Still the only irreversible item. The
+> judged account needs **options level 3** or the book cannot place spreads.
+>
+> Four things overturn what session 17 left standing:
+>
+> 1. **The 70% core is refuted by its own prices.** 11,859,415 real
+>    OptionMetrics bid/offer rows, 1996-2025. The short put spread on SPY/QQQ/IWM,
+>    crossed against us on all four crossings, **fails on two of three
+>    underlyings and beats buy-and-hold on none**: terminal wealth 2.79x / 0.05x
+>    / 0.21x against 5.39x / 5.14x / 2.50x. QQQ has a +2.21% median, a 58.8% hit
+>    rate, and turns $1 into $0.05 -- variance drag again.
+>    `docs/FINDING_2026-08-28_THE_CORE_WAS_NEVER_PRICED.md`
+> 2. **The book could not have been placed.** It said "enter MARKET-ON-CLOSE"
+>    for a core made of multileg options; **Alpaca accepts tif=day for options
+>    and nothing else.** And the 15:50 ET CLS cutoff means a signal read off the
+>    16:00 close can never trade that close -- lookahead in the execution layer.
+>    `docs/FINDING_2026-08-28_THE_BOOK_COULD_NOT_HAVE_BEEN_PLACED.md`
+> 3. **Long premium is annihilated over 26 years.** The long straddle scores
+>    t **-5.66 to -8.72** and **0.00x** on all three underlyings. The August book's
+>    biggest single loss was a long straddle. That was not bad luck.
+> 4. **NFP is not a trade.** 379 releases: the entire effect is the GAP (62% hit),
+>    the intraday segment is NEGATIVE on release days, and the release-day move is
+>    only **1.13x** an ordinary day. Hold into it and add nothing.
+>    `docs/FINDING_2026-08-28_NFP_IS_NOT_A_TRADE.md`
+>
+> **Long shares is the only structure positive on all three underlyings with a
+> positive t (SPY t +3.58).** Beta is not the fallback; on this evidence it is
+> the result.
+>
+> `COMPETITION_BOOK_v1` is WITHDRAWN. v2 has no fixed core: `alpha/tournament.py`
+> auctions risk by marginal utility and **the mode selects the objective** --
+> BASE maximises log wealth, ATTACK maximises P(target). Beta wins on merit.
+>
+> New and all refusing: `alpha/timing.py` (venue order semantics),
+> `alpha/spreads.py` (real chain, `matching_spread` selects the REPLAYED
+> geometry, not the best-looking one), `alpha/nodes.py` (SPY+QQQ+IWM = 1.54
+> effective nodes), `alpha/tournament.py`. Aegis gains
+> `copy_lab/sentinel.py` -- a refusing lane and a dead lane no longer print alike.
+>
+> Suite **1390 checks**, all pass. **Nothing was placed.**
+
 > ## SESSION 17 (2026-08-28) -- WHY WE LOST, WITH 32 YEARS OF RECEIPTS
 >
 > **Read `docs/SESSION_17_2026-08-28_WHY_WE_LOST.md` first.** Scoreboard,
