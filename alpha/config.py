@@ -112,6 +112,82 @@ class CredentialRefusal(RuntimeError):
     """A credential was missing, ambiguous, or inherited from the wrong place."""
 
 
+#: Set by `run_tests.py` for the whole suite. While it is set, importing this
+#: module BLOCKS outbound sockets, so no test -- and no process a test spawns --
+#: can reach the venue or any other host.
+TEST_MODE_ENV = "AAT_TEST_MODE"
+
+
+def test_mode() -> bool:
+    return os.getenv(TEST_MODE_ENV, "").strip().lower() in ("1", "true", "yes")
+
+
+class NetworkRefusal(RuntimeError):
+    """A test tried to open a socket to a remote host."""
+
+
+def _install_network_block() -> None:
+    """Refuse outbound sockets while AAT_TEST_MODE is set.
+
+    WHY HERE, AND WHY SOCKETS
+    =========================
+    On 2026-08-27 a test for `--manage-only` stubbed `loop._run` but not
+    `loop.subprocess.call`, so a CHILD process ran `belief_vs_chain` against the
+    live venue and appended 338 rows to `state/belief_series.jsonl`. Two things
+    follow, and they picked this design:
+
+    - a monkeypatch in the parent cannot reach a child, but an ENVIRONMENT
+      VARIABLE is inherited by one. So the switch is an env var;
+    - the harm is outbound I/O, not building a credential. A first cut refused
+      inside `credentials()` and broke two suites that plant FAKE keys
+      (`AAT_DEV_KEY_ID=k`) precisely so they can exercise role logic offline. A
+      fake key cannot reach a venue; a real socket can. So the block belongs at
+      the socket.
+
+    `alpha.config` is imported by every script and every test in this repo, so
+    installing it here needs no per-file discipline -- which is the property the
+    original bug was missing.
+
+    Loopback stays open: a blocked localhost breaks tooling without protecting
+    anything, since the accident being prevented is reaching a REMOTE venue.
+
+    SCOPE, stated exactly: this blocks `connect`, so no application data
+    leaves. It does NOT block `getaddrinfo`, and `socket.create_connection`
+    resolves before it connects -- so a DNS query for the venue can still go
+    out. A DNS lookup is not an order and not a ledger row; blocking it would
+    also break loopback resolution for no gain.
+    """
+    if not test_mode():
+        return
+    import socket
+
+    if getattr(socket.socket, "_aat_blocked", False):
+        return
+
+    _real_connect = socket.socket.connect
+    _real_connect_ex = socket.socket.connect_ex
+    _local = ("127.0.0.1", "::1", "localhost", "0.0.0.0", "")
+
+    def _guard(fn):
+        def inner(self, address, *a, **kw):
+            host = address[0] if isinstance(address, tuple) and address else address
+            if isinstance(host, str) and host not in _local:
+                raise NetworkRefusal(
+                    f"{TEST_MODE_ENV} is set: refusing an outbound connection to {host!r}. "
+                    "A unit test must not reach the network -- mock the call, or run it "
+                    "deliberately with `python run_tests.py --allow-venue`."
+                )
+            return fn(self, address, *a, **kw)
+        return inner
+
+    socket.socket.connect = _guard(_real_connect)
+    socket.socket.connect_ex = _guard(_real_connect_ex)
+    socket.socket._aat_blocked = True
+
+
+_install_network_block()
+
+
 class EndpointRefusal(RuntimeError):
     """A host that is not the paper trading host was requested."""
 
@@ -161,6 +237,7 @@ def credentials(for_role: str | None = None) -> Credentials:
     resolved = for_role or role()
     if not _valid_role(resolved):
         raise CredentialRefusal(f"Invalid role name {resolved!r}.")
+
 
     # FOURTH REFUSAL: the flag and the environment must AGREE.
     #

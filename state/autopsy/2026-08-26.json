@@ -1,0 +1,1521 @@
+{
+ "session": "2026-08-26",
+ "generated_utc": "2026-08-26T20:03:07.379263+00:00",
+ "universe_n": 3059,
+ "median_1d_return": -0.0011,
+ "movers": [
+  {
+   "symbol": "ANF",
+   "side": "WIN",
+   "ret_1d": 0.3563,
+   "ret_5d": 0.4007,
+   "median_dollar_volume": 108044990.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 4838613209.0,
+   "cap_bucket": "mid",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "American Eagle Outfitters Stock Climbs Wednesday: What's Driving the Action?",
+    "QUICK SPARK: Abercrombie Sold More at Higher Prices \u2014 and Customers Still Bought",
+    "What Led to One of the Best Day for Abercrombie Stock?"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "ANF surged 35.6% after reporting upbeat Q2 results with higher sales and prices, as indicated by headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings surprises can be anticipated by tracking scheduled reports and prior guidance."
+   }
+  },
+  {
+   "symbol": "BHVN",
+   "side": "WIN",
+   "ret_1d": 0.1801,
+   "ret_5d": 0.2001,
+   "median_dollar_volume": 30832382.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 2172009537.0,
+   "cap_bucket": "mid",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "Why Is Biohaven Stock Soaring Wednesday?",
+    "12 Health Care Stocks Moving In Wednesday's Intraday Session",
+    "Why JOYY Shares Are Trading Higher; Here Are 20 Stocks Moving Premarket"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": true
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "BHVN rose 18.0% with no clear catalyst in the provided headlines, which only mention general sector moves.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves lack observable precursors; avoid forcing explanations."
+   }
+  },
+  {
+   "symbol": "BZ",
+   "side": "WIN",
+   "ret_1d": 0.1565,
+   "ret_5d": 0.1716,
+   "median_dollar_volume": 51079675.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 7239405618.57842,
+   "cap_bucket": "mid",
+   "industry": "Professional Services",
+   "had_print": false,
+   "headlines": [
+    "Abercrombie & Fitch Posts Upbeat Q2 Results, Joins Semtech, Summit Therapeutics And Other Big Stocks Moving Higher On Wednesday",
+    "Transcript: Kanzhun Q2 2026 Earnings Conference Call",
+    "Kanzhun Sees Q3 Sales $355.190M-$368.454M vs $361.520M Est"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "BZ gained 15.7% after its Q2 earnings call and Q3 sales guidance that met estimates, as per headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings and guidance are key catalysts for professional services firms."
+   }
+  },
+  {
+   "symbol": "CAPR",
+   "side": "WIN",
+   "ret_1d": 0.1303,
+   "ret_5d": 0.1742,
+   "median_dollar_volume": 29890539.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 481972212.00000006,
+   "cap_bucket": "small",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "12 Health Care Stocks Moving In Wednesday's Intraday Session",
+    "Abercrombie & Fitch Posts Upbeat Q2 Results, Joins Semtech, Summit Therapeutics And Other Big Stocks Moving Higher On Wednesday",
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "CAPR rose 13.0% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Biotech moves often lack clear precursors; avoid speculation."
+   }
+  },
+  {
+   "symbol": "WBTN",
+   "side": "WIN",
+   "ret_1d": 0.1079,
+   "ret_5d": 0.226,
+   "median_dollar_volume": 3001093.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 1218460000.0,
+   "cap_bucket": "small",
+   "industry": "Media",
+   "had_print": false,
+   "headlines": [
+    "12 Communication Services Stocks Moving In Wednesday's Intraday Session",
+    "Abercrombie & Fitch Posts Upbeat Q2 Results, Joins Semtech, Summit Therapeutics And Other Big Stocks Moving Higher On Wednesday",
+    "Napco Security Technologies Posts Upbeat Q4 Results, Joins Alvotech, Rum Group And Other Big Stocks Moving Higher On Monday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "WBTN gained 10.8% with no specific headline; only general communication services sector moves are noted.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Small-cap media moves can be idiosyncratic and unpredictable."
+   }
+  },
+  {
+   "symbol": "SEDG",
+   "side": "WIN",
+   "ret_1d": 0.1071,
+   "ret_5d": 0.0147,
+   "median_dollar_volume": 125177403.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 1838389220.9999998,
+   "cap_bucket": "small",
+   "industry": "Semiconductors",
+   "had_print": false,
+   "headlines": [
+    "12 Information Technology Stocks Moving In Wednesday's Intraday Session",
+    "This SolarEdge Analyst Turns Bullish; Here Are Top 2 Upgrades For Wednesday",
+    "SolarEdge Stock Climbs on Analyst Upgrade: What Investors Need to Know"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "SEDG rose 10.7% following an analyst upgrade, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Analyst upgrade reports",
+    "lesson": "Analyst actions can drive moves; monitor upgrade/downgrade flows."
+   }
+  },
+  {
+   "symbol": "SMTC",
+   "side": "WIN",
+   "ret_1d": 0.1041,
+   "ret_5d": 0.1232,
+   "median_dollar_volume": 380784561.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 11878636736.0,
+   "cap_bucket": "large",
+   "industry": "Semiconductors",
+   "had_print": true,
+   "headlines": [
+    "Nasdaq 100 Falls as Hot PCE Inflation Stirs Rate-Hike Bets: Stock Market Today",
+    "Morgan Stanley Maintains Equal-Weight on Semtech, Raises Price Target to $195",
+    "These Analysts Revise Their Forecasts On Semtech After Upbeat Q2 Results"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "SMTC gained 10.4% after upbeat Q2 results and a price target raise from Morgan Stanley.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats in semiconductors can trigger analyst revisions and price moves."
+   }
+  },
+  {
+   "symbol": "GRRR",
+   "side": "WIN",
+   "ret_1d": 0.1004,
+   "ret_5d": 0.0589,
+   "median_dollar_volume": 17291813.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 386233788.00000006,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Why Cadeler Shares Are Trading Higher By 6%; Here Are 20 Stocks Moving Premarket",
+    "12 Information Technology Stocks Moving In Tuesday's Intraday Session",
+    "Why Is Gorilla Technology Stock Falling Tuesday?"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "GRRR rose 10.0% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech small-caps can move on unobservable catalysts."
+   }
+  },
+  {
+   "symbol": "URBN",
+   "side": "WIN",
+   "ret_1d": 0.0946,
+   "ret_5d": 0.1152,
+   "median_dollar_volume": 71974298.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 6489426717.000001,
+   "cap_bucket": "mid",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "Urban Outfitters Earnings Prediction Market Preview: Will $100M Tariff Refund Steal the Show?"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "URBN rose 9.5% ahead of its earnings report, with a preview mentioning a potential tariff refund.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Pre-earnings speculation can drive moves; watch for scheduled events."
+   }
+  },
+  {
+   "symbol": "VYX",
+   "side": "WIN",
+   "ret_1d": 0.0923,
+   "ret_5d": 0.1623,
+   "median_dollar_volume": 15911297.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1124510000.0,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "VYX rose 9.2% with no headlines provided, making the cause unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still mean a move; avoid over-explaining."
+   }
+  },
+  {
+   "symbol": "BETR",
+   "side": "WIN",
+   "ret_1d": 0.0911,
+   "ret_5d": 0.0299,
+   "median_dollar_volume": 7842967.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 233682524.99999997,
+   "cap_bucket": "micro",
+   "industry": "Financial Services",
+   "had_print": false,
+   "headlines": [
+    "Crypto-Rich but House-Hunting? Coinbase and Better Unveil Token-Backed Mortgage",
+    "Better Mortgage And Coinbase Launch Token-Backed Mortgage Product"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "m_and_a",
+    "why": "BETR rose 9.1% after announcing a token-backed mortgage product with Coinbase, a partnership headline.",
+    "knowable_before": "partly",
+    "precursor": "Partnership announcement",
+    "lesson": "Partnership news can boost fintech stocks; monitor press releases."
+   }
+  },
+  {
+   "symbol": "SIMO",
+   "side": "WIN",
+   "ret_1d": 0.088,
+   "ret_5d": 0.0836,
+   "median_dollar_volume": 256261217.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 8199911244.999999,
+   "cap_bucket": "mid",
+   "industry": "Semiconductors",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "SIMO rose 8.8% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Semiconductor moves without news are hard to predict."
+   }
+  },
+  {
+   "symbol": "OPTX",
+   "side": "WIN",
+   "ret_1d": 0.0855,
+   "ret_5d": 0.0101,
+   "median_dollar_volume": 4491218.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 315794268.99999994,
+   "cap_bucket": "small",
+   "industry": "Electrical Equipment",
+   "had_print": false,
+   "headlines": [
+    "Syntec Optics Holdings Receives New Order To Build Waveguides For Space Satellites"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "m_and_a",
+    "why": "OPTX rose 8.6% after receiving a new order for space satellite waveguides, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Order announcement",
+    "lesson": "Contract wins can drive small-cap moves; track company announcements."
+   }
+  },
+  {
+   "symbol": "TTMI",
+   "side": "WIN",
+   "ret_1d": 0.0837,
+   "ret_5d": 0.0457,
+   "median_dollar_volume": 375568340.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 11830678347.0,
+   "cap_bucket": "large",
+   "industry": "Electrical Equipment",
+   "had_print": false,
+   "headlines": [
+    "Watching TTM Technologies; Hearing Zacks Insider Trader Buys Stock",
+    "Nasdaq 100 Falls as Hot PCE Inflation Stirs Rate-Hike Bets: Stock Market Today",
+    "Abercrombie & Fitch Posts Upbeat Q2 Results, Joins Semtech, Summit Therapeutics And Other Big Stocks Moving Higher On Wednesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "TTMI rose 8.4% with no specific headline; only general market and sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Large-cap moves without clear news are often not predictable."
+   }
+  },
+  {
+   "symbol": "XPOF",
+   "side": "WIN",
+   "ret_1d": 0.0821,
+   "ret_5d": 0.1431,
+   "median_dollar_volume": 3623781.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 321110000.0,
+   "cap_bucket": "small",
+   "industry": "Hotels, Restaurants & Leisure",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "XPOF rose 8.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Leisure stocks can move on unobservable factors."
+   }
+  },
+  {
+   "symbol": "ERAS",
+   "side": "WIN",
+   "ret_1d": 0.0783,
+   "ret_5d": 0.0598,
+   "median_dollar_volume": 65686264.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 6211773625.0,
+   "cap_bucket": "mid",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [
+    "Erasca Announces FDA Granted Fast Track Designation To ERAS-0015 For Metastatic Pancreatic Adenocarcinoma"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "regulatory_decision",
+    "why": "ERAS rose 7.8% after FDA granted Fast Track designation to ERAS-0015, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "FDA designation announcement",
+    "lesson": "Regulatory news can be a catalyst; monitor FDA announcements."
+   }
+  },
+  {
+   "symbol": "CUE",
+   "side": "WIN",
+   "ret_1d": 0.0781,
+   "ret_5d": 0.0978,
+   "median_dollar_volume": 4024989.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 194395716.0,
+   "cap_bucket": "micro",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "CUE rose 7.8% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap biotech moves are often unpredictable."
+   }
+  },
+  {
+   "symbol": "BBWI",
+   "side": "WIN",
+   "ret_1d": 0.0745,
+   "ret_5d": -0.0298,
+   "median_dollar_volume": 102410942.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 3543456663.0,
+   "cap_bucket": "mid",
+   "industry": "Retail",
+   "had_print": true,
+   "headlines": [
+    "Bath & Body Works Says \u2018You Can\u2019t Promote a Business Back to Health\u2019",
+    "Nasdaq 100 Falls as Hot PCE Inflation Stirs Rate-Hike Bets: Stock Market Today",
+    "Bath & Body Works Q2 2026 Earnings Call Transcript"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "BBWI rose 7.4% after its Q2 earnings call, despite a negative headline about promotions.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings reactions can be counterintuitive; focus on actual results."
+   }
+  },
+  {
+   "symbol": "NBTX",
+   "side": "WIN",
+   "ret_1d": 0.072,
+   "ret_5d": -0.0196,
+   "median_dollar_volume": 4095253.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 1808605999.0,
+   "cap_bucket": "small",
+   "industry": "Biotechnology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "NBTX rose 7.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Biotech moves without news are hard to anticipate."
+   }
+  },
+  {
+   "symbol": "BTSG",
+   "side": "WIN",
+   "ret_1d": 0.0719,
+   "ret_5d": 0.034,
+   "median_dollar_volume": 189625889.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 11323769638.0,
+   "cap_bucket": "large",
+   "industry": "Health Care",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "BTSG rose 7.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Health care moves without news are unpredictable."
+   }
+  },
+  {
+   "symbol": "GENB",
+   "side": "LOSS",
+   "ret_1d": -0.208,
+   "ret_5d": -0.0489,
+   "median_dollar_volume": 9573033.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "12 Health Care Stocks Moving In Wednesday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "GENB fell 20.8% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Large losses without clear news are hard to predict."
+   }
+  },
+  {
+   "symbol": "QFIN",
+   "side": "LOSS",
+   "ret_1d": -0.1891,
+   "ret_5d": -0.207,
+   "median_dollar_volume": 16538844.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Dow Falls Over 150 Points; JM Smucker Shares Gain Following Upbeat Q1 Earnings",
+    "JP Morgan Downgrades Qfin Holdings to Underweight, Lowers Price Target to $9",
+    "Intuit, Zoom, Qfin Holdings And Other Big Stocks Moving Lower In Wednesday\u2019s Pre-Market Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "QFIN fell 18.9% after JP Morgan downgraded it to Underweight and lowered its price target, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Analyst downgrade",
+    "lesson": "Analyst downgrades can trigger sharp declines; monitor rating changes."
+   }
+  },
+  {
+   "symbol": "SYRE",
+   "side": "LOSS",
+   "ret_1d": -0.1281,
+   "ret_5d": -0.1406,
+   "median_dollar_volume": 98249408.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Deutsche Bank Maintains Buy on Spyre Therapeutics, Lowers Price Target to $127",
+    "Spyre Therapeutics Says Rheumatoid Arthritis Program Misses Internal Benchmark, Stock Tumbles",
+    "Wedbush Maintains Outperform on Spyre Therapeutics, Lowers Price Target to $123"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "clinical_readout",
+    "why": "SYRE fell 12.8% after its rheumatoid arthritis program missed an internal benchmark, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Clinical trial update",
+    "lesson": "Clinical misses can be devastating; track trial milestones."
+   }
+  },
+  {
+   "symbol": "JKS",
+   "side": "LOSS",
+   "ret_1d": -0.1187,
+   "ret_5d": -0.1946,
+   "median_dollar_volume": 11065635.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "JinkoSolar CEO Warns Solar Industry Profits Remain Under Pressure",
+    "JinkoSolar Holding Co Q2 Adj. EPS $(2.54) Misses $(0.70) Estimate, Sales $1.821B Miss $2.121B Estimate",
+    "JinkoSolar Holding CEO Xiande Li Resigns, Effective August 26, To Be Succeeded By Wei \"Dimi\" Du"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "JKS fell 11.9% after Q2 earnings missed estimates and CEO resigned, as per headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses and management changes can compound losses."
+   }
+  },
+  {
+   "symbol": "DY",
+   "side": "LOSS",
+   "ret_1d": -0.1162,
+   "ret_5d": -0.2281,
+   "median_dollar_volume": 194048865.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Why Is Dycom Industries Stock Sinking Wednesday?",
+    "12 Industrials Stocks Moving In Wednesday's Intraday Session",
+    "Nasdaq 100 Falls as Hot PCE Inflation Stirs Rate-Hike Bets: Stock Market Today"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "DY fell 11.6% with no specific headline; only general industrials sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Industrials can drop on sector-wide or idiosyncratic factors."
+   }
+  },
+  {
+   "symbol": "FIGR",
+   "side": "LOSS",
+   "ret_1d": -0.0987,
+   "ret_5d": 0.0062,
+   "median_dollar_volume": 96817291.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Nasdaq 100 Falls as Hot PCE Inflation Stirs Rate-Hike Bets: Stock Market Today"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "FIGR fell 9.9% with no specific headline; only general market moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Market-wide moves can affect stocks without specific news."
+   }
+  },
+  {
+   "symbol": "CLYM",
+   "side": "LOSS",
+   "ret_1d": -0.0987,
+   "ret_5d": -0.0727,
+   "median_dollar_volume": 15502133.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "HC Wainwright & Co. Maintains Buy on Climb Bio, Raises Price Target to $24"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "CLYM fell 9.9% despite an analyst maintaining Buy and raising price target, so the cause is unclear.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Analyst actions don't always align with price moves."
+   }
+  },
+  {
+   "symbol": "MNRO",
+   "side": "LOSS",
+   "ret_1d": -0.0967,
+   "ret_5d": 0.0252,
+   "median_dollar_volume": 14887459.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "MNRO fell 9.7% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still lead to large moves."
+   }
+  },
+  {
+   "symbol": "AIBZ",
+   "side": "LOSS",
+   "ret_1d": -0.0953,
+   "ret_5d": -0.1679,
+   "median_dollar_volume": 3717004.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "AIBZ fell 9.5% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves are often unpredictable."
+   }
+  },
+  {
+   "symbol": "QBTS",
+   "side": "LOSS",
+   "ret_1d": -0.0951,
+   "ret_5d": -0.0937,
+   "median_dollar_volume": 393376014.0,
+   "dv_bucket": "large",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "D-Wave Quantum (QBTS) Stock Drops Wednesday: What's Happening?",
+    "D-Wave Quantum's CFO John Markovich To Retire Effective On September 2, 2026; Greg Golkov To Become Acting CFO",
+    "10 Information Technology Stocks Whale Activity In Today\u2019s Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "QBTS fell 9.5% with headlines about CFO retirement, but that may not fully explain the drop.",
+    "knowable_before": "partly",
+    "precursor": "CFO retirement announcement",
+    "lesson": "Management changes can spook investors; monitor executive transitions."
+   }
+  },
+  {
+   "symbol": "DFNS",
+   "side": "LOSS",
+   "ret_1d": -0.0893,
+   "ret_5d": -0.5434,
+   "median_dollar_volume": 3063539.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "T3 Defense's Tiltan Software Engineering Subsidiary Selected By Sensor Systems Developer, Producer To License Majestic.ai",
+    "12 Information Technology Stocks Moving In Tuesday's Intraday Session",
+    "What's Going On With T3 Defense Stock Tuesday?"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "DFNS fell 8.9% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech small-caps can drop without clear news."
+   }
+  },
+  {
+   "symbol": "HQ",
+   "side": "LOSS",
+   "ret_1d": -0.0893,
+   "ret_5d": 0.0493,
+   "median_dollar_volume": 5276048.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "12 Information Technology Stocks Moving In Wednesday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "HQ fell 8.9% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech moves without news are hard to predict."
+   }
+  },
+  {
+   "symbol": "TENX",
+   "side": "LOSS",
+   "ret_1d": -0.0862,
+   "ret_5d": 0.1158,
+   "median_dollar_volume": 19383449.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "12 Health Care Stocks Moving In Tuesday's Intraday Session",
+    "12 Health Care Stocks Moving In Tuesday's Pre-Market Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "TENX fell 8.6% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Health care moves without news are unpredictable."
+   }
+  },
+  {
+   "symbol": "SNAP",
+   "side": "LOSS",
+   "ret_1d": -0.0853,
+   "ret_5d": 0.0334,
+   "median_dollar_volume": 184309384.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "What Is Going on With Meta Platforms Stock on Wednesday?",
+    "12 Communication Services Stocks Moving In Wednesday's Intraday Session",
+    "Why Is Snap Stock Falling on Wednesday?"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "SNAP fell 8.5% with headlines about Meta and general communication services moves, but no specific SNAP news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sector moves can drag individual stocks; but specific catalysts are unclear."
+   }
+  },
+  {
+   "symbol": "RUM",
+   "side": "LOSS",
+   "ret_1d": -0.0836,
+   "ret_5d": 0.1268,
+   "median_dollar_volume": 20359373.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "12 Communication Services Stocks Moving In Wednesday's Intraday Session",
+    "RUM Group Stock Extends Rally Following $13.7 Billion AI Cloud Deal",
+    "Georgia Infrastructure Expansion Anchors $13.7 Billion RUM Group Contract"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "RUM fell 8.4% despite recent positive news about a $13.7B AI cloud deal, suggesting profit-taking or other factors.",
+    "knowable_before": "partly",
+    "precursor": "Recent deal announcement",
+    "lesson": "Stocks can reverse after big runs; watch for overextension."
+   }
+  },
+  {
+   "symbol": "TK",
+   "side": "LOSS",
+   "ret_1d": -0.0831,
+   "ret_5d": -0.0699,
+   "median_dollar_volume": 5911714.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Top 3 Energy Stocks That May Keep You Up At Night In Q3"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "TK fell 8.3% with no specific headline; only general energy sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Energy stocks can move on commodity prices or sector sentiment."
+   }
+  },
+  {
+   "symbol": "STRT",
+   "side": "LOSS",
+   "ret_1d": -0.0798,
+   "ret_5d": -0.0968,
+   "median_dollar_volume": 6763307.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Full Transcript: Strattec Security Q4 2026 Earnings Call",
+    "Strattec Security Q4 Adj. EPS $2.06 Beats $1.29 Estimate, Sales $151.827M Beat $146.768M Estimate",
+    "Strattec Announces New $40M Stock Buyback Program"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "STRT fell 8.0% despite beating Q4 estimates and announcing a buyback, indicating a negative reaction to guidance or other factors.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats don't guarantee positive price reactions; watch guidance."
+   }
+  },
+  {
+   "symbol": "CLVT",
+   "side": "LOSS",
+   "ret_1d": -0.0787,
+   "ret_5d": -0.0245,
+   "median_dollar_volume": 10221150.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "CLVT fell 7.9% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still lead to significant drops."
+   }
+  },
+  {
+   "symbol": "TNK",
+   "side": "LOSS",
+   "ret_1d": -0.0759,
+   "ret_5d": -0.0839,
+   "median_dollar_volume": 25240630.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "TNK fell 7.6% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Shipping stocks can be volatile without clear news."
+   }
+  },
+  {
+   "symbol": "IRD",
+   "side": "LOSS",
+   "ret_1d": -0.0754,
+   "ret_5d": -0.0663,
+   "median_dollar_volume": 3317962.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "IRD fell 7.5% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves are often unpredictable."
+   }
+  }
+ ],
+ "industry_clusters": {
+  "WIN:Retail": [
+   "ANF",
+   "URBN",
+   "BBWI"
+  ],
+  "WIN:Biotechnology": [
+   "BHVN",
+   "CAPR",
+   "ERAS",
+   "CUE",
+   "NBTX"
+  ],
+  "WIN:Semiconductors": [
+   "SEDG",
+   "SMTC",
+   "SIMO"
+  ],
+  "WIN:Technology": [
+   "GRRR",
+   "VYX"
+  ],
+  "WIN:Electrical Equipment": [
+   "OPTX",
+   "TTMI"
+  ]
+ },
+ "compiled": {
+  "movers": {
+   "ANF": {
+    "template": "earnings_surprise",
+    "why": "ANF surged 35.6% after reporting upbeat Q2 results with higher sales and prices, as indicated by headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings surprises can be anticipated by tracking scheduled reports and prior guidance."
+   },
+   "BHVN": {
+    "template": "unknown",
+    "why": "BHVN rose 18.0% with no clear catalyst in the provided headlines, which only mention general sector moves.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Some moves lack observable precursors; avoid forcing explanations."
+   },
+   "BZ": {
+    "template": "earnings_surprise",
+    "why": "BZ gained 15.7% after its Q2 earnings call and Q3 sales guidance that met estimates, as per headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings and guidance are key catalysts for professional services firms."
+   },
+   "CAPR": {
+    "template": "unknown",
+    "why": "CAPR rose 13.0% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Biotech moves often lack clear precursors; avoid speculation."
+   },
+   "WBTN": {
+    "template": "unknown",
+    "why": "WBTN gained 10.8% with no specific headline; only general communication services sector moves are noted.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Small-cap media moves can be idiosyncratic and unpredictable."
+   },
+   "SEDG": {
+    "template": "sector_rotation",
+    "why": "SEDG rose 10.7% following an analyst upgrade, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Analyst upgrade reports",
+    "lesson": "Analyst actions can drive moves; monitor upgrade/downgrade flows."
+   },
+   "SMTC": {
+    "template": "earnings_surprise",
+    "why": "SMTC gained 10.4% after upbeat Q2 results and a price target raise from Morgan Stanley.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats in semiconductors can trigger analyst revisions and price moves."
+   },
+   "GRRR": {
+    "template": "unknown",
+    "why": "GRRR rose 10.0% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech small-caps can move on unobservable catalysts."
+   },
+   "URBN": {
+    "template": "earnings_surprise",
+    "why": "URBN rose 9.5% ahead of its earnings report, with a preview mentioning a potential tariff refund.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Pre-earnings speculation can drive moves; watch for scheduled events."
+   },
+   "VYX": {
+    "template": "unknown",
+    "why": "VYX rose 9.2% with no headlines provided, making the cause unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still mean a move; avoid over-explaining."
+   },
+   "BETR": {
+    "template": "m_and_a",
+    "why": "BETR rose 9.1% after announcing a token-backed mortgage product with Coinbase, a partnership headline.",
+    "knowable_before": "partly",
+    "precursor": "Partnership announcement",
+    "lesson": "Partnership news can boost fintech stocks; monitor press releases."
+   },
+   "SIMO": {
+    "template": "unknown",
+    "why": "SIMO rose 8.8% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Semiconductor moves without news are hard to predict."
+   },
+   "OPTX": {
+    "template": "m_and_a",
+    "why": "OPTX rose 8.6% after receiving a new order for space satellite waveguides, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Order announcement",
+    "lesson": "Contract wins can drive small-cap moves; track company announcements."
+   },
+   "TTMI": {
+    "template": "unknown",
+    "why": "TTMI rose 8.4% with no specific headline; only general market and sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Large-cap moves without clear news are often not predictable."
+   },
+   "XPOF": {
+    "template": "unknown",
+    "why": "XPOF rose 8.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Leisure stocks can move on unobservable factors."
+   },
+   "ERAS": {
+    "template": "regulatory_decision",
+    "why": "ERAS rose 7.8% after FDA granted Fast Track designation to ERAS-0015, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "FDA designation announcement",
+    "lesson": "Regulatory news can be a catalyst; monitor FDA announcements."
+   },
+   "CUE": {
+    "template": "unknown",
+    "why": "CUE rose 7.8% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap biotech moves are often unpredictable."
+   },
+   "BBWI": {
+    "template": "earnings_surprise",
+    "why": "BBWI rose 7.4% after its Q2 earnings call, despite a negative headline about promotions.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings reactions can be counterintuitive; focus on actual results."
+   },
+   "NBTX": {
+    "template": "unknown",
+    "why": "NBTX rose 7.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Biotech moves without news are hard to anticipate."
+   },
+   "BTSG": {
+    "template": "unknown",
+    "why": "BTSG rose 7.2% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Health care moves without news are unpredictable."
+   },
+   "GENB": {
+    "template": "unknown",
+    "why": "GENB fell 20.8% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Large losses without clear news are hard to predict."
+   },
+   "QFIN": {
+    "template": "guidance_change",
+    "why": "QFIN fell 18.9% after JP Morgan downgraded it to Underweight and lowered its price target, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Analyst downgrade",
+    "lesson": "Analyst downgrades can trigger sharp declines; monitor rating changes."
+   },
+   "SYRE": {
+    "template": "clinical_readout",
+    "why": "SYRE fell 12.8% after its rheumatoid arthritis program missed an internal benchmark, as per headline.",
+    "knowable_before": "partly",
+    "precursor": "Clinical trial update",
+    "lesson": "Clinical misses can be devastating; track trial milestones."
+   },
+   "JKS": {
+    "template": "earnings_surprise",
+    "why": "JKS fell 11.9% after Q2 earnings missed estimates and CEO resigned, as per headlines.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses and management changes can compound losses."
+   },
+   "DY": {
+    "template": "unknown",
+    "why": "DY fell 11.6% with no specific headline; only general industrials sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Industrials can drop on sector-wide or idiosyncratic factors."
+   },
+   "FIGR": {
+    "template": "unknown",
+    "why": "FIGR fell 9.9% with no specific headline; only general market moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Market-wide moves can affect stocks without specific news."
+   },
+   "CLYM": {
+    "template": "unknown",
+    "why": "CLYM fell 9.9% despite an analyst maintaining Buy and raising price target, so the cause is unclear.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Analyst actions don't always align with price moves."
+   },
+   "MNRO": {
+    "template": "unknown",
+    "why": "MNRO fell 9.7% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still lead to large moves."
+   },
+   "AIBZ": {
+    "template": "unknown",
+    "why": "AIBZ fell 9.5% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves are often unpredictable."
+   },
+   "QBTS": {
+    "template": "unknown",
+    "why": "QBTS fell 9.5% with headlines about CFO retirement, but that may not fully explain the drop.",
+    "knowable_before": "partly",
+    "precursor": "CFO retirement announcement",
+    "lesson": "Management changes can spook investors; monitor executive transitions."
+   },
+   "DFNS": {
+    "template": "unknown",
+    "why": "DFNS fell 8.9% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech small-caps can drop without clear news."
+   },
+   "HQ": {
+    "template": "unknown",
+    "why": "HQ fell 8.9% with no specific headline; only general tech sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Tech moves without news are hard to predict."
+   },
+   "TENX": {
+    "template": "unknown",
+    "why": "TENX fell 8.6% with no specific headline; only general health care sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Health care moves without news are unpredictable."
+   },
+   "SNAP": {
+    "template": "unknown",
+    "why": "SNAP fell 8.5% with headlines about Meta and general communication services moves, but no specific SNAP news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Sector moves can drag individual stocks; but specific catalysts are unclear."
+   },
+   "RUM": {
+    "template": "unknown",
+    "why": "RUM fell 8.4% despite recent positive news about a $13.7B AI cloud deal, suggesting profit-taking or other factors.",
+    "knowable_before": "partly",
+    "precursor": "Recent deal announcement",
+    "lesson": "Stocks can reverse after big runs; watch for overextension."
+   },
+   "TK": {
+    "template": "unknown",
+    "why": "TK fell 8.3% with no specific headline; only general energy sector moves are mentioned.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Energy stocks can move on commodity prices or sector sentiment."
+   },
+   "STRT": {
+    "template": "earnings_surprise",
+    "why": "STRT fell 8.0% despite beating Q4 estimates and announcing a buyback, indicating a negative reaction to guidance or other factors.",
+    "knowable_before": "yes",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats don't guarantee positive price reactions; watch guidance."
+   },
+   "CLVT": {
+    "template": "unknown",
+    "why": "CLVT fell 7.9% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "No news can still lead to significant drops."
+   },
+   "TNK": {
+    "template": "unknown",
+    "why": "TNK fell 7.6% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Shipping stocks can be volatile without clear news."
+   },
+   "IRD": {
+    "template": "unknown",
+    "why": "IRD fell 7.5% with no headlines, so the cause is unknown.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves are often unpredictable."
+   }
+  },
+  "themes": [
+   {
+    "theme": "Earnings reports",
+    "symbols": [
+     "ANF",
+     "BZ",
+     "SMTC",
+     "URBN",
+     "BBWI",
+     "JKS",
+     "STRT"
+    ],
+    "template": "earnings_surprise"
+   },
+   {
+    "theme": "Analyst actions",
+    "symbols": [
+     "SEDG",
+     "QFIN",
+     "CLYM"
+    ],
+    "template": "sector_rotation"
+   },
+   {
+    "theme": "Regulatory/clinical news",
+    "symbols": [
+     "ERAS",
+     "SYRE"
+    ],
+    "template": "regulatory_decision"
+   },
+   {
+    "theme": "Partnership/order announcements",
+    "symbols": [
+     "BETR",
+     "OPTX"
+    ],
+    "template": "m_and_a"
+   }
+  ],
+  "day_lesson": "Today's movers were driven by a mix of scheduled events (earnings, analyst actions, regulatory news) and idiosyncratic factors. Winners like ANF, BZ, SMTC, and URBN were knowable beforehand due to scheduled earnings reports. Losers like JKS and STRT also had earnings, but their negative reactions highlight that earnings beats don't guarantee positive moves. Many movers, especially small caps, had no observable precursors, making them unpredictable. A systematic approach would track scheduled earnings, analyst ratings, and regulatory announcements, but would miss many unexplained moves. Avoiding over-speculation on no-news movers is crucial."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "92088cdb2bca",
+  "cost_usd": 0.00492,
+  "latency_s": 21.34
+ },
+ "grade": {
+  "winners_with_print": 4,
+  "losers_with_print": 4,
+  "winners_in_candidates": 0,
+  "losers_in_candidates": 0,
+  "candidates_right_way": 0,
+  "candidates_wrong_way": 0,
+  "movers_in_old_universe": 0,
+  "movers_in_control_holdings": [
+   "BHVN"
+  ],
+  "knowable_before": {
+   "yes": 7,
+   "partly": 8,
+   "no": 25
+  }
+ }
+}

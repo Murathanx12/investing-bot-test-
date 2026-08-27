@@ -1,0 +1,9 @@
+{
+ "loop_liveness": {
+  "consecutive": 0,
+  "total": 55,
+  "first_seen": null,
+  "last_seen": "2026-08-27T07:45:52.562958+00:00",
+  "detail": ""
+ }
+}

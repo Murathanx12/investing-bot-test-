@@ -1,0 +1,24 @@
+{
+ "role": "exp1",
+ "pid": 59544,
+ "cycle": 43,
+ "started_utc": "2026-08-27T07:45:05.989692+00:00",
+ "completed_utc": "2026-08-27T07:45:07.367604+00:00",
+ "last_broker_ok_utc": null,
+ "last_error": null,
+ "consecutive_errors": 0,
+ "backoff_until_utc": null,
+ "commit": "9df729c",
+ "expiry": "2026-08-28",
+ "live": true,
+ "argv": [
+  "--expiry",
+  "2026-08-28",
+  "--live",
+  "--brains",
+  "vol_gap,event_move,options_attention,narrative_dispersion",
+  "--shadow",
+  "vol_gap,event_move",
+  "--manage-only"
+ ]
+}
