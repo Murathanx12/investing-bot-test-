@@ -89,12 +89,50 @@ manages roughly **9 MB/min** to GitHub:
 | `headroomlabs-ai/headroom` | 74.8 MB | 8 min |
 | `thedotmack/claude-mem` | **432 MB** | **48 min** |
 
-**Procedure:** one `add` at a time, smallest first, and DO NOT RETRY. Verify the
-marketplace lands in `known_marketplaces.json` before running its `install`.
+**"Just wait for the clone" does NOT work** — advice given earlier in the same
+session and disproved within the hour. The installer TIMES OUT, reports failure
+and abandons the result, while the orphaned git process keeps downloading for
+nothing. `headroom` finished its clone, its directory was cleaned up, and it
+STILL never registered. The only variable that predicts success is clone time vs
+the installer's timeout:
+
+| repo | clone | registered? |
+|---|---|---|
+| ui-ux-pro-max (7.8 MB) | ~1 min | **YES** |
+| ECC (46.7 MB) | ~5 min | no |
+| headroom (74.8 MB) | ~8 min | no |
+
+**THE WORKAROUND — pre-clone locally, then add from disk.** Nothing times out on
+a plain `git clone`, and these manifests declare `"source": "./"`, so the plugin
+installs from the marketplace directory itself and does NOT re-clone:
+
+    git clone --depth 1 https://github.com/OWNER/REPO.git  <SRC>\NAME
+    /plugin marketplace add <SRC>\NAME
+    /plugin install PLUGIN@MARKETPLACE-NAME
+
+where `<SRC>` is `C:\Users\mrthn\cc-plugin-src`. Deliberately NOT a path under
+`~/.claude/plugins/` — the installer manages that directory and will try to
+delete anything it finds there.
 
 **If it is genuinely wedged:** kill the clone processes
-(`Get-CimInstance Win32_Process -Filter "Name='git.exe'"` filtered on the repo
-name), then `rm -rf` the directory, then ONE clean add.
+(`Get-CimInstance Win32_Process -Filter "Name='git.exe'"`), then `rm -rf` the
+directory, then ONE clean add. **Filter the kill on the FULL path**: a filter on
+`marketplaces` also matches a working directory named `claude-marketplaces`,
+which is how a healthy clone got killed on 2026-08-27.
+
+**ECC IS DEPRIORITISED — DO NOT INSTALL WITHOUT RE-DECIDING (2026-08-27).**
+Measured from the clone, not guessed: **898 skills, 367 agents, 424 commands**,
+and its skill descriptions alone are **~35,000 tokens injected into EVERY turn**
+— more than CLAUDE.md (18.6k) + MEMORY.md (7.6k) + all 113 existing skills (10k)
+combined, three times over. Skill listings are budget-trimmed past ~1% of
+context, so beyond a point they crowd each other out and dilute which skill
+actually triggers. It also declares HOOKS, which fire on tool events on a machine
+holding live broker credentials. The clone is kept at
+`C:\Users\mrthn\cc-plugin-src\ECC` if the decision is revisited; `agent-skills`
+already covers spec/plan/build/review/ship at a fraction of the cost.
+
+**claude-mem (432 MB) will not clone inside the timeout on this link.**
+Pre-clone it locally or skip it.
 
 **Measuring progress:** `Get-ChildItem -Recurse` reports **0 MB** on these
 directories because it cannot stat the locked files and `-ErrorAction

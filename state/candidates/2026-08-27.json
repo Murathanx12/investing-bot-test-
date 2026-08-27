@@ -1,9 +1,9 @@
 {
- "generated_utc": "2026-08-27T06:58:28.676580+00:00",
+ "generated_utc": "2026-08-27T12:59:02.819262+00:00",
  "universe": "HIGH_DISPERSION_US_v1",
  "universe_n": 4634,
- "printers_on_calendar": 153,
- "printers_in_universe": 75,
+ "printers_on_calendar": 152,
+ "printers_in_universe": 74,
  "candidates": [],
  "declined": [
   {
@@ -141,10 +141,6 @@
   {
    "symbol": "MBUU",
    "why": "NotApplicable: MBUU: 75 sessions since the print on 2026-05-08; the measured drift window is +1..+3 and is spent after 2"
-  },
-  {
-   "symbol": "MEI",
-   "why": "NotApplicable: MEI: 43 sessions since the print on 2026-06-25; the measured drift window is +1..+3 and is spent after 2"
   },
   {
    "symbol": "MOV",
