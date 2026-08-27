@@ -81,6 +81,21 @@ DENIED_ACCOUNTS: dict[str, str] = {
 #: The role a genesis record may be frozen for.
 JUDGED_ROLE = "competition"
 
+#: Minimum Alpaca options level the judged account must carry.
+#:
+#: The track is called **"Options Alpha Agents"** and the rules snapshot says
+#: every strategy must incorporate options. Level 0/1 cannot buy a call, so an
+#: account at that level fails the requirement on day one -- and it fails it
+#: SILENTLY, as a stream of broker rejections that look like ordinary refusals.
+#:
+#: 2 is the floor (long calls and puts), not 3, because 2 is enough to satisfy
+#: the requirement and refusing a usable account would be worse than the warning
+#: this prints instead. The engine enumerates debit and credit VERTICALS and
+#: condors, which need 3, so anything below 3 is reported as a capability the
+#: book will not be able to use.
+MIN_OPTIONS_LEVEL = 2
+FULL_OPTIONS_LEVEL = 3
+
 STATE_DIR = Path(os.getenv("AAT_LEDGER_DIR") or "state")
 
 
@@ -104,6 +119,9 @@ class Genesis:
     rules_snapshot_sha256: str
     code_commit: str
     competition: dict
+    options_level: int | None = None
+    """Frozen so a later dispute about whether options were tradeable has an
+    answer from the moment before the first order, not a reconstruction."""
 
     def digest(self) -> str:
         """Hash of every field but the hash. Canonical JSON so it is stable."""
@@ -135,6 +153,22 @@ def _rules_digest(rules_path: Path) -> str:
     return hashlib.sha256(rules_path.read_bytes()).hexdigest()
 
 
+def options_level(acct: dict) -> int | None:
+    """The account's approved options level, or None if the venue does not say.
+
+    None is NOT zero. An account object that omits the field tells us nothing,
+    and treating silence as level 0 would refuse a perfectly good account.
+    """
+    for key in ("options_trading_level", "options_approved_level"):
+        v = acct.get(key)
+        if v is not None:
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
 def inspect(client, *, role: str) -> tuple[str, float, int, int]:
     """(account_number, equity, n_positions, n_orders_any_status). Read-only."""
     acct = client.account()
@@ -161,6 +195,20 @@ def freeze(client, *, role: str, rules_snapshot: str | Path,
     rules_sha = _rules_digest(rules_path)
 
     number, equity, n_pos, n_ord = inspect(client, role=role)
+    acct = client.account()
+    lvl = options_level(acct)
+
+    if acct.get("trading_blocked"):
+        raise GenesisRefusal(
+            f"account {number} reports trading_blocked=True. It cannot place an order at "
+            "all, and every downstream refusal would look like ordinary caution.")
+    if lvl is not None and lvl < MIN_OPTIONS_LEVEL:
+        raise GenesisRefusal(
+            f"account {number} is at options level {lvl}, below the {MIN_OPTIONS_LEVEL} "
+            "needed to buy a call. The track is 'Options Alpha Agents' and the rules "
+            "require options in the strategy, so this account fails the requirement on "
+            "day one -- and it would fail SILENTLY, as a stream of broker rejections that "
+            "read like ordinary refusals. Enable options on the account and re-run.")
 
     if not number.startswith("PA"):
         raise GenesisRefusal(f"account {number!r} is not a paper account (no 'PA' prefix).")
@@ -205,6 +253,7 @@ def freeze(client, *, role: str, rules_snapshot: str | Path,
         rules_snapshot_sha256=rules_sha,
         code_commit=_code_commit(),
         competition=dict(config.COMPETITION),
+        options_level=lvl,
     )
     existing.parent.mkdir(parents=True, exist_ok=True)
     existing.write_text(json.dumps(g.as_record(), indent=2, sort_keys=True) + "\n")
@@ -255,6 +304,10 @@ def verify(client, *, role: str = JUDGED_ROLE) -> tuple[bool, list[str]]:
                  f"positions, {g.order_count_at_genesis} orders")
     lines.append(f"          rules {g.rules_snapshot_path} sha {g.rules_snapshot_sha256[:12]}")
     lines.append(f"          code  {g.code_commit[:12]}")
+    lines.append(f"          options level {g.options_level}"
+                 + ("" if g.options_level is None or g.options_level >= FULL_OPTIONS_LEVEL
+                    else f"  <- below {FULL_OPTIONS_LEVEL}: spreads and condors will be "
+                         "REJECTED by the venue, only single-leg options are available"))
     lines.append(f"live      ${equity:,.2f}  {n_pos} positions  {n_ord} orders  "
                  f"P&L {equity - g.starting_equity:+,.2f} "
                  f"({(equity / g.starting_equity - 1) * 100:+.2f}%)"

@@ -38,12 +38,17 @@ genesis.STATE_DIR = Path(_tmp)
 
 
 class FakeClient:
-    def __init__(self, number, equity, positions=0, orders=0):
+    def __init__(self, number, equity, positions=0, orders=0, options=3, blocked=False):
         self._n, self._e, self._p, self._o = number, equity, positions, orders
+        self._opt, self._blocked = options, blocked
         self.order_status_asked = None
 
     def account(self):
-        return {"account_number": self._n, "equity": self._e, "status": "ACTIVE"}
+        a = {"account_number": self._n, "equity": self._e, "status": "ACTIVE",
+             "trading_blocked": self._blocked}
+        if self._opt is not None:
+            a["options_trading_level"] = self._opt
+        return a
 
     def positions(self):
         return [{"symbol": "X"}] * self._p
@@ -118,10 +123,49 @@ check("genesis asks the venue for orders of ANY status, not just open",
       probe.order_status_asked == "all",
       f"asked for status={probe.order_status_asked!r} -- an expired OPG order would read as clean")
 
+# --- OPTIONS PERMISSION: the track is called "Options Alpha Agents" --------
+# A fresh Alpaca paper account is not guaranteed to have options enabled, and an
+# account that cannot buy a call fails the requirement on day one -- SILENTLY, as
+# a stream of broker rejections that read like ordinary refusals.
+check("options level 0 is REFUSED",
+      (r := refuses(FakeClient("PAOPT000000A", 100000.0, options=0))) is not None
+      and "options level 0" in r, str(r))
+check("  and the refusal says it would fail SILENTLY",
+      r is not None and "SILENTLY" in r and "read like ordinary refusals" in r)
+check("level 1 is REFUSED too",
+      refuses(FakeClient("PAOPT000001A", 100000.0, options=1)) is not None)
+# NOTE: a genesis record already exists by this point in the file, so a valid
+# account is refused by the ONE-TIME rule. These assert the refusal is not about
+# OPTIONS, which is the thing under test -- asserting `is None` would silently
+# pass for the wrong reason the day the one-time rule changes.
+_ok2 = refuses(FakeClient("PAOPT000002A", 100000.0, options=2)) or ""
+check("level 2 is ACCEPTED -- enough to buy a call",
+      "options level" not in _ok2, _ok2[:90])
+
+# The subtle one, and the direction that matters: an account object with NO
+# options field tells us nothing. Treating silence as level 0 would refuse a
+# perfectly good account on an absence.
+_okN = refuses(FakeClient("PAOPT00NONE1", 100000.0, options=None)) or ""
+check("a MISSING options field is not read as level 0",
+      "options level" not in _okN,
+      f"None is not zero; silence is not evidence -- got {_okN[:80]}")
+check("  and options_level() returns None rather than 0 for it",
+      genesis.options_level({"account_number": "X"}) is None)
+check("  while a present level is parsed",
+      genesis.options_level({"options_trading_level": "2"}) == 2,
+      "the venue returns it as a string in some responses")
+
+check("trading_blocked is REFUSED whatever the options level",
+      (r := refuses(FakeClient("PABLOCKED001", 100000.0, options=3, blocked=True))) is not None
+      and "trading_blocked" in r, str(r))
+
+check("the floor is 2 and the full level is 3",
+      genesis.MIN_OPTIONS_LEVEL == 2 and genesis.FULL_OPTIONS_LEVEL == 3)
+
 # --- the record -------------------------------------------------------------
 rec = json.loads(genesis.path("competition").read_text())
 for field in ("account_number", "frozen_at_utc", "starting_equity", "rules_snapshot_sha256",
-              "code_commit", "genesis_sha256", "competition"):
+              "code_commit", "genesis_sha256", "competition", "options_level"):
     check(f"the record carries {field}", field in rec and rec[field] not in (None, ""))
 
 check("the record's hash recomputes",

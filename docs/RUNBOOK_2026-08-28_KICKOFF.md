@@ -82,7 +82,15 @@ snapshot's hash goes into the genesis record.
 
 ## 1. CREATE THE JUDGED ACCOUNT (manual, Alpaca dashboard)
 
-A new paper account, options enabled, **$100,000**.
+A new paper account, **options enabled**, **$100,000**.
+
+**Options permission is checked, not assumed.** A fresh Alpaca paper account is
+not guaranteed to have it, and an account that cannot buy a call fails the
+"Options Alpha Agents" track on day one — *silently*, as a stream of broker
+rejections that read like ordinary refusals. `genesis --freeze` refuses below
+level 2 and warns below level 3 (spreads and condors need 3). It also refuses
+`trading_blocked`. The level is frozen into the record, so a later dispute about
+whether options were tradeable has an answer from before the first order.
 
 Then put its keys in `.env` as:
 
