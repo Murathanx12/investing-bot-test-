@@ -118,6 +118,49 @@ That single row is the reason this stays a tilt and never becomes a rule. Same
 shape as `[[run-the-control-you-would-not-have-chosen]]`: the name that was in
 the list by convenience is the most informative one in it.
 
+## The cost objection dies on ONE ETF — but only for some of them
+
+The cost that killed the standalone version is a property of **the basket**, not
+of the effect: 200 names round-tripped daily. SPY quotes about a cent on ~$770,
+which is **0.13bp**. So the trade was re-run on single ETFs at a deliberately
+pessimistic **0.5bp one way**, and compared at **matched volatility** — levering
+the lower-risk overnight leg until its realised vol equals buy-and-hold's,
+because comparing them raw just rewards whoever took more risk.
+
+`scripts/overnight_tradeable`, Alpaca SIP, 755 sessions:
+
+| | buy & hold | overnight (net) | intraday | overnight at matched vol |
+|---|---|---|---|---|
+| SPY | 1.830x / Sh 1.40 | 1.434x / 1.31 | +3.16% | 1.757x — **does not beat** |
+| QQQ | 2.025x / 1.26 | 1.684x / 1.41 | +1.13% | 2.224x — beats |
+| IWM | 1.696x / 0.94 | 1.582x / 1.17 | −2.68% | 1.962x — beats |
+| SMH | 3.875x / 1.42 | **4.046x / 2.03** | −6.27% | 7.581x — beats |
+
+**SMH needs no leverage at all**: overnight-only returns more than holding
+(4.046x vs 3.875x) at **two-thirds the volatility**, which is dominance rather
+than a risk-adjusted argument.
+
+Three limits, all of which bind:
+
+1. **SPY — the most important instrument — does not beat.** The effect
+   concentrates in higher-vol tech and small caps, the same place AAPL's
+   reversal said it would.
+2. **Three years is one regime.** The 32-year evidence is at BASKET level; the
+   cost-survival evidence is at INSTRUMENT level over three years. Nobody has
+   shown instrument-level survival over 32 years and this document does not
+   claim it.
+3. **Financing is not charged** on the levered rows. At ~5%/yr on the borrowed
+   half that is not a rounding error, and it is roughly the size of the margin
+   the levered rows win by.
+
+### And it is NOT the trade for this competition
+
+Over five sessions, overnight-only holds QQQ for five nights and is flat five
+days: roughly +0.37% expected against +0.51% for simply holding, at lower risk.
+That is not a margin worth **ten extra executions** and the operational risk of
+a missed MOC or MOO fill in a five-day contest. **The finding is for the
+research programme; the competition book still just holds.**
+
 ## Status
 
 `PRODUCT_EXPERIMENT` measurement. It is a decomposition, not a selection: one

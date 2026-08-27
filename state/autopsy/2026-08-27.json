@@ -1,0 +1,1518 @@
+{
+ "session": "2026-08-27",
+ "generated_utc": "2026-08-27T20:03:24.306517+00:00",
+ "universe_n": 3059,
+ "median_1d_return": -0.0018,
+ "movers": [
+  {
+   "symbol": "OKTA",
+   "side": "WIN",
+   "ret_1d": 0.2863,
+   "ret_5d": 0.2888,
+   "median_dollar_volume": 389431688.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 29615904585.95001,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "CrowdStrike Just Hacked The AI Boom: The Cybersecurity ETF Trade Taking Shape",
+    "Citigroup Maintains Neutral on Okta, Raises Price Target to $165",
+    "JP Morgan Maintains Overweight on Okta, Raises Price Target to $190"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Okta surged 28.6% after reporting earnings, with analysts raising price targets and positive sentiment from cybersecurity sector strength.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings surprises can be anticipated by monitoring analyst revisions and sector momentum."
+   }
+  },
+  {
+   "symbol": "CRM",
+   "side": "WIN",
+   "ret_1d": 0.2258,
+   "ret_5d": 0.2269,
+   "median_dollar_volume": 2241166750.0,
+   "dv_bucket": "mega",
+   "market_cap_usd": 201265150220.62903,
+   "cap_bucket": "mega",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "Citigroup Maintains Neutral on Salesforce, Raises Price Target to $233",
+    "Snowflake Stock Rises as Salesforce's Beat Lifts Enterprise Software",
+    "JP Morgan Maintains Overweight on Salesforce, Raises Price Target to $265"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Salesforce jumped 22.6% following its earnings beat, lifting enterprise software stocks and prompting price target raises.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Strong earnings from a mega-cap can catalyze sector-wide moves."
+   }
+  },
+  {
+   "symbol": "CRWD",
+   "side": "WIN",
+   "ret_1d": 0.205,
+   "ret_5d": 0.1976,
+   "median_dollar_volume": 1676905205.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 225712433973.88174,
+   "cap_bucket": "mega",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "CrowdStrike Just Hacked The AI Boom: The Cybersecurity ETF Trade Taking Shape",
+    "Citigroup Maintains Buy on CrowdStrike Holdings, Raises Price Target to $260",
+    "CrowdStrike\u2019s AI-Fueled Plot Twist Has These ETFs Flying 38% Higher"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "CrowdStrike rose 20.5% amid a cybersecurity rally, with headlines highlighting AI-fueled growth and ETF flows.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Sector rotation can amplify moves in related stocks."
+   }
+  },
+  {
+   "symbol": "VEEV",
+   "side": "WIN",
+   "ret_1d": 0.152,
+   "ret_5d": 0.1261,
+   "median_dollar_volume": 370275407.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 34182942389.988667,
+   "cap_bucket": "large",
+   "industry": "Health Care",
+   "had_print": true,
+   "headlines": [
+    "Mizuho Maintains Outperform on Veeva Systems, Raises Price Target to $280",
+    "BMO Capital Maintains Market Perform on Veeva Systems, Raises Price Target to $270",
+    "Baird Maintains Outperform on Veeva Systems, Raises Price Target to $300"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Veeva Systems gained 15.2% after reporting earnings, with multiple analysts raising price targets.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst upgrades can drive significant gains."
+   }
+  },
+  {
+   "symbol": "RPD",
+   "side": "WIN",
+   "ret_1d": 0.145,
+   "ret_5d": 0.1397,
+   "median_dollar_volume": 22523306.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 902831601.6577609,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Rapid7 rose 14.5% with no headlines or recent earnings, possibly due to sector momentum or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Moves without headlines are hard to predict; rely on sector trends cautiously."
+   }
+  },
+  {
+   "symbol": "ACDC",
+   "side": "WIN",
+   "ret_1d": 0.1413,
+   "ret_5d": 0.1889,
+   "median_dollar_volume": 8255705.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 898775858.8409089,
+   "cap_bucket": "small",
+   "industry": "Energy",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "ACDC gained 14.1% with no headlines or recent earnings, likely driven by micro-cap speculation or sector tailwinds.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   }
+  },
+  {
+   "symbol": "SNPS",
+   "side": "WIN",
+   "ret_1d": 0.1339,
+   "ret_5d": 0.1683,
+   "median_dollar_volume": 709402463.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 87500306844.31854,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "Mizuho Maintains Outperform on Synopsys, Lowers Price Target to $550",
+    "Baird Upgrades Synopsys to Outperform, Raises Price Target to $560",
+    "Here's How Much $1000 Invested In Synopsys 15 Years Ago Would Be Worth Today"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Synopsys rose 13.4% after posting upbeat Q3 results, with analyst actions including an upgrade and price target changes.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats can lead to analyst upgrades and positive momentum."
+   }
+  },
+  {
+   "symbol": "BRUN",
+   "side": "WIN",
+   "ret_1d": 0.133,
+   "ret_5d": 0.0626,
+   "median_dollar_volume": 46457209.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1625757319.3908741,
+   "cap_bucket": "small",
+   "industry": "N/A",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Brunswick gained 13.3% with no headlines or recent earnings, possibly due to sector strength or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "FIG",
+   "side": "WIN",
+   "ret_1d": 0.1328,
+   "ret_5d": 0.1212,
+   "median_dollar_volume": 387075916.0,
+   "dv_bucket": "large",
+   "market_cap_usd": 16110216081.398447,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Nvidia's Best Day Since April 2025, Cybersecurity Stocks Go Vertical: Stock Market Today",
+    "Figma Stock Rallies Thursday: What's Happening?",
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "Figma rallied 13.3% as part of a broader tech and cybersecurity surge, with headlines mentioning its rise alongside other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Tech sector rallies can lift high-beta names like Figma."
+   }
+  },
+  {
+   "symbol": "TH",
+   "side": "WIN",
+   "ret_1d": 0.1299,
+   "ret_5d": 0.0754,
+   "median_dollar_volume": 19910279.0,
+   "dv_bucket": "small",
+   "market_cap_usd": 1859969340.8557808,
+   "cap_bucket": "small",
+   "industry": "Hotels, Restaurants & Leisure",
+   "had_print": false,
+   "headlines": [
+    "12 Consumer Discretionary Stocks Moving In Wednesday's Pre-Market Session",
+    "Target Hospitality Raises FY2026 Sales Guidance from $410.000M-$420.000M to $435.000M-$445.000M vs $375.957M Est",
+    "Target Hospitality Announces Multi-Year Lease And Services Agreement To Provide Comprehensive Facility And Hospitality Services For Hypersca"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "Target Hospitality surged 13.0% after raising FY2026 sales guidance and announcing a multi-year lease agreement.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance raises and contract wins can trigger sharp moves."
+   }
+  },
+  {
+   "symbol": "PANW",
+   "side": "WIN",
+   "ret_1d": 0.1283,
+   "ret_5d": 0.0956,
+   "median_dollar_volume": 2081271733.0,
+   "dv_bucket": "mega",
+   "market_cap_usd": 306770072792.4436,
+   "cap_bucket": "mega",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "CrowdStrike Just Hacked The AI Boom: The Cybersecurity ETF Trade Taking Shape",
+    "Nvidia's Best Day Since April 2025, Cybersecurity Stocks Go Vertical: Stock Market Today",
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": true,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "Palo Alto Networks rose 12.8% amid a cybersecurity rally, with headlines highlighting the sector's strength.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Cybersecurity sector rallies can boost large-cap players."
+   }
+  },
+  {
+   "symbol": "FWDI",
+   "side": "WIN",
+   "ret_1d": 0.1231,
+   "ret_5d": 0.332,
+   "median_dollar_volume": 4577194.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 509912730.3870152,
+   "cap_bucket": "small",
+   "industry": "Electrical Equipment",
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "FWDI gained 12.3% with no headlines or recent earnings, likely due to micro-cap speculation or sector tailwinds.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   }
+  },
+  {
+   "symbol": "SAIL",
+   "side": "WIN",
+   "ret_1d": 0.1224,
+   "ret_5d": 0.1048,
+   "median_dollar_volume": 59944102.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 11666953528.746431,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Nvidia's Best Day Since April 2025, Cybersecurity Stocks Go Vertical: Stock Market Today",
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "SailPoint rose 12.2% as part of a tech and cybersecurity rally, with headlines mentioning its move alongside other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Tech sector rallies can lift high-beta names like SailPoint."
+   }
+  },
+  {
+   "symbol": "FROG",
+   "side": "WIN",
+   "ret_1d": 0.121,
+   "ret_5d": 0.1595,
+   "median_dollar_volume": 180940690.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 12537894659.551132,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday",
+    "This Atlassian Analyst Begins Coverage On A Bullish Note; Here Are Top 5 Initiations For Wednesday",
+    "RBC Capital Initiates Coverage On JFrog with Outperform Rating, Announces Price Target of $118"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "JFrog gained 12.1% amid a tech rally, with an analyst initiation and headlines linking it to other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum and analyst initiation",
+    "lesson": "Analyst initiations and sector momentum can drive gains."
+   }
+  },
+  {
+   "symbol": "OOMA",
+   "side": "WIN",
+   "ret_1d": 0.1198,
+   "ret_5d": 0.1209,
+   "median_dollar_volume": 6262534.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": 660550022.2299075,
+   "cap_bucket": "small",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "B. Riley Securities Maintains Buy on Ooma, Raises Price Target to $27",
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday",
+    "Full Transcript: Ooma Q2 2027 Earnings Call"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Ooma rose 12.0% after reporting earnings, with an analyst raising price target and positive sector sentiment.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst support can lead to gains."
+   }
+  },
+  {
+   "symbol": "TENB",
+   "side": "WIN",
+   "ret_1d": 0.1176,
+   "ret_5d": 0.1029,
+   "median_dollar_volume": 110447065.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 4089497592.1975646,
+   "cap_bucket": "mid",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Synopsys Posts Upbeat Q3 Results, Joins Okta, Veeva Systems, Crowdstrike And Other Big Stocks Moving Higher On Thursday",
+    "Tenable Holdings  Will Replace Leggett & Platt In The S&P SmallCap 600 Effective Prior To The Opening Of Trading On Monday, August 31"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "index_or_flow",
+    "why": "Tenable rose 11.8% after being added to the S&P SmallCap 600, with headlines confirming the index inclusion.",
+    "knowable_before": "yes",
+    "precursor": "Index inclusion announcement",
+    "lesson": "Index inclusions can cause predictable price increases."
+   }
+  },
+  {
+   "symbol": "MSTR",
+   "side": "WIN",
+   "ret_1d": 0.1154,
+   "ret_5d": 0.2225,
+   "median_dollar_volume": 2025269832.0,
+   "dv_bucket": "mega",
+   "market_cap_usd": 53128783483.01932,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "10 Information Technology Stocks With Whale Alerts In Today\u2019s Session",
+    "Why Is Strategy Stock Surging on Thursday?",
+    "Bitcoin, XRP, Dogecoin Dip; Ethereum Rises Amid Hot Inflation Print: Correction Aside, Bitcoin's Structure 'Intact,' Says Popular Analyst"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "sector_rotation",
+    "why": "Strategy (MicroStrategy) gained 11.5% amid a tech rally and Bitcoin-related headlines, with whale alerts noted.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum and Bitcoin price action",
+    "lesson": "Crypto-linked stocks can move with Bitcoin and tech sentiment."
+   }
+  },
+  {
+   "symbol": "RBRK",
+   "side": "WIN",
+   "ret_1d": 0.1133,
+   "ret_5d": 0.0974,
+   "median_dollar_volume": 260897419.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 21480237002.122543,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "had_print": true,
+   "headlines": [
+    "MongoDB To Rally Around 14%? Here Are 10 Top Analyst Forecasts For Wednesday",
+    "Rosenblatt Maintains Buy on Rubrik, Raises Price Target to $105",
+    "Wells Fargo Maintains Overweight on Rubrik, Raises Price Target to $120"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Rubrik rose 11.3% after reporting earnings, with analysts raising price targets.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst upgrades can drive gains."
+   }
+  },
+  {
+   "symbol": "PURR",
+   "side": "WIN",
+   "ret_1d": 0.1099,
+   "ret_5d": 0.2728,
+   "median_dollar_volume": 77248461.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 2780815665.7175603,
+   "cap_bucket": "mid",
+   "industry": "Biotechnology",
+   "had_print": true,
+   "headlines": [
+    "Hyperliquid Strategies Surges 20%: What Is Going On With PURR?",
+    "Hyperliquid Strategies Q4 EPS $6.24, Sales $6.334M Beat $3.000M Estimate",
+    "12 Health Care Stocks Moving In Thursday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Hyperliquid Strategies surged 11.0% after reporting Q4 EPS and sales that beat estimates, with headlines highlighting the move.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats can lead to significant gains, especially for smaller caps."
+   }
+  },
+  {
+   "symbol": "BB",
+   "side": "WIN",
+   "ret_1d": 0.1098,
+   "ret_5d": 0.062,
+   "median_dollar_volume": 205284023.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": 6329885122.0,
+   "cap_bucket": "mid",
+   "industry": "Technology",
+   "had_print": false,
+   "headlines": [
+    "Why Is BlackBerry Stock Surging on Thursday?",
+    "BlackBerry\u2019s QNX Announces Support For Hailo-8 AI Accelerator On QNX SDP 8.0, Expanding Hardware Options Available To Customers Building AI-"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "BlackBerry rose 11.0% after announcing QNX support for Hailo-8 AI accelerator, expanding hardware options.",
+    "knowable_before": "partly",
+    "precursor": "Company announcement",
+    "lesson": "Strategic partnerships or product expansions can boost sentiment."
+   }
+  },
+  {
+   "symbol": "SMJF",
+   "side": "LOSS",
+   "ret_1d": -0.8703,
+   "ret_5d": -0.8691,
+   "median_dollar_volume": 5186777.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "11 Consumer Discretionary Stocks Moving In Thursday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "SMJF crashed 87.0% with no specific headlines, likely due to a corporate action or delisting.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Extreme drops without news are often due to corporate actions; avoid holding without research."
+   }
+  },
+  {
+   "symbol": "BBW",
+   "side": "LOSS",
+   "ret_1d": -0.2726,
+   "ret_5d": -0.2472,
+   "median_dollar_volume": 12415313.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "11 Consumer Discretionary Stocks Moving In Thursday's Intraday Session",
+    "Crude Oil Moves Higher; Dollar General Shares Gain After Upbeat Q2 Earnings",
+    "Build-A-Bear Stock Sinks as Weak Traffic, Guidance Cut Hit Sentiment"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "Build-A-Bear fell 27.3% after cutting guidance and citing weak traffic, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance cuts can lead to sharp declines."
+   }
+  },
+  {
+   "symbol": "WEN",
+   "side": "LOSS",
+   "ret_1d": -0.1355,
+   "ret_5d": -0.1129,
+   "median_dollar_volume": 57272008.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "11 Consumer Discretionary Stocks Moving In Thursday's Intraday Session",
+    "Crude Oil Moves Higher; Dollar General Shares Gain After Upbeat Q2 Earnings",
+    "QUICK SPARK: Wendy's Take-Private Deal Is Off \u2014 For Now"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "m_and_a",
+    "why": "Wendy's dropped 13.6% after reports that a take-private deal was off, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "M&A speculation",
+    "lesson": "M&A deal failures can cause significant losses."
+   }
+  },
+  {
+   "symbol": "CABO",
+   "side": "LOSS",
+   "ret_1d": -0.1293,
+   "ret_5d": -0.1423,
+   "median_dollar_volume": 8956935.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "11 Communication Services Stocks Moving In Tuesday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Cable One fell 12.9% with no specific headlines, possibly due to sector weakness or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained drops are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "REAX",
+   "side": "LOSS",
+   "ret_1d": -0.1113,
+   "ret_5d": -0.1407,
+   "median_dollar_volume": 7627711.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "BTIG Maintains Buy on Real REMAX Group, Raises Price Target to $35",
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday",
+    "Trading Halt: Halt status updated at 8:55:00 AM ET: Quotation Resumption: News and Resumption Times"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Real Brokerage fell 11.1% despite an analyst price target raise, with a trading halt noted.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Trading halts can precede volatile moves; caution advised."
+   }
+  },
+  {
+   "symbol": "NEXA",
+   "side": "LOSS",
+   "ret_1d": -0.1078,
+   "ret_5d": -0.0121,
+   "median_dollar_volume": 8808408.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Nexa Resources Parent Votorantim Agrees To Sell Controlling Stake In NEXA To Boliden; Terms Not Disclosed"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "m_and_a",
+    "why": "Nexa Resources fell 10.8% after parent Votorantim agreed to sell controlling stake to Boliden, with terms not disclosed.",
+    "knowable_before": "partly",
+    "precursor": "M&A announcement",
+    "lesson": "M&A news can lead to uncertainty and price drops."
+   }
+  },
+  {
+   "symbol": "HQY",
+   "side": "LOSS",
+   "ret_1d": -0.1056,
+   "ret_5d": -0.1041,
+   "median_dollar_volume": 71130919.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "12 Health Care Stocks Moving In Thursday's Intraday Session",
+    "Crude Oil Moves Higher; Dollar General Shares Gain After Upbeat Q2 Earnings",
+    "HealthEquity Reports Q2 2027 Results: Full Earnings Call Transcript"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "HealthEquity fell 10.6% after reporting Q2 2027 results, with headlines noting the earnings call.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses or weak guidance can lead to declines."
+   }
+  },
+  {
+   "symbol": "FFAI",
+   "side": "LOSS",
+   "ret_1d": -0.1038,
+   "ret_5d": -0.2809,
+   "median_dollar_volume": 4002736.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Reported Earlier, Faraday Future Unveils \"Built In USA\" Execution Roadmap, Targets Robot Factory Online By Year-End And First EAI Device In ",
+    "Reported Earlier, Faraday Future Announces \"Built In USA\" Global Industry Alliance Initiative And Robotics Acceleration Program Roadmap At A",
+    "Faraday Future Intelligent Electric Terminates The Obligation To Issue A Total Of ~237,615 Warrants;  All Five Investors Have Executed The A"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "dilution_or_financing",
+    "why": "Faraday Future fell 10.4% after terminating warrants and announcing a roadmap, with headlines about warrant termination.",
+    "knowable_before": "partly",
+    "precursor": "Corporate action",
+    "lesson": "Warrant terminations can signal dilution or financial stress."
+   }
+  },
+  {
+   "symbol": "HRL",
+   "side": "LOSS",
+   "ret_1d": -0.1025,
+   "ret_5d": -0.1163,
+   "median_dollar_volume": 96011784.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "SPAM Maker Hormel Says Consumers Remain Strained As Inflation and Fuel Costs Pile Up",
+    "Nvidia's Best Day Since April 2025, Cybersecurity Stocks Go Vertical: Stock Market Today",
+    "Transcript: Hormel Foods Q3 2026 Earnings Conference Call"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "Hormel Foods fell 10.2% after reporting Q3 earnings, with headlines citing consumer strain from inflation.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses with weak consumer commentary can lead to declines."
+   }
+  },
+  {
+   "symbol": "PAY",
+   "side": "LOSS",
+   "ret_1d": -0.0969,
+   "ret_5d": -0.0731,
+   "median_dollar_volume": 26734966.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Wolfe Research Downgrades Paymentus Holdings to Peer Perform"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Paymentus fell 9.7% after a downgrade by Wolfe Research, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Analyst downgrade",
+    "lesson": "Analyst downgrades can trigger sell-offs."
+   }
+  },
+  {
+   "symbol": "P",
+   "side": "LOSS",
+   "ret_1d": -0.0883,
+   "ret_5d": -0.0973,
+   "median_dollar_volume": 211289288.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Citigroup Maintains Buy on Everpure, Raises Price Target to $130",
+    "B of A Securities Upgrades Everpure to Buy, Raises Price Target to $150",
+    "JP Morgan Maintains Overweight on Everpure, Raises Price Target to $145"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Everpure fell 8.8% despite multiple analyst price target raises, possibly due to profit-taking or sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Positive analyst actions don't always prevent declines."
+   }
+  },
+  {
+   "symbol": "SLGL",
+   "side": "LOSS",
+   "ret_1d": -0.0864,
+   "ret_5d": -0.0755,
+   "median_dollar_volume": 3264744.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "SLGL fell 8.6% with no headlines or recent earnings, likely due to micro-cap volatility.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   }
+  },
+  {
+   "symbol": "AIIO",
+   "side": "LOSS",
+   "ret_1d": -0.0781,
+   "ret_5d": -0.2054,
+   "median_dollar_volume": 3470901.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "AIIO fell 7.8% with no headlines or recent earnings, likely due to micro-cap volatility.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   }
+  },
+  {
+   "symbol": "BURL",
+   "side": "LOSS",
+   "ret_1d": -0.0764,
+   "ret_5d": -0.1297,
+   "median_dollar_volume": 227231034.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Nvidia's Best Day Since April 2025, Cybersecurity Stocks Go Vertical: Stock Market Today",
+    "Burlington Warns Persistent Gas-Price Spike Is Squeezing Its Core Customers",
+    "Burlington Stores Guides Full Year Comparable Store Sales Growth Of 3% To 4%. For Third Quarter Sees Comparable Store Sales Growth Of 1% To "
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "guidance_change",
+    "why": "Burlington fell 7.6% after warning that gas-price spikes are squeezing core customers and guiding lower comparable sales growth.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance cuts due to macro pressures can lead to declines."
+   }
+  },
+  {
+   "symbol": "TIGR",
+   "side": "LOSS",
+   "ret_1d": -0.0733,
+   "ret_5d": -0.002,
+   "median_dollar_volume": 11328776.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": true,
+   "headlines": [
+    "Full Transcript: UP Fintech Holding Q2 2026 Earnings Call",
+    "UP Fintech Holding Q2 Adj. EPS $0.23 Misses $0.24 Estimate, Sales $138.720M Up From $121.381M YoY"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "earnings_surprise",
+    "why": "UP Fintech fell 7.3% after reporting Q2 earnings that missed EPS estimates, despite revenue growth.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses can lead to declines even with revenue growth."
+   }
+  },
+  {
+   "symbol": "EYPT",
+   "side": "LOSS",
+   "ret_1d": -0.0721,
+   "ret_5d": -0.1418,
+   "median_dollar_volume": 20436574.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "Nayax, Immatics, Moderna, Marvell Technology And Other Big Stocks Moving Higher On Tuesday"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "EyePoint Pharmaceuticals fell 7.2% with no specific headlines, possibly due to sector weakness or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained drops are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "PLAY",
+   "side": "LOSS",
+   "ret_1d": -0.069,
+   "ret_5d": -0.068,
+   "median_dollar_volume": 16305638.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "PLAY fell 6.9% with no headlines or recent earnings, likely due to sector weakness or profit-taking.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "EVH",
+   "side": "LOSS",
+   "ret_1d": -0.0671,
+   "ret_5d": -0.0234,
+   "median_dollar_volume": 12701830.0,
+   "dv_bucket": "small",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Evolent Health fell 6.7% with no headlines or recent earnings, possibly due to sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "HQ",
+   "side": "LOSS",
+   "ret_1d": -0.0669,
+   "ret_5d": -0.0534,
+   "median_dollar_volume": 5276048.0,
+   "dv_bucket": "micro",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [
+    "12 Information Technology Stocks Moving In Wednesday's Intraday Session"
+   ],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "HQ fell 6.7% with no specific headlines, possibly due to sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  },
+  {
+   "symbol": "SFM",
+   "side": "LOSS",
+   "ret_1d": -0.0667,
+   "ret_5d": 0.0343,
+   "median_dollar_volume": 151289868.0,
+   "dv_bucket": "mid",
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "had_print": false,
+   "headlines": [],
+   "engine": {
+    "candidate": null,
+    "candidate_right_way": null,
+    "old_universe": false,
+    "control_holding": false
+   },
+   "compiled": {
+    "template": "unknown",
+    "why": "Sprouts Farmers Market fell 6.7% with no headlines or recent earnings, possibly due to profit-taking.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  }
+ ],
+ "industry_clusters": {
+  "WIN:Technology": [
+   "OKTA",
+   "CRM",
+   "CRWD",
+   "RPD",
+   "SNPS",
+   "FIG",
+   "PANW",
+   "SAIL",
+   "FROG",
+   "OOMA",
+   "TENB",
+   "MSTR",
+   "RBRK",
+   "BB"
+  ]
+ },
+ "compiled": {
+  "movers": {
+   "OKTA": {
+    "template": "earnings_surprise",
+    "why": "Okta surged 28.6% after reporting earnings, with analysts raising price targets and positive sentiment from cybersecurity sector strength.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings surprises can be anticipated by monitoring analyst revisions and sector momentum."
+   },
+   "CRM": {
+    "template": "earnings_surprise",
+    "why": "Salesforce jumped 22.6% following its earnings beat, lifting enterprise software stocks and prompting price target raises.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Strong earnings from a mega-cap can catalyze sector-wide moves."
+   },
+   "CRWD": {
+    "template": "sector_rotation",
+    "why": "CrowdStrike rose 20.5% amid a cybersecurity rally, with headlines highlighting AI-fueled growth and ETF flows.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Sector rotation can amplify moves in related stocks."
+   },
+   "VEEV": {
+    "template": "earnings_surprise",
+    "why": "Veeva Systems gained 15.2% after reporting earnings, with multiple analysts raising price targets.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst upgrades can drive significant gains."
+   },
+   "RPD": {
+    "template": "unknown",
+    "why": "Rapid7 rose 14.5% with no headlines or recent earnings, possibly due to sector momentum or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Moves without headlines are hard to predict; rely on sector trends cautiously."
+   },
+   "ACDC": {
+    "template": "unknown",
+    "why": "ACDC gained 14.1% with no headlines or recent earnings, likely driven by micro-cap speculation or sector tailwinds.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   },
+   "SNPS": {
+    "template": "earnings_surprise",
+    "why": "Synopsys rose 13.4% after posting upbeat Q3 results, with analyst actions including an upgrade and price target changes.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats can lead to analyst upgrades and positive momentum."
+   },
+   "BRUN": {
+    "template": "unknown",
+    "why": "Brunswick gained 13.3% with no headlines or recent earnings, possibly due to sector strength or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   },
+   "FIG": {
+    "template": "sector_rotation",
+    "why": "Figma rallied 13.3% as part of a broader tech and cybersecurity surge, with headlines mentioning its rise alongside other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Tech sector rallies can lift high-beta names like Figma."
+   },
+   "TH": {
+    "template": "guidance_change",
+    "why": "Target Hospitality surged 13.0% after raising FY2026 sales guidance and announcing a multi-year lease agreement.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance raises and contract wins can trigger sharp moves."
+   },
+   "PANW": {
+    "template": "sector_rotation",
+    "why": "Palo Alto Networks rose 12.8% amid a cybersecurity rally, with headlines highlighting the sector's strength.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Cybersecurity sector rallies can boost large-cap players."
+   },
+   "FWDI": {
+    "template": "unknown",
+    "why": "FWDI gained 12.3% with no headlines or recent earnings, likely due to micro-cap speculation or sector tailwinds.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   },
+   "SAIL": {
+    "template": "sector_rotation",
+    "why": "SailPoint rose 12.2% as part of a tech and cybersecurity rally, with headlines mentioning its move alongside other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum from peers' earnings",
+    "lesson": "Tech sector rallies can lift high-beta names like SailPoint."
+   },
+   "FROG": {
+    "template": "sector_rotation",
+    "why": "JFrog gained 12.1% amid a tech rally, with an analyst initiation and headlines linking it to other big movers.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum and analyst initiation",
+    "lesson": "Analyst initiations and sector momentum can drive gains."
+   },
+   "OOMA": {
+    "template": "earnings_surprise",
+    "why": "Ooma rose 12.0% after reporting earnings, with an analyst raising price target and positive sector sentiment.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst support can lead to gains."
+   },
+   "TENB": {
+    "template": "index_or_flow",
+    "why": "Tenable rose 11.8% after being added to the S&P SmallCap 600, with headlines confirming the index inclusion.",
+    "knowable_before": "yes",
+    "precursor": "Index inclusion announcement",
+    "lesson": "Index inclusions can cause predictable price increases."
+   },
+   "MSTR": {
+    "template": "sector_rotation",
+    "why": "Strategy (MicroStrategy) gained 11.5% amid a tech rally and Bitcoin-related headlines, with whale alerts noted.",
+    "knowable_before": "partly",
+    "precursor": "Sector momentum and Bitcoin price action",
+    "lesson": "Crypto-linked stocks can move with Bitcoin and tech sentiment."
+   },
+   "RBRK": {
+    "template": "earnings_surprise",
+    "why": "Rubrik rose 11.3% after reporting earnings, with analysts raising price targets.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats with analyst upgrades can drive gains."
+   },
+   "PURR": {
+    "template": "earnings_surprise",
+    "why": "Hyperliquid Strategies surged 11.0% after reporting Q4 EPS and sales that beat estimates, with headlines highlighting the move.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings beats can lead to significant gains, especially for smaller caps."
+   },
+   "BB": {
+    "template": "guidance_change",
+    "why": "BlackBerry rose 11.0% after announcing QNX support for Hailo-8 AI accelerator, expanding hardware options.",
+    "knowable_before": "partly",
+    "precursor": "Company announcement",
+    "lesson": "Strategic partnerships or product expansions can boost sentiment."
+   },
+   "SMJF": {
+    "template": "unknown",
+    "why": "SMJF crashed 87.0% with no specific headlines, likely due to a corporate action or delisting.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Extreme drops without news are often due to corporate actions; avoid holding without research."
+   },
+   "BBW": {
+    "template": "guidance_change",
+    "why": "Build-A-Bear fell 27.3% after cutting guidance and citing weak traffic, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance cuts can lead to sharp declines."
+   },
+   "WEN": {
+    "template": "m_and_a",
+    "why": "Wendy's dropped 13.6% after reports that a take-private deal was off, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "M&A speculation",
+    "lesson": "M&A deal failures can cause significant losses."
+   },
+   "CABO": {
+    "template": "unknown",
+    "why": "Cable One fell 12.9% with no specific headlines, possibly due to sector weakness or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained drops are risky; monitor for news or sector shifts."
+   },
+   "REAX": {
+    "template": "unknown",
+    "why": "Real Brokerage fell 11.1% despite an analyst price target raise, with a trading halt noted.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Trading halts can precede volatile moves; caution advised."
+   },
+   "NEXA": {
+    "template": "m_and_a",
+    "why": "Nexa Resources fell 10.8% after parent Votorantim agreed to sell controlling stake to Boliden, with terms not disclosed.",
+    "knowable_before": "partly",
+    "precursor": "M&A announcement",
+    "lesson": "M&A news can lead to uncertainty and price drops."
+   },
+   "HQY": {
+    "template": "earnings_surprise",
+    "why": "HealthEquity fell 10.6% after reporting Q2 2027 results, with headlines noting the earnings call.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses or weak guidance can lead to declines."
+   },
+   "FFAI": {
+    "template": "dilution_or_financing",
+    "why": "Faraday Future fell 10.4% after terminating warrants and announcing a roadmap, with headlines about warrant termination.",
+    "knowable_before": "partly",
+    "precursor": "Corporate action",
+    "lesson": "Warrant terminations can signal dilution or financial stress."
+   },
+   "HRL": {
+    "template": "earnings_surprise",
+    "why": "Hormel Foods fell 10.2% after reporting Q3 earnings, with headlines citing consumer strain from inflation.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses with weak consumer commentary can lead to declines."
+   },
+   "PAY": {
+    "template": "unknown",
+    "why": "Paymentus fell 9.7% after a downgrade by Wolfe Research, as per headlines.",
+    "knowable_before": "partly",
+    "precursor": "Analyst downgrade",
+    "lesson": "Analyst downgrades can trigger sell-offs."
+   },
+   "P": {
+    "template": "unknown",
+    "why": "Everpure fell 8.8% despite multiple analyst price target raises, possibly due to profit-taking or sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Positive analyst actions don't always prevent declines."
+   },
+   "SLGL": {
+    "template": "unknown",
+    "why": "SLGL fell 8.6% with no headlines or recent earnings, likely due to micro-cap volatility.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   },
+   "AIIO": {
+    "template": "unknown",
+    "why": "AIIO fell 7.8% with no headlines or recent earnings, likely due to micro-cap volatility.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Micro-cap moves often lack transparency; avoid over-reliance on fundamentals."
+   },
+   "BURL": {
+    "template": "guidance_change",
+    "why": "Burlington fell 7.6% after warning that gas-price spikes are squeezing core customers and guiding lower comparable sales growth.",
+    "knowable_before": "partly",
+    "precursor": "Company guidance update",
+    "lesson": "Guidance cuts due to macro pressures can lead to declines."
+   },
+   "TIGR": {
+    "template": "earnings_surprise",
+    "why": "UP Fintech fell 7.3% after reporting Q2 earnings that missed EPS estimates, despite revenue growth.",
+    "knowable_before": "partly",
+    "precursor": "Scheduled earnings report",
+    "lesson": "Earnings misses can lead to declines even with revenue growth."
+   },
+   "EYPT": {
+    "template": "unknown",
+    "why": "EyePoint Pharmaceuticals fell 7.2% with no specific headlines, possibly due to sector weakness or unannounced news.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained drops are risky; monitor for news or sector shifts."
+   },
+   "PLAY": {
+    "template": "unknown",
+    "why": "PLAY fell 6.9% with no headlines or recent earnings, likely due to sector weakness or profit-taking.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   },
+   "EVH": {
+    "template": "unknown",
+    "why": "Evolent Health fell 6.7% with no headlines or recent earnings, possibly due to sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   },
+   "HQ": {
+    "template": "unknown",
+    "why": "HQ fell 6.7% with no specific headlines, possibly due to sector weakness.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   },
+   "SFM": {
+    "template": "unknown",
+    "why": "Sprouts Farmers Market fell 6.7% with no headlines or recent earnings, possibly due to profit-taking.",
+    "knowable_before": "no",
+    "precursor": "none",
+    "lesson": "Unexplained moves are risky; monitor for news or sector shifts."
+   }
+  },
+  "themes": [
+   {
+    "theme": "Cybersecurity sector rally",
+    "symbols": [
+     "OKTA",
+     "CRWD",
+     "PANW",
+     "FIG",
+     "SAIL",
+     "FROG",
+     "TENB",
+     "RBRK"
+    ],
+    "template": "sector_rotation"
+   },
+   {
+    "theme": "Earnings beats in tech",
+    "symbols": [
+     "OKTA",
+     "CRM",
+     "VEEV",
+     "SNPS",
+     "OOMA",
+     "RBRK",
+     "PURR"
+    ],
+    "template": "earnings_surprise"
+   },
+   {
+    "theme": "Guidance cuts and weak consumer",
+    "symbols": [
+     "BBW",
+     "BURL",
+     "HRL"
+    ],
+    "template": "guidance_change"
+   }
+  ],
+  "day_lesson": "Today's winners were largely driven by earnings beats and a strong cybersecurity/tech sector rally, which was partly knowable from scheduled earnings and sector momentum. Losers were often due to guidance cuts, M&A failures, or unexplained micro-cap volatility. A strategy focusing on earnings season and sector rotation would have captured many winners, while avoiding stocks with negative guidance or deal failures. However, many small-cap moves lacked transparency and were unpredictable."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "abec592d351a",
+  "cost_usd": 0.005216,
+  "latency_s": 25.37
+ },
+ "grade": {
+  "winners_with_print": 8,
+  "losers_with_print": 6,
+  "winners_in_candidates": 0,
+  "losers_in_candidates": 0,
+  "candidates_right_way": 0,
+  "candidates_wrong_way": 0,
+  "movers_in_old_universe": 1,
+  "movers_in_control_holdings": [],
+  "knowable_before": {
+   "yes": 1,
+   "partly": 24,
+   "no": 15
+  }
+ }
+}
