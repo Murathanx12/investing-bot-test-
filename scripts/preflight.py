@@ -37,7 +37,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 from alpha import (book as book_mod, book_limits, concentration, config, daybreak,
-                   liveness)
+                   genesis, liveness)
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 
@@ -130,6 +130,31 @@ def main() -> int:
     print(f"\n  LOOP LIVENESS     {'ok' if ok_live else 'NOT HEALTHY'}")
     for line in lines[:4]:
         print(f"    {line[:150]}")
+
+    # -- THE JUDGED ACCOUNT'S IDENTITY (alpha/genesis.py) --------------------
+    # Every other check on this page is about the BOOK. This one is about WHICH
+    # ACCOUNT the book is in, and it is the only check whose failure cannot be
+    # fixed by trading differently. It REFUSES rather than reporting: a
+    # denylisted number under the judged role means orders would land in the
+    # -15.1% dev book, and every role-keyed guard in this repo would still pass.
+    number = str(acct.get("account_number") or "")
+    role_now = config.role()
+    denied = genesis.DENIED_ACCOUNTS.get(number)
+    if role_now == genesis.JUDGED_ROLE:
+        print(f"\n  JUDGED ACCOUNT    {number}")
+        if denied:
+            print(f"    REFUSED -- DENYLISTED: {denied}")
+            return 1
+        ok_gen, gen_lines = genesis.verify(client, role=role_now)
+        print(f"    genesis {'OK' if ok_gen else 'REFUSED'}")
+        for line in gen_lines:
+            print(f"    {line}")
+        if not ok_gen:
+            return 1
+    elif denied:
+        print(f"\n  ACCOUNT           {number} is denylisted for the judged role")
+        print(f"    {denied}")
+        print(f"    (current role is {role_now!r}, so this is a note, not a refusal)")
 
     if args.require_clean:
         dirty = []

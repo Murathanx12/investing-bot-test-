@@ -51,7 +51,7 @@ from datetime import datetime, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import config, daybreak, ledger, recovery, refuted
+from alpha import claims, config, daybreak, ledger, recovery, refuted
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -318,6 +318,17 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             logger.warning("%s: share structure not built: %s", forecast.symbol, exc)
         if share is not None:
             candidates.append(share)
+    # -- CLAIM_EXPRESSION_MATRIX (alpha/claims.py) ---------------------------
+    # Structural, and BEFORE anything is priced. `effective_sd` already makes a
+    # condor score badly for a directional brain; this makes it inadmissible
+    # regardless of how it scores. The two halves normally agree, and when they
+    # stop agreeing the rejected list says so instead of the book finding out.
+    inexpressible = [s for s in candidates if not claims.admissible(forecast.claim, s.kind)]
+    for s in inexpressible:
+        rejected.append((s, sizing.SizingVerdict(
+            False, 0.0, 0.0, f"CLAIM {forecast.claim}: {claims.why_not(forecast.claim, s.kind)}")))
+    candidates = [s for s in candidates if claims.admissible(forecast.claim, s.kind)]
+
     for structure in candidates:
         try:
             sd_used, sd_note = effective_sd(forecast, structure)

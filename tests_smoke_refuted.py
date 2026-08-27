@@ -29,7 +29,7 @@ print("refuted routes -- replaying the 25 Aug book")
 amd = refuted.check(symbol="AMD", kind="long_straddle", event_ahead_on_symbol=False,
                     originators_printing=refuted.peers_printing("AMD", {"NVDA"}))
 check("AMD long straddle into NVDA's print is REFUSED (-$4,125 on 25 Aug)",
-      amd is not None and amd.route == "PEER_LONG_PREMIUM_INTO_PRINT",
+      amd is not None and amd.route == "PEER_LONG_VOL_INTO_PRINT",
       str(amd))
 check("and it cites the 290-leg measurement, not an opinion",
       amd is not None and "290" in amd.evidence)
@@ -37,7 +37,7 @@ check("and it cites the 290-leg measurement, not an opinion",
 nvda = refuted.check(symbol="NVDA", kind="long_straddle", event_ahead_on_symbol=True,
                      originators_printing=[])
 check("NVDA long premium into its OWN print is REFUSED",
-      nvda is not None and nvda.route == "LONG_PREMIUM_INTO_MEGACAP_PRINT", str(nvda))
+      nvda is not None and nvda.route == "LONG_VOL_INTO_OWN_MEASURED_PRINT", str(nvda))
 check("and it cites the 0-for-8", nvda is not None and "0 for 8" in nvda.evidence)
 
 # --- what must STILL be allowed ---------------------------------------------
@@ -60,6 +60,48 @@ check("short premium into a print is NOT refused by these rules", cond is None,
 quiet = refuted.check(symbol="AMD", kind="long_straddle", event_ahead_on_symbol=False,
                       originators_printing=refuted.peers_printing("AMD", set()))
 check("AMD straddle with nobody printing is ALLOWED", quiet is None, str(quiet))
+
+# --- EVIDENCE DOES NOT INHERIT BY ANALOGY (2026-08-27) ----------------------
+# The first draft blocked {long_call, long_put} on eight mega caps from a sample
+# that contained neither. On 26 Aug that would have refused the one trade the
+# research was right about. These cases pin the scope to the sample.
+
+call = refuted.check(symbol="NVDA", kind="long_call", event_ahead_on_symbol=True,
+                     originators_printing=[])
+check("a DIRECTIONAL long call into NVDA's own print is ADMISSIBLE", call is None,
+      "the 0-for-8 is an absolute-move sample; it says nothing about the signed move")
+
+put = refuted.check(symbol="NVDA", kind="long_put", event_ahead_on_symbol=True,
+                    originators_printing=[])
+check("and so is a long put -- symmetry, not a bullish exception", put is None, str(put))
+
+for sym in ("AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "AVGO"):
+    r = refuted.check(symbol=sym, kind="long_straddle", event_ahead_on_symbol=True,
+                      originators_printing=[])
+    check(f"{sym} straddle into its own print is ADMISSIBLE (unmeasured, not refuted)",
+          r is None, "the 0-for-8 sample is NVDA's alone")
+
+peer_call = refuted.check(symbol="AMD", kind="long_call", event_ahead_on_symbol=False,
+                          originators_printing=refuted.peers_printing("AMD", {"NVDA"}))
+check("a peer DIRECTIONAL call into NVDA's print is ADMISSIBLE",
+      peer_call is None, "relay_backtest measured peer STRADDLES, not calls")
+
+check("long_call/long_put are NOT in the refusable set",
+      not (refuted.LONG_DIRECTIONAL & refuted.LONG_VOL)
+      and "long_call" not in refuted.LONG_PREMIUM,
+      "LONG_PREMIUM must not be the union again")
+
+check("every refusable symbol names its own sample",
+      all(len(v) > 20 for v in refuted.MEASURED_OWN_PRINT.values())
+      and set(refuted.MEASURED_OWN_PRINT) == {"NVDA"},
+      "adding a symbol without adding its sample is evidence by analogy")
+
+check("the untested routes are recorded rather than inferred from silence",
+      len(refuted.UNMEASURED) >= 3
+      and all("ADMISSIBLE" in why for _, why in refuted.UNMEASURED))
+
+for r in (amd, nvda):
+    check(f"{r.route} prints the scope of its own sample", bool(r.scope) and r.scope in r.line())
 
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):

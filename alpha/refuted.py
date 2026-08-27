@@ -2,13 +2,12 @@
 
 WHY THIS FILE EXISTS
 ====================
-On 25 Aug the engine opened a long straddle on AMD into NVDA's print, and short
-NVDA calls into the same print. Both are routes this project had already killed
+On 25 Aug the engine opened a long straddle on AMD into NVDA's print, and long
+NVDA premium into the same print. Both are routes this project had already killed
 in writing, with samples:
 
 - **peer straddle into a print** -- 290 relay legs, mean **-4.2%**, hit **34%**;
-- **long premium into a mega-cap print** -- the chain OVERPRICES these. NVDA is
-  **0 for 8**. Buying the straddle is the documented losing side.
+- **NVDA's own straddle into its own print** -- **0 for 8**.
 
 The findings existed. The code did not know them. The AMD straddle lost **-$4,125**
 and the NVDA structures **-$5,629**, and every one of those dollars was spent
@@ -16,6 +15,34 @@ re-learning something already on file.
 
 **A finding that lives in a document instead of a guard is not a finding, it is a
 memory.** This file is where a corpse becomes a refusal.
+
+EVIDENCE DOES NOT INHERIT BY ANALOGY (rewritten 2026-08-27)
+===========================================================
+The first draft of this file did what it was built to prevent. It defined
+`LONG_PREMIUM = {long_straddle, long_strangle, long_call, long_put}` and
+`MEGA_CAP_PRINTERS = {NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA, AVGO}`, then
+refused every pair of the two on the strength of one sample: **NVDA straddles,
+0 for 8**.
+
+That sample contains no AAPL, no MSFT, and **not one directional call**. Both
+underlying measurements -- the 0-for-8 and the 290 relay legs
+(`scripts/relay_backtest.py`, peer ATM straddles bought at the close before and
+sold at the close after) -- measure ONE claim: *the chain does not underprice
+E|move| into these prints*. A straddle pays only if the ABSOLUTE move beats the
+price of both sides. A call pays if the SIGNED move clears one side. They are
+bets on different moments of the same distribution, and evidence about the
+second moment is silent about the first.
+
+Left as written, the guard would have refused a bullish NVDA call on 26 Aug --
+the print where the guide surprised by +3.8 sigma and the stock rose ~6.8%
+against an implied move of ~5.4%. A guard that blocks the trade the research was
+RIGHT about is worse than no guard: it converts a good finding into a permanent
+tax, and it does so invisibly, because a refusal looks like discipline.
+
+So every row now carries the scope of its own sample, and `check` refuses only
+inside it. Where a route is untested, that is recorded in `UNMEASURED` and it
+stays ADMISSIBLE -- a check that did not run is not a check that passed, and it
+is not a check that failed either.
 
 WHAT THIS IS NOT
 ================
@@ -32,13 +59,40 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-#: Structures that are LONG premium -- they pay theta and need a move to exceed
-#: what the chain already charges for it.
-LONG_PREMIUM = frozenset({"long_straddle", "long_strangle", "long_call", "long_put"})
+#: Structures whose payoff depends on the ABSOLUTE move -- long the second
+#: moment, which is what both measurements below actually tested.
+LONG_VOL = frozenset({"long_straddle", "long_strangle"})
 
-#: Names whose prints the chain has been measured to OVERPRICE. Deliberately a
-#: short, evidenced list rather than "any large cap": the measurement is on these.
-MEGA_CAP_PRINTERS = frozenset({"NVDA", "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "AVGO"})
+#: Structures whose payoff depends on the SIGNED move. NOTHING in this file has
+#: evidence about these into a print. Named so the gap is visible rather than
+#: inferred from an absence.
+LONG_DIRECTIONAL = frozenset({"long_call", "long_put"})
+
+#: Back-compat alias. Deliberately NOT the union of the two above: nothing may
+#: refuse on that union again without a sample covering both halves.
+LONG_PREMIUM = LONG_VOL
+
+#: Names whose OWN prints have been measured, mapped to the sample. One entry,
+#: because one name has been measured. Adding a symbol here requires adding its
+#: sample -- the dict IS the evidence scope, not a convenience list.
+MEASURED_OWN_PRINT: dict[str, str] = {
+    "NVDA": ("NVDA straddle into its own print: 0 for 8 "
+             "(docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md)"),
+}
+
+#: Routes that are simply untested. Kept in code so a reader can tell "we looked
+#: and it lost" from "we never looked" without reading eight documents, and so
+#: that adding evidence has an obvious home.
+UNMEASURED: tuple[tuple[str, str], ...] = (
+    ("long_call / long_put into any print",
+     "no sample. The 0-for-8 and the 290 relay legs are both ABSOLUTE-move tests; "
+     "neither contains a directional leg. ADMISSIBLE."),
+    ("long straddle into AAPL/MSFT/GOOGL/AMZN/META/TSLA/AVGO prints",
+     "no sample. The 0-for-8 is NVDA's alone. ADMISSIBLE, and running the same "
+     "8-print test on one more name is the cheapest way to earn a wider row."),
+    ("peer DIRECTIONAL premium into an originator's print",
+     "no sample. relay_backtest measured peer STRADDLES. ADMISSIBLE."),
+)
 
 
 @dataclass(frozen=True)
@@ -47,9 +101,13 @@ class Refusal:
     reason: str
     evidence: str
     reopens_if: str
+    #: The exact population the evidence was measured on, printed with the
+    #: refusal so a reader can see whether this trade is inside it.
+    scope: str = ""
 
     def line(self) -> str:
-        return f"REFUTED ROUTE {self.route}: {self.reason} [{self.evidence}]"
+        tail = f" scope: {self.scope}" if self.scope else ""
+        return f"REFUTED ROUTE {self.route}: {self.reason} [{self.evidence}]{tail}"
 
 
 def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
@@ -61,29 +119,38 @@ def check(*, symbol: str, kind: str, event_ahead_on_symbol: bool,
     is a declared peer (from `relay.RELAY_MAP`). A peer trade is only refuted
     when the ORIGINATOR is the one printing; peers with no pending print are
     ordinary names and this says nothing about them.
+
+    Only LONG-VOL structures can be refused here. A `long_call` reaching this
+    function returns None by design -- see the module docstring.
     """
-    if kind not in LONG_PREMIUM:
+    if kind not in LONG_VOL:
         return None
 
-    if event_ahead_on_symbol and symbol.upper() in MEGA_CAP_PRINTERS:
+    sym = symbol.upper()
+
+    if event_ahead_on_symbol and sym in MEASURED_OWN_PRINT:
         return Refusal(
-            route="LONG_PREMIUM_INTO_MEGACAP_PRINT",
-            reason=(f"{kind} on {symbol} whose own print is still ahead. The chain OVERPRICES "
-                    "these events, so buying the move is the documented losing side."),
-            evidence="NVDA straddle into its own print: 0 for 8",
-            reopens_if=("a forward sample of >=20 mega-cap prints in which the realised move "
-                        "beats the entry straddle after costs"),
+            route="LONG_VOL_INTO_OWN_MEASURED_PRINT",
+            reason=(f"{kind} on {sym} whose own print is still ahead. On the sample below the "
+                    "chain did not underprice the absolute move, so buying both sides is the "
+                    "documented losing side. A DIRECTIONAL structure is not covered by this."),
+            evidence=MEASURED_OWN_PRINT[sym],
+            reopens_if=("a forward sample of >=20 prints on this symbol in which the realised "
+                        "absolute move beats the entry straddle after costs"),
+            scope=f"{sym} only, long_straddle/long_strangle only, own print ahead",
         )
 
     if originators_printing:
         orig = ", ".join(sorted(originators_printing))
         return Refusal(
-            route="PEER_LONG_PREMIUM_INTO_PRINT",
-            reason=(f"{kind} on {symbol}, a declared peer of {orig} whose print is ahead. "
-                    "Paying premium on the PEER of an event is refuted, not merely unproven."),
-            evidence="290 relay legs, mean -4.2%, hit 34%",
+            route="PEER_LONG_VOL_INTO_PRINT",
+            reason=(f"{kind} on {sym}, a declared peer of {orig} whose print is ahead. "
+                    "The peers' chains already widen for the originator's date by more than "
+                    "the peers then move. Paying for the peer's absolute move is refuted."),
+            evidence="290 relay legs, mean -4.2%, hit 34%, t -2.0 (scripts/relay_backtest.py)",
             reopens_if=("a pre-registered re-test on >=100 fresh legs clearing zero after costs; "
                         "the 2026-08-25 AMD straddle (-$4,125) is one more negative sample"),
+            scope="peer ATM straddles/strangles only, originator print ahead",
         )
     return None
 

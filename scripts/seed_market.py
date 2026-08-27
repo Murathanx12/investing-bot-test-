@@ -35,7 +35,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
-from alpha import config, ledger
+from alpha import benchmark, config, ledger
 from scripts import contract as contract_mod
 
 #: The benchmark instrument. SPY alone rather than a basket: the bar should be
@@ -70,10 +70,32 @@ def _post(path: str, creds, body: dict) -> dict:
         return json.loads(r.read().decode())
 
 
+class _ClientShim:
+    """`benchmark.read` speaks the AlpacaPaper interface; this script speaks urllib.
+
+    A shim rather than a rewrite: the seed path is the one place in the repo that
+    must keep working when the broker client itself is what is being distrusted.
+    """
+
+    def __init__(self, creds):
+        self._c = creds
+
+    def positions(self):
+        return _get("/v2/positions", self._c) or []
+
+    def orders(self, status="open", limit=200):
+        return _get(f"/v2/orders?status={status}&limit={limit}", self._c) or []
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--live", action="store_true", help="actually send the order")
     p.add_argument("--symbol", default=SYMBOL)
+    p.add_argument("--convention", choices=("opg", "post_open"), default="post_open",
+                   help=("opg = PASSIVE_BETA_v1, market-on-open (eligible ONLY for the "
+                         "opening auction; cancelled if it does not fill there -- this is "
+                         "what left the arm unseeded). post_open = PASSIVE_BETA_v2, a market "
+                         "DAY order during regular hours, with the fill verified."))
     args = p.parse_args()
     config.load_env()
     role = "market"
@@ -89,11 +111,29 @@ def main() -> int:
     positions = _get("/v2/positions", creds)
     orders = _get("/v2/orders?status=all&limit=5", creds)
 
-    # 2. ONE-TIME. A second seed would make the benchmark a traded book.
-    if positions or orders:
-        print(f"REFUSED: {role} already holds {len(positions)} position(s) and has "
-              f"{len(orders)} order(s). This seed is one-time by construction -- a benchmark "
-              "that gets topped up is not a buy-and-hold record any more.")
+    # 2. ONE-TIME, BUT "AN ORDER EXISTS" IS NOT "A BENCHMARK EXISTS".
+    #
+    # The first version refused on `positions or orders`, which is right for a
+    # topped-up book and WRONG for the state this account is actually in: one
+    # OPG order that expired unfilled, zero positions, equity still exactly
+    # $100,000. Under the old test that reads as "already seeded, refuse" -- so
+    # the arm stays permanently unseeded and the refusal message says the
+    # opposite of the truth. `alpha/benchmark.py` separates the five states.
+    state = benchmark.read(_ClientShim(creds), symbol=args.symbol)
+    print(f"benchmark state  {state.line()}")
+    if state.state in (benchmark.ACTIVE, benchmark.OVERSEEDED):
+        print(f"REFUSED: nothing to seed. This seed is one-time by construction -- a "
+              "benchmark that gets topped up is not a buy-and-hold record any more.")
+        return 1
+    if state.state == benchmark.ORDER_SENT:
+        print("REFUSED: an order is still working. Wait for it to fill or terminate; "
+              "sending a second one is how a benchmark becomes a double position.")
+        return 1
+    if state.state == benchmark.EXPIRED_UNFILLED and args.convention == "opg":
+        print("REFUSED: the previous OPG order did not fill, and this would send another "
+              "one under the identical convention. An OPG order is eligible only for the "
+              "opening auction. Re-run with --convention post_open (PASSIVE_BETA_v2), which "
+              "submits a market DAY order during regular hours and VERIFIES the fill.")
         return 1
 
     equity = float(acct["equity"])
@@ -127,8 +167,9 @@ def main() -> int:
         print("\nDRY RUN. Nothing sent. Re-run with --live to seed.")
         return 0
 
+    tif = "opg" if args.convention == "opg" else "day"
     body = {"symbol": args.symbol, "qty": str(qty), "side": "buy",
-            "type": "market", "time_in_force": "opg"}
+            "type": "market", "time_in_force": tif}
     notional = round(est, 2)
     try:
         placed = _post("/v2/orders", creds, body)
@@ -146,6 +187,26 @@ def main() -> int:
 
     _record(args.symbol, body, placed.get("id"), equity, notional, role)
     print(f"\nSUBMITTED order {placed.get('id')}  status={placed.get('status')}")
+
+    # SUBMITTED IS NOT SEEDED. v1 stopped here and printed a line that every
+    # downstream reader took as "the benchmark is live". The OPG order it sent
+    # was cancelled at the open and the arm stayed empty for nine days while
+    # the scoreboard quoted it. So the last thing this script does is ask the
+    # venue whether a POSITION exists, and it exits non-zero when one does not.
+    final = benchmark.read(_ClientShim(creds), symbol=args.symbol)
+    print(f"venue state      {final.line()}")
+    if not final.is_active:
+        print("\nNOT SEEDED. The order was accepted and no position exists yet.")
+        if tif == "opg":
+            print("  An OPG order fills only in the opening auction, so this is EXPECTED "
+                  "outside it -- re-run this check after the next open:")
+        else:
+            print("  A market DAY order outside regular hours does not fill until the "
+                  "session opens. Re-check then:")
+        print("      AAT_ACCOUNT_ROLE=market python -m scripts.benchmark_state")
+        print("  Until the state reads ACTIVE, nothing may quote a benchmark number.")
+        return 2
+    print("\nSEEDED. A position exists; the benchmark may be quoted.")
     print("ledger row written. Verify with: python -c \"from alpha import ledger,config; "
           "config.load_env(); print(ledger.verify_chain())\"")
     return 0

@@ -17,7 +17,7 @@ import argparse
 import logging
 import sys
 
-from alpha import brains, config, ledger, runner
+from alpha import brains, config, genesis, ledger, runner
 from alpha.broker.alpaca import AlpacaPaper
 
 #: Starting universe. Liquid, optionable, spanning several volatility regimes.
@@ -76,6 +76,20 @@ def main() -> int:
         import os
         os.environ["AAT_ACCOUNT_ROLE"] = args.role.strip().lower()
     client = AlpacaPaper(role=args.role)
+
+    # -- THE JUDGED ACCOUNT MAY NOT BE TRADED WITHOUT A GENESIS RECORD -------
+    # `scripts/preflight` prints this too, but preflight is something a person
+    # chooses to run. This is on the path every order actually takes, and it is
+    # the difference between a limit and a proposal. Non-judged roles are
+    # unaffected: the whole point of the record is that only ONE account is
+    # being judged.
+    if config.role() == genesis.JUDGED_ROLE and args.live:
+        ok_gen, gen_lines = genesis.verify(client, role=genesis.JUDGED_ROLE)
+        if not ok_gen:
+            logging.error("REFUSED -- the judged account cannot be traded:")
+            for line in gen_lines:
+                logging.error("  %s", line)
+            return 2
 
     universe_syms = list(args.universe)
     if args.candidates:
