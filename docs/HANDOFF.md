@@ -1,3 +1,8 @@
+> **SESSION 15 (2026-08-27) is in `docs/HANDOFF_SESSION_15.md`.** RESULT IMPROVEMENT: NONE --
+> all guardrail work. Suite is now `python run_tests.py` (917 checks, venue blocked, zero
+> egress). Book-wide limits ENFORCED; effective ceiling moved 40% -> 35%. Intent-before-POST
+> plus `scripts/reconcile`. 0 lost rows on market/dev/exp1.
+
 # HANDOFF — read this first
 
 ## SESSION 14 (27 Aug, 01:00-03:00 ET) — THE CHAIN WAS NEVER CHEAP
