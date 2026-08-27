@@ -1,5 +1,88 @@
 # HANDOFF — read this first
 
+## SESSION 14 (27 Aug, 01:00-03:00 ET) — THE CHAIN WAS NEVER CHEAP
+
+**RESULTS SCOREBOARD.** Best historical net strategy: none. Best forward paper: dev **-5.28%**, exp1
+**-6.73%** from $100k. Independent selectors: unchanged. Candidates tested: 1 (weekly index premium),
+**0 promoted**. New actionable finding: **the books were long premium because of three unit errors,
+not because of a view**. LLM spend: $0.00. **RESULT IMPROVEMENT: NONE YET** — what moved is the
+instrument. The fix reaches the book only at the next pass.
+
+**1. THE 96.4% NUMBER WAS THE DIAGNOSIS.** Across 6,070 decisions carrying both a forecast and a
+quote, the machine thought the chain was CHEAP on **96.4%** of them, median forecast-sigma /
+implied-move **1.96**. No liquid market is wrong one way 96% of the time. Three unit errors, each
+small, all pointing the same way (`docs/FINDING_2026-08-27_THE_CHAIN_WAS_NEVER_CHEAP.md`):
+
+- `ChainSnapshot.implied_move` returned `0.85 * straddle / spot`. **At the money the straddle price
+  IS the expected absolute move** — an identity, verified to 1.0000 across sigma 10-80% x 1-30 days.
+  The haircut understated the chain's own quote by 15% on every symbol on every pass since the
+  beginning. The old comment argued for DIVIDING by 0.8; the code multiplied by 0.85. Same bug, second
+  site: `alpha/surface.py`.
+- `structures._days` counted CALENDAR days while every consumer scales a per-TRADING-day vol.
+  Friday->Monday was 3 days and 1 session: sqrt(3) = 1.73x.
+- `payoff.economics` rescaled the sd UP when the structure outlived the horizon and did NOTHING in
+  the other direction, with `--horizon` hardcoded at 3.0.
+
+On the SPY 765 straddle exp1 still holds: model said **EV +$168/unit**; shrunk onto its actual life
+it is **-$237**. `tests_smoke_chain_width.py`, 10 checks. Suite 296, green.
+
+**FOUR FLATTERING HYPOTHESES DIED FIRST, BY MEASUREMENT.** The EWMA sigma is RIGHT (1.00 vs
+independently computed truth on 15 names); IEX closes are not noisy (AR(1) +0.01, VR(5) 1.05); IEX
+matches SIP exactly (1.00); the round-trip spread is **2.6%**, not the 20% needed. The realised vol
+is real. Also: summing `pnl_usd_if_closed_now` over `fills.jsonl` gives -$302,818 and is NONSENSE —
+the auditor re-marks 22 orders hundreds of times. Dedupe by `alpaca_order_id` first.
+
+**2. RECORDED, NOT FIXED: TWO BRAINS INFLATE SIGMA.** Against no-lookahead truth on 25 Aug,
+`vol_gap` is accurate (**0.97x**) while `options_attention` (**1.17x**) and `narrative_dispersion`
+(**1.16x**) are not — and those two bought the SPY and IWM straddles that are exp1's largest losses.
+`event_move` runs 1.51x and has never executed. A 16% inflation alone flips a straddle's sign. This
+is a calibration claim and it needs more than one day.
+
+**3. "SO SELL PREMIUM INSTEAD" WAS TESTED AND REFUSED.** `scripts/index_premium_backtest` +
+`index_premium_verdict`, 381 weekly ATM straddles on SPY/QQQ/IWM held to expiry, 2024-02 -> 2026-08.
+Seller +17.2%/wk pooled, t 5.12 — and it is a **REGIME**: 2024 +29.1%, 2025 +16.9%, **2026 -0.8%**.
+QQQ is -0.1% over the whole sample. Capping kills it (1.5x wing: -1.9%). Compounded, naked at
+10%/week is $1 -> $288 with a 60.6% drawdown while capped at 1.5x is $1 -> $0.31. **The weak link is
+named: that run never PRICED a wing** — a 1.5x wing must cost under ~20% of the ATM premium for the
+capped seller to be positive at all, and pricing real wings off expired bars is the decisive next
+measurement. `FAILED_VARIANT`, not `MECHANISM_REJECTED`.
+
+**The corrected arithmetic licenses REFUSING long premium, not reversing into short premium.**
+
+**4. ARMS: ONE ACCOUNT PER ALPHA SOURCE.** `alpha/arms.py` + `python -m scripts.arms`. `validate()`
+REFUSES two live arms sharing an `alpha_source` — the arena bottleneck as code — and every arm must
+declare a falsifier or the module will not load. 8 declared, 2 live, 6 blocked with the blocker
+named. `--independence` measures effective N across live arms and currently says **CANNOT DETERMINE:
+2 overlapping observations against a floor of 20**. Creating accounts is manual (Broker API, not
+Trading API). **A sector-per-account split is the trap** — sector books look independent and share
+every factor.
+
+**5. LOOPS RESTARTED ON THE NEW CODE, EXPIRY MOVED TO 2026-09-04.** Python caches imports at process
+start, so the fix could not reach PIDs 7260/4324. Stopped, verified ledger intact
+(`verify_chain: True`), restarted via `scripts/restart_loops.ps1` (which REFUSES to start a second
+copy beside a live one). `scripts.manage` takes no expiry, so the 28-Aug book stays managed.
+**Liveness is authoritative BY ROLE from this restart** — the previous pair predated the heartbeat.
+
+**6. SKILLS + PROVIDERS.** `alpacahq/alpaca-skills` @62891ec vendored to `.claude/skills`
+(paper-trading, backtest) with a README naming the two things they cannot know: credentials are
+per-role `AAT_*` through `config.credentials`, and an order that skips `alpha/fills.py` +
+`alpha/ledger.py` leaves no decision row and breaks the chain. `task-observer` installed at user
+level. Optimus `aegis_skills` now reads three roots (aegis / terminal / user) instead of one, so the
+brain can see all of them. NVIDIA Build key live in `aegis-finance/.env` (84 models) — **shadow /
+research only, no trading authority**, and not yet wired into `llm_analyzer`.
+
+**OPEN, IN PRIORITY ORDER.**
+1. **The book limits still enforce nothing** and both books breach three of four. Now sharper: the
+   arithmetic that sized those positions was wrong. Decide separately for the EXISTING books (turning
+   limits on forces an unwind) and the fresh competition account (`AAT_COMPETITION_*` is EMPTY).
+2. Grade the 27-Aug session: `scripts.contagion --event 2026-08-27`, `scripts.anchor_to_torque
+   --event 2026-08-27`, and the condors against `FINDING_..._WHAT_THE_CONDORS_ARE_BETTING.md`.
+3. Price real wings off expired bars — it is the one measurement standing between a `FAILED_VARIANT`
+   and a defined-risk arm.
+4. Re-measure the two inflating brains over more than one day.
+5. `state/counterfactual.jsonl` is **561MB / 555,964 lines** and grows ~10k marks/hour. Not urgent
+   (113GB free), but it re-marks the same families every cycle.
+
 ## SESSION 13c (26 Aug, 16:10-21:40 ET) — THE NVDA PRINT, RESOLVED FACTS-FIRST
 
 **THE ORDERING HELD.** 8-K filed ~16:22 ET (`0001045810-26-000073`); all 13 sealed fields resolved at
