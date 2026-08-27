@@ -288,6 +288,39 @@ The runner now logs `MEAN-RANKED` whenever it takes a champion with P(profit)
 below 50%, naming the majority-win alternative it passed over. So you can watch
 the trade-off live and change it mid-contest if the curve looks wrong.
 
+## 9b. THE NFP TRADE — Thu 3 Sep after 15:45 ET. Put it in the calendar.
+
+The jobs report at **08:30 ET on Fri 4 Sep** is the one scheduled macro event
+inside the window, it lands 2.5 hours before judging, and `EVENT_RESERVE`
+already holds **10% of the aggregate cap** for `2026-09-04` so ordinary passes
+cannot spend it first.
+
+It is the best-evidenced opportunity in the contest: **28 releases, SPY 0DTE ATM
+straddle, prior close → 10:45 ET, mean +16.8%, median +6.8%, hit 57%, 9 of the
+last 12 positive.** A TAIL payoff, bounded by construction. The direction channel
+is dead (corr 0.03) — this is a WIDTH trade with centre zero.
+
+```
+AAT_ACCOUNT_ROLE=competition python -m scripts.nfp_trade          # dry, any time
+AAT_ACCOUNT_ROLE=competition python -m scripts.nfp_trade --live   # Thu 3 Sep, after 15:45 ET
+```
+
+Two gates it evaluates itself, at the close on 3 Sep:
+
+1. the 0DTE straddle costs no more than 0.77% × 1.10 — **we do not pay up for a tail**;
+2. the Kalshi payrolls ladder puts ≥25% of its mass in the two outer buckets —
+   **the crowd itself expects a tail**.
+
+Dry-run on 27 Aug: gate 1 **false** (implied 1.28% vs 0.847% max — correct, there
+is no NFP today), gate 2 **true** (tail mass 29%), `in_entry_window: false`. The
+contract works and refuses honestly.
+
+**Note the interaction, which nearly went wrong.** The index-straddle refusal
+added on 27 Aug would have blocked this trade — it refused every SPY straddle
+while its scope string claimed to cover only weekly-held-to-expiry ones.
+`INDEX_STRADDLE_MIN_DTE = 2.0` fixes it: a 0DTE structure is admissible, a
+3-day one (the 25 Aug losers) is not.
+
 ## 10. WHAT DOES **NOT** GET CAPITAL
 
 - **`vol_gap`** — quarantined. It opened 5 of the 6 losing structures and cost
