@@ -49,7 +49,7 @@ UNIVERSE = sorted(set(ETFS + MEGA))
 SECTORS = ["XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB",
            "XLC", "XLRE", "SMH", "XBI", "IBB", "SOXX", "ARKK", "GLD", "TLT"]
 
-WINDOWS = {"1 month": 21, "6 months": 126, "1 year": 252}
+WINDOWS = {"1 month": 21, "6 months": 126, "1 year": 252, "2 years": 504}
 
 
 def battery(horizon: int) -> list[tuple[str, lab.Selector, str]]:
