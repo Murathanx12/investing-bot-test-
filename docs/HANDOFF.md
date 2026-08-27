@@ -1,3 +1,31 @@
+> ## SESSION 17 (2026-08-28) -- WHY WE LOST, WITH 32 YEARS OF RECEIPTS
+>
+> **Read `docs/SESSION_17_2026-08-28_WHY_WE_LOST.md` first.** Scoreboard,
+> diagnosis and the book.
+>
+> **REGISTER BEFORE 11:00 ET ON 28 AUG.** Unchanged and still the only
+> irreversible item.
+>
+> Three things overturn what session 16b left standing:
+>
+> 1. **The lab's winner destroys capital.** `mega-cap mom 6m k=5` scored t=2.99
+>    over two years and returns **0.1x terminal wealth over CRSP 1993-2024**
+>    (CAGR -7.23%; 0.07x through 2000-2009). Cause: my universe is 216 tickers
+>    liquid TODAY, and two years is one regime. The mechanism is VARIANCE DRAG --
+>    mean +0.147% per window against 0.1x wealth.
+> 2. **Nothing we own beats beta.** Best five-day configuration over 32 years:
+>    +5.36%/yr. The CRSP market: **+10.61%**. So the book is built beta-first,
+>    breadth-second, structure-third, names last and small.
+> 3. **The Aegis estate never traded.** Zero `nav.jsonl` files; both copy_lab
+>    trackers still 100% cash since 14 Aug. "Edge is 0%" meant NO EVIDENCE.
+>
+> And the best finding by t: **all of the equity return arrives overnight**
+> (164.64x vs 0.09x intraday, t=+7.92, positive in all four decades). Not
+> tradeable at our costs; the consequence is that we stop fighting it and enter
+> market-on-close.
+>
+> Suite **1332 checks**, all pass.
+
 > ## SESSION 16b (2026-08-27, overnight) — THE AGENT COULD NOT HAVE TRADED
 >
 > **⚠️ REGISTER BEFORE 11:00 ET ON 28 AUG.** *"Registration closes the moment the
