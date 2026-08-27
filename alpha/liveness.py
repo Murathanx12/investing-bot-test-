@@ -165,6 +165,26 @@ def write(beat: Beat) -> None:
         pass
 
 
+def retire(role: str) -> bool:
+    """Remove a role's heartbeat. Returns True if one was there.
+
+    For a DELIBERATE single-cycle run (`agent_loop --once`), which is a
+    diagnostic and not a loop. Leaving its receipt behind makes the next
+    `liveness.report()` say DEAD -- a false alarm, produced by a healthy act,
+    printed beside real ones. That is how a report gets skimmed, which is the
+    failure this whole module exists to prevent, inverted.
+
+    NOT for a crash and NOT for a shutdown: a loop that stops unexpectedly must
+    leave its receipt exactly where it is, because a missing receipt and a stale
+    one mean different things and only the stale one can say when it stopped.
+    """
+    p = _path(role)
+    if not p.exists():
+        return False
+    p.unlink()
+    return True
+
+
 def read(role: str) -> Beat | None:
     p = _path(role)
     if not p.exists():

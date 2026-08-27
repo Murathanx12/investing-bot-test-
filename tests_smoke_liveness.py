@@ -248,6 +248,27 @@ check("a malformed reading is SKIPPED with a reason, not fatal",
       "SKIP" in _g and "must not cost the other" in _g,
       "one bad file was costing the other 97")
 
+# --- retire(): a DELIBERATE single cycle must not leave a DEAD receipt -----
+# `agent_loop --once` on pead wrote a heartbeat and exited correctly, and the
+# next report said "pead DEAD -- the loop is gone", a false alarm produced by a
+# healthy act and printed beside two real HEALTHY lines.
+liveness.write(liveness.Beat(role="oneshot", pid=_pid, cycle=1,
+                             completed_utc=at(seconds=-10).isoformat()))
+check("a receipt exists before retiring", liveness.read("oneshot") is not None)
+check("retire() removes it and says it did", liveness.retire("oneshot") is True)
+check("  and it is gone", liveness.read("oneshot") is None)
+check("  and retiring again is idempotent, not an error",
+      liveness.retire("oneshot") is False)
+check("--once retires its own receipt",
+      "liveness.retire(role)" in _loop_src,
+      "a single deliberate cycle is a diagnostic, not a loop")
+_i_once, _i_ret = _loop_src.find("if args.once:"), _loop_src.find("liveness.retire(role)")
+check("  and it does so BEFORE returning", -1 < _i_once < _i_ret,
+      f"{_i_once} vs {_i_ret}")
+check("  and retire() refuses to be used for a crash",
+      "NOT for a crash" in Path("alpha/liveness.py").read_text(encoding="utf-8"),
+      "a missing receipt and a stale one mean different things")
+
 print()
 if fails:
     print(f"{len(fails)} FAILED: {fails}")

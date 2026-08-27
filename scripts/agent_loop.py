@@ -216,6 +216,13 @@ def main() -> int:
             liveness.write(beat)
             time.sleep(wait)
         if args.once:
+            # A single deliberate cycle is a DIAGNOSTIC, not a loop. Its
+            # heartbeat must not outlive it: a `--once` run on `pead` on 27 Aug
+            # left a receipt that made the next liveness report say
+            # "pead DEAD -- the loop is gone", a false alarm printed beside two
+            # real HEALTHY lines. A report with wrong entries is one people
+            # learn to skim.
+            liveness.retire(role)
             return 0
         time.sleep(60)
 
