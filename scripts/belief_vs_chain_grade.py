@@ -25,7 +25,17 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper()
     root = config.__file__.rsplit("alpha", 1)[0] + "state/belief_vs_chain"
-    files = sorted(glob.glob(f"{root}/*.json"))
+    # THE OUTPUT LIVES IN THE INPUT DIRECTORY, so it must be excluded by name.
+    #
+    # This script writes `GRADES.json` into `root` and then globs `root/*.json`
+    # on the next run. The first run succeeded and wrote a 110-element LIST; every
+    # run since crashed on `rec["symbol"]` with "list indices must be integers".
+    # It has been dead since its first success, inside a loop that calls it every
+    # cycle via a bare subprocess.call whose return code nobody read -- so it
+    # failed silently for as long as it has existed.
+    OUTPUT_NAME = "GRADES.json"
+    files = [f for f in sorted(glob.glob(f"{root}/*.json"))
+             if not f.endswith(OUTPUT_NAME)]
     if not files:
         print("no readings recorded")
         return 0
@@ -34,6 +44,12 @@ def main() -> int:
     graded = []
     for path in files:
         rec = json.load(open(path, encoding="utf-8"))
+        if not isinstance(rec, dict) or "symbol" not in rec:
+            # Report and continue: one bad file must not cost the other 97.
+            print(f"  SKIP {path}: not a reading "
+                  f"({type(rec).__name__}, keys "
+                  f"{sorted(rec)[:4] if isinstance(rec, dict) else 'n/a'})")
+            continue
         sym = rec["symbol"]
         for r in rec["rows"]:
             if r["resolves"] >= today:

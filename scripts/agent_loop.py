@@ -154,6 +154,13 @@ def main() -> int:
     p.add_argument("--shadow", default=None, help="comma list passed to run_pass (recorded, never executed)")
     p.add_argument("--profile", default=None, help="risk profile passed to run_pass")
     p.add_argument("--universe", nargs="*", default=None, help="symbols passed to run_pass")
+    p.add_argument("--window-universe", action="store_true",
+                   help=("pass --window-universe to every entry pass, so the universe is the "
+                         "names with an event inside the contest rather than fifteen hardcoded "
+                         "mega-caps that all reported in July. WITHOUT THIS the loop produces "
+                         "zero forecasts in late August and looks like a quiet market."))
+    p.add_argument("--refresh-window-minutes", type=int, default=360,
+                   help="how often to regenerate state/window_universe.json (0 = never)")
     p.add_argument("--manage-only", action="store_true",
                    help="LEGACY MODE: run exits, fills, counterfactual and autopsy, but NEVER "
                         "an entry pass. The book can only get smaller. Use for a book that is "
@@ -164,7 +171,8 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper()
 
-    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0, "autopsy": 0.0}
+    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0,
+            "autopsy": 0.0, "window": 0.0}
     consecutive_errors = 0
     # THE HEARTBEAT. A dead process cannot report its own death, so the receipt
     # has to exist before the first cycle and be refreshed by every one that
@@ -229,6 +237,12 @@ def _cycle(client, args, last: dict) -> int:
         if not is_open and 16 <= et_hour < 20 and now - last["autopsy"] >= 20 * 3600:
             # After the close: what won, what lost, why, and did the engine hold it.
             _run("scripts.daily_autopsy", live=False); last["autopsy"] = now
+        if (getattr(args, "window_universe", False) and args.refresh_window_minutes
+                and now - last.get("window", 0.0) >= args.refresh_window_minutes * 60):
+            # The calendar moves: a name that reacts tomorrow is not in today's
+            # receipt. Regenerated on a cadence rather than once at startup,
+            # because this loop is meant to run for a week.
+            _run("scripts.window_universe", "--json", live=False); last["window"] = now
         if now - last["candidates"] >= 6 * 3600:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.
@@ -243,6 +257,8 @@ def _cycle(client, args, last: dict) -> int:
         if is_open and not getattr(args, "manage_only", False) \
                 and now - last["entry"] >= args.entry_minutes * 60:
             extra: list[str] = ["--candidates"]
+            if getattr(args, "window_universe", False):
+                extra += ["--window-universe"]
             if args.brains is not None:
                 extra += ["--brains", args.brains]
             if args.shadow is not None:
@@ -270,9 +286,17 @@ def _cycle(client, args, last: dict) -> int:
             # Crowd vs chain, recorded hourly and graded once resolved -- the
             # belief-gap idea earns a trade from these grades, not from a prior.
             for sym in ("NVDA", "TSLA", "SPY"):
-                subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain", sym, "--expiry", args.expiry])
-            subprocess.call([sys.executable, "-m", "scripts.belief_vs_chain_grade"])
-            subprocess.call([sys.executable, "-m", "scripts.belief_recorder"])   # the velocity series
+                # THROUGH `_run`, NOT `subprocess.call`.
+                #
+                # These three were the only steps calling subprocess directly,
+                # so their exit codes reached nobody: not the failure counter,
+                # not the heartbeat, not the log. `belief_vs_chain_grade` has
+                # been crashing on EVERY cycle since its first success -- it
+                # writes GRADES.json into the directory it globs and then reads
+                # its own output back as an input -- and nothing ever said so.
+                _run("scripts.belief_vs_chain", sym, "--expiry", args.expiry, live=False)
+            _run("scripts.belief_vs_chain_grade", live=False)
+            _run("scripts.belief_recorder", live=False)          # the velocity series
             last["belief"] = now
         if is_open and now - last["fill"] >= 900:
             _run("scripts.fill_audit", "--record", live=False); last["fill"] = now

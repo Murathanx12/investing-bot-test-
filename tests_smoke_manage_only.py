@@ -97,8 +97,17 @@ check("marking still runs", "scripts.counterfactual" in legacy, f"invoked: {lega
 _SAFE_SUBPROCESS = {"scripts.belief_vs_chain", "scripts.belief_vs_chain_grade",
                     "scripts.belief_recorder"}
 _subs = {c.split(":", 1)[1] for c in normal + legacy if c.startswith("subprocess:")}
-check("every subprocess went through the stub, and all are known research recorders",
-      _subs and _subs <= _SAFE_SUBPROCESS, f"saw: {sorted(_subs)}")
+# WAS: `_subs and _subs <= _SAFE_SUBPROCESS` -- "if anything bypasses _run it
+# must be one of these three research recorders". The three now go THROUGH _run,
+# so nothing bypasses it and the set is empty. That is the stronger invariant and
+# the test asserts it directly: their exit codes used to reach no counter, no
+# heartbeat and no log, and belief_vs_chain_grade had been crashing on every
+# cycle since its first success without anyone hearing about it.
+check("NOTHING bypasses _run any more -- every step's exit code is counted",
+      not _subs, f"bypassing _run: {sorted(_subs)}")
+check("and the three research recorders are still invoked, via _run",
+      _SAFE_SUBPROCESS <= set(normal),
+      f"missing: {sorted(_SAFE_SUBPROCESS - set(normal))}")
 check("no ENTRY-side subprocess exists in manage-only",
       not any("run_pass" in c for c in legacy), f"invoked: {legacy}")
 check("manage-only is a strict SUBSET of a normal cycle",

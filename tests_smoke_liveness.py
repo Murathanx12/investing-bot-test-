@@ -210,6 +210,44 @@ check("  and resets on recovery", "recovered after" in _src)
 check("the loop publishes them on the heartbeat",
       "beat.failing_steps = failing_steps()" in _src)
 
+# --- NO STEP MAY BYPASS THE FAILURE COUNTER --------------------------------
+# Three steps called subprocess.call directly, so their exit codes reached
+# nobody: not the counter, not the heartbeat, not the log. One of them --
+# belief_vs_chain_grade -- had been crashing on EVERY cycle since its first
+# success, because it writes GRADES.json into the directory it globs and then
+# reads its own output back as an input. It failed silently for as long as it
+# had existed.
+import ast as _ast                                                   # noqa: E402
+
+_loop_src = Path("scripts/agent_loop.py").read_text(encoding="utf-8")
+_tree = _ast.parse(_loop_src)
+# `_run` itself must call subprocess -- it is the wrapper. Everything ELSE must
+# go through it, so the scan excludes _run's own body.
+_run_body = next((n for n in _tree.body
+                  if isinstance(n, _ast.FunctionDef) and n.name == "_run"), None)
+_run_lines = set(range(_run_body.lineno, (_run_body.end_lineno or _run_body.lineno) + 1))     if _run_body else set()
+_direct = []
+for _n in _ast.walk(_tree):
+    if not isinstance(_n, _ast.Call):
+        continue
+    _f = _n.func
+    if isinstance(_f, _ast.Attribute) and _f.attr == "call"             and isinstance(_f.value, _ast.Name) and _f.value.id == "subprocess"             and getattr(_n, "lineno", 0) not in _run_lines:
+        _direct.append(getattr(_n, "lineno", "?"))
+check("only _run may call subprocess; no step bypasses it", not _direct,
+      f"lines {_direct} -- their exit codes reach no counter and no heartbeat")
+check("  and _run really is the one wrapper", _run_body is not None)
+check("every step goes through _run", _loop_src.count("_run(") >= 8)
+
+_g = Path("scripts/belief_vs_chain_grade.py").read_text(encoding="utf-8")
+check("the grader excludes its own output from its inputs",
+      "OUTPUT_NAME" in _g and "not f.endswith(OUTPUT_NAME)" in _g,
+      "it writes GRADES.json into the directory it globs")
+check("  and says so where the next reader will hit it",
+      "dead since its first success" in _g)
+check("a malformed reading is SKIPPED with a reason, not fatal",
+      "SKIP" in _g and "must not cost the other" in _g,
+      "one bad file was costing the other 97")
+
 print()
 if fails:
     print(f"{len(fails)} FAILED: {fails}")
