@@ -1,0 +1,106 @@
+{
+ "n": 381,
+ "first": "2024-02-05",
+ "last": "2026-08-17",
+ "by_year": {
+  "2024": {
+   "n": 141,
+   "mean": 0.2905,
+   "t": 5.86,
+   "hit": 0.752,
+   "worst": -1.7441
+  },
+  "2025": {
+   "n": 150,
+   "mean": 0.1689,
+   "t": 3.13,
+   "hit": 0.687,
+   "worst": -2.5435
+  },
+  "2026": {
+   "n": 90,
+   "mean": -0.0077,
+   "t": -0.1,
+   "hit": 0.567,
+   "worst": -2.2107
+  }
+ },
+ "capped": {
+  "1.0": {
+   "mean": -0.0552,
+   "t": -3.17,
+   "hit": 0.449,
+   "worst": -0.4329
+  },
+  "1.5": {
+   "mean": -0.0192,
+   "t": -0.77,
+   "hit": 0.559,
+   "worst": -0.7858
+  },
+  "2.0": {
+   "mean": 0.0223,
+   "t": 0.75,
+   "hit": 0.604,
+   "worst": -1.192
+  },
+  "3.0": {
+   "mean": 0.0624,
+   "t": 1.89,
+   "hit": 0.63,
+   "worst": -2.1263
+  }
+ },
+ "compounded": {
+  "naked short straddle@0.02": {
+   "final": 3.5855,
+   "max_drawdown": 0.1567,
+   "ruined": false
+  },
+  "naked short straddle@0.05": {
+   "final": 21.31,
+   "max_drawdown": 0.3561,
+   "ruined": false
+  },
+  "naked short straddle@0.1": {
+   "final": 288.1555,
+   "max_drawdown": 0.6063,
+   "ruined": false
+  },
+  "capped at 1.5x@0.02": {
+   "final": 0.8484,
+   "max_drawdown": 0.3734,
+   "ruined": false
+  },
+  "capped at 1.5x@0.05": {
+   "final": 0.6192,
+   "max_drawdown": 0.6989,
+   "ruined": false
+  },
+  "capped at 1.5x@0.1": {
+   "final": 0.3046,
+   "max_drawdown": 0.9236,
+   "ruined": false
+  },
+  "capped at 2.0x@0.02": {
+   "final": 1.1555,
+   "max_drawdown": 0.3494,
+   "ruined": false
+  },
+  "capped at 2.0x@0.05": {
+   "final": 1.3017,
+   "max_drawdown": 0.6734,
+   "ruined": false
+  },
+  "capped at 2.0x@0.1": {
+   "final": 1.2147,
+   "max_drawdown": 0.9086,
+   "ruined": false
+  }
+ },
+ "wing_sensitivity": {
+  "breakeven_wing_cost_frac_of_atm": 0.2,
+  "median_atm_premium_frac_of_spot": 0.02229
+ },
+ "verdict": "REGIME, NOT EDGE: the seller's mean is not positive in every year of the sample. Do not seed an arm on a pooled mean that a single year contradicts."
+}
