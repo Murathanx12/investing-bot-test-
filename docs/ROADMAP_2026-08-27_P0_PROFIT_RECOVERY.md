@@ -88,7 +88,7 @@ made hours earlier from filed fundamentals.
 
 A causal arrow that exists is not an edge with a sign you can spend. So P0.4
 collapses from *"score causal distance and pick the best beneficiary"* to
-**"the source is the default and a proxy must beat it on measurednet payoff"** —
+**"the source is the default and a proxy must beat it on measured net payoff"** —
 which is already how `runner.evaluate` enumerates, with shares competing beside
 options. **One rule, not a scoring system.** The scoring system can come back
 when a proxy has actually won something.
