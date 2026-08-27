@@ -119,10 +119,18 @@ UNMEASURED: tuple[tuple[str, str], ...] = (
     ("long_call / long_put into any print",
      "no sample. The 0-for-8 and the 290 relay legs are both ABSOLUTE-move tests; "
      "neither contains a directional leg. ADMISSIBLE."),
-    ("long straddle into AAPL/MSFT/GOOGL/AMZN/META/TSLA prints",
-     "no sample. ADMISSIBLE, and running the same 8-print test on one more name is "
-     "the cheapest way to earn a wider row -- it took about an hour for PANW and AVGO "
-     "on 2026-08-27 and produced one refusal and one null."),
+    ("long straddle into AAPL / MSFT / GOOGL / AMZN / META / TSLA / AMD / MU prints",
+     "MEASURED 2026-08-27 and NONE OF THEM RESOLVES. Per-event mean vs the smallest "
+     "effect each sample could detect at 80% power: AAPL -16.8% (MDE 29%, win 20%), "
+     "AMZN -13.2% (42%), GOOGL -12.9% (45%), MU -2.6% (45%), AMD +7.7% (54%), "
+     "META +5.1% (53%), MSFT +14.1% (60%), TSLA +20.8% (46%, n=17). Not one observed "
+     "effect exceeds its own MDE. Pooling does not rescue it -- 86 events, mean +1.9%, "
+     "median -11.8%, t 0.31 -- and pooling is the wrong instrument anyway, because "
+     "PANW is 0-for-6 at t -2.5 while TSLA is +20.8%: an average of different things. "
+     "So the standing belief that 'the chain overprices mega-cap prints' is TWO NAMES, "
+     "NVDA and PANW, and the old guard was wrong on the majority of the eight it "
+     "covered. ALL ADMISSIBLE. "
+     "docs/FINDING_2026-08-27_THE_MEGA_CAP_BELIEF_DOES_NOT_GENERALISE.md"),
     ("peer DIRECTIONAL premium into an originator's print",
      "no sample. relay_backtest measured peer STRADDLES. ADMISSIBLE."),
     ("long straddle into AVGO's own print",

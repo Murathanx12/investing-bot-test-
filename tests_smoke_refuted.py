@@ -196,6 +196,27 @@ check("a directional PANW call stays admissible too",
                     originators_printing=[]) is None,
       "the PANW sample is an ABSOLUTE-move test; it says nothing about the signed move")
 
+# --- AND THE EIGHT THAT WERE REFUSED ON NVDA'S SAMPLE ----------------------
+# The old guard refused long premium on eight mega-caps from one name's numbers.
+# Six of those eight now have their own samples and NONE supports the refusal;
+# two lean the other way. The guard was wrong on the majority of what it covered.
+_mega = [w for k, w in refuted.UNMEASURED if "AAPL" in k]
+check("the eight mega-caps are measured and RECORDED", len(_mega) == 1)
+check("  and every one of them is ADMISSIBLE",
+      all(refuted.check(symbol=s, kind="long_straddle", event_ahead_on_symbol=True,
+                        originators_printing=[]) is None
+          for s in ("AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "AMD", "MU")))
+check("  because none of them resolves", "NONE OF THEM RESOLVES" in _mega[0])
+check("  stated as observed-effect vs its own MDE", "MDE 29%" in _mega[0]
+      and "MDE" in _mega[0])
+check("  and pooling is refused as the wrong instrument",
+      "average of different things" in _mega[0])
+check("  and the standing belief is narrowed to the two names it holds for",
+      "TWO NAMES" in _mega[0] and "NVDA and PANW" in _mega[0])
+check("only NVDA and PANW are refusable on their own prints",
+      set(refuted.MEASURED_OWN_PRINT) == {"NVDA", "PANW"},
+      "any addition needs its own resolvable sample")
+
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):
     check(f"{r.route} states what would REOPEN it", bool(r.reopens_if and len(r.reopens_if) > 20))
