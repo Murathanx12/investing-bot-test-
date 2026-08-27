@@ -1,0 +1,59 @@
+{
+ "role": "pead",
+ "declaration": {
+  "name": "SOURCE_PEAD_MID_v1",
+  "licence": "PRODUCT_EXPERIMENT",
+  "prose": "docs/CONTRACT_2026-08-27_SOURCE_PEAD_MID.md",
+  "hypothesis": "A name that has just printed drifts in the SIGN of its own day-0 move over the following three sessions, as excess over beta*QQQ, and the effect is concentrated in the MIDDLE of the day-0 move distribution.",
+  "qualifying_event": {
+   "source": "SEC 8-K Item 2.02, exact filing date and session",
+   "day0_bar_must_be_closed": true,
+   "abs_r0_min": 0.035,
+   "abs_r0_full_conviction_max": 0.082,
+   "conviction_multiplier_above_max": 0.5,
+   "max_sessions_elapsed": 3
+  },
+  "instruments": [
+   "shares",
+   "debit_spread"
+  ],
+  "forbidden_instruments": [
+   "long_call",
+   "long_put",
+   "long_straddle",
+   "long_strangle"
+  ],
+  "max_round_trip_cost_frac_of_spot": 0.005,
+  "fill_convention": {
+   "entry": "day+1 open",
+   "exit": "day+3 close, or the declared stop",
+   "late_arrival_allowed": true,
+   "zero_cost_diagnostic_permitted": false
+  },
+  "objective": "terminal wealth, balanced personality",
+  "benchmarks": [
+   "market arm PA3I7VTCC0BM (product)",
+   "sign-flipped same events (signal)"
+  ],
+  "risk": {
+   "risk_per_event_frac": 0.02,
+   "max_concurrent_events": 5,
+   "max_single_thesis_frac_of_book_max_loss": 0.2,
+   "min_effective_n_by_risk_before_6th": 2.0,
+   "daily_latch_frac": -0.03,
+   "down_side_traded_only_as_pair_with_IWM": true
+  },
+  "retire_if": [
+   "fails to clear the sign-flipped control over 20 qualifying events",
+   "realised round-trip cost exceeds 0.50% of spot on a majority of fills",
+   "the +1..+3 session window stops containing the drift"
+  ],
+  "not_retire_if": [
+   "a losing quarter -- 6 of 11 were negative in the wide study"
+  ]
+ },
+ "account_number": "PA3LY4QK3A6A",
+ "equity_at_freeze": "100000",
+ "frozen_utc": "2026-08-27T07:05:11.313437+00:00",
+ "hash": "d147979faf2c64315affb10e613bdaabe14fb09994b7bb7bb2a45c8f4c441c67"
+}

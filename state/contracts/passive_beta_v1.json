@@ -1,0 +1,41 @@
+{
+ "role": "market",
+ "declaration": {
+  "name": "PASSIVE_BETA_v1",
+  "licence": "PRODUCT_EXPERIMENT",
+  "prose": "docs/CONTRACT_2026-08-27_SOURCE_PEAD_MID.md (section 5 names this arm)",
+  "hypothesis": "None. This is the bar every other arm must clear.",
+  "qualifying_event": {
+   "source": "none -- one purchase at the next regular open"
+  },
+  "instruments": [
+   "shares"
+  ],
+  "forbidden_instruments": [
+   "*"
+  ],
+  "max_round_trip_cost_frac_of_spot": 0.005,
+  "fill_convention": {
+   "entry": "next regular-session open, market order, once",
+   "exit": "never",
+   "zero_cost_diagnostic_permitted": false
+  },
+  "objective": "terminal wealth of a buy-and-hold index book, path included",
+  "benchmarks": [
+   "itself -- it IS the benchmark"
+  ],
+  "risk": {
+   "note": "fully invested, no leverage, no stop. The drawdown it takes is the number every other arm is competing against and must not be smoothed."
+  },
+  "retire_if": [
+   "never -- retiring the benchmark destroys every comparison built on it"
+  ],
+  "not_retire_if": [
+   "a drawdown. That is the measurement."
+  ]
+ },
+ "account_number": "PA3I7VTCC0BM",
+ "equity_at_freeze": "100000",
+ "frozen_utc": "2026-08-27T07:05:26.667148+00:00",
+ "hash": "dc9f565eeb6e5d3c904bc67173c42654c14e4f4ff88da80e382cd2e20bec628a"
+}

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "echo \"{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"SessionStart\\\", \\\"additionalContext\\\": \\\"AEGIS ALPHA TERMINAL (paper trading, live broker credentials).\\\\n- Start with optimus session_briefing() + aegis_verified_state(); read docs/HANDOFF.md before changing anything.\\\\n- Invoke the task-observer skill for any multi-step task in this repo.\\\\n- dev and exp1 are PRE_UNITS_FIX LEGACY books running --manage-only: exits and marking only, no new risk. market and pead are provisioned arms awaiting an attended seed.\\\\n- A stopped loop reads exactly like a quiet market: run scripts.liveness before believing any loop is alive.\\\\n- An order that skips alpha/fills.py + alpha/ledger.py leaves no decision row and breaks the hash chain. Never place one by raw REST.\\\"}}\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
