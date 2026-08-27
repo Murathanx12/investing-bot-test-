@@ -78,6 +78,15 @@ LONG_PREMIUM = LONG_VOL
 MEASURED_OWN_PRINT: dict[str, str] = {
     "NVDA": ("NVDA straddle into its own print: 0 for 8 "
              "(docs/FINDING_2026-08-25_STRADDLE_BACKTEST.md)"),
+    # Measured 2026-08-27 because PANW prints on 1 Sep, inside the contest, and
+    # was admissible only because nobody had looked. Six reconstructed prints,
+    # ATM straddle bought at the close before and sold at the close after:
+    #   2025-02-14 -63.5%  2025-05-21  -2.5%  2025-08-19 -57.0%
+    #   2025-11-20  -6.5%  2026-02-18 -21.0%  2026-06-03 -47.4%
+    # ALL SIX NEGATIVE. Not a mean dragged down by a tail -- every event.
+    "PANW": ("PANW straddle into its own print: 0 for 6, mean -33.0%, median -34.2%, "
+             "paired t(realised-implied) -2.5 (scripts/event_straddle_backtest, "
+             "docs/FINDING_2026-08-27_PANW_AND_AVGO.md)"),
 }
 
 #: Broad index ETFs whose weekly ATM straddle has been measured to expiry.
@@ -110,11 +119,22 @@ UNMEASURED: tuple[tuple[str, str], ...] = (
     ("long_call / long_put into any print",
      "no sample. The 0-for-8 and the 290 relay legs are both ABSOLUTE-move tests; "
      "neither contains a directional leg. ADMISSIBLE."),
-    ("long straddle into AAPL/MSFT/GOOGL/AMZN/META/TSLA/AVGO prints",
-     "no sample. The 0-for-8 is NVDA's alone. ADMISSIBLE, and running the same "
-     "8-print test on one more name is the cheapest way to earn a wider row."),
+    ("long straddle into AAPL/MSFT/GOOGL/AMZN/META/TSLA prints",
+     "no sample. ADMISSIBLE, and running the same 8-print test on one more name is "
+     "the cheapest way to earn a wider row -- it took about an hour for PANW and AVGO "
+     "on 2026-08-27 and produced one refusal and one null."),
     ("peer DIRECTIONAL premium into an originator's print",
      "no sample. relay_backtest measured peer STRADDLES. ADMISSIBLE."),
+    ("long straddle into AVGO's own print",
+     "MEASURED and UNRESOLVED, which is why it is here rather than above. 8 prints, "
+     "mean +32.0%, median +21.6%, 5 of 8 positive, paired t +1.18. It does NOT survive "
+     "the tail: dropping the single 2024-12-13 event (+191%) takes the mean to +9.2% and "
+     "t to 0.66, and that one observation is 62% of all positive return. MDE at 80% power "
+     "on n=8 is 74.8% per event against an observed 32% -- the sample cannot resolve this "
+     "either way, and the returns are at CLOSES, before crossing a spread twice on an "
+     "option costing ~8.6% of spot. ADMISSIBLE, and buying it is a coin flip with a "
+     "receipt, not an edge. AVGO prints 2 Sep, inside the contest, and is the obvious "
+     "thing to buy; this row exists so nobody buys it on the +32%."),
 )
 
 

@@ -91,10 +91,18 @@ check("long_call/long_put are NOT in the refusable set",
       and "long_call" not in refuted.LONG_PREMIUM,
       "LONG_PREMIUM must not be the union again")
 
-check("every refusable symbol names its own sample",
-      all(len(v) > 20 for v in refuted.MEASURED_OWN_PRINT.values())
-      and set(refuted.MEASURED_OWN_PRINT) == {"NVDA"},
+# The invariant, not a fixed list: a symbol may be added ONLY with its sample.
+# This started as `== {"NVDA"}` and correctly failed when PANW was added, which
+# is the right way round -- the test made the author produce the receipt.
+check("every refusable symbol names its own sample, with numbers",
+      all(len(v) > 40 and any(ch.isdigit() for ch in v)
+          for v in refuted.MEASURED_OWN_PRINT.values()),
       "adding a symbol without adding its sample is evidence by analogy")
+check("  and cites where the sample lives",
+      all(("docs/" in v or "scripts/" in v) for v in refuted.MEASURED_OWN_PRINT.values()),
+      "a headline number belongs in a receipt")
+check("  and every one of them says how many events",
+      all("for" in v or "n=" in v for v in refuted.MEASURED_OWN_PRINT.values()))
 
 check("the untested routes are recorded rather than inferred from silence",
       len(refuted.UNMEASURED) >= 3
@@ -150,6 +158,43 @@ check("short premium on an index is untouched",
       refuted.check(symbol="SPY", kind="iron_condor", event_ahead_on_symbol=False,
                     originators_printing=[]) is None,
       "realised, condors are -$284 across both books")
+
+# --- PANW AND AVGO, measured BECAUSE they print inside the contest ----------
+# Both were admissible only because nobody had looked, and both print in the
+# window. One hour of measurement produced one refusal and one null.
+
+panw = refuted.check(symbol="PANW", kind="long_straddle", event_ahead_on_symbol=True,
+                     originators_printing=[])
+check("PANW straddle into its own print is REFUSED", panw is not None, str(panw))
+check("  on 0 for 6 -- every event negative, not a mean dragged by a tail",
+      panw is not None and "0 for 6" in panw.evidence and "-2.5" in panw.evidence)
+
+avgo = refuted.check(symbol="AVGO", kind="long_straddle", event_ahead_on_symbol=True,
+                     originators_printing=[])
+check("AVGO straddle into its own print is ADMISSIBLE", avgo is None,
+      "measured +32% mean, and the sample cannot resolve it either way")
+_avgo_row = [w for k, w in refuted.UNMEASURED if "AVGO" in k]
+check("  and the measurement is RECORDED rather than left as silence", len(_avgo_row) == 1)
+check("  naming the tail: one event is 62% of all positive return",
+      "62% of all positive return" in _avgo_row[0])
+check("  and the leave-one-out that kills it", "+9.2%" in _avgo_row[0]
+      and "0.66" in _avgo_row[0])
+check("  and that the sample could not have resolved it", "MDE" in _avgo_row[0]
+      and "74.8%" in _avgo_row[0])
+check("  and that the returns are before costs", "before crossing a spread" in _avgo_row[0])
+check("  and WHY the row exists at all", "nobody buys it on the +32%" in _avgo_row[0],
+      "AVGO prints 2 Sep and is the obvious thing to buy")
+
+check("AVGO is no longer listed as having NO sample",
+      not any("AVGO" in k and "no sample" in w for k, w in refuted.UNMEASURED),
+      "it has one now; leaving the old row would make the file disagree with itself")
+check("a directional AVGO call into its print stays admissible",
+      refuted.check(symbol="AVGO", kind="long_call", event_ahead_on_symbol=True,
+                    originators_printing=[]) is None)
+check("a directional PANW call stays admissible too",
+      refuted.check(symbol="PANW", kind="long_call", event_ahead_on_symbol=True,
+                    originators_printing=[]) is None,
+      "the PANW sample is an ABSOLUTE-move test; it says nothing about the signed move")
 
 # --- the rules must be arguable, not obeyed ---------------------------------
 for r in (amd, nvda):
