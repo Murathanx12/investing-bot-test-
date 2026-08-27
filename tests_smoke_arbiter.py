@@ -1,7 +1,7 @@
 """Smoke tests for PNL_ATTRIBUTION_v1 and POSITION_ARBITER_v1. Run: python tests_smoke_arbiter.py"""
 import os
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from alpha import arbiter, attribution, book, exits, ledger
 from alpha.data.chain import _bs_price
@@ -116,7 +116,18 @@ ledger.record(ledger.Decision(
     instrument="bear_call_spread", thesis="t", predicted_move=0.0, predicted_sd=0.03, implied_move=0.06,
     breakeven_move=0.05, mdm_edge=0.1, quote_snapshot=row["quote_snapshot"], action="submitted", refusal_reason=None,
     risk_fraction=0.05, max_loss_usd=7600.0, order={"qty": "10"}, entry_cost_per_unit=-146.0, max_loss_per_unit=760.0,
-    legs=tuple(st.legs), account_role="dev", outcome={"event_node": "print:2026-08-26"}))
+    # THE EVENT DATE MUST BE RELATIVE, because this block deliberately runs
+    # `exits.manage` against the REAL clock (see `exits.datetime = datetime`
+    # below). A hard-coded "print:2026-08-26" made "is the event pending?" a
+    # question about the wall calendar: it passed all day on 26 Aug and began
+    # FAILING the moment NVDA actually reported, with no code change.
+    #
+    # Third instance of this class in one session -- after a test that depended
+    # on AAT_ACCOUNT_ROLE being unset, and one that depended on it being set.
+    # A fixture that encodes a moment in time is an ambient-state test wearing
+    # a logic test's name.
+    legs=tuple(st.legs), account_role="dev",
+    outcome={"event_node": f"print:{(datetime.now(timezone.utc) + timedelta(days=1)).date()}"}))
 ledger.record(ledger.Decision(
     decision_id="f:vol_gap:NVDA:forecast", ts_utc="2026-08-25T19:00:00+00:00", symbol="NVDA", brain="vol_gap",
     signal_shape=None, instrument="forecast", thesis="", predicted_move=0.0, predicted_sd=0.03, implied_move=None,
