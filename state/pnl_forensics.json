@@ -1,0 +1,125 @@
+{
+  "dev": {
+    "account": "PA32Q5IW7TAS",
+    "by_brain": {
+      "vol_gap": -14335.0
+    },
+    "by_entry_day": {
+      "2026-08-25": -14335.0
+    },
+    "by_structure": {
+      "iron_condor": -1663.999999999999,
+      "long_call": -1161.0,
+      "long_straddle": -11510.0
+    },
+    "by_underlying": {
+      "AAPL": 197.0,
+      "AMD": -3075.0,
+      "AVGO": -4691.999999999999,
+      "META": 3044.0,
+      "MSFT": 782.0,
+      "NIO": -32.0,
+      "NVDA": -1663.999999999999,
+      "QQQ": -3470.0,
+      "SPY": -750.0,
+      "TSLA": -4675.0
+    },
+    "cash_in_open_positions_usd": -10670.0,
+    "contract_rows_after_flatten": 43,
+    "contracts_closed": 16,
+    "contracts_open": 6,
+    "contracts_touched": 22,
+    "equity": 82840.83,
+    "mismatches": [],
+    "mleg_orders": 10,
+    "orders_filled": 29,
+    "realised_usd": -14334.999999999998,
+    "reconciles_with_venue": true,
+    "role": "dev",
+    "slippage_rows_in_file": 22,
+    "slippage_usd_deduped": -348.6,
+    "unattributed_usd": 0.0
+  },
+  "exp1": {
+    "account": "PA3AOJPJTSBW",
+    "by_brain": {
+      "narrative_dispersion": -5772.0,
+      "options_attention": -3199.0
+    },
+    "by_entry_day": {
+      "2026-08-25": -8971.0
+    },
+    "by_structure": {
+      "iron_condor": 1380.0000000000002,
+      "long_call": 156.0,
+      "long_straddle": -10507.0
+    },
+    "by_underlying": {
+      "AAPL": 209.0,
+      "IWM": -53.0,
+      "NIO": -16.0,
+      "NVDA": 1380.0000000000002,
+      "QQQ": -3392.0,
+      "SPY": -7099.0
+    },
+    "cash_in_open_positions_usd": -28941.0,
+    "contract_rows_after_flatten": 24,
+    "contracts_closed": 7,
+    "contracts_open": 8,
+    "contracts_touched": 15,
+    "equity": 96195.66,
+    "mismatches": [],
+    "mleg_orders": 6,
+    "orders_filled": 16,
+    "realised_usd": -8971.0,
+    "reconciles_with_venue": true,
+    "role": "exp1",
+    "slippage_rows_in_file": 22,
+    "slippage_usd_deduped": -408.6,
+    "unattributed_usd": 0.0
+  },
+  "market": {
+    "account": "PA3I7VTCC0BM",
+    "by_brain": {},
+    "by_entry_day": {},
+    "by_structure": {},
+    "by_underlying": {},
+    "cash_in_open_positions_usd": 0,
+    "contract_rows_after_flatten": 0,
+    "contracts_closed": 0,
+    "contracts_open": 0,
+    "contracts_touched": 0,
+    "equity": 100000.0,
+    "mismatches": [],
+    "mleg_orders": 0,
+    "orders_filled": 0,
+    "realised_usd": 0,
+    "reconciles_with_venue": true,
+    "role": "market",
+    "slippage_rows_in_file": 22,
+    "slippage_usd_deduped": 0,
+    "unattributed_usd": 0.0
+  },
+  "pead": {
+    "account": "PA3LY4QK3A6A",
+    "by_brain": {},
+    "by_entry_day": {},
+    "by_structure": {},
+    "by_underlying": {},
+    "cash_in_open_positions_usd": 0,
+    "contract_rows_after_flatten": 0,
+    "contracts_closed": 0,
+    "contracts_open": 0,
+    "contracts_touched": 0,
+    "equity": 100000.0,
+    "mismatches": [],
+    "mleg_orders": 0,
+    "orders_filled": 0,
+    "realised_usd": 0,
+    "reconciles_with_venue": true,
+    "role": "pead",
+    "slippage_rows_in_file": 22,
+    "slippage_usd_deduped": 0,
+    "unattributed_usd": 0.0
+  }
+}
