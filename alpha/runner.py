@@ -704,6 +704,36 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                     reason=why)
         if champion is None:
             continue
+        # THE RANKER OPTIMISES THE MEAN, AND THE CONTEST IS FIVE SESSIONS LONG.
+        #
+        # `_ev_ratio` reads `ev_over_max_loss` -- the arithmetic mean. Measured
+        # on a live NVDA chain on 2026-08-27 with a +0.72% directional forecast,
+        # that picks a `long_call` at +38% EV with **P(profit) 33% and a median
+        # of -$137**, over `long_shares` at +12% EV with P(profit) 56% and a
+        # median of +$1. Both numbers are right; they answer different questions.
+        # Over a long series the mean is the one that matters. Over a handful of
+        # sequential compounding decisions, terminal wealth follows the median.
+        #
+        # This does NOT change the choice -- see
+        # docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md. Editing the
+        # objective function of a system hours before it is judged is how a
+        # seventh instrument defect gets made. It makes the trade-off VISIBLE at
+        # the moment it is taken, because `P(profit) 33%` is already computed,
+        # already on the ledger row, and was being read by nobody.
+        _ce = champion[3].economics or {}
+        _p_win = _ce.get("p_profit")
+        if _p_win is not None and _p_win < 0.5:
+            _better = [(e[2].kind, (e[3].economics or {}).get("p_profit"))
+                       for e in evaluated
+                       if e is not champion and (e[3].economics or {}).get("p_profit", 0) >= 0.5]
+            logger.warning(
+                "MEAN-RANKED %s %s: chosen on EV %+.0f%% with P(profit) %.0f%% and median "
+                "%s%s", champion[1].symbol, champion[2].kind, 100 * _ev_ratio(champion[3]),
+                100 * _p_win,
+                _fmt_usd(_ce.get("median_usd")),
+                (f"; a majority-win alternative existed: "
+                 f"{', '.join(f'{k} P(profit) {100*p:.0f}%' for k, p in _better)}")
+                if _better else "; no majority-win alternative was available")
         node = event_node(champion[1])
         if node is not None:
             already = node_committed.get(node, 0.0)
@@ -835,6 +865,14 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
                 action="rejected", reason=str(exc), order=order, contracts=n)
         logger.warning("REJECTED %s: %s", forecast.symbol, exc)
         return committed
+
+
+def _fmt_usd(v) -> str:
+    """`$-137` or `?`. A named helper because the inline form needed a nested
+    same-quote f-string, which is Python 3.12+ only (PEP 701) and would be a
+    SyntaxError on 3.11 -- a portability trap in the one file the agent cannot
+    fail to import."""
+    return "?" if v is None else f"${v:,.0f}"
 
 
 def _ev_ratio(verdict: sizing.SizingVerdict) -> float:
