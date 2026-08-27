@@ -1,5 +1,55 @@
 # HANDOFF — read this first
 
+## SESSION 13c (26 Aug, 16:10-21:40 ET) — THE NVDA PRINT, RESOLVED FACTS-FIRST
+
+**THE ORDERING HELD.** 8-K filed ~16:22 ET (`0001045810-26-000073`); all 13 sealed fields resolved at
+**20:25:32 UTC** from `q2fy27pr.htm` + `q2fy27cfocommentary.htm` — the filing, not a wire — **with no price
+observed**. `seal_valid=True`, 13/13. Book state captured at **16:10:44 ET**, before the release.
+Receipt: `docs/FINDING_2026-08-26_NVDA_RESOLVED_FACTS_FIRST.md`.
+
+**THE SEALED ORDER WAS RIGHT ABOUT WHERE TO LOOK.**
+- **rank 13** `revenue_surprise` **+4.171** ($96.221bn vs $92.05bn) — the headline beat $4.2bn and was ranked
+  LAST a day earlier. Nothing in the release argues that was wrong.
+- **rank 1** `q3_guide_surprise` **+3.8** — $108.0bn ±2% vs $104.2bn, and **China-free**
+  ("not assuming any Data Center compute revenue from China"; realised China Hopper <1% of DC).
+- **rank 2** `gross_margin_surprise` **0.0** reported (75.0% = guided) — **but Q3 guided to 74.0% ±50bp**, and
+  the sealed rule named *"a Q3 GM guide below 74% is the bear trigger regardless of the revenue line."*
+  **It landed EXACTLY on the line**, band reaching 73.5%. Not tripped, not cleared.
+- **rank 5** `customer_financing_quality` **quantified** — and it holds the biggest number in the filing:
+  customers *"growing faster than their balance sheets and long-term credit profiles can support"*,
+  $3.5bn existing guarantees, and **NEW August guarantees CAPPED AT $105 BILLION** for ~4.25 GW at SB Energy
+  PORTS-Pike, leased 20 years to **OpenAI**. Hyperscale hit **54.7% of DC**, and the sealed rule said rising
+  concentration *raises* that question rather than settling it — so both compound.
+- **rank 6** `future_capacity_constraint` **power** — *"securing land, power and shell has become the next
+  critical phase."* Commitments **$119bn → $279bn, "primarily related to the procurement of memory."**
+- **rank 4** `Rubin_timing_change` **ahead** — "full production" with racks at named partners, against a
+  sealed prior of Q4 rack-production START.
+- **ranks 9, 10 not_addressed** — no competition discussion beyond boilerplate; no "sold out"/"tight"/
+  "backlog"/"allocation" anywhere. Tightness is INFERABLE from commitments, not STATED. Recorded as findings.
+
+**AN UNPLANNED CROSS-CHECK.** `NEEDS_GRAPH_v1` ranked **memory/HBM the most constrained node** in the chain
+earlier the same afternoon, from filed fundamentals, without the filing (+39.9pp margin expansion vs +7.3pp
+next). NVIDIA then disclosed a **$160bn commitment increase primarily for memory.**
+
+**THE PRICE IS NOT GRADED, AND THAT IS DELIBERATE.** The feed gives the 16:00 close and a 201.81/223.13 quote
+frozen 10.03% wide all evening; post-close the last trade is 209.37 (−0.14%). **Recorded as UNMEASURABLE, not
+as flat** — the free feed does not carry NVDA's after-hours tape, and "we could not look" must not be written
+down as "nothing happened". **The sealed `event_date` is 2026-08-27**, so the graded reaction is the next
+session.
+
+**DUE TOMORROW AFTER THE CLOSE:**
+```
+python -m scripts.contagion        --event 2026-08-27   # read the SPY/QQQ rows, MDE ~1.4%
+python -m scripts.anchor_to_torque --event 2026-08-27   # shadow; expect nothing to clear its MDE
+python -m scripts.preflight                              # vs state/research/preprint_*.txt
+```
+Grade the condors against `FINDING_..._WHAT_THE_CONDORS_ARE_BETTING.md`, which was written **before** the
+outcome: profit zone ≈ −4.9% to +5.8/+7.0%, mean +$2,349, worst −$17,739, and 6 of 8 historical prints moved
+DOWN with the short put on the tighter side.
+
+**BOOK CARRIED IN** (16:10:44 ET): dev $94,721, **−2.61%**, 56.4% true max loss, **NVDA 52.7%** of it, N 1.49.
+exp1 $93,267, **−5.53% and LATCHED**, 60.8%, N 1.26.
+
 ## SESSION 13b (26 Aug, 11:15-16:00 ET, Opus, UNATTENDED) — every P0 closed, and a $20bn case study
 
 Murat asleep, 8 hours granted. **Did NOT: restart the loops** (an unanswered question and an
