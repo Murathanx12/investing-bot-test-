@@ -78,6 +78,21 @@ DYNAMIC: dict[str, str] = {
 }
 
 
+#: Guards that are uncalled ON PURPOSE, and the argument for it. Same discipline
+#: as DYNAMIC: an entry here must carry a REASON, so a reader can tell "we
+#: decided this" from "nobody noticed". An entry with no reason is a silence and
+#: should be deleted rather than kept.
+DELIBERATELY_UNCALLED: dict[str, str] = {
+    "alpha.book_limits.would_admit": (
+        "a bool convenience. Its own docstring says whether a breach refuses, warns or "
+        "resizes is a POLICY decision belonging at an attended call site -- so the module "
+        "exposes it and refuses to make that choice on the caller's behalf. book_limits "
+        "itself IS enforced: admission.py calls evaluate() and refusing()."),
+    "alpha.psychohistory.checkpoints_due": "psychohistory is shadow-only and pre-competition",
+    "alpha.psychohistory.validate_compiled": "psychohistory is shadow-only and pre-competition",
+}
+
+
 def _module_name(p: Path) -> str:
     """Dotted name, with `__init__` stripped to the PACKAGE name.
 
@@ -93,6 +108,19 @@ def _module_name(p: Path) -> str:
 
 
 def _imports(tree: ast.AST) -> set[str]:
+    """Every module this one depends on -- including the ones it SPAWNS.
+
+    `scripts/agent_loop.py` is the process that actually runs, and it reaches
+    most of the system through `_run("scripts.fill_audit", ...)` -- a subprocess
+    launched by module NAME, as a string literal. An import walker cannot follow
+    that, so the first version of this audit reported `alpha.fills` as an orphan
+    when it runs every 300 seconds in production.
+
+    A false alarm here is not free. This audit exists because the repo's house
+    failure is a guard nobody calls, and a report with wrong entries in it is one
+    people learn to skim -- which is how the guard goes unnoticed the next time.
+    So a string constant naming a module in this repo counts as an edge.
+    """
     out: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -100,6 +128,10 @@ def _imports(tree: ast.AST) -> set[str]:
         elif isinstance(node, ast.ImportFrom) and node.module:
             out.add(node.module)
             out.update(f"{node.module}.{a.name}" for a in node.names)
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            v = node.value
+            if (v.startswith("scripts.") or v.startswith("alpha.")) and " " not in v:
+                out.add(v)
     return out
 
 
@@ -137,7 +169,8 @@ def main() -> int:
             return 2
 
     # ---------------------------------------------------------------- modules
-    edges = {m: {i for i in _imports(t) if i.startswith("alpha")} for m, t in trees.items()}
+    edges = {m: {i for i in _imports(t) if i.startswith(("alpha", "scripts"))}
+             for m, t in trees.items()}
     reached: set[str] = set()
     stack = [_module_name(ROOT / e) for e in ENTRY_POINTS]
     while stack:
@@ -187,7 +220,15 @@ def main() -> int:
             non_self = {c for c in callers if c != m}
             prod = {c for c in non_self if not c.startswith("TEST:")}
             tests = {c for c in non_self if c.startswith("TEST:")}
-            if not prod:
+            # A guard called from INSIDE its own reachable module is reached.
+            # `alpha/arms.readiness()` calls `validate()` and `scripts/arms.py`
+            # calls `readiness()`, so `validate` runs in production -- but no
+            # external module names it, and the first version of this audit
+            # reported it UNCALLED. That is a false alarm on a guard that works,
+            # printed beside real ones, which is precisely how a report gets
+            # skimmed.
+            same_module = name in _called_names(t) and m in reached
+            if not prod and not same_module and f"{m}.{name}" not in DELIBERATELY_UNCALLED:
                 findings.append((m, name, sorted(tests), m in reached))
 
     print("\nGUARD REACHABILITY -- functions whose NAME implies a refusal")

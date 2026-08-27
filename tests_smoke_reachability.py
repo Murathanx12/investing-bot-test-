@@ -53,6 +53,32 @@ check("alpha.engine.shape is no longer an orphan",
       "ORPHAN  alpha.engine.shape" not in text,
       "it is imported by brains/base.py, which every forecast passes through")
 
+# --- the instrument must not cry wolf --------------------------------------
+# A false alarm here is not free. This audit exists because the house failure is
+# a guard nobody calls; a report with wrong entries is one people learn to skim,
+# which is how the next guard goes unnoticed.
+from scripts.reachability import DELIBERATELY_UNCALLED, DYNAMIC, _imports  # noqa: E402
+import ast as _ast                                                        # noqa: E402
+
+check("alpha.fills is not reported as an orphan",
+      "ORPHAN  alpha.fills" not in text,
+      "agent_loop runs scripts.fill_audit every 300s as a SUBPROCESS, by module name")
+loop = _imports(_ast.parse(Path("scripts/agent_loop.py").read_text(encoding="utf-8")))
+check("a subprocess launched by module NAME counts as an edge",
+      "scripts.fill_audit" in loop and "scripts.run_pass" in loop,
+      f"agent_loop edges: {sorted(x for x in loop if x.startswith('scripts'))[:6]}")
+
+check("book_limits.would_admit is exempt BY ARGUMENT, not by silence",
+      "alpha.book_limits.would_admit" in DELIBERATELY_UNCALLED
+      and len(DELIBERATELY_UNCALLED["alpha.book_limits.would_admit"]) > 60)
+check("every exemption carries a reason",
+      all(len(v) > 30 for v in DELIBERATELY_UNCALLED.values())
+      and all(len(v) > 30 for v in DYNAMIC.values()),
+      "an exemption with no reason is a silence and should be deleted instead")
+check("the exemption records that book_limits ITSELF is enforced",
+      "admission.py calls evaluate()" in DELIBERATELY_UNCALLED["alpha.book_limits.would_admit"],
+      "the module that gave this audit its name must not read as still-dead")
+
 # --- the shape claim guard --------------------------------------------------
 from alpha.brains.base import Forecast                        # noqa: E402
 from alpha.engine import shape                                # noqa: E402
