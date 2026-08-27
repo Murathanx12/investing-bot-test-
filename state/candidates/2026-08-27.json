@@ -1,9 +1,9 @@
 {
- "generated_utc": "2026-08-27T17:25:52.050631+00:00",
+ "generated_utc": "2026-08-27T18:55:38.423560+00:00",
  "universe": "HIGH_DISPERSION_US_v1",
  "universe_n": 4634,
- "printers_on_calendar": 152,
- "printers_in_universe": 74,
+ "printers_on_calendar": 154,
+ "printers_in_universe": 79,
  "candidates": [],
  "declined": [
   {
@@ -23,6 +23,10 @@
    "why": "NotApplicable: ANF: day-0 move +30.46% is UP and ANF is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries"
   },
   {
+   "symbol": "BBW",
+   "why": "NotApplicable: BBW: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry "
+  },
+  {
    "symbol": "BBWI",
    "why": "NotApplicable: BBWI: day-0 move +7.24% is UP and BBWI is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
   },
@@ -39,12 +43,20 @@
    "why": "NotApplicable: BJ: 4 sessions since the print on 2026-08-21; the measured drift window is +1..+3 and is spent after 2"
   },
   {
+   "symbol": "BKE",
+   "why": "NotApplicable: BKE: 3 sessions since the print on 2026-08-24; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
    "symbol": "BOX",
    "why": "NotApplicable: BOX: day-0 move +1.33% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
   },
   {
    "symbol": "BURL",
    "why": "NotApplicable: BURL: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
+   "symbol": "BZ",
+   "why": "SourceRefusal: BZ: no 8-K Item 2.02 filings (foreign filer or not covered)"
   },
   {
    "symbol": "CHA",
@@ -79,6 +91,10 @@
    "why": "NotApplicable: DKS: day-0 move -36.79% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
   },
   {
+   "symbol": "DLTR",
+   "why": "NotApplicable: DLTR: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
    "symbol": "DY",
    "why": "NotApplicable: DY: day-0 move -12.32% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-return"
   },
@@ -97,6 +113,10 @@
   {
    "symbol": "GAP",
    "why": "NotApplicable: GAP: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "GRRR",
+   "why": "SourceRefusal: GRRR: no 8-K Item 2.02 filings (foreign filer or not covered)"
   },
   {
    "symbol": "HEI",
@@ -187,10 +207,6 @@
    "why": "NotApplicable: OOMA: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
   },
   {
-   "symbol": "OPRA",
-   "why": "SourceRefusal: OPRA: no 8-K Item 2.02 filings (foreign filer or not covered)"
-  },
-  {
    "symbol": "P",
    "why": "NotApplicable: P: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry is"
   },
@@ -277,6 +293,10 @@
   {
    "symbol": "VEEV",
    "why": "NotApplicable: VEEV: the day-0 close (2026-08-27) is still forming. Daily bars cannot tell an in-progress session from a closed one, and the measured entry"
+  },
+  {
+   "symbol": "VIPS",
+   "why": "SourceRefusal: VIPS: no 8-K Item 2.02 filings (foreign filer or not covered)"
   },
   {
    "symbol": "VSXY",
