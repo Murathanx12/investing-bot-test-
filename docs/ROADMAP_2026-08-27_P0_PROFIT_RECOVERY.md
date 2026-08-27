@@ -72,7 +72,7 @@ not a role.
 | **P0.6 `EXECUTION_REACHABILITY`** | **DONE.** `scripts/reachability`, in the suite. Found `shape.py` with zero importers and `must_close_by` as a docstring sentence |
 | P0.3 `ALPHA_REGRET_LEDGER` | partial — `counterfactual.jsonl` marks alternatives; the **mandatory challenger set** is not enforced |
 | P0.4 `DIRECT_FIRST` / `PROXY_PENALTY` / `CAUSAL_DISTANCE` | **evidence gathered, and it argues for LESS machinery, not more** — see below |
-| P0.5 `SANITY_SENTINELS` | not started. `vol_gap` is quarantined by hand |
+| **P0.5 `SANITY_SENTINELS`** | **DONE.** `alpha/sentinels.py`, wired into `run_pass`. **Four of five brains are BROKEN**, not one: relay 99.0%, narrative_dispersion 96.1%, options_attention 95.4%, vol_gap 93.1%; `event_move` (never executed) is the only balanced one. **Post-fix it says CANNOT_DETERMINE on 32–35 decisions — the arithmetic fix is NOT yet verified** |
 
 ### THE EVIDENCE CHANGED P0.4
 

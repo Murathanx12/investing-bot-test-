@@ -368,6 +368,24 @@ while its scope string claimed to cover only weekly-held-to-expiry ones.
 Still fully admissible: calls, puts, debit and credit verticals, condors on
 anything with a directional or width claim behind it, and shares.
 
+**And the sentinels now enforce most of that automatically.**
+
+```
+python -m scripts.sentinels                    # whole ledger
+python -m scripts.sentinels --since 2026-08-27 # after the arithmetic fix
+```
+
+A brain one-sided against the chain on >90% of at least 50 decisions loses
+**new-position authority** — it still forecasts, enumerates and gets graded, but
+it cannot open. On the whole ledger that is **four of five**: relay 99.0%,
+narrative_dispersion 96.1%, options_attention 95.4%, vol_gap 93.1%. Only
+`event_move`, which has never executed, reads balanced at 28.6%.
+
+**Since the 27 Aug fix it reports `CANNOT_DETERMINE` on 32–35 decisions against a
+floor of 50 — so the arithmetic fix is not yet verified.** Expect the judged
+account's early passes to be `post_event_drift` and the human arm only, and
+expect `SENTINEL:` lines in the log naming each withdrawal.
+
 ---
 
 ## 11. THE ONE-LINE MORNING ROUTINE, once the account exists
