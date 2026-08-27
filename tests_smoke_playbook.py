@@ -75,6 +75,26 @@ check("high conviction is required before paying for convexity",
 check("  and the threshold is declared, not implicit",
       playbook.structure_for(0.69, False) == "short_put_spread")
 
+# --- the account's ACTUAL options approval decides what can be placed --------
+# The core is short put spreads. At level 2 they cannot be placed AT ALL, and
+# discovering that at 11:00 ET on kickoff morning costs the competition.
+lvl3, why3 = playbook.structure_for_level(3)
+lvl2, why2 = playbook.structure_for_level(2)
+lvl1, why1 = playbook.structure_for_level(1)
+none_, whyn = playbook.structure_for_level(None)
+check("level 3 places the spread the evidence chose", lvl3 == "short_put_spread")
+check("level 2 CANNOT place a spread and falls back", lvl2 == "cash_secured_put", why2)
+check("  and the fallback keeps the long-delta long-theta posture",
+      "long-delta, long-theta" in why2)
+check("  and WARNS that the loss now runs to the strike",
+      "runs to the strike" in why2,
+      "a cash-secured put is not a spread with a different name -- sizing changes")
+check("level 1 also falls back rather than refusing outright", lvl1 == "cash_secured_put")
+check("an UNREPORTED level is not treated as approved",
+      "VERIFY before the first order" in whyn,
+      "silence from the venue is not a level 3 approval")
+check("level 0 drops to shares", playbook.structure_for_level(0)[0] == "long_shares")
+
 # --- concentration ----------------------------------------------------------
 c = playbook.check_book(1.51, 10)
 check("dev's ACTUAL 1.51 effective bets would have been refused", c and "CONCENTRATION" in c[0],

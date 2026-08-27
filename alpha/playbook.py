@@ -120,6 +120,39 @@ def breadth_ok(k: int) -> str | None:
     return None
 
 
+SPREAD_LEVEL = 3
+"""Alpaca options level required for a SPREAD. Level 1 is covered calls and
+cash-secured puts, level 2 adds long calls/puts, level 3 adds spreads."""
+
+
+def structure_for_level(level: int | None) -> tuple[str, str]:
+    """The book's structure given the account's ACTUAL options approval.
+
+    The core of this book is short put spreads, so level 3 is no longer a
+    nice-to-have -- at level 2 the core cannot be placed at all, and finding
+    that out at 11:00 ET on kickoff morning is the kind of discovery that
+    costs a competition.
+
+    The fallback is a CASH-SECURED PUT, which is level 1 and carries the same
+    posture the evidence endorses: long delta and long theta. It is worse in
+    exactly one way that must be said out loud -- the loss is no longer defined
+    by a spread width, it runs to the strike, so the same dollar of risk buys
+    far fewer contracts.
+    """
+    if level is None:
+        return ("short_put_spread",
+                "the venue did not report a level; VERIFY before the first order")
+    if level >= SPREAD_LEVEL:
+        return ("short_put_spread", f"level {level} permits spreads")
+    if level >= 1:
+        return ("cash_secured_put",
+                f"level {level} CANNOT place spreads. Falling back to cash-secured "
+                f"puts: same long-delta, long-theta posture, but the loss runs to "
+                f"the strike instead of the spread width, so size on the STRIKE.")
+    return ("long_shares",
+            f"level {level} permits no useful options structure; shares only")
+
+
 def structure_for(conviction: float, has_catalyst: bool) -> str:
     """Pick the payoff from what we can defend, not from what we hope.
 
