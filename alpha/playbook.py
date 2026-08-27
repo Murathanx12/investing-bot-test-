@@ -40,6 +40,24 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 # ---------------------------------------------------------------- the limits
+CORE_FRACTION = 0.70
+"""Share of risk in BROAD exposure rather than in a tilt.
+
+`FINDING_2026-08-28_VARIANCE_DRAG_ATE_THE_EDGE.md`: over CRSP 1993-2024 the
+value-weighted market compounded at +10.61% while our best five-day
+configuration managed +5.36% and the lab's crowned candidate returned -7.23%.
+The tilt has a MEASURED NEGATIVE contribution over 32 years, so it is a
+satellite that must earn its place, never the book."""
+
+MIN_BREADTH_K = 20
+"""Terminal wealth rose with k in EVERY row of the 32-year sweep:
+
+    lookback 126d:  k=5 0.09x | k=20 0.47x | k=50 0.62x | k=100 0.73x
+
+Concentration is not a risk preference here. It is a negative-return decision,
+because a five-name book's variance drag exceeds its mean (+0.147% per window
+against 0.1x terminal wealth)."""
+
 MIN_EFFECTIVE_BETS = 2.0
 """Below this the book is one position with several names on it. dev was 1.51."""
 
@@ -84,6 +102,22 @@ class Proposal:
 
 class PlaybookRefusal(RuntimeError):
     pass
+
+
+def core_satellite(equity: float) -> tuple[float, float]:
+    """Risk dollars for the broad core and for the tilt."""
+    total = equity * MAX_LOSS_FRACTION
+    return total * CORE_FRACTION, total * (1.0 - CORE_FRACTION)
+
+
+def breadth_ok(k: int) -> str | None:
+    """A tilt narrower than the sweep's floor is refused with its own number."""
+    if k < MIN_BREADTH_K:
+        return (f"BREADTH: k={k} is below {MIN_BREADTH_K}. Over CRSP 1993-2024 at a "
+                f"five-day hold, k=5 returned 0.09x terminal wealth where k=100 "
+                f"returned 0.73x on the SAME signal. Narrow is not aggressive, "
+                f"it is negative.")
+    return None
 
 
 def structure_for(conviction: float, has_catalyst: bool) -> str:
@@ -131,13 +165,18 @@ def name_budget(equity: float, n_names: int) -> float:
     return min(equity * MAX_LOSS_PER_NAME, equity * MAX_LOSS_FRACTION / n_names)
 
 
-def size_leg(equity: float, max_loss_per_contract: float, *, n_names: int = 1) -> int:
+def size_leg(budget_per_name: float, max_loss_per_contract: float) -> int:
     """Contracts, sized from the DEFINED LOSS -- never from premium or notional.
 
-    A spread's risk is (width - credit) x 100 and it is known at entry. Sizing
-    off notional is how an implicit-leverage bug bought with capital already
-    locked in unsellable positions.
+    Takes a BUDGET, not an equity: the cap arithmetic lives in `name_budget`
+    and exists once. An earlier version took equity and re-derived the cap,
+    which meant a caller that had already divided its budget divided it twice
+    and deployed $9,450 of a $21,000 core.
+
+    A spread's risk is (width - credit) x 100 and is known at entry. Sizing off
+    notional is how an implicit-leverage bug bought with capital already locked
+    in unsellable positions.
     """
     if max_loss_per_contract <= 0:
         raise PlaybookRefusal("a structure with no defined loss cannot be sized here")
-    return max(0, int(name_budget(equity, n_names) // max_loss_per_contract))
+    return max(0, int(max(0.0, budget_per_name) // max_loss_per_contract))

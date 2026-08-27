@@ -54,12 +54,12 @@ def refuses(f) -> bool:
 
 
 check("sizing off a structure with no defined loss is REFUSED",
-      refuses(lambda: playbook.size_leg(eq, 0.0)),
+      refuses(lambda: playbook.size_leg(5_000.0, 0.0)),
       "a spread's risk is (width - credit) x 100 and is known at entry; sizing "
       "off notional is how an implicit-leverage bug bought with locked capital")
 check("  (a negative defined loss is refused too, not silently flipped)",
-      refuses(lambda: playbook.size_leg(eq, -5.0)))
-n = playbook.size_leg(eq, 700.0, n_names=6)
+      refuses(lambda: playbook.size_leg(5_000.0, -5.0)))
+n = playbook.size_leg(playbook.name_budget(eq, 6), 700.0)
 check("contracts fit inside the binding budget",
       n * 700.0 <= playbook.name_budget(eq, 6) + 1e-6, f"{n} x 700")
 
