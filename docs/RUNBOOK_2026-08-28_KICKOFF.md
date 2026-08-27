@@ -210,6 +210,7 @@ python -m scripts.thesis --symbol XXXX --direction up --expected-move 0.06 \
     --catalyst "..." --catalyst-at 2026-09-02T20:20Z --horizon 3 \
     --conviction 0.8 --reason "..." --falsifier "..."
 python -m scripts.thesis --list
+python -m scripts.thesis --example      # a filled-in command to edit, under time pressure
 ```
 
 It refuses a direction with no expected move, a sign disagreement, a missing
@@ -396,6 +397,16 @@ AAT_ACCOUNT_ROLE=competition python -m scripts.preflight
 AAT_ACCOUNT_ROLE=competition python -m scripts.run_pass --role competition     --expiry 2026-09-04 --brains post_event_drift --shadow ""     --window-universe --profile conservative --live
 AAT_ACCOUNT_ROLE=competition python -m scripts.pnl_forensics --role competition
 ```
+
+**After any trade on an event, grade the road not taken:**
+
+```
+AAT_ACCOUNT_ROLE=competition python -m scripts.belief_to_position     --event 2026-09-02 --symbols AVGO NVDA SMH QQQ SPY --json
+```
+
+On the one event this has been run against, **0 of 6 proxies beat the source**
+and two went the wrong way. If that holds, `DIRECT_FIRST` is not a heuristic —
+it is the measurement.
 
 Then start the loop for the day:
 

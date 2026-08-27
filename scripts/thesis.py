@@ -20,6 +20,9 @@ from alpha import human
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--list", action="store_true")
+    p.add_argument("--example", action="store_true",
+                   help="print a filled-in command to edit, rather than composing one "
+                        "from --help under time pressure")
     p.add_argument("--author", default="murat")
     p.add_argument("--symbol")
     p.add_argument("--direction", choices=human.DIRECTIONS, default="none")
@@ -34,6 +37,44 @@ def main() -> int:
     p.add_argument("--reason", default="")
     p.add_argument("--falsifier", default="")
     args = p.parse_args()
+
+    if args.example:
+        # A filled-in command to edit, because composing one from --help at
+        # 11:00 ET on kickoff morning is friction on the arm that the
+        # three-events finding just made the PRIMARY decision source.
+        from datetime import timedelta
+
+        soon = (datetime.now(timezone.utc) + timedelta(days=1)).replace(
+            hour=20, minute=20, second=0, microsecond=0)
+        for line in [
+            "# EDIT AND RUN. Every field is required for a reason -- alpha/human.py.",
+            "",
+            "python -m scripts.thesis \\",
+            "    --symbol NVDA \\",
+            "    --direction up \\",
+            "    --expected-move 0.06 \\",
+            "    --magnitude unknown \\",
+            f"    --catalyst-at {soon.isoformat(timespec='seconds')} \\",
+            '    --catalyst "Q3 earnings print" \\',
+            "    --horizon 3 \\",
+            "    --conviction 0.8 \\",
+            '    --reason "AI demand accelerating faster than the guide implies" \\',
+            '    --falsifier "Q3 revenue guide at or below $104bn, or a GM guide below 74%"',
+            "",
+            "# --direction     up | down | none",
+            "# --expected-move SIGNED fraction of spot. 'up' alone does not pick an",
+            "#                 instrument: up 2% against a 5.4% implied argues for SELLING",
+            "#                 premium and up 9% argues for buying it. Same view, opposite",
+            "#                 trades.",
+            "# --magnitude     wider | narrower | unknown -- is the CHAIN's price for the",
+            "#                 move wrong, and in which direction? Leave `unknown` for a",
+            "#                 purely directional view.",
+            "# --catalyst-at   must be in the FUTURE. A thesis recorded after its own",
+            "#                 catalyst is a memory, and it is refused.",
+            "# --falsifier     what OBSERVATION would make this wrong. Required.",
+        ]:
+            print(line)
+        return 0
 
     if args.list:
         rows = human.load_all()
