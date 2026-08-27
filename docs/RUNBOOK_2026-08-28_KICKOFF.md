@@ -380,6 +380,32 @@ AAT_ACCOUNT_ROLE=competition python -m scripts.agent_loop --expiry 2026-09-04 --
 `scripts/manage` runs inside it and liquidates at **10:45 ET on 4 Sep** — that
 verdict outranks a winning thesis.
 
+## WHICH OF THESE STEPS HAVE ACTUALLY BEEN RUN
+
+A runbook that has not been executed is a hypothesis. Every step below was
+exercised on 27 Aug against the **live venue** unless marked otherwise.
+
+| step | status on 27 Aug |
+|---|---|
+| −2 register | **NOT verifiable** — manual, and the deadline is real |
+| 0 re-pull rules | **run** (`docs/RULES_SNAPSHOT_2026-08-27_REPULL.md`); criteria card did not render |
+| 1 create account | **NOT verifiable** — manual, Alpaca dashboard |
+| 2 `scripts.accounts` | **run** — produced the role→account table |
+| 3 `genesis --freeze` | **refusal path run LIVE**: `AAT_COMPETITION_*` pointed at dev's real keys → `GENESIS REFUSED … DENYLISTED`. Success path covered by 38 tests against a fake venue |
+| — clean-account state | **run on `pead`**: real $100,000.00, 0 positions, 0 orders of any status, `PA` prefix — every state rule passes; the only failure is the denylist, which is deliberate. Tomorrow's account looks exactly like this minus that entry |
+| 4 `preflight` | **run** on dev and pead |
+| 5 `tooling_probe` | **run** — 8/8 PASS, `trading` toolset withheld |
+| 6 `benchmark_state` | **run** — reads `EXPIRED_UNFILLED` |
+| 7 `scripts.thesis` | **run** — recorded, listed, deleted |
+| 8 `window_universe` | **run** — 95 names, receipt written |
+| 9 `run_pass` dry | **run** on dev and pead, with `--window-universe` |
+| 9b `nfp_trade` | **run** — gate 1 false, gate 2 true, `in_entry_window` false |
+| 10 `pnl_forensics` | **run** on all four accounts, reconciles with the venue |
+| 11 `agent_loop` | **NOT run with the new flags** — dev and exp1 are on the old command line and must not be restarted tonight |
+
+**The two unverified steps are both manual and both yours.** Everything the
+machine does has been exercised.
+
 ## WHAT IS DIFFERENT FROM THE 25 AUG BOOK
 
 | | 25 Aug | now |
