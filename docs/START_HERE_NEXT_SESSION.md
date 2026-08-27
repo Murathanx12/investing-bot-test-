@@ -24,17 +24,23 @@ the machine you will be running it on. Session 15's findings are in
 | `huggingface-skills@claude-plugins-official` | 1.0.25 | `hf-cli`, `huggingface-local-models`, `hf-mem` |
 | `superpowers`, `code-review`, `plugin-dev`, `skill-creator`, `claude-code-setup`, `claude-md-management`, `context7`, `playwright`, `supabase`, `github`, `security-guidance`, `frontend-design`, `vercel`, `explanatory-output-style` | — | official marketplace |
 
-**Marketplaces added but plugin NOT yet installed** — run the install line and
-then VERIFY, because `/plugin install` can print `(no content)` on failure:
+**FOUR PLUGINS NOT INSTALLED.** None of their marketplaces are registered either
+— `known_marketplaces.json` holds only `claude-plugins-official` and
+`addy-agent-skills`. Run these ONE AT A TIME, smallest first, and read the
+"marketplace add is SLOW" section below before retrying anything:
 
 ```
-/plugin install headroom@headroom-marketplace
-/plugin install claude-mem@thedotmack
-/plugin marketplace add affaan-m/ECC          && /plugin install ecc@ecc
-/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
+/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill   # ~1 min
 /plugin install ui-ux-pro-max@ui-ux-pro-max-skill
+/plugin marketplace add affaan-m/ECC                           # ~5 min
+/plugin install ecc@ecc
+/plugin marketplace add headroomlabs-ai/headroom               # ~8 min
+/plugin install headroom@headroom-marketplace
+/plugin marketplace add thedotmack/claude-mem                  # ~48 min
+/plugin install claude-mem@thedotmack
 
-cat ~/.claude/plugins/installed_plugins.json | grep -i <name>    # THE check
+cat ~/.claude/plugins/known_marketplaces.json   # the add must land HERE first
+cat ~/.claude/plugins/installed_plugins.json    # then the plugin appears HERE
 ```
 
 Install `claude-mem`, **never `claude-mem-cowork`** — its own manifest says its
@@ -112,7 +118,7 @@ python -m backend.services.model_provider --probe   # actually call them
 |---|---|---|
 | deepseek | **live** | `deepseek-chat` |
 | nvidia | **live** | `openai/gpt-oss-20b` |
-| huggingface | **absent** | `HF_TOKEN=` slot is in `.env`, empty — needs a token |
+| huggingface | **live** | `meta-llama/Llama-3.3-70B-Instruct`, ~1.9s |
 
 **`status()` reports absent / configured / live and never collapses them.**
 `--probe` is what turns the second into the third, and three things it caught
@@ -128,6 +134,18 @@ that reading config never would:
    model.**
 
 It is deliberately **NOT a router** and has **no trading authority**.
+
+**The HF token is over-scoped.** It is a fine-grained token with `repo.write`,
+`job.write`, `inference.endpoints.write` (the last two can incur GPU charges),
+`post.write` and `user.billing.read`. This system uses exactly two of those:
+`inference.serverless.write` and `repo.content.read`. Narrowing it costs two
+minutes and is worth doing on a machine that also holds live broker credentials
+and has already leaked two keys into transcripts. Murat's call; flagged once.
+
+**Local inference is now less urgent than it looked.** HF serverless answers from
+a 70B in ~1.9s for free, which is far beyond what 8 GB of VRAM can hold. The case
+for local was never capability — it is removing per-call cost on the high-volume
+extraction jobs. That case still holds; it is no longer blocking.
 
 ---
 
