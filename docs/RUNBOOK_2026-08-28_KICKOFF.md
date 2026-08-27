@@ -374,11 +374,22 @@ AAT_ACCOUNT_ROLE=competition python -m scripts.pnl_forensics --role competition
 Then start the loop for the day:
 
 ```
-AAT_ACCOUNT_ROLE=competition python -m scripts.agent_loop --expiry 2026-09-04 --live
+AAT_ACCOUNT_ROLE=competition python -m scripts.agent_loop --expiry 2026-09-04     --window-universe --brains post_event_drift --shadow ""     --profile conservative --live
 ```
+
+**`--window-universe` is not optional.** Without it the loop uses the fifteen
+hardcoded mega-caps and produces zero forecasts, which is the exact bug the flag
+exists to fix — and it would look like a quiet market. The loop regenerates
+`state/window_universe.json` every six hours, because a name that reacts tomorrow
+is not in today's receipt.
 
 `scripts/manage` runs inside it and liquidates at **10:45 ET on 4 Sep** — that
 verdict outranks a winning thesis.
+
+**Watch for `MEAN-RANKED` and for `DEGRADED` in the logs.** The first says the
+ranker took a sub-50%-hit-rate champion over a majority-win alternative; the
+second says a sub-step has been exiting non-zero and the loop is cycling while
+doing nothing.
 
 ## WHICH OF THESE STEPS HAVE ACTUALLY BEEN RUN
 
