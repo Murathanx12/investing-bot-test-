@@ -1,3 +1,93 @@
+> ## SESSION 16b (2026-08-27, afternoon) — THE AGENT COULD NOT HAVE TRADED
+>
+> **THE SINGLE MOST IMPORTANT FINDING OF THE DAY.** With `vol_gap` quarantined and
+> the two sigma-inflating brains on shadow, a dry pass over the default universe
+> produced **ZERO forecasts** — every line `NotApplicable`. `run_pass.UNIVERSE` is
+> fifteen hardcoded mega-caps and **mega-caps report in the last week of July**, so
+> by late August all fifteen are 19–25 sessions past their prints against a +1..+3
+> drift window. The judged account would have sat in cash for five sessions while
+> P&L is criterion #1. **Refusing correctly and having nothing to refuse print
+> identically**, and no test could tell them apart.
+>
+> `python -m scripts.window_universe --json` makes the universe a consequence of
+> the calendar. **95 names** have an event reaching inside the contest: MRVL/WDAY/
+> ADSK react on **day one**, NVDA's own drift from the 26 Aug print is live on day
+> one, AVGO on 3 Sep is `TRUNCATED_BY_DEADLINE`, DELL has the deadline morning
+> only. `run_pass --window-universe` consumes it.
+>
+> **THE ENGINE WAS THEN PROVEN END TO END** against live chains, with
+> `post_event_drift`'s own +0.72% number — and it had **zero decision rows in the
+> entire ledger** before this, having never executed or been ranked once:
+>
+> | name | chosen | EV/max-loss | P(profit) | median |
+> |---|---|---|---|---|
+> | NVDA | `long_call` | +38% | **33%** | **−$137** |
+> | CRM | `bull_call_spread` | +16% | 29% | −$104 |
+> | DG / SNPS | `long_shares` | +11% / +9% | 56% / 54% | +$1 / +$3 |
+>
+> `long_straddle` and `iron_condor` were **refused before pricing** by the claim
+> matrix; CASH beat SNPS's long call. Options win where the edge pays for the
+> spread, shares where it does not — the options requirement is met without
+> forcing an instrument.
+>
+> **ONE DECISION IS MURAT'S AND IS DELIBERATELY NOT MADE.** The ranker optimises
+> the arithmetic MEAN, so it takes the NVDA call at 33% hit rate over shares at
+> 56%. Over a long series that is right; over **five sessions** terminal wealth
+> follows the median path. Three options, each costed, in
+> `docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md`. The runner now logs
+> `MEAN-RANKED` whenever it takes a sub-50% champion, naming the majority-win
+> alternative it passed over. **Editing the objective function of a system hours
+> before it is judged is how a seventh instrument defect gets made.**
+>
+> **P0.1 PNL_FORENSICS IS DONE AND THE ANSWER IS ONE STRUCTURE.** Realised,
+> reconciled against the venue: dev −$14,335, exp1 −$8,971, **combined −$23,306**.
+>
+> | | realised | share |
+> |---|---|---|
+> | **`long_straddle`** | **−$22,017** | **94.5%** |
+> | `long_call` | −$1,005 | 4.3% |
+> | `iron_condor` | −$284 | 1.2% |
+>
+> **NVDA cost $284.** SPY −$7,849 and QQQ −$6,862 are 63% of the loss — the book
+> died on BROAD INDEX volatility, where there is no proxy question and no causal
+> graph. META made +$3,044. Slippage was **3.2%**. All of it opened on one day.
+> An error in ONE scalar routed the whole book into the ONE structure whose payoff
+> depends on the quantity that was mismeasured. Effective N by risk 1.49: the names
+> were diverse, the CLAIM was not.
+> **The first version of that script was WRONG and printed a confident waterfall** —
+> it summed multi-leg parents (`symbol: ""`, contracts in `legs`), collapsing ten
+> spreads into one phantom ticker and reporting −$1,161. Caught by the
+> reconciliation it now prints every run. Also: `-$302,818` from summing
+> `fills.jsonl` is 1,070 rows re-marking 29 orders.
+>
+> **THE $14,711 GAP IS CLOSED BY MEASUREMENT.** 381 weekly ATM index straddles:
+> buyer −19.8%/wk pooled t −5.90, but **2026 is −1.8% t −0.24 and QQQ 2026 is
+> +14.9% for the buyer**. The refusal rests on the MEDIAN — negative every year
+> including 2026 — because five decisions follow the median, not the mean. The
+> counter-example is printed inside the refusal: a row that hides its own best
+> counter-example is obeyed, not argued.
+>
+> **TWO MORE DEAD GUARDS, both found by `python -m scripts.reachability`:**
+> `alpha/engine/shape.py` — *"the idea this whole agent is built on"*, the README's
+> differentiator — had **zero importers**, while five of six brains hardcoded
+> `signal_shape="tail"` (= "buy convexity") with no curve behind it. Now
+> `declared:tail`, refused in `Forecast.__post_init__`. And the runner's docstring
+> claimed `must_close_by` was "threaded through every entry"; it is not an
+> identifier anywhere in the repo, and `MAX_EXPIRY_SLACK_DAYS` was read by nothing.
+> `check_expiry_against_deadline` is that guard now.
+>
+> **`competition` was not a declared arm** — the one account that gets judged was
+> the one with no hypothesis and no falsifier, so `arms.validate()` could not
+> refuse a duplicate it had never been told about.
+>
+> **Suite 1153 checks** (was 917 this morning). *(The `cb623b4` commit message says
+> 1157; the correct count is 1153.)*
+>
+> **STILL BLOCKED ON MURAT, and only this:** create the paper account, paste
+> `AAT_COMPETITION_*`, then follow `docs/RUNBOOK_2026-08-28_KICKOFF.md`.
+>
+> ---
+>
 > ## SESSION 16 (2026-08-27, midday) — SCOPE EVERY REFUSAL TO ITS OWN SAMPLE
 >
 > **RESULT IMPROVEMENT: NONE.** No strategy tested, no candidate promoted, no P&L moved.
