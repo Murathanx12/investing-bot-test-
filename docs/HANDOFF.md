@@ -1,90 +1,90 @@
-> ## SESSION 16b (2026-08-27, afternoon) — THE AGENT COULD NOT HAVE TRADED
+> ## SESSION 16b (2026-08-27, overnight) — THE AGENT COULD NOT HAVE TRADED
 >
-> **THE SINGLE MOST IMPORTANT FINDING OF THE DAY.** With `vol_gap` quarantined and
-> the two sigma-inflating brains on shadow, a dry pass over the default universe
-> produced **ZERO forecasts** — every line `NotApplicable`. `run_pass.UNIVERSE` is
-> fifteen hardcoded mega-caps and **mega-caps report in the last week of July**, so
-> by late August all fifteen are 19–25 sessions past their prints against a +1..+3
-> drift window. The judged account would have sat in cash for five sessions while
-> P&L is criterion #1. **Refusing correctly and having nothing to refuse print
-> identically**, and no test could tell them apart.
+> **⚠️ REGISTER BEFORE 11:00 ET ON 28 AUG.** *"Registration closes the moment the
+> event starts."* From the 27 Aug live re-pull
+> (`docs/RULES_SNAPSHOT_2026-08-27_REPULL.md`) and absent from every earlier
+> snapshot. Hard, irreversible, and nothing else in any document matters if it is
+> missed. Also new: prize pool **$6,000**; the track is called **"Options Alpha
+> Agents"**; **727 teams** (was 555).
 >
-> `python -m scripts.window_universe --json` makes the universe a consequence of
-> the calendar. **95 names** have an event reaching inside the contest: MRVL/WDAY/
-> ADSK react on **day one**, NVDA's own drift from the 26 Aug print is live on day
-> one, AVGO on 3 Sep is `TRUNCATED_BY_DEADLINE`, DELL has the deadline morning
-> only. `run_pass --window-universe` consumes it.
+> **Read `docs/RUNBOOK_2026-08-28_KICKOFF.md` first.** Every machine step in it
+> was exercised against the live venue; the two unverified steps are manual and
+> both are Murat's.
 >
-> **THE ENGINE WAS THEN PROVEN END TO END** against live chains, with
-> `post_event_drift`'s own +0.72% number — and it had **zero decision rows in the
-> entire ledger** before this, having never executed or been ranked once:
+> **THE FINDING.** With `vol_gap` quarantined, a dry pass over the default
+> universe produced **ZERO forecasts** — fifteen hardcoded mega-caps that all
+> report in late July, against a +1..+3 drift window. The judged account would
+> have sat in cash for five sessions while P&L is criterion #1, and **refusing
+> correctly and having nothing to refuse print identically**, so no test could see
+> it. `scripts/window_universe` makes the universe a consequence of the calendar,
+> and `run_pass`/`agent_loop` take `--window-universe`.
 >
-> | name | chosen | EV/max-loss | P(profit) | median |
-> |---|---|---|---|---|
-> | NVDA | `long_call` | +38% | **33%** | **−$137** |
-> | CRM | `bull_call_spread` | +16% | 29% | −$104 |
-> | DG / SNPS | `long_shares` | +11% / +9% | 56% / 54% | +$1 / +$3 |
+> **BUT THE CEILING IS THREE EVENTS.** `post_event_drift` is two-sided on eleven
+> names only; exactly **NVDA (day 1), PANW (2 Sep), AVGO (3 Sep)** print in the
+> window, and each still needs its day-0 move to clear the floor. **So the human
+> thesis arm is the PRIMARY decision source**, plus NFP on 4 Sep.
+> `docs/FINDING_2026-08-27_THREE_EVENTS.md`.
 >
-> `long_straddle` and `iron_condor` were **refused before pricing** by the claim
-> matrix; CASH beat SNPS's long call. Options win where the edge pays for the
-> spread, shares where it does not — the options requirement is met without
-> forcing an instrument.
+> **P0.1 / P0.2 / P0.5 / P0.6 ARE DONE.**
+>
+> **`PNL_FORENSICS`** — realised **−$23,306**, and **94.5% is one structure**:
+> `long_straddle` −$22,017, `long_call` −$1,005, `iron_condor` −$284. **NVDA cost
+> $284**; SPY+QQQ are 63%; slippage 3.2%; all opened on one day. *Its own first
+> version was wrong and printed a confident waterfall* — it summed multi-leg
+> parents and reported −$1,161. Caught by the venue reconciliation it now prints
+> every run.
+>
+> **`BELIEF_TO_POSITION`** — **0 of 6 proxies beat the source.** NVDA +9.61%;
+> AVGO +3.98%, SMH +2.93%, QQQ +1.26%, SPY +0.79%, **AMD −1.24%, MU −2.65%**. MU
+> fell on the day the filing confirmed $160bn of memory commitments — the exact
+> prediction `NEEDS_GRAPH` had made hours earlier. **A causal arrow that exists is
+> not an edge with a sign you can spend.**
+>
+> **`SANITY_SENTINELS`** — the 96.4% pathology generalised, and it is **four of
+> five brains**: relay 99.0%, narrative_dispersion 96.1%, options_attention 95.4%,
+> vol_gap 93.1%; only `event_move` (never executed) is balanced. **Since the 27
+> Aug fix it says CANNOT_DETERMINE on 32–35 decisions against a floor of 50 — the
+> arithmetic fix is NOT yet verified.** Wired into `run_pass`; withdraws
+> new-position authority only.
+>
+> **`EXECUTION_REACHABILITY`** — found `alpha/engine/shape.py`, *"the idea this
+> whole agent is built on"*, with **zero importers**, while five brains hardcoded
+> `signal_shape="tail"` (= buy convexity) with no curve behind it. And
+> `must_close_by`, claimed "threaded through every entry", was a docstring
+> sentence. Both are guards now.
+>
+> **THE NINTH NVDA EVENT BROKE THE STREAK.** Priced directly (the backtest cannot
+> see it — the contracts have not expired): straddle **+60.7%**, entry implied
+> 5.94%, realised **+9.61%**. NVDA is **1 for 9** and the row says so, with the
+> reopening condition now carrying the count. **And the CALL paid +219% against
+> the straddle's +60.7%** — even on the event that broke the streak, the
+> sign-blind structure gave back two thirds of the return.
+>
+> **THREE BUGS I INTRODUCED AND CAUGHT, all the same shape:**
+> (1) the width-claim path in `alpha/human.py` reproduced **the third of the three
+> unit errors** — a thesis saying the chain OVERPRICES the move chose a long
+> straddle; (2) the index-straddle refusal's scope lived in a **string the code
+> never read**, and would have blocked the **NFP trade**, the best-evidenced
+> opportunity in the window; (3) the print-straddle rows had the same latent gap,
+> closed by asking the same question of every row.
+>
+> **A STEP DEAD SINCE ITS FIRST SUCCESS.** `belief_vs_chain_grade` writes
+> `GRADES.json` into the directory it globs and reads its own output back. It
+> crashed every cycle, invisibly, because three steps called `subprocess.call`
+> directly and bypassed the failure counter. Fixed; it now produces 240 graded
+> readings and a verdict ("chain sharper", Brier 0.0237 vs 0.0254).
 >
 > **ONE DECISION IS MURAT'S AND IS DELIBERATELY NOT MADE.** The ranker optimises
-> the arithmetic MEAN, so it takes the NVDA call at 33% hit rate over shares at
-> 56%. Over a long series that is right; over **five sessions** terminal wealth
-> follows the median path. Three options, each costed, in
-> `docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md`. The runner now logs
-> `MEAN-RANKED` whenever it takes a sub-50% champion, naming the majority-win
-> alternative it passed over. **Editing the objective function of a system hours
-> before it is judged is how a seventh instrument defect gets made.**
+> the arithmetic **mean** — on a live NVDA chain it takes a `long_call` at 33% hit
+> rate, median −$137, over `long_shares` at 56%, median +$1. Over five sessions
+> terminal wealth follows the median. Three costed options in
+> `docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md`. The runner logs
+> `MEAN-RANKED` when it takes a sub-50% champion.
 >
-> **P0.1 PNL_FORENSICS IS DONE AND THE ANSWER IS ONE STRUCTURE.** Realised,
-> reconciled against the venue: dev −$14,335, exp1 −$8,971, **combined −$23,306**.
+> **Suite 917 → 1284.** Loops untouched and healthy.
 >
-> | | realised | share |
-> |---|---|---|
-> | **`long_straddle`** | **−$22,017** | **94.5%** |
-> | `long_call` | −$1,005 | 4.3% |
-> | `iron_condor` | −$284 | 1.2% |
->
-> **NVDA cost $284.** SPY −$7,849 and QQQ −$6,862 are 63% of the loss — the book
-> died on BROAD INDEX volatility, where there is no proxy question and no causal
-> graph. META made +$3,044. Slippage was **3.2%**. All of it opened on one day.
-> An error in ONE scalar routed the whole book into the ONE structure whose payoff
-> depends on the quantity that was mismeasured. Effective N by risk 1.49: the names
-> were diverse, the CLAIM was not.
-> **The first version of that script was WRONG and printed a confident waterfall** —
-> it summed multi-leg parents (`symbol: ""`, contracts in `legs`), collapsing ten
-> spreads into one phantom ticker and reporting −$1,161. Caught by the
-> reconciliation it now prints every run. Also: `-$302,818` from summing
-> `fills.jsonl` is 1,070 rows re-marking 29 orders.
->
-> **THE $14,711 GAP IS CLOSED BY MEASUREMENT.** 381 weekly ATM index straddles:
-> buyer −19.8%/wk pooled t −5.90, but **2026 is −1.8% t −0.24 and QQQ 2026 is
-> +14.9% for the buyer**. The refusal rests on the MEDIAN — negative every year
-> including 2026 — because five decisions follow the median, not the mean. The
-> counter-example is printed inside the refusal: a row that hides its own best
-> counter-example is obeyed, not argued.
->
-> **TWO MORE DEAD GUARDS, both found by `python -m scripts.reachability`:**
-> `alpha/engine/shape.py` — *"the idea this whole agent is built on"*, the README's
-> differentiator — had **zero importers**, while five of six brains hardcoded
-> `signal_shape="tail"` (= "buy convexity") with no curve behind it. Now
-> `declared:tail`, refused in `Forecast.__post_init__`. And the runner's docstring
-> claimed `must_close_by` was "threaded through every entry"; it is not an
-> identifier anywhere in the repo, and `MAX_EXPIRY_SLACK_DAYS` was read by nothing.
-> `check_expiry_against_deadline` is that guard now.
->
-> **`competition` was not a declared arm** — the one account that gets judged was
-> the one with no hypothesis and no falsifier, so `arms.validate()` could not
-> refuse a duplicate it had never been told about.
->
-> **Suite 1153 checks** (was 917 this morning). *(The `cb623b4` commit message says
-> 1157; the correct count is 1153.)*
->
-> **STILL BLOCKED ON MURAT, and only this:** create the paper account, paste
-> `AAT_COMPETITION_*`, then follow `docs/RUNBOOK_2026-08-28_KICKOFF.md`.
+> **STILL BLOCKED ON MURAT, and only this:** register, create the paper account
+> (options enabled — genesis now refuses below level 2), paste `AAT_COMPETITION_*`.
 >
 > ---
 >
