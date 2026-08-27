@@ -5,12 +5,59 @@ the machine you will run it on. Session 15's findings: `docs/HANDOFF_SESSION_15.
 
 ---
 
-## 0 — THE ONE-LINE STATE
+## 0 — THE ONE-LINE STATE  (rewritten 2026-08-27 night)
 
-> **RESULT IMPROVEMENT: NONE.** Guardrails, tooling and model providers only. No
-> strategy tested, no candidate promoted, no P&L moved. **The competition opens
-> 28 Aug and the judged account does not exist yet** — that is the only thing on
-> the critical path. Nothing else in this document is.
+> **THE AGENT COULD NOT HAVE TRADED, AND THAT WAS THE FINDING.** With `vol_gap`
+> quarantined, a dry pass over the default universe produced **ZERO forecasts** —
+> fifteen hardcoded mega-caps that all report in late July, against a +1..+3
+> drift window. The judged account would have sat in cash for five sessions while
+> P&L is criterion #1, and **refusing correctly and having nothing to refuse
+> print identically**, so no test could see it.
+>
+> **REGISTER BEFORE 11:00 ET ON 28 AUG. Registration closes at kickoff.** New
+> from the 27 Aug re-pull and absent from every earlier snapshot. Nothing else in
+> any document matters if this is missed.
+
+**Read in this order:** `docs/RUNBOOK_2026-08-28_KICKOFF.md` (the ordered
+sequence for the morning) → `docs/HANDOFF.md` (the trading record) → this file
+(the machine).
+
+**RESULT IMPROVEMENT: NONE in P&L.** No strategy tested, no candidate promoted.
+What moved is what the machine is allowed and able to do.
+
+---
+
+## 0b — WHAT IS ACTUALLY TRADEABLE, which is less than it looks
+
+`python -m scripts.window_universe --json` → 95 names with an event reaching
+inside the contest. But `post_event_drift` is two-sided on **eleven** names only,
+and exactly **three** of them print in the window:
+
+| | reacts | usable |
+|---|---|---|
+| **NVDA** | 27 Aug | day one only |
+| **PANW** | 2 Sep | full |
+| **AVGO** | 3 Sep | truncated, 2 sessions |
+
+Each still needs its day-0 move to clear the flat-tercile floor, so **three is a
+ceiling.** Outside those eleven names an UP print has no edge and a DOWN print
+needs a pair structure the engine does not have.
+
+**So the human thesis arm is the PRIMARY decision source**, not a supplement,
+plus NFP on 4 Sep. `docs/FINDING_2026-08-27_THREE_EVENTS.md`.
+
+---
+
+## 0c — THE ONE DECISION LEFT OPEN
+
+The champion ranker optimises the arithmetic **mean**. Measured on a live NVDA
+chain it takes a `long_call` at **33% hit rate, median −$137** over `long_shares`
+at **56%, median +$1**. Over five sessions terminal wealth follows the median
+path. Three costed options in
+`docs/FINDING_2026-08-27_THE_RANKER_OPTIMISES_THE_MEAN.md`; the runner now logs
+`MEAN-RANKED` when it takes a sub-50% champion. **Deliberately not changed** —
+editing the objective function of a system hours before judging is how a seventh
+instrument defect gets made.
 
 ---
 
@@ -18,14 +65,34 @@ the machine you will run it on. Session 15's findings: `docs/HANDOFF_SESSION_15.
 
 | what | detail | rule |
 |---|---|---|
-| `agent_loop` **dev** (pid 17200) | cycle 373, `--manage-only`, 0 errors | **do not kill** |
-| `agent_loop` **exp1** (pid 59544) | cycle 373, `--manage-only`, 0 errors | **do not kill** |
+| `agent_loop` **dev** (pid 17200) | `--manage-only`, cycling, 0 errors | **do not kill** |
+| `agent_loop` **exp1** (pid 59544) | `--manage-only`, cycling, 0 errors | **do not kill** |
 | optimus MCP × 2 | one per repo | expected |
 | `llama-server.exe` | 4.9 GB VRAM, port 8080 | dies on reboot |
 
 Both loops manage exits, fills and marking on the PRE_UNITS_FIX legacy books and
-never open new risk. **A stopped loop reads exactly like a quiet market** — that
-is how they died unnoticed on 26 Aug. Count COMMAND LINES, not log quietness.
+never open new risk. Both books hold options expiring **28 Aug**;
+`exits.CLOSE_BEFORE_EXPIRY_ET` (15:30 ET) closes them, and that rule finally has
+tests (`tests_smoke_expiry.py`) — dev holds a **short NVDA 225 call** whose
+assignment would convert a 19-lot premium position into a 1,900-share stock
+short overnight.
+
+**A stopped loop reads exactly like a quiet market** — and so does a loop whose
+entry pass exits 2 on every cycle, which is why `_run` now counts consecutive
+non-zero exits and `liveness` reports DEGRADED with the step named.
+
+**Accounts, read from the venue** (`python -m scripts.accounts`):
+
+| role | account | equity | pos | ord |
+|---|---|---|---|---|
+| dev | `PA32Q5IW7TAS` | ~$83k | 6 | 29 |
+| exp1 | `PA3AOJPJTSBW` | ~$96k | 8 | 16 |
+| market | `PA3I7VTCC0BM` | $100,000.00 | 0 | 1 `expired` |
+| pead | `PA3LY4QK3A6A` | $100,000.00 | 0 | 0 |
+| **competition** | **does not exist** | — | — | — |
+
+All four are denylisted in `alpha/genesis.DENIED_ACCOUNTS`, keyed on the
+account number the venue returns.
 
 ---
 
