@@ -68,6 +68,10 @@ PROVIDERS: dict[str, Provider] = {
     "hf_deepseek_v4": Provider("hf_deepseek_v4", "deepseek", "https://router.huggingface.co/v1", "AAT_HF_TOKEN",
                                "deepseek-ai/DeepSeek-V4-Flash", 60.0),
     "hf_glm": Provider("hf_glm", "zhipu", "https://router.huggingface.co/v1", "AAT_HF_TOKEN", "zai-org/GLM-5.3-Flash", 60.0),
+    # A fourth FAMILY, dormant until AAT_OPENAI_API_KEY exists (Murat's $25 credit,
+    # 28 Aug, if that is where it came from). `probe()` reports it as no-key
+    # until then; the skeptic role prefers a family the synthesis did not use.
+    "openai": Provider("openai", "openai", "https://api.openai.com/v1", "AAT_OPENAI_API_KEY", "gpt-5-mini", 60.0),
 }
 
 
