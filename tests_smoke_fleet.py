@@ -70,7 +70,7 @@ sym = seed["tradable"][0]
 steady = [10.0 * (1 + 0.002 * ((i * 7) % 5 - 2)) for i in range(80)]
 f = theme_basket.forecast(None, sym, 5.0, bars=bars(steady))
 check("claim is direction, not distribution", f.claim == "direction")
-check("centre = +tilt * sd", math.isclose(f.centre, theme_basket.TILT_SIGMA * f.sd, rel_tol=1e-9))
+check("centre = +tilt * sd", math.isclose(f.centre, f.evidence["tilt_sigma"] * f.sd, rel_tol=1e-9))
 check("evidence says measured_edge None and who stated it", f.evidence["measured_edge"] is None and f.evidence["stated_by"] == "murat")
 check("themes named", bool(f.evidence["themes"]))
 try:
@@ -78,12 +78,21 @@ try:
     check("SPY refused (not in basket)", False)
 except theme_basket.NotInBasket:
     check("SPY refused (not in basket)", True)
-knife = [100.0] * 60 + [100.0 - 3.0 * i for i in range(1, 21)]      # -60% in 20 sessions
+import random
+random.seed(3)
+noisy = [100.0]
+for i in range(79):
+    noisy.append(noisy[-1] * (1 + random.gauss(0, 0.07)))          # ~110% annualised vol
+middle = noisy[:60] + [noisy[59] * (1 - 0.30 * i / 20) for i in range(1, 21)]   # -30% in 20 sessions
 try:
-    theme_basket.forecast(None, sym, 5.0, bars=bars(knife))
-    check("falling knife declined", False)
+    theme_basket.forecast(None, sym, 5.0, bars=bars(middle))
+    check("MIDDLE cell (-30% at high vol) declined with the number", False)
 except theme_basket.NotInBasket as exc:
-    check("falling knife declined", "20-session high" in str(exc), str(exc))
+    check("MIDDLE cell (-30% at high vol) declined with the number", "-0.31%" in str(exc), str(exc))
+deep = noisy[:60] + [noisy[59] * (1 - 0.60 * i / 20) for i in range(1, 21)]     # -60% in 20 sessions
+f2 = theme_basket.forecast(None, sym, 5.0, bars=bars(deep))
+check("REBOUND cell bought at full tilt", f2.evidence["cell"].startswith("rebound") and f2.evidence["tilt_sigma"] == theme_basket.TILT_SIGMA)
+check("steady near-high name bought at half tilt", f.evidence["cell"].startswith("near-high") and f.evidence["tilt_sigma"] == theme_basket.TILT_SIGMA * 0.5)
 try:
     theme_basket.forecast(None, sym, 5.0, bars=bars(steady[:20]))
     check("thin history refused", False)

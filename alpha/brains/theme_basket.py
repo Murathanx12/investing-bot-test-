@@ -21,11 +21,11 @@ that runs it (`alpha/fleet.py` role `thesis`) is one equity curve on its own.
 WHAT REFUSES
 ============
 A symbol not in the seed (the brain has no view on it), fewer than 30 bars, and
-a name whose 20-session drawdown is worse than `MAX_DRAWDOWN_20` -- a basket
-name down more than that in a month is a falling knife the human's own rule
-("if it has dropped a lot recently" is a reason to LOOK, not to buy blind)
-does not cover, and the rows are declined with the number so the census of
-refusals is itself a finding.
+-- after the 28 Aug CRSP adjudication (see `forecast`) -- any name in the
+MIDDLE of the drawdown range (-50%..-10% over 20 sessions), where the
+construction measured -0.31%/5 sessions with t -2.35. Only the extreme
+rebound cell (down >50% at >100% vol) and names near their highs are bought.
+The rows are declined with the number so the census of refusals is a finding.
 """
 
 from __future__ import annotations
@@ -43,7 +43,9 @@ NAME = "theme_basket"
 SEED = Path(__file__).resolve().parent.parent.parent / "docs" / "seed" / "universe" / "THEMES_2026-08-28.json"
 SEED_IN_IMAGE = Path("/app/seed/universe/THEMES_2026-08-28.json")
 TILT_SIGMA = 0.5
-MAX_DRAWDOWN_20 = -0.55
+REBOUND_DD = -0.50
+REBOUND_RV = 1.00
+NEAR_HIGH_DD = -0.10
 CONVICTION = 0.8
 
 
@@ -85,15 +87,30 @@ def forecast(client, symbol: str, horizon_days: float, *, bars: list[dict] | Non
     if sd_daily <= 0:
         raise NotInBasket(f"{symbol}: zero realised vol")
     dd20 = closes[-1] / max(closes[-21:]) - 1.0
-    if dd20 < MAX_DRAWDOWN_20:
-        raise NotInBasket(f"{symbol}: {dd20:+.0%} from its 20-session high is past {MAX_DRAWDOWN_20:+.0%}; declined, not bought blind")
+    rv = sd_daily * math.sqrt(252)
+    # ADJUDICATED 2026-08-28 (Aegis scripts/knife_basket_backtest.py, CRSP
+    # 2013-2024, 5-session hold, non-overlapping windows, vs the EW market):
+    #   rv 60-180%, dd20 -50..-20%  : -0.31%/window excess, t -2.35, 0.2x vs 3.2x   <- the basket as first drawn
+    #   rv 100-180%, dd20 < -50%    : +2.32%/window excess, t 2.60, hit 58%, 8.7x    <- the ONLY paying cell (n=88)
+    #   rv 60-180%, dd20 > -10%     : -0.13%, t -0.7, flat
+    # The human's rule "if it dropped a lot recently, look" is right only at the
+    # extreme; the middle of the drawdown range is where the money was lost.
+    # So: the rebound cell is bought at full tilt, names near their highs at a
+    # quarter tilt, and the -50..-10% middle is DECLINED with the number.
+    if dd20 <= REBOUND_DD and rv >= REBOUND_RV:
+        tilt, cell = TILT_SIGMA, "rebound(dd<=-50%,rv>=100%): +2.32%/5d, t 2.60, n=88"
+    elif dd20 > NEAR_HIGH_DD:
+        tilt, cell = TILT_SIGMA * 0.5, "near-high(dd>-10%): -0.13%/5d, t -0.7 (flat)"
+    else:
+        raise NotInBasket(f"{symbol}: dd20 {dd20:+.0%} at rv {rv:.0%} is the MIDDLE cell -- measured -0.31%/5d excess, "
+                          "t -2.35 over 595 windows (2013-2024). Declined with the number, not bought on the story.")
     sd_h = sd_daily * math.sqrt(max(horizon_days, 1.0))
-    centre = TILT_SIGMA * sd_h
+    centre = tilt * sd_h
     return Forecast(
         brain=NAME, symbol=symbol, horizon_days=horizon_days, centre=centre, sd=sd_h,
         conviction=CONVICTION, claim="direction", signal_shape=None,
-        rationale=f"human prior: +{TILT_SIGMA:g} sigma tilt on {','.join(themes)}; rv60 {sd_daily * math.sqrt(252):.0%}, dd20 {dd20:+.0%}",
-        evidence={"themes": themes, "tilt_sigma": TILT_SIGMA, "sd_daily": sd_daily, "dd20": dd20,
+        rationale=f"human prior x adjudicated cell [{cell}]: +{tilt:g} sigma on {','.join(themes)}; rv60 {rv:.0%}, dd20 {dd20:+.0%}",
+        evidence={"themes": themes, "tilt_sigma": tilt, "cell": cell, "sd_daily": sd_daily, "dd20": dd20, "rv60": rv,
                   "ret_20": closes[-1] / closes[-21] - 1.0, "stated_by": seed.get("author"),
                   "measured_edge": None, "seed": seed.get("name")},
     )

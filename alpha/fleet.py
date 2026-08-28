@@ -77,7 +77,7 @@ FLEET: dict[str, Mandate] = {
         question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought after a 20-50% drawdown?",
         brains=("theme_basket",), profile="basket", universe="themes", allow_maximum=True,
         rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
-        caveat="Hand-curated universe (survivorship-shaped); basket down 20-50%/20 sessions, rv60 60-170%. Graded vs IWM and vs `hack2`."),
+        caveat="ADJUDICATED 28 Aug (Aegis knife_basket_backtest, CRSP 2013-2024): the -50..-20% drawdown cell LOSES -0.31%/5d (t -2.35); only >50%-down at >100% vol pays (+2.32%, t 2.60, n=88). theme_basket now buys only that cell and near-high names; the middle is declined with the number. Graded vs IWM and vs `hack2`."),
     "hack4": Mandate(
         role="hack4", tier="RISKY", label="PREDATOR: small-cap post-print continuation",
         question="Does the 116,231-event continuation cell (surprise and reaction agree) pay outside the mega-11 via shares and the short-loser/long-IWM pair?",
