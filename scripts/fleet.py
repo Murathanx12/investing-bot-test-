@@ -92,6 +92,20 @@ def deploy(role: str, *, up: bool) -> None:
     for k, v in env.items():
         sets += ["--set", f"{k}={v}"]
     run("variables", "--service", svc, "--skip-deploys", *sets)
+    # READ BACK. On 28 Aug a bulk --set returned 0 and left AAT_LOOP_ARGS at its
+    # old value (hack6 ran without --council for two deploys); a single --set
+    # then took. A variable that was not verified was not set.
+    r = run("variables", "--service", svc, "--json", ok_fail=True)
+    try:
+        live_vars = json.loads(r.stdout or "{}")
+    except json.JSONDecodeError:
+        live_vars = {}
+    stale = [k for k, v in env.items() if not k.endswith("_KEY_ID") and not k.endswith("_SECRET_KEY")
+             and k not in fleet.SECRETS and str(live_vars.get(k)) != str(v)]
+    for k in stale:
+        run("variables", "--service", svc, "--skip-deploys", "--set", f"{k}={env[k]}")
+    if stale:
+        print(f"  re-set {len(stale)} variable(s) that did not take on the bulk call: {stale}")
     if up:
         run("up", "--service", svc, "-d")
 
