@@ -124,6 +124,10 @@ MEGA_MEASURED = frozenset({"AAPL", "AMD", "AMZN", "AVGO", "GOOGL", "META", "MSFT
 #:     side is REFUSED until a pair structure exists; the constants stay as the record.
 WIDE_MIN_ABS_MOVE = 0.05
 WIDE_UNHEDGED_SHORT_ENABLED = False
+#: 2026-08-28: the pair structure EXISTS (`equity.pair_short_vs_hedge`), so the
+#: wide DOWN side is forecast as a RELATIVE move and expressed ONLY as the pair.
+#: The unhedged short stays refused whatever this flag says.
+WIDE_PAIR_ENABLED = True
 WIDE_DOWN_SIMPLE = {"mid": (0.00036, 0.22), "big": (0.00004, 0.03)}
 WIDE_HEDGED_IWM_SIMPLE = {"mid": (0.00346, 2.22), "big": (0.00259, 1.96)}
 #: Wide-universe DOWN side: (3-session RAW short-from-next-open centre, 3-session sd).
@@ -220,7 +224,7 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
         raise NotApplicable(
             f"{symbol}: day-0 move {r0:+.2%} is a drop of less than {WIDE_MIN_ABS_MOVE:.0%}; on the response curve "
             f"({WIDE_HEADLINE['receipt']}) the 3.5-5% zone is dead (raw short -0.05%, t -0.3). Refused.")
-    if wide and not WIDE_UNHEDGED_SHORT_ENABLED:
+    if wide and not WIDE_UNHEDGED_SHORT_ENABLED and not WIDE_PAIR_ENABLED:
         band_key = "big" if abs(r0) > OVEREXTENDED_MOVE else "mid"
         raise NotApplicable(
             f"{symbol}: day-0 move {r0:+.2%} is a wide-universe DROP, and the unhedged short of it is worth "
@@ -231,12 +235,16 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
     base_centre, floor_sd, sessions_left = ARRIVAL[elapsed]
     sign = 1.0 if r0 > 0 else -1.0
     centre = sign * base_centre
+    pair = wide and WIDE_PAIR_ENABLED and not WIDE_UNHEDGED_SHORT_ENABLED
     if wide:
-        # DOWN side, wide universe: the RAW short-from-next-open numbers scaled to the
-        # sessions left. Raw, because the structure is an unhedged short and the gate
-        # sizes an absolute move; the hedged (long IWM) number rides along in evidence.
+        # DOWN side, wide universe, scaled to the sessions left. As a PAIR the
+        # centre is the hedged SIMPLE-return number (short loser / long IWM),
+        # because that is the structure the runner will build; unhedged (the
+        # legacy switch) it is the RAW short-from-next-open number.
         band_key = "big" if abs(r0) > OVEREXTENDED_MOVE else "mid"
         c3, sd3 = WIDE_DOWN[band_key]
+        if pair:
+            c3 = WIDE_HEDGED_IWM_SIMPLE[band_key][0]
         base_centre = c3 * sessions_left / 3.0
         floor_sd = sd3 * math.sqrt(sessions_left / 3.0)
         centre = -base_centre
@@ -255,8 +263,9 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
         # Raw t is 1.9 / 2.5 and 2026 is negative: a tilt the gate may well refuse. That
         # is the honest number; the hedged pair (t ~4) is the expression to build next.
         conviction = 0.6 * (1.0 if elapsed <= 1 else 0.7)
-        band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '5-8.2%'} band, RAW short from next open "
-                f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}; hedged vs IWM "
+        band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '5-8.2%'} band, "
+                + ("PAIR short loser / long IWM, simple returns " if pair else "RAW short from next open ")
+                + f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}; hedged vs IWM "
                 f"t {WIDE_HEDGED_IWM['big' if overextended else 'mid'][1]}; n={WIDE_HEADLINE['legs']} legs)")
     else:
         conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed <= 1 else 0.7)
@@ -289,8 +298,10 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             "receipts": (["state/pead_wide.json"] if wide else
                          ["state/post_event_relay.json", "state/source_pead_decompose.json",
                           "state/source_pead_horizon.json"]),
-            "universe_rule": ("wide: DOWN >=5% only, RAW short-from-open centre (excess-vs-QQQ was the old, wrong, number)"
+            "universe_rule": (("wide: DOWN >=5% only, PAIR centre (hedged vs IWM, simple returns)" if pair else
+                               "wide: DOWN >=5% only, RAW short-from-open centre (excess-vs-QQQ was the old, wrong, number)")
                               if wide else "mega-11: two-sided"),
+            **({"expression": "pair_short_vs_iwm", "unhedged_short_refused": True} if pair else {}),
             "hedged_vs_iwm": ({"centre_3d": WIDE_HEDGED_IWM["big" if overextended else "mid"][0],
                                "t": WIDE_HEDGED_IWM["big" if overextended else "mid"][1],
                                "note": "short stock + long IWM; not an expression the engine has yet"} if wide else None),

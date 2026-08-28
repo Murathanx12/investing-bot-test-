@@ -244,10 +244,33 @@ def reconstruct(positions: list[dict], *, equity: float, account_role: str | Non
             filled = int(min(abs(need), abs(have)) / max(1, abs(ratio)))
             if filled >= 1 and (need > 0) == (have > 0):
                 contracts, fits = filled, True
+        # THE PAIR (`alpha/engine/equity.py`): one short share leg and a hedge
+        # leg whose share count was rounded on the whole position, so the row's
+        # leg ratios (1, 1) do not describe the hedge quantity -- `hedge_shares`
+        # in the outcome does. Matched at whatever of the SHORT leg is held (a
+        # DAY limit fills partially), and the hedge leg is consumed up to its
+        # recorded size; a hedge with no short left is an ordinary long-share
+        # residual, which is what it is.
+        pair_hedge = None
+        if row.get("instrument") == "pair_short_vs_iwm" and len(legs) == 2:
+            sym, _side, _r = legs[0]
+            hsym = str(((row.get("outcome") or {}).get("hedge_symbol")) or legs[1][0])
+            h_want = int(((row.get("outcome") or {}).get("hedge_shares")) or 0)
+            have_short = -remaining.get(sym, 0.0)
+            filled = int(min(contracts, have_short))
+            if filled >= 1:
+                contracts, fits = filled, True
+                pair_hedge = (hsym, min(h_want, max(0.0, remaining.get(hsym, 0.0))))
+            else:
+                fits = False
         if not fits:
             continue
-        for sym, side, ratio in legs:
-            remaining[sym] -= _signed_leg_qty(side, ratio, contracts)
+        if pair_hedge is not None:
+            remaining[legs[0][0]] += contracts
+            remaining[pair_hedge[0]] = remaining.get(pair_hedge[0], 0.0) - pair_hedge[1]
+        else:
+            for sym, side, ratio in legs:
+                remaining[sym] -= _signed_leg_qty(side, ratio, contracts)
         try:
             underlying = decode_occ(legs[0][0])[0]
         except ValueError:

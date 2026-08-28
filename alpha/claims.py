@@ -56,6 +56,7 @@ from __future__ import annotations
 #: for, and does the shift clear the quote).
 DIRECTIONAL = frozenset({
     "long_shares", "short_shares",
+    "pair_short_vs_iwm",                       # short the loser / long IWM: a DOWN claim, hedged
     "long_call", "long_put",
     "bull_call_spread", "bear_put_spread",     # debit verticals
     "bull_put_spread", "bear_call_spread",     # credit verticals

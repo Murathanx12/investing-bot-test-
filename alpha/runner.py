@@ -384,11 +384,18 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     # gate, the same ranker; the instrument with no premium to pay wins only
     # when the shift alone clears one bid-ask (`alpha/engine/equity.py`).
     if forecast.claim == "direction" and forecast.centre != 0.0:
+        # A forecast whose evidence says `expression: pair_short_vs_iwm` was
+        # measured as a RELATIVE move (short loser / long IWM); the unhedged
+        # short of it is worth nothing in simple returns, so `short_shares` is
+        # NOT enumerated for it -- only the pair is.
+        wants_pair = (forecast.evidence or {}).get("expression") == equity.PAIR_KIND
         try:
-            share = share_structure(client, forecast, snapshot, expiry)
+            share = (pair_structure(client, forecast, snapshot, expiry) if wants_pair
+                     else share_structure(client, forecast, snapshot, expiry))
         except Exception as exc:                                          # noqa: BLE001
             share = None
-            logger.warning("%s: share structure not built: %s", forecast.symbol, exc)
+            logger.warning("%s: %s structure not built: %s", forecast.symbol,
+                           "pair" if wants_pair else "share", exc)
         if share is not None:
             candidates.append(share)
     # -- CLAIM_EXPRESSION_MATRIX (alpha/claims.py) ---------------------------
@@ -538,6 +545,79 @@ def share_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: s
     )
 
 
+def _stock_quote_or_synthetic(client: AlpacaPaper, symbol: str, spot: float):
+    """(bid, ask, raw, synthetic) with the same one-sided/off-trade repair as shares."""
+    raw = (client.stock_quote([symbol]).get("quotes") or {}).get(symbol) or {}
+    bid, ask = float(raw.get("bp") or 0.0), float(raw.get("ap") or 0.0)
+    synthetic = None
+    usable = (bid > 0 and ask > 0 and ask >= bid and spot > 0
+              and abs(bid / spot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE
+              and abs(ask / spot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE)
+    if not usable:
+        if spot <= 0:
+            return 0.0, 0.0, raw, None
+        synthetic = {"bid": bid, "ask": ask, "why": "one-sided or off-trade quote replaced by last trade +/- half-spread"}
+        bid, ask = spot * (1.0 - SYNTHETIC_HALF_SPREAD), spot * (1.0 + SYNTHETIC_HALF_SPREAD)
+    return bid, ask, raw, synthetic
+
+
+def pair_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: str):
+    """Short one share of the loser against dollar-neutral IWM (`equity.pair_short_vs_hedge`)."""
+    symbol = forecast.symbol
+    hedge = equity.DEFAULT_HEDGE
+    spot = snapshot.spot
+    bid, ask, raw, synthetic = _stock_quote_or_synthetic(client, symbol, spot)
+    if bid <= 0:
+        logger.info("%s: no spot and no two-sided stock quote; pair not built", symbol)
+        return None
+    asset = client.asset(symbol)
+    shortable = bool(asset.get("shortable")) and bool(asset.get("easy_to_borrow"))
+    hraw = (client.stock_quote([hedge]).get("quotes") or {}).get(hedge) or {}
+    hbid, hask = float(hraw.get("bp") or 0.0), float(hraw.get("ap") or 0.0)
+    hspot = 0.5 * (hbid + hask) if hbid > 0 and hask >= hbid else 0.0
+    if hspot <= 0:
+        try:
+            snap = client._request("GET", f"/v2/stocks/{hedge}/snapshot", base=config.data_url(),
+                                   params={"feed": config.stock_feed()}) or {}
+            hspot = float(((snap.get("latestTrade") or {}).get("p")) or 0.0)
+        except BrokerRefusal:
+            hspot = 0.0
+    hsyn = None
+    if hspot > 0 and not (hbid > 0 and hask >= hbid
+                          and abs(hbid / hspot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE
+                          and abs(hask / hspot - 1.0) <= SYNTHETIC_QUOTE_TOLERANCE):
+        hsyn = {"bid": hbid, "ask": hask, "why": "hedge quote one-sided or off-trade; last trade +/- half-spread"}
+        hbid, hask = hspot * (1.0 - SYNTHETIC_HALF_SPREAD), hspot * (1.0 + SYNTHETIC_HALF_SPREAD)
+    dte = 1.0
+    try:
+        dte = max(0.5, (datetime.fromisoformat(expiry + "T20:00:00+00:00")
+                        - datetime.now(timezone.utc)).total_seconds() / 86400.0)
+    except ValueError:
+        pass
+    ev = forecast.evidence or {}
+    today = datetime.now(timezone.utc).date().isoformat()
+    event_pending = bool(ev.get("event_date")) and str(ev.get("event_date")) >= today
+    bars = hbars = None
+    try:
+        from alpha.brains.vol_gap import _daily_bars
+
+        bars = _daily_bars(client, symbol, equity.GAP_LOOKBACK + 20)
+        hbars = _daily_bars(client, hedge, equity.GAP_LOOKBACK + 20)
+    except Exception as exc:                                              # noqa: BLE001
+        logger.info("%s: bars for the pair gap allowance not read (%s); floor applies", symbol, exc)
+    implied = snapshot.implied_move(expiry) or 0.0
+    return equity.pair_short_vs_hedge(
+        symbol, spot=spot, bid=bid, ask=ask, hedge_symbol=hedge, hedge_spot=hspot,
+        hedge_bid=hbid, hedge_ask=hask, bars=bars, hedge_bars=hbars,
+        implied_move=implied, event_pending=event_pending,
+        horizon_days=forecast.horizon_days, days_to_expiry=dte, shortable=shortable,
+        quote={"symbol": symbol, "bid": bid, "ask": ask, "bid_size": raw.get("bs"),
+               "ask_size": raw.get("as"), "quote_ts": raw.get("t"), "feed": config.stock_feed(),
+               "shortable": shortable, "last_trade": spot, "synthetic": synthetic,
+               "hedge_synthetic": hsyn, "hedge_quote_ts": hraw.get("t")},
+    )
+
+
 #: A stock quote whose side is further than this from the last trade is not a quote.
 SYNTHETIC_QUOTE_TOLERANCE = 0.005
 #: Half-spread assumed when the quote is replaced by the last trade (5 bp a side;
@@ -549,6 +629,8 @@ def build_order(structure: sizing.Structure, contracts: int) -> dict:
     """Alpaca order payload. Single-leg or `mleg`, always a LIMIT, never market."""
     if contracts < 1:
         raise ValueError("refusing a zero-contract order")
+    if structure.kind == equity.PAIR_KIND:
+        return build_pair_orders(structure, contracts)
     if structure.kind in equity.KINDS:
         symbol, side, _ratio = structure.legs[0]
         return {
@@ -573,6 +655,35 @@ def build_order(structure: sizing.Structure, contracts: int) -> dict:
             for sym, side, ratio in structure.legs
         ],
     }
+
+
+def build_pair_orders(structure: sizing.Structure, units: int) -> list[dict]:
+    """TWO equity limit-day orders: short leg at the bid, hedge leg at the ask.
+
+    Alpaca has no multi-leg EQUITY order, so a pair is two orders under ONE
+    decision id (leg suffixes on the client_order_id keep the replay collision).
+    The hedge share count is rounded once here, on the whole position."""
+    q = structure.quote or {}
+    ratio = float(q.get("hedge_ratio") or 0.0)
+    hedge = str(q.get("hedge_symbol") or equity.DEFAULT_HEDGE)
+    h = equity.hedge_shares(units, ratio)
+    if h < 1:
+        raise ValueError("pair: hedge share count rounds to zero")
+    short_sym = structure.legs[0][0]
+    return [
+        {"symbol": short_sym, "qty": str(units), "side": "sell", "type": "limit",
+         "limit_price": f"{abs(structure.entry_cost):.2f}", "time_in_force": "day"},
+        {"symbol": hedge, "qty": str(h), "side": "buy", "type": "limit",
+         "limit_price": f"{float(q.get('hedge_ask') or 0.0):.2f}", "time_in_force": "day"},
+    ]
+
+
+def pair_order_record(orders: list[dict]) -> dict:
+    """The ledger's `order` field for a pair: ONE dict (every reader does `.get`),
+    carrying both payloads and the hedge share count."""
+    return {"pair": True, "qty": orders[0]["qty"], "symbol": orders[0]["symbol"],
+            "side": orders[0]["side"], "hedge_symbol": orders[1]["symbol"],
+            "hedge_qty": orders[1]["qty"], "legs_orders": orders}
 
 
 def contracts_for(structure: sizing.Structure, risk_fraction: float, equity: float) -> int:
@@ -909,7 +1020,9 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
                         "ceiling becomes a suggestion."))
         return committed
 
-    order = build_order(structure, n)
+    built = build_order(structure, n)
+    pair_orders = built if isinstance(built, list) else None
+    order = pair_order_record(built) if pair_orders else built
     add = (structure.max_loss * n) / state.equity if state.equity else 0.0
     if dry_run:
         result.dry_run += 1
@@ -939,6 +1052,9 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     _record(decision_id, forecast, structure, verdict, snapshot, state,
             action="intent", reason="intent persisted before POST", order=order,
             contracts=n)
+    if pair_orders:
+        return _submit_pair(client, pair_orders, order, decision_id, forecast, structure, verdict,
+                            snapshot, state, result, n, committed, add)
     try:
         placed = client.submit(order, decision_id=decision_id,
                                quote_snapshot=_quote_snapshot(structure, snapshot))
@@ -964,6 +1080,71 @@ def _fmt_usd(v) -> str:
     SyntaxError on 3.11 -- a portability trap in the one file the agent cannot
     fail to import."""
     return "?" if v is None else f"${v:,.0f}"
+
+
+def _submit_pair(client, orders: list[dict], record_order: dict, decision_id: str, forecast, structure,
+                 verdict, snapshot, state, result, n: int, committed: float, add: float) -> float:
+    """Send the two legs. If the SECOND is refused, the first is undone at once.
+
+    A pair with one leg is an unhedged short -- the exact thing the brain
+    refuses to hold. So leg-2 refusal is not "half a position": the leg-1
+    order is cancelled and any filled shares are bought back at market, and the
+    row says `pair_leg_failed_flattened` so the counterfactual can see it.
+    """
+    snap = _quote_snapshot(structure, snapshot)
+    try:
+        first = client.submit(orders[0], decision_id=decision_id + ":leg1", quote_snapshot=snap)
+    except BrokerRefusal as exc:
+        result.errors += 1
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="rejected", reason=f"pair leg 1 refused: {exc}", order=record_order, contracts=n)
+        logger.warning("REJECTED pair leg 1 %s: %s", forecast.symbol, exc)
+        return committed
+    try:
+        second = client.submit(orders[1], decision_id=decision_id + ":leg2", quote_snapshot=snap)
+    except BrokerRefusal as exc:
+        result.errors += 1
+        undo = _flatten_leg(client, orders[0], first.get("id"), decision_id)
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="pair_leg_failed_flattened",
+                reason=f"pair leg 2 ({orders[1]['symbol']}) refused: {exc}; leg 1 undone: {undo}",
+                order=record_order, contracts=n, alpaca_order_id=first.get("id"))
+        logger.error("PAIR leg 2 refused on %s (%s); leg 1 flattened: %s", forecast.symbol, exc, undo)
+        return committed
+    result.submitted += 1
+    result.decisions.append(decision_id)
+    _record(decision_id, forecast, structure, verdict, snapshot, state,
+            action="submitted", reason=verdict.reason,
+            order={**record_order, "hedge_order_id": second.get("id")}, contracts=n,
+            alpaca_order_id=first.get("id"))
+    logger.info("SENT %s %s pair x%d (+%s %s) ids=%s/%s", forecast.brain, forecast.symbol, n,
+                orders[1]["qty"], orders[1]["symbol"], first.get("id"), second.get("id"))
+    return committed + add
+
+
+def _flatten_leg(client, order: dict, order_id: str | None, decision_id: str) -> str:
+    """Cancel the resting leg, then buy back whatever of it filled."""
+    notes = []
+    if order_id:
+        try:
+            client.cancel_order(order_id)
+            notes.append("cancelled")
+        except BrokerRefusal as exc:
+            notes.append(f"cancel failed: {exc}")
+    sym = order["symbol"]
+    try:
+        held = [p for p in client.positions() if p.get("symbol") == sym and float(p.get("qty") or 0) < 0]
+    except BrokerRefusal as exc:
+        return "; ".join(notes + [f"positions unreadable: {exc}"])
+    if held:
+        try:
+            client.close_position(sym, qty=int(abs(float(held[0].get("qty") or 0))))
+            notes.append(f"bought back {abs(float(held[0].get('qty') or 0)):.0f} {sym}")
+        except BrokerRefusal as exc:
+            notes.append(f"BUY-BACK FAILED, unhedged short remains: {exc}")
+    else:
+        notes.append("nothing filled")
+    return "; ".join(notes)
 
 
 def _ev_ratio(verdict: sizing.SizingVerdict) -> float:
@@ -1098,5 +1279,9 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             # So a later reader -- the arbiter, the counterfactual -- can tell
             # WHICH width this row was gated at without re-deriving it.
             "claim": forecast.claim,
+            # The pair's hedge leg is sized on the whole position, not per unit;
+            # the book matcher and the exit pass read it from here.
+            **({"hedge_symbol": order.get("hedge_symbol"), "hedge_shares": int(order.get("hedge_qty") or 0)}
+               if isinstance(order, dict) and order.get("pair") else {}),
         },
     ))

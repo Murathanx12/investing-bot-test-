@@ -180,7 +180,8 @@ def sweep_orphans(client: AlpacaPaper, positions: list[dict[str, Any]] | None = 
 
 
 def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
-           *, stop_fraction: float | None = None, dry_run: bool = False) -> dict[str, Any]:
+           *, stop_fraction: float | None = None, dry_run: bool = False,
+           exclude_qty: dict[str, int] | None = None) -> dict[str, Any]:
     """Every share position ends this call with a live stop at the venue, or a
     recorded reason why it does not.
 
@@ -196,7 +197,19 @@ def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
     summary: dict[str, Any] = {"placed": [], "kept": [], "resized": [], "refused": [],
                                "orphans": sweep_orphans(client, positions, dry_run=dry_run)}
 
+    exclude_qty = exclude_qty or {}
     for position in positions:
+        # A pair's HEDGE shares carry no stop of their own: a stop that fires on
+        # the hedge alone leaves an unhedged short, which is the one state the
+        # pair exists to avoid. They leave with their short leg (`alpha.exits`).
+        # Only the part of the position that is NOT a live hedge is stopped.
+        sym0 = str(position.get("symbol") or "")
+        if sym0 in exclude_qty and exclude_qty[sym0] > 0:
+            free = int(float(position.get("qty") or 0.0)) - int(exclude_qty[sym0])
+            if free < 1:
+                summary["refused"].append(f"{sym0}: hedge leg of a live pair, no stop of its own")
+                continue
+            position = {**position, "qty": str(free)}
         order = build_stop(position, stop_fraction)
         if order is None:
             continue
