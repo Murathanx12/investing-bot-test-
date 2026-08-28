@@ -74,7 +74,7 @@ FLEET: dict[str, Mandate] = {
         rank_objective="median", extra_args=("--window-universe",)),
     "hack3": Mandate(
         role="hack3", tier="RISKY", label="THESIS: Murat's future-state basket",
-        question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought after a 20-50% drawdown?",
+        question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought NEAR THEIR 20-SESSION HIGH (half tilt)? The original dip-buy (20-50% drawdown) was adjudicated against on CRSP 2013-2024 (-0.31%/5d, t -2.35) and is REFUSED by the brain; any dip entry is a typed human thesis (scripts.thesis).",
         brains=("theme_basket",), profile="basket", universe="themes", allow_maximum=True,
         rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
         caveat="ADJUDICATED 28 Aug (Aegis knife_basket_backtest, CRSP 2013-2024): the -50..-20% drawdown cell LOSES -0.31%/5d (t -2.35); only >50%-down at >100% vol pays (+2.32%, t 2.60, n=88). theme_basket now buys only that cell and near-high names; the middle is declined with the number. Graded vs IWM and vs `hack2`."),

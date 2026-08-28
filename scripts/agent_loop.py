@@ -60,7 +60,7 @@ log = logging.getLogger("loop")
 #: slow pass, it is a stuck one, and the next cycle re-reads the venue anyway.
 #: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
 #: for why this is the proportionate fix and venue-side structure stops are not.)
-TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
+TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
               "scripts.fill_audit": 300}
 
 
@@ -258,12 +258,17 @@ def _cycle(client, args, last: dict) -> int:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.
             _run("scripts.candidates", "--sessions", "3", live=False); last["candidates"] = now
-        if getattr(args, "council", False) and now - last["council"] >= 6 * 3600:
+        if getattr(args, "council", False) and not is_open and now - last["council"] >= 6 * 3600:
             # The council packets are what `council_vector` trades from. Run
-            # after candidates so the printers list is fresh; --deep 3 = full
+            # after candidates so the printers list is fresh; --deep 2 = full
             # council (fact/expectations/cube/causal/skeptic/synthesis) on the
-            # three most dislocated, light pass on the rest. Places nothing.
-            _run("scripts.dislocation_scan", "--deep", "3", live=False); last["council"] = now
+            # two most dislocated, light pass on the rest. Places nothing.
+            # MEASURED 28 Aug: one LIGHT council is ~82s, a full one ~3-4 min,
+            # so the first deploy's `--max 15 --deep 3` could never finish
+            # inside 900s and was killed every time -- and it BLOCKS this loop
+            # while it runs. Sized to ~12 min and gated to CLOSED hours, so an
+            # exit never waits behind an LLM call.
+            _run("scripts.dislocation_scan", "--max", "4", "--deep", "2", live=False); last["council"] = now
         if is_open and getattr(args, "manage_only", False) and now - last["entry"] >= 3600:
             # Say it OUT LOUD, hourly. A legacy book that silently stopped
             # entering looks exactly like a book whose entry pass is broken, and

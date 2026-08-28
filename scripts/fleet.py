@@ -150,7 +150,13 @@ def main() -> int:
         else:
             for row in rows:
                 print(json.dumps(row))
-        bad = [r for r in rows if r["state"] == "ERROR"]
+        # FAIL CLOSED. A NO_KEYS row, a blocked account or an options level
+        # below 3 used to print and exit 0 -- a validator that cannot go red is
+        # a broken gate. The last check before kickoff must be able to fail.
+        bad = [r for r in rows if r["state"] in ("ERROR", "NO_KEYS") or r.get("trading_blocked")
+               or (r.get("options_level") is not None and int(r["options_level"]) < 3)]
+        for r in bad:
+            print(f"FAIL {r['role']}: {r.get('why') or r}", file=sys.stderr)
         return 1 if bad else 0
     if not any([args.plan, args.env_template, args.railway, args.check, args.check_all, args.deploy]):
         ap.print_help()
