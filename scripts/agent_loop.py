@@ -238,6 +238,11 @@ def _cycle(client, args, last: dict) -> int:
         try:
             clock = client.clock()
             is_open = bool(clock.get("is_open"))
+            try:  # minutes until the next open; the council step must not straddle the bell
+                _no = datetime.fromisoformat(str(clock.get("next_open")))
+                mins_to_open = (_no - datetime.now(_no.tzinfo)).total_seconds() / 60
+            except (TypeError, ValueError):
+                mins_to_open = 1e9
         except BrokerRefusal as exc:
             log.warning("clock unavailable: %s -- treating as closed", exc)
             is_open = False
@@ -258,7 +263,7 @@ def _cycle(client, args, last: dict) -> int:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.
             _run("scripts.candidates", "--sessions", "3", live=False); last["candidates"] = now
-        if getattr(args, "council", False) and not is_open and now - last["council"] >= 6 * 3600:
+        if getattr(args, "council", False) and not is_open and mins_to_open > 60 and now - last["council"] >= 6 * 3600:
             # The council packets are what `council_vector` trades from. Run
             # after candidates so the printers list is fresh; --deep 2 = full
             # council (fact/expectations/cube/causal/skeptic/synthesis) on the
