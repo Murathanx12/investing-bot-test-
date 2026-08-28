@@ -243,7 +243,7 @@ def main() -> int:
     out = STATE / "premarket"
     out.mkdir(parents=True, exist_ok=True)
     receipt = {"date": day, "generated_utc": datetime.now(timezone.utc).isoformat(), "hours": args.hours,
-               "n_symbols": len(syms), "n_headlines": n_head, "n_east": len(east), "east": east_view,
+               "n_symbols": len(syms), "universe": syms, "n_headlines": n_head, "n_east": len(east), "east": east_view,
                "bets": ranked, "refusals": refusals + [h["refusal"] for h in news + east if "refusal" in h],
                "council_symbols": [b["symbol"] for b in ranked[:8] if b["symbol"] not in ("SPY", "QQQ", "IWM")]}
     (out / f"{day}.json").write_text(json.dumps(receipt, indent=1, ensure_ascii=False), encoding="utf-8")

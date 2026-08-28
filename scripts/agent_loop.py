@@ -253,6 +253,9 @@ def _cycle(client, args, last: dict) -> int:
         if not is_open and 16 <= et_hour < 20 and now - last["autopsy"] >= 20 * 3600:
             # After the close: what won, what lost, why, and did the engine hold it.
             _run("scripts.daily_autopsy", live=False); last["autopsy"] = now
+            # The SECOND autopsy question: which of today's biggest movers did we never
+            # generate? A miss with pre-open evidence is a research task (vision §4.3).
+            _run("scripts.discovery_autopsy", live=False)
         if (getattr(args, "window_universe", False) and args.refresh_window_minutes
                 and now - last.get("window", 0.0) >= args.refresh_window_minutes * 60):
             # The calendar moves: a name that reacts tomorrow is not in today's
