@@ -1,0 +1,57 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "GAP",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:56.518836+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": 0.11596638655462188,
+ "sources": [
+  {
+   "id": 61483818,
+   "source": "benzinga",
+   "created_at": "2026-08-27T22:03:40Z",
+   "headline": "Gap Reports Q2 2026 Results: Full Earnings Call Transcript",
+   "url": "https://www.benzinga.com/news/26/08/61483818/gap-reports-q2-2026-results-full-earnings-call-transcript"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "unknown",
+  "tone": 0.6,
+  "surprise": 0.4,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.7,
+  "key_numbers": [
+   "Q2 net sales -2% vs prior year",
+   "Q2 comp -1%",
+   "FY26 revenue growth guide 1%-1.5% (narrowed)",
+   "FY26 adjusted EPS guide $2.35-$2.45 (raised)",
+   "FY26 adjusted operating margin guide 7.4%-7.6% (raised)",
+   "Q3 net sales growth guide 1.5%-2.5%"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "tariffs (Section 122, Section 301, IEEPA)",
+   "fuel costs",
+   "in-transit inventory (geopolitical disruptions)",
+   "Fanatics partnership",
+   "Mr. Beast partnership",
+   "Cardi B campaign"
+  ],
+  "observable_in_3_sessions": "Old Navy traffic and sales trends, Gap brand momentum, and any updates on tariff relief or consumer spending.",
+  "falsifier": "A sharp deceleration in Old Navy sales or a broader consumer pullback would undermine the bullish outlook.",
+  "already_priced_note": "The after-hours move (+11.6%) is larger than the modest positive direction implied by the content, suggesting the market is pricing in more optimism than the fundamentals alone justify.",
+  "summary": "Management reported Q2 net sales decline of 2% but raised full-year EPS and margin guidance, citing strong gross margin and disciplined execution. They are confident in second-half improvement driven by Old Navy's recovery and Gap's momentum, though Athleta remains challenged."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "7edfb31ad83aedc2",
+  "prompt_tokens": 10031,
+  "completion_tokens": 422,
+  "cost_usd": 0.00317,
+  "latency_s": 5.5,
+  "text_chars": 53656
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

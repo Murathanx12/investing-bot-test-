@@ -1,0 +1,76 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "WDAY",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:30.428591+00:00",
+ "text_kind": "headlines",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61480197,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:05:52Z",
+   "headline": "Workday Sees Q3 Sales $2.515B vs $2.697B Est",
+   "url": "https://www.benzinga.com/news/26/08/61480197/workday-sees-q3-sales-2-515b-vs-2-697b-est"
+  },
+  {
+   "id": 61480187,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:05:47Z",
+   "headline": "Workday Lowers FY2027 Sales Guidance from $10.635B-$10.660B to $9.940B-$9.950B vs $10.669B Est",
+   "url": "https://www.benzinga.com/news/26/08/61480187/workday-lowers-fy2027-sales-guidance-10-635b-10-660b-9-940b-9-950b-vs-10-669b-est"
+  },
+  {
+   "id": 61479842,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:02:06Z",
+   "headline": "Workday Q2 Adj. EPS $2.75 Beats $2.61 Estimate, Sales $2.649B Beat $2.636B Estimate",
+   "url": "https://www.benzinga.com/news/earnings/26/08/61479842/workday-q2-adj-eps-2-75-beats-2-61-estimate-sales-2-649b-beat-2-636b-estimate"
+  },
+  {
+   "id": 61445949,
+   "source": "benzinga",
+   "created_at": "2026-08-26T19:30:15Z",
+   "headline": "Marvell Technology Could Swing $20.8 Billion After Earnings",
+   "url": "https://www.benzinga.com/markets/options/26/08/61445949/marvell-technology-could-swing-20-8-billion-after-earnings"
+  },
+  {
+   "id": 61405579,
+   "source": "benzinga",
+   "created_at": "2026-08-25T12:23:33Z",
+   "headline": "Canaccord Genuity Maintains Buy on Workday, Raises Price Target to $225",
+   "url": "https://www.benzinga.com/news/26/08/61405579/canaccord-genuity-maintains-buy-workday-raises-price-target-225"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "lowered",
+  "guide_vs_street_hint": "below",
+  "headline_vs_estimates": "beat",
+  "tone": -0.5,
+  "surprise": 0.8,
+  "direction_claim": "down",
+  "expected_move": 0.15,
+  "confidence": 0.7,
+  "key_numbers": [
+   "Q3 sales guide $2.515B vs $2.697B est",
+   "FY27 sales guide lowered to $9.940B-$9.950B from $10.635B-$10.660B",
+   "Q2 adj EPS $2.75 beats $2.61 est",
+   "Q2 sales $2.649B beats $2.636B est"
+  ],
+  "bottleneck_or_supplier_mentions": [],
+  "observable_in_3_sessions": "If the bearish reading is right, the stock should trade down over the next three sessions, likely underperforming the market, as the lowered guidance weighs on sentiment.",
+  "falsifier": "A sharp rebound in the stock price within three sessions, especially if it closes above the pre-earnings level, would contradict the bearish direction claim.",
+  "already_priced_note": "The after-hours move is flat (+0.00%), so the market has not yet moved; the direction claim suggests a downward move is likely, but the market has not priced it in yet.",
+  "summary": "Workday reported a Q2 beat on both earnings and sales, but significantly lowered its Q3 and full-year FY2027 sales guidance, citing a weaker demand environment. The guidance cut is substantial and suggests management is cautious about near-term growth, despite the quarterly beat."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "c6dfa687ecede2cf",
+  "prompt_tokens": 920,
+  "completion_tokens": 383,
+  "cost_usd": 0.00067,
+  "latency_s": 4.2,
+  "text_chars": 1104
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

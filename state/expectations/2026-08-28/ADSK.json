@@ -1,0 +1,56 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "ADSK",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:40.069443+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61484010,
+   "source": "benzinga",
+   "created_at": "2026-08-27T22:28:13Z",
+   "headline": "Full Transcript: Autodesk Q2 2027 Earnings Call",
+   "url": "https://www.benzinga.com/news/26/08/61484010/full-transcript-autodesk-q2-2027-earnings-call"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "beat",
+  "tone": 0.8,
+  "surprise": 0.3,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.8,
+  "key_numbers": [
+   "Q2 revenue growth 16% as reported, 14% cc",
+   "Q2 non-GAAP operating margin 41%",
+   "Q2 free cash flow $561M",
+   "FY27 billings guidance raised to $8.575-$8.65B",
+   "FY27 revenue guidance raised to $8.295-$8.345B",
+   "MaintainX contribution: ~$60M revenue, ~$70M billings in H2 FY27"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "MaintainX acquisition",
+   "Western Europe sales productivity",
+   "EBA renewal cohort in Q4",
+   "new transaction model",
+   "Flex token adoption"
+  ],
+  "observable_in_3_sessions": "If the bullish reading is right, the stock should hold or gain as investors digest the raised guidance and strong Q2, with no negative surprises from the MaintainX integration or sales reorg.",
+  "falsifier": "A sharp drop in the stock or negative commentary from management about Q3 or Q4 would contradict the bullish direction.",
+  "already_priced_note": "The after-hours move is flat (+0.00%), while the direction_claim is up, suggesting the market has not yet priced in the positive guidance raise.",
+  "summary": "Autodesk reported a strong Q2 with revenue and EPS above guidance, raised full-year billings and revenue outlook, and completed the MaintainX acquisition which adds to H2 revenue and billings. Management expressed confidence in achieving long-term margin targets despite temporary dilution from MaintainX, and highlighted continued strength in construction and Fusion, with AI as a growth driver."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "f12044b46b8d7e85",
+  "prompt_tokens": 10167,
+  "completion_tokens": 447,
+  "cost_usd": 0.00324,
+  "latency_s": 6.4,
+  "text_chars": 62939
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

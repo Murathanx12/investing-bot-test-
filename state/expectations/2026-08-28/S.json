@@ -1,0 +1,71 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "S",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:15:57.545824+00:00",
+ "text_kind": "headlines",
+ "after_hours_move": -0.06170118995152063,
+ "sources": [
+  {
+   "id": 61482071,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:41:33Z",
+   "headline": "SentinelOne Beats Q2 Estimates, Issues Soft Earnings Guidance, Shares Slip",
+   "url": "https://www.benzinga.com/markets/earnings/26/08/61482071/sentinelone-beats-q2-estimates-issues-soft-earnings-guidance-shares-slip"
+  },
+  {
+   "id": 61480544,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:10:23Z",
+   "headline": "SentinelOne Lowers FY2027 Adj EPS Guidance from $0.32-$0.38 to $0.30-$0.32 vs $0.35 Est; Raises FY2027 Sales Guidance from $1.195B-$1.205B to $1.202B-$1.207B vs $1.205B Est",
+   "url": "https://www.benzinga.com/news/26/08/61480544/sentinelone-lowers-fy2027-adj-eps-guidance-0-32-0-38-0-30-0-32-vs-0-35-est-raises-fy2027-sales-guida"
+  },
+  {
+   "id": 61480502,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:09:56Z",
+   "headline": "SentinelOne Sees Q3 Adj EPS $0.08-$0.09 vs $0.11 Est; Sees Sales $309.000M-$311.000M vs $309.442M Est",
+   "url": "https://www.benzinga.com/news/26/08/61480502/sentinelone-sees-q3-adj-eps-0-08-0-09-vs-0-11-est-sees-sales-309-000m-311-000m-vs-309-442m-est"
+  },
+  {
+   "id": 61480210,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:06:08Z",
+   "headline": "SentinelOne Q2 Adj. EPS $0.08 Beats $0.07 Estimate, Sales $291.981M Beat $290.250M Estimate",
+   "url": "https://www.benzinga.com/news/earnings/26/08/61480210/sentinelone-q2-adj-eps-0-08-beats-0-07-estimate-sales-291-981m-beat-290-250m-estimate"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "lowered",
+  "guide_vs_street_hint": "below",
+  "headline_vs_estimates": "beat",
+  "tone": -0.2,
+  "surprise": 0.3,
+  "direction_claim": "down",
+  "expected_move": 0.06,
+  "confidence": 0.7,
+  "key_numbers": [
+   "Q2 revenue $291.98M vs $290.25M est",
+   "Q2 adj EPS $0.08 vs $0.07 est",
+   "FY27 adj EPS guide lowered to $0.30-$0.32 from $0.32-$0.38",
+   "FY27 sales guide raised to $1.202B-$1.207B from $1.195B-$1.205B",
+   "Q3 adj EPS guide $0.08-$0.09 vs $0.11 est",
+   "Q3 sales guide $309M-$311M vs $309.442M est"
+  ],
+  "bottleneck_or_supplier_mentions": [],
+  "observable_in_3_sessions": "If the bearish reading is right, S stock will likely continue to slide or underperform the market over the next three sessions, possibly testing lower support levels.",
+  "falsifier": "A strong rebound in S stock price within three sessions, closing above the prior session's close, would contradict the bearish direction claim.",
+  "already_priced_note": "The after-hours move of -6.17% aligns with the bearish direction claim, but the market may have moved more than the fundamental content alone justifies.",
+  "summary": "SentinelOne beat Q2 estimates but issued soft Q3 and FY27 earnings guidance, lowering its full-year EPS outlook while raising sales guidance. The market reacted negatively in after-hours trading, reflecting concerns about profitability despite revenue growth."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "e7129b514fe857db",
+  "prompt_tokens": 954,
+  "completion_tokens": 413,
+  "cost_usd": 0.00071,
+  "latency_s": 3.7,
+  "text_chars": 1160
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

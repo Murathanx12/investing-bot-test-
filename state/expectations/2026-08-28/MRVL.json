@@ -1,0 +1,57 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "MRVL",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:15:51.486807+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": -0.009614986116291524,
+ "sources": [
+  {
+   "id": 61483703,
+   "source": "benzinga",
+   "created_at": "2026-08-27T21:48:44Z",
+   "headline": "Transcript: Marvell Tech Q2 2027 Earnings Conference Call",
+   "url": "https://www.benzinga.com/news/26/08/61483703/transcript-marvell-tech-q2-2027-earnings-conference-call"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "beat",
+  "tone": 0.9,
+  "surprise": 0.8,
+  "direction_claim": "up",
+  "expected_move": 0.1,
+  "confidence": 0.9,
+  "key_numbers": [
+   "Q2 FY27 revenue $2.739B, +37% YoY",
+   "Q3 FY27 revenue guide $3.15B, +15% QoQ",
+   "FY27 revenue guide ~$12B, +45% YoY",
+   "FY28 revenue guide ~$18B, +50% YoY",
+   "Data center FY27 growth ~60% YoY",
+   "Custom business to more than double in FY28"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "supply constraints",
+   "capacity prepayments ~$1B in FY27",
+   "hyperscaler (Google) expanded commercial agreement",
+   "NVIDIA partnership on NVLink Fusion",
+   "Celestial AI CPO",
+   "memory pricing"
+  ],
+  "observable_in_3_sessions": "If the bullish reading is right, the stock should hold or gain as investors digest the raised guidance and the Google warrant, with no negative news on supply or custom ramp.",
+  "falsifier": "A sharp decline in the stock or negative commentary from a key customer or competitor would contradict the bullish direction.",
+  "already_priced_note": "The after-hours move is -0.96%, which is opposite to the bullish direction_claim; the market may have already priced in the news or is reacting to other factors.",
+  "summary": "Management reported record Q2 revenue and raised guidance for FY27 and FY28, driven by strong data center demand and a new expanded commercial agreement with a key hyperscaler. The outlook is highly confident, but the exact contribution of the warrant and the scale-up optics ramp remain uncertain until the Investor Day."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "ca089f25fa6d1d24",
+  "prompt_tokens": 10471,
+  "completion_tokens": 449,
+  "cost_usd": 0.00332,
+  "latency_s": 6.1,
+  "text_chars": 55766
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

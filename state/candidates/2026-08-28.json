@@ -1,0 +1,372 @@
+{
+ "generated_utc": "2026-08-28T05:13:15.882222+00:00",
+ "universe": "HIGH_DISPERSION_US_v1",
+ "universe_n": 4634,
+ "printers_on_calendar": 200,
+ "printers_in_universe": 76,
+ "candidates": [
+  {
+   "symbol": "NVDA",
+   "centre": 0.0108,
+   "sd": 0.0448,
+   "conviction": 0.6,
+   "score": 0.1446,
+   "direction": "UP",
+   "r_day0": 0.0841,
+   "band": "over-extended (>8.2%, t 1.26)",
+   "elapsed": 0,
+   "event_day": "2026-08-27",
+   "dv_bucket": "mega",
+   "median_dollar_volume": 26838186207.0,
+   "market_cap_usd": null,
+   "cap_bucket": null,
+   "industry": null,
+   "shortable_etb": true,
+   "old_universe": true,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-26",
+    "hour": "amc",
+    "eps_actual": 2.22,
+    "eps_estimate": 2.1384,
+    "revenue_actual": 96221000000,
+    "revenue_estimate": 94008645045
+   }
+  }
+ ],
+ "declined": [
+  {
+   "symbol": "A",
+   "why": "NotApplicable: A: day-0 move +1.45% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "ADSK",
+   "why": "NotApplicable: ADSK: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "AFRM",
+   "why": "NotApplicable: AFRM: 76 sessions since the print on 2026-05-08; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "ANAB",
+   "why": "NotApplicable: ANAB: 73 sessions since the print on 2026-05-13; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "ANF",
+   "why": "NotApplicable: ANF: day-0 move +30.46% is UP and ANF is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries"
+  },
+  {
+   "symbol": "BBW",
+   "why": "NotApplicable: BBW: day-0 move -32.06% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
+  },
+  {
+   "symbol": "BBWI",
+   "why": "NotApplicable: BBWI: day-0 move +7.24% is UP and BBWI is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
+  },
+  {
+   "symbol": "BBY",
+   "why": "NotApplicable: BBY: day-0 move -4.51% is a drop of less than 5%; on the response curve (state/pead_adversarial.json) the 3.5-5% zone is dead (raw short -0."
+  },
+  {
+   "symbol": "BILI",
+   "why": "SourceRefusal: BILI: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "BOX",
+   "why": "NotApplicable: BOX: day-0 move +1.33% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "BURL",
+   "why": "NotApplicable: BURL: day-0 move -8.01% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-retur"
+  },
+  {
+   "symbol": "BZ",
+   "why": "SourceRefusal: BZ: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "CHA",
+   "why": "SourceRefusal: CHA: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "CRM",
+   "why": "NotApplicable: CRM: day-0 move +20.35% is UP and CRM is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries"
+  },
+  {
+   "symbol": "CRWD",
+   "why": "NotApplicable: CRWD: day-0 move +18.50% is UP and CRWD is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "CSIQ",
+   "why": "SourceRefusal: CSIQ: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "CTRN",
+   "why": "NotApplicable: CTRN: day-0 move -7.36% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-retur"
+  },
+  {
+   "symbol": "DCI",
+   "why": "NotApplicable: DCI: day-0 move -2.94% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "DG",
+   "why": "NotApplicable: DG: day-0 move +2.59% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "DKS",
+   "why": "NotApplicable: DKS: day-0 move -36.79% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
+  },
+  {
+   "symbol": "DLTR",
+   "why": "NotApplicable: DLTR: day-0 move -4.04% is a drop of less than 5%; on the response curve (state/pead_adversarial.json) the 3.5-5% zone is dead (raw short -0"
+  },
+  {
+   "symbol": "DOMO",
+   "why": "NotApplicable: DOMO: 50 sessions since the print on 2026-06-16; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "DXYZ",
+   "why": "SourceRefusal: DXYZ: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "DY",
+   "why": "NotApplicable: DY: day-0 move -12.32% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-return"
+  },
+  {
+   "symbol": "ESTC",
+   "why": "NotApplicable: ESTC: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "FSCO",
+   "why": "NotApplicable: FSCO: 15 sessions since the print on 2026-08-06; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "GAP",
+   "why": "NotApplicable: GAP: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "GRRR",
+   "why": "SourceRefusal: GRRR: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "HEI",
+   "why": "NotApplicable: HEI: day-0 move -1.14% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "HPQ",
+   "why": "NotApplicable: HPQ: day-0 move -2.98% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "HQY",
+   "why": "NotApplicable: HQY: day-0 move -11.09% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
+  },
+  {
+   "symbol": "HRL",
+   "why": "NotApplicable: HRL: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "INTU",
+   "why": "NotApplicable: INTU: day-0 move -3.26% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "IREN",
+   "why": "NotApplicable: IREN: 28 sessions since the print on 2026-07-20; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "JKS",
+   "why": "SourceRefusal: JKS: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "JOYY",
+   "why": "SourceRefusal: JOYY: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "KSS",
+   "why": "NotApplicable: KSS: day-0 move +1.54% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "LTRX",
+   "why": "NotApplicable: LTRX: day-0 move +6.08% is UP and LTRX is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
+  },
+  {
+   "symbol": "MBUU",
+   "why": "NotApplicable: MBUU: day-0 move +8.00% is UP and MBUU is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
+  },
+  {
+   "symbol": "MOV",
+   "why": "NotApplicable: MOV: day-0 move -0.16% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "MRVL",
+   "why": "NotApplicable: MRVL: 63 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "MZTI",
+   "why": "NotApplicable: MZTI: day-0 move +1.07% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "NAT",
+   "why": "SourceRefusal: NAT: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "NCNO",
+   "why": "NotApplicable: NCNO: day-0 move +3.41% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "NSSC",
+   "why": "NotApplicable: NSSC: day-0 move -2.94% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "NTNX",
+   "why": "NotApplicable: NTNX: day-0 move +6.54% is UP and NTNX is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
+  },
+  {
+   "symbol": "OKTA",
+   "why": "NotApplicable: OKTA: day-0 move +24.91% is UP and OKTA is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "OOMA",
+   "why": "NotApplicable: OOMA: day-0 move +11.07% is UP and OOMA is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "P",
+   "why": "NotApplicable: P: day-0 move -9.36% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-return d"
+  },
+  {
+   "symbol": "PAHC",
+   "why": "NotApplicable: PAHC: day-0 move +0.62% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "PD",
+   "why": "NotApplicable: PD: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "PDD",
+   "why": "SourceRefusal: PDD: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "PICS",
+   "why": "SourceRefusal: PICS: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "PLAB",
+   "why": "NotApplicable: PLAB: day-0 move +3.16% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "PURR",
+   "why": "NotApplicable: PURR: day-0 move +10.31% is UP and PURR is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "PVH",
+   "why": "NotApplicable: PVH: 58 sessions since the print on 2026-06-04; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "QFIN",
+   "why": "SourceRefusal: QFIN: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "RBRK",
+   "why": "NotApplicable: RBRK: 57 sessions since the print on 2026-06-05; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "REX",
+   "why": "NotApplicable: REX: 63 sessions since the print on 2026-05-28; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "S",
+   "why": "NotApplicable: S: 62 sessions since the print on 2026-05-29; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "SFL",
+   "why": "SourceRefusal: SFL: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "SJM",
+   "why": "NotApplicable: SJM: day-0 move +4.07% is UP and SJM is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries "
+  },
+  {
+   "symbol": "SMTC",
+   "why": "NotApplicable: SMTC: day-0 move +9.53% is UP and SMTC is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
+  },
+  {
+   "symbol": "SNPS",
+   "why": "NotApplicable: SNPS: day-0 move +12.42% is UP and SNPS is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "STRT",
+   "why": "NotApplicable: STRT: day-0 move -10.33% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retu"
+  },
+  {
+   "symbol": "TIGR",
+   "why": "SourceRefusal: TIGR: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "TITN",
+   "why": "NotApplicable: TITN: day-0 move -2.23% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "ULTA",
+   "why": "NotApplicable: ULTA: 59 sessions since the print on 2026-06-03; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "URBN",
+   "why": "NotApplicable: URBN: no SEC 8-K Item 2.02 print in the bar window"
+  },
+  {
+   "symbol": "VEEV",
+   "why": "NotApplicable: VEEV: day-0 move +14.09% is UP and VEEV is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
+  },
+  {
+   "symbol": "VIPS",
+   "why": "SourceRefusal: VIPS: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "WDAY",
+   "why": "NotApplicable: WDAY: 66 sessions since the print on 2026-05-22; the measured drift window is +1..+3 and is spent after 2"
+  },
+  {
+   "symbol": "WSM",
+   "why": "NotApplicable: WSM: day-0 move +1.34% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
+  },
+  {
+   "symbol": "XPEV",
+   "why": "SourceRefusal: XPEV: no 8-K Item 2.02 filings (foreign filer or not covered)"
+  },
+  {
+   "symbol": "ZM",
+   "why": "NotApplicable: ZM: day-0 move -7.39% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-return "
+  }
+ ],
+ "enriched": 0,
+ "collapse_audit": {
+  "n": 1,
+  "old_universe": [
+   "NVDA"
+  ],
+  "share_old_universe": 1.0,
+  "mega": [
+   "NVDA"
+  ],
+  "share_mega": 1.0,
+  "etf_like": [],
+  "by_dv_bucket": {
+   "mega": 1
+  },
+  "control_holdings_in_candidates": [],
+  "verdict": "UNIVERSE_COLLAPSE"
+ },
+ "control_holdings": {
+  "SLDP": "in_universe_no_print",
+  "DKNG": "in_universe_no_print",
+  "HUBS": "in_universe_no_print",
+  "BHVN": "in_universe_no_print",
+  "AMSC": "in_universe_no_print",
+  "KYTX": "in_universe_no_print",
+  "PRCH": "in_universe_no_print",
+  "NTLA": "in_universe_no_print",
+  "ABSI": "in_universe_no_print",
+  "QUBT": "in_universe_no_print",
+  "AARD": "NOT IN UNIVERSE",
+  "SOC": "in_universe_no_print"
+ },
+ "policy": "index membership, fame and a liquid chain add NO score; liquidity decides execution only"
+}

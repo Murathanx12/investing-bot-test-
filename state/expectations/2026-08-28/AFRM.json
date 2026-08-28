@@ -1,0 +1,56 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "AFRM",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:21.512880+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61484022,
+   "source": "benzinga",
+   "created_at": "2026-08-27T22:29:19Z",
+   "headline": "Affirm Holdings Q4 2026 Earnings Call: Complete Transcript",
+   "url": "https://www.benzinga.com/news/26/08/61484022/affirm-holdings-q4-2026-earnings-call-complete-transcript"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "none",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "unknown",
+  "tone": 0.8,
+  "surprise": 0.3,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.7,
+  "key_numbers": [
+   "most profitable quarter ever",
+   "Pay in X growth 41%",
+   "Affirm Card attach rate 19%",
+   "Affirm Card spend 2x",
+   "revenue less transaction cost take rate 4.16% FY27 guide",
+   "GAAP tax rate mid to high 20%"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "Visa",
+   "merchants",
+   "banks",
+   "capital markets partners",
+   "point-of-sale systems"
+  ],
+  "observable_in_3_sessions": "If the bullish reading is right, the stock should hold or rise on continued positive sentiment, with no negative news on credit or guidance.",
+  "falsifier": "A sharp drop in the stock or negative analyst commentary on credit quality or guidance would contradict the bullish reading.",
+  "already_priced_note": "The after-hours move is flat, so the market has not yet priced in the positive tone; the direction_claim is up, which is not yet reflected.",
+  "summary": "Management reported a record profitable quarter and expressed confidence in growth drivers like the Affirm Card, international expansion, and new products. They emphasized control over credit and a long-term network strategy, but provided limited specific forward guidance."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "40283b16315e0f3e",
+  "prompt_tokens": 10881,
+  "completion_tokens": 365,
+  "cost_usd": 0.00334,
+  "latency_s": 5.3,
+  "text_chars": 55048
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

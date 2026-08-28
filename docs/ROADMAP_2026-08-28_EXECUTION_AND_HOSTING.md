@@ -262,3 +262,124 @@ is not already wired. Three events, five sessions, one writer.
    closed. The 09:30 pass is the fill test.
 4. The ledger hash chain break of 25 Aug: still not to be repaired silently.
 5. Bigdata.com credits.
+
+---
+
+## 10. ADDENDUM 01:45 ET — sources, models, and the mega-cap question, measured
+
+### 10.1 The Bigdata.com replacement is already paid for: Alpaca's news feed
+
+Measured on the staging key, `GET /v1beta1/news?include_content=true`:
+
+| name | item | chars | lag after the call |
+|---|---|---|---|
+| MRVL | "Transcript: Marvell Tech Q2 2027 Earnings Conference Call" | 58,149 | ~90 min |
+| ESTC / RBRK | "…Full Earnings Call Transcript" | 61,243 / 53,368 | same night |
+| S / WDAY | guidance bullets ("Lowers FY2027 Adj EPS Guidance from … to …", "Sees Q3 Sales $2.515B vs $2.697B Est") | — | minutes |
+
+Small caps included; it is Benzinga's wire, free on the paper data key. Polygon
+adds Zacks/Motley Fool items with a sentiment tag; Finnhub's free tier gives
+recommendation trends and the earnings calendar but **403s** on price targets
+and upgrades; FMP is **402** (paid) on grades/estimates; SEC full-text search
+403s without a proper User-Agent and is not needed for this.
+
+**`scripts/transcript_digest.py` (TRANSCRIPT_DIGEST_v1)** reads the transcript
+or the guidance bullets, asks DeepSeek for DECLARED fields (guide vs prior,
+headline vs estimates, tone, direction claim, expected move, key numbers with
+comparators, supplier/bottleneck mentions, what is observable in 3 sessions,
+a falsifier, and a forced comparison with the after-hours move), and writes
+`state/expectations/<date>/<SYM>.json` with sources, model, prompt hash and
+cost. First run, nine printers, **9 calls / 65k prompt tokens / ~$0.02**:
+
+| sym | AH move | text | guide | dir | move | conf |
+|---|---|---|---|---|---|---|
+| MRVL | −0.96% | transcript | raised | up | 10% | 0.90 |
+| **S** | **−6.17%** | headlines | **lowered** | **down** | 6% | 0.70 |
+| **WDAY** | n/a on feed | headlines | **lowered** (FY27 sales $10.64B→$9.94B) | **down** | 15% | 0.70 |
+| ESTC / RBRK / ADSK / ULTA / GAP | n/a / +11.6% (GAP) | transcript | raised | up | 5% | 0.7–0.8 |
+| AFRM | n/a | transcript | none | up | 5% | 0.70 |
+
+It is expectation data. It places nothing. Its job is to let a human state a
+thesis with a falsifier before the open instead of from a headline.
+
+### 10.2 The NVIDIA key and the Hugging Face token — what they actually reach
+
+- **NVIDIA Build (`NVIDIA_API_KEY`, Aegis `.env`)** is live: `/v1/models` lists
+  ~40 models including `deepseek-ai/deepseek-v4-pro-0813`, `-v4-flash-0731`,
+  `moonshotai/kimi-k3`, `google/gemma-4-31b-it`, `minimaxai/minimax-m3`.
+  `kimi-k3` answered in **2.3 s**; the two DeepSeek-V4 models **timed out at
+  90 s** (queued free tier). Several names from the doc (`llama-3.3-70b`,
+  `nemotron-ultra`) are **410/404 — gone**.
+- **HF Inference Providers (`HF_TOKEN`)**: live, account is free/prepaid
+  (`canPay: false`). `deepseek-ai/DeepSeek-V4-Flash` answered in **1.5 s**;
+  `openai/gpt-oss-20b` is 403 (provider not enabled); `Qwen3.6-35B-A3B`
+  returned an empty choice.
+- **The HF *model* the project runs is FinBERT** (`ProsusAI/finbert`, local
+  transformers, CPU) inside `backend/services/sentiment_analyzer.py` — headline
+  sentiment for the website, keyword fallback if it fails to load. It has no
+  role in the competition engine.
+- `backend/services/model_provider.py` already wraps all three behind ONE
+  OpenAI-compatible contract; its `status()` reads `absent` unless
+  `backend.config` has loaded `.env` first — a probe artefact, not a bug.
+
+**So the NVIDIA key helps as a second, cheaper/faster reader** for the digest
+(kimi-k3 at 2 s vs DeepSeek's 4 s and a different training set — a genuinely
+independent second opinion on the same transcript, which is what
+`DISAGREEMENT` needs). It is not a data source, and none of these models gets
+trading authority. `--provider nvidia` is the next flag on the digest.
+
+### 10.3 The mega-cap fixation is structural, and here is the number
+
+`scripts.candidates --sessions 3` over the 4,634-name universe:
+
+    CANDIDATES (1) -- post_event_drift; 75 printers declined
+    UNIVERSE AUDIT: UNIVERSE_COLLAPSE  old-universe share 100%, mega share 100%
+
+One name — NVDA. The only brain with authority is two-sided on eleven
+mega-caps because that is where it was measured; outside them an UP print has
+no edge (2,532 names) and a DOWN print is only paid as a **pair** (short the
+loser / long IWM: +0.35% / +0.26% per 3 sessions, t 2.2 / 2.0 in simple
+returns; the unhedged short is +0.04%, nothing). The engine has no pair
+structure, so the wide DOWN side is refused by design. That is the whole reason
+the book keeps ending up in mega-caps: not preference, absence of an
+instrument.
+
+**Two routes out, ranked:**
+
+1. **Now (no code on the write path):** the digest → `scripts.thesis` →
+   engine. A human thesis "S down 6% over 3 sessions, falsifier: closes above
+   the pre-print close" enters the runner under the same claim matrix and
+   enumerates `short_shares` / bear put spread; the sizer, the −3% latch and
+   the node cap still bind. S and WDAY are the day-one candidates, and both
+   are outside the eleven.
+2. **After day one (touches the write path — not at 01:45 ET before a live
+   open):** `PAIR_SHORT_VS_IWM` as a first-class structure. Touchpoints, so the
+   next session does not rediscover them: `alpha/engine/equity.py` (new kind,
+   two legs, stress charge on the spread not the leg), `runner.build_order`
+   (two equity orders per structure, one decision id, legs recorded),
+   `alpha/book.py` (reconstruct a pair from two `us_equity` positions),
+   `alpha/exits.py` (close both legs, never one), `post_event_drift`
+   (`WIDE_UNHEDGED_SHORT_ENABLED` stays False; a new `WIDE_PAIR_ENABLED`
+   quotes `WIDE_HEDGED_IWM_SIMPLE`), and tests in `tests_smoke_equity` /
+   `tests_smoke_pead` / `tests_smoke_book`.
+
+### 10.4 The investing strategy, in one paragraph, for the week and after
+
+For the five sessions: **beta is the floor, not the plan** — SPY/QQQ/IWM shares
+entered MOC with a call-debit sleeve to satisfy the options requirement, sized
+by the tournament mode. On top of it, every dollar of max-loss budget is
+auctioned to **dated, non-consensus, falsifiable** opportunities: the
+post-print drift where it is measured (mega-11, +1 open, now reachable), the
+**wide-universe DOWN prints as pairs** once the structure exists, and **human
+theses stated before their catalyst** with a falsifier — fed by the firm's own
+words (the digest) rather than by headlines. Rank on the median in BASE, on EV
+in ATTACK. Direction disagreement → shares or debit spread; magnitude
+disagreement → premium; never a sign-blind structure for a directional view.
+
+After the week, the same machine is the research programme's front end: the
+digest packets are the first non-price, non-mega-cap information source the
+project has had that arrives *before* the drift window opens, and grading
+`direction_claim` against realised 3-session moves over a few hundred prints
+is a real, cheap, cross-sectional test of whether management's words carry
+information the price has not yet absorbed — on the whole market, not eleven
+names.

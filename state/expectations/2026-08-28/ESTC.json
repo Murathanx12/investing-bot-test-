@@ -1,0 +1,57 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "ESTC",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:05.101166+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61483965,
+   "source": "benzinga",
+   "created_at": "2026-08-27T22:20:46Z",
+   "headline": "Elastic Reports Q1 2027 Results: Full Earnings Call Transcript",
+   "url": "https://www.benzinga.com/news/26/08/61483965/elastic-reports-q1-2027-results-full-earnings-call-transcript"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "unknown",
+  "tone": 0.8,
+  "surprise": 0.4,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.7,
+  "key_numbers": [
+   "Q1 total revenue $478M, +15% y/y",
+   "Q1 sales-led subscription revenue $399M, +18% y/y",
+   "CRPO $1.2B, +21% y/y",
+   "RPO $1.9B, +27% y/y",
+   "FY27 total revenue guide $1.998-2.010B, +15.2% at midpoint",
+   "FY27 non-GAAP operating margin ~19.4%"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "Nvidia",
+   "Dell",
+   "Google Distributed Cloud",
+   "CISA",
+   "Deductive AI (acquired)",
+   "Jina"
+  ],
+  "observable_in_3_sessions": "If the bullish reading is right, the stock should hold or gain as investors digest the raised guidance and strong customer metrics.",
+  "falsifier": "A sharp reversal in the stock price or negative analyst commentary within three sessions would contradict the bullish direction.",
+  "already_priced_note": "The after-hours move is flat (+0.00%), so the market has not yet moved; the direction_claim is up, implying the market may move up in the coming sessions.",
+  "summary": "Management reported strong Q1 results with revenue acceleration and raised full-year guidance, citing robust demand across AI, security, and observability. They expressed confidence in continued acceleration and margin expansion, though they acknowledged early stage of the year and some variability in cloud consumption."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "08f43a3d46af2b5e",
+  "prompt_tokens": 10373,
+  "completion_tokens": 418,
+  "cost_usd": 0.00326,
+  "latency_s": 4.8,
+  "text_chars": 61243
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

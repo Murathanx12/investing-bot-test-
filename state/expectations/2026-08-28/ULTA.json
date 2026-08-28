@@ -1,0 +1,91 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "ULTA",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:46.467137+00:00",
+ "text_kind": "headlines",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61481305,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:22:26Z",
+   "headline": "Ulta Beauty Raises FY 2026 Buyback Plan From $1.5B To $1.8B",
+   "url": "https://www.benzinga.com/quote/ULTA"
+  },
+  {
+   "id": 61480222,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:06:14Z",
+   "headline": "Ulta Beauty Raises FY2026 GAAP EPS Guidance from $28.36-$28.80 to $28.70-$29.00 vs $28.94 Est; Raises FY2026 Sales Guidance from $13.136B-$13.260B to $13.223B-$13.285B vs $13.209B Est",
+   "url": "https://www.benzinga.com/news/26/08/61480222/ulta-beauty-raises-fy2026-gaap-eps-guidance-28-36-28-80-28-70-29-00-vs-28-94-est-raises-fy2026-sales"
+  },
+  {
+   "id": 61480159,
+   "source": "benzinga",
+   "created_at": "2026-08-27T20:05:35Z",
+   "headline": "Ulta Beauty Q2 EPS $6.55 Beats $6.16 Estimate, Sales $3.036B Beat $2.955B Estimate",
+   "url": "https://www.benzinga.com/news/earnings/26/08/61480159/ulta-beauty-q2-eps-6-55-beats-6-16-estimate-sales-3-036b-beat-2-955b-estimate"
+  },
+  {
+   "id": 61454942,
+   "source": "benzinga",
+   "created_at": "2026-08-27T12:59:57Z",
+   "headline": "Stock Market Today: S&P 500, Nasdaq 100 Futures Gain Following NVDA Blockbuster Q2 Report\u2014 CRM, CRWD, HPQ in Focus (UPDATED)",
+   "url": "https://www.benzinga.com/markets/equities/26/08/61454942/stock-market-today-sp-500-nasdaq-100-futures-gain-while-dow-slips-following-nvda-blockbuster-q2-report-crm-crwd-hpq-in-focus"
+  },
+  {
+   "id": 61456974,
+   "source": "benzinga",
+   "created_at": "2026-08-27T11:13:23Z",
+   "headline": "Ulta Beauty Has Topped EPS Estimates for Four Straight Quarters \u2014 What About Thursday?",
+   "url": "https://www.benzinga.com/trading-ideas/movers/26/08/61456974/ulta-beauty-has-topped-eps-estimates-for-four-straight-quarters-what-about-thursday"
+  },
+  {
+   "id": 61445949,
+   "source": "benzinga",
+   "created_at": "2026-08-26T19:30:15Z",
+   "headline": "Marvell Technology Could Swing $20.8 Billion After Earnings",
+   "url": "https://www.benzinga.com/markets/options/26/08/61445949/marvell-technology-could-swing-20-8-billion-after-earnings"
+  },
+  {
+   "id": 61415918,
+   "source": "benzinga",
+   "created_at": "2026-08-25T16:44:01Z",
+   "headline": "Deutsche Bank Maintains Buy on Ulta Beauty, Raises Price Target to $695",
+   "url": "https://www.benzinga.com/news/26/08/61415918/deutsche-bank-maintains-buy-ulta-beauty-raises-price-target-695"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "above",
+  "headline_vs_estimates": "beat",
+  "tone": 0.8,
+  "surprise": 0.6,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.7,
+  "key_numbers": [
+   "FY26 EPS guide raised to $28.70-$29.00 from $28.36-$28.80",
+   "FY26 sales guide raised to $13.223B-$13.285B from $13.136B-$13.260B",
+   "Q2 EPS $6.55 vs $6.16 estimate",
+   "Q2 sales $3.036B vs $2.955B estimate",
+   "FY26 buyback raised from $1.5B to $1.8B"
+  ],
+  "bottleneck_or_supplier_mentions": [],
+  "observable_in_3_sessions": "If the bullish reading is right, ULTA shares should hold gains or drift higher over the next three sessions, with no negative follow-through from the earnings reaction.",
+  "falsifier": "A sharp reversal lower in ULTA shares within three sessions, or any negative pre-announcement or analyst downgrade, would contradict the bullish direction claim.",
+  "already_priced_note": "The after-hours move is +0.00%, which does not reflect the positive guidance; the market has not yet moved, so the direction claim is not yet priced in.",
+  "summary": "Ulta Beauty reported a strong Q2 beat and raised its full-year EPS and sales guidance, also increasing its buyback plan. The company appears confident in its outlook, though the headlines do not provide details on management's commentary or any risks."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "a0c5fc8e3be26869",
+  "prompt_tokens": 1330,
+  "completion_tokens": 399,
+  "cost_usd": 0.0008,
+  "latency_s": 4.1,
+  "text_chars": 2679
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}

@@ -1,0 +1,56 @@
+{
+ "schema": "TRANSCRIPT_DIGEST_v1",
+ "symbol": "RBRK",
+ "date": "2026-08-28",
+ "observed_at_utc": "2026-08-28T05:16:13.460386+00:00",
+ "text_kind": "transcript",
+ "after_hours_move": 0.0,
+ "sources": [
+  {
+   "id": 61483853,
+   "source": "benzinga",
+   "created_at": "2026-08-27T22:09:07Z",
+   "headline": "Rubrik Reports Q2 2027 Results: Full Earnings Call Transcript",
+   "url": "https://www.benzinga.com/news/26/08/61483853/rubrik-reports-q2-2027-results-full-earnings-call-transcript"
+  }
+ ],
+ "fields": {
+  "guide_vs_prior": "raised",
+  "guide_vs_street_hint": "unknown",
+  "headline_vs_estimates": "unknown",
+  "tone": 0.8,
+  "surprise": 0.6,
+  "direction_claim": "up",
+  "expected_move": 0.05,
+  "confidence": 0.8,
+  "key_numbers": [
+   "subscription ARR $1.66B, +33% YoY",
+   "net new subscription ARR $96M, +35% YoY",
+   "subscription revenue $407.2M, +37% YoY",
+   "subscription NRR >119%",
+   "customers with $100K+ ARR 3,084, +23% YoY",
+   "FY27 subscription ARR guide $1.88-1.885B, +29% YoY"
+  ],
+  "bottleneck_or_supplier_mentions": [
+   "hardware costs/supply constraints (no material impact)",
+   "Strata Identity acquisition (zero ARR contribution)",
+   "Okta and Microsoft Entra ID (federation)",
+   "Anthropic (Project Glasswing)",
+   "Hugging Face (incident)"
+  ],
+  "observable_in_3_sessions": "If the bullish reading is right, the stock should hold or gain as investors digest the raised guidance and strong ARR growth, with no negative revisions from sell-side analysts.",
+  "falsifier": "A sharp decline in the stock despite the positive results, or management commentary indicating a slowdown in net new ARR or pipeline weakness.",
+  "already_priced_note": "The after-hours move is +0.00%, which is neutral; the direction_claim is 'up', so the market has not yet moved in that direction, suggesting the positive news may not be fully priced in.",
+  "summary": "Management reported strong Q2 FY27 results, beating all guided metrics, with subscription ARR up 33% YoY and net new ARR accelerating 35% YoY, and raised full-year guidance. They emphasized the growing need for agentic cyber resilience due to AI-driven threats, and highlighted momentum in Identity Resilience and Rubrik Agent Cloud, though RAC is still early with minimal ARR contribution."
+ },
+ "llm": {
+  "model": "deepseek-chat",
+  "prompt_hash": "c8760975ba7b0e5d",
+  "prompt_tokens": 10390,
+  "completion_tokens": 496,
+  "cost_usd": 0.00335,
+  "latency_s": 5.6,
+  "text_chars": 53368
+ },
+ "note": "expectation data, not a forecast: what management SAID, read by a model. Compare with what the market priced before stating a thesis."
+}
