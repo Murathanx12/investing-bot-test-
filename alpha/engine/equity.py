@@ -63,6 +63,20 @@ logger = logging.getLogger(__name__)
 
 #: Exit stop on the position as a fraction of entry spot. `exits.py` enforces it.
 STOP_FRACTION = 0.03
+#: Per-PROFILE stop width (28 Aug, first live session): the fleet's basket
+#: and convex books hold 100%-vol names, where 3% is ~0.5 of one daily sigma.
+#: Nine names stopped at exactly -3.0% within eleven minutes of a Fed speech,
+#: -$6.9k realised on each of two books, while the index moved 0.1%. A stop
+#: inside the noise is a fee, not a stop. Width is ~1.3 daily sigma for the
+#: high-vol profiles; the SAFE profiles keep 3%.
+STOP_FRACTION_BY_PROFILE = {"conservative": 0.03, "aggressive": 0.03, "maximum": 0.06, "basket": 0.08, "convex": 0.08}
+
+
+def stop_fraction(profile: str | None = None) -> float:
+    """The stop width for this book's declared profile (AAT_RISK_PROFILE)."""
+    import os
+    key = (profile or os.getenv("AAT_RISK_PROFILE", "")).strip().lower()
+    return STOP_FRACTION_BY_PROFILE.get(key, STOP_FRACTION)
 #: Floor on the gap allowance when the name's own history says less.
 GAP_FLOOR = 0.02
 #: Default gap allowance when no bars are available to measure one.

@@ -50,7 +50,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
@@ -88,6 +88,23 @@ def is_ours(order: dict[str, Any]) -> bool:
 def _live(order: dict[str, Any]) -> bool:
     status = str(order.get("status") or "").lower()
     return status in _LIVE_STATES or status == ""
+
+
+def stopped_today(client: AlpacaPaper, *, now: datetime | None = None) -> set[str]:
+    """Symbols whose PROTECTIVE STOP filled during today's session (ET).
+
+    28 Aug: nine basket names stopped at 10:01-10:12 ET; the 10:30 entry pass
+    would have re-bought every one of them (still 'near high' by the brain's
+    rule) and re-stopped them at 11:00. `held_underlyings` is blind to a
+    position that no longer exists, so this reads the venue's CLOSED orders.
+    """
+    now = now or datetime.now(timezone.utc)
+    day_start_et = (now - timedelta(hours=4)).strftime("%Y-%m-%dT00:00:00-04:00")
+    out: set[str] = set()
+    for order in client._request("GET", "/v2/orders", params={"status": "closed", "after": day_start_et, "limit": 500}) or []:
+        if is_ours(order) and order.get("status") == "filled":
+            out.add(str(order.get("symbol") or ""))
+    return {s for s in out if s}
 
 
 def open_stops(client: AlpacaPaper) -> dict[str, list[dict[str, Any]]]:
@@ -190,7 +207,7 @@ def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
     """
     if stop_fraction is None:
         from alpha.engine import equity as _equity
-        stop_fraction = _equity.STOP_FRACTION
+        stop_fraction = _equity.stop_fraction()
 
     positions = positions if positions is not None else client.positions()
     existing = open_stops(client)

@@ -176,6 +176,7 @@ REFUSAL_CLASSES = (
     "execution",          # no tradeable structure at an acceptable price
     "risk",               # admission, event-node cap, latch, unbounded book
     "already_held",       # a position or a resting order exists for this symbol
+    "stopped_today",      # a protective stop closed this symbol earlier in the session
     "capital",            # approved size does not buy one unit
     "insufficient_data",  # the inputs to decide were not there
     "cash",               # a structure cleared and CASH still beat it on EV
@@ -858,7 +859,25 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     today = datetime.now(timezone.utc).date().isoformat()
     reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
     reserve_total = sum(reserve_for.values())
+    from alpha import protect as _protect
+    try:
+        stopped = _protect.stopped_today(client)
+    except Exception as exc:                                            # noqa: BLE001
+        stopped = set()
+        logger.warning("stopped_today unreadable (%s); re-entry guard is OFF this pass", exc)
     for symbol, group in by_symbol.items():
+        if symbol in stopped and symbol not in held:
+            # A stop that fired is the book's most recent OPINION on this name;
+            # re-buying it thirty minutes later at the same rule is churn with
+            # a fee. 28 Aug: nine names stopped within eleven minutes, and the
+            # next pass would have re-bought all nine. Tomorrow is a new day.
+            for forecast in group:
+                result.considered += 1
+                result.refuse("stopped_today")
+                _record(ledger.new_decision_id(forecast.symbol, forecast.brain), forecast, None, None, None, state,
+                        action="refused", reason=f"{symbol}: a protective stop closed this name earlier today; "
+                                                 "no same-session re-entry -- tomorrow is a new decision")
+            continue
         if symbol in held:
             # ONE POSITION PER SYMBOL is a property of the BOOK, not of a pass.
             # Without this the loop re-buys the same straddle every thirty

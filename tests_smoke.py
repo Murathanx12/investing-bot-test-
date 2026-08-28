@@ -75,10 +75,16 @@ cap = riskprofile()["aggregate"]
 check("aggregate cap binds", not size(s,0.06,0.05,st_early,open_convex_risk=cap).approved, f"cap={cap:.0%}")
 from alpha.engine.sizing import PROFILES
 check("profiles escalate", PROFILES["maximum"]["per_thesis"] > riskprofile("aggressive")["per_thesis"] > riskprofile("conservative")["per_thesis"])
-try:
-    riskprofile("maximum"); check("maximum profile refused before kickoff", False)
-except ValueError as exc:
-    check("maximum profile refused before kickoff", "kickoff" in str(exc))
+from alpha.engine.sizing import maximum_allowed
+if maximum_allowed():
+    # kickoff has passed (28 Aug 11:00 ET): the gate is OPEN by date, and the
+    # test says so instead of asserting a pre-kickoff world forever.
+    check("maximum profile allowed after kickoff", riskprofile("maximum")["aggregate"] == 0.75)
+else:
+    try:
+        riskprofile("maximum"); check("maximum profile refused before kickoff", False)
+    except ValueError as exc:
+        check("maximum profile refused before kickoff", "kickoff" in str(exc))
 os.environ["AAT_ALLOW_MAXIMUM"] = "1"
 check("maximum profile allowed with explicit override", riskprofile("maximum")["aggregate"] == 0.75)
 del os.environ["AAT_ALLOW_MAXIMUM"]

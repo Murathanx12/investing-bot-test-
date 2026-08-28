@@ -199,3 +199,25 @@ check("human theses are direction brains", sentinels.is_direction_brain("human:m
 
 print(f"\n{'ALL PASS' if not fails else f'{fails} FAIL'}")
 sys.exit(1 if fails else 0)
+
+
+# ---- 28 Aug live lesson: twelve tickers, one bet, one stop ---------------------
+from alpha.engine import equity as _eq, sizing as _sz
+from alpha import protect as _pt, runner as _rn
+check("basket stop is ~1.3 daily sigma of a 100%-vol name, not 0.5", _eq.stop_fraction("basket") == 0.08)
+check("safe profiles keep the 3% stop", _eq.stop_fraction("conservative") == 0.03 and _eq.stop_fraction("aggressive") == 0.03)
+check("unknown profile falls back to the declared default", _eq.stop_fraction("nonsense") == _eq.STOP_FRACTION)
+check("basket authority is ONE bet's size spread wide (12 x 3% = 36%)",
+      _sz.PROFILES["basket"]["per_thesis"] == 0.03 and _sz.PROFILES["basket"]["aggregate"] == 0.36)
+check("stopped_today is a refusal class", "stopped_today" in _rn.REFUSAL_CLASSES)
+
+
+class _StopClient:
+    def _request(self, m, path, **kw):
+        assert kw["params"]["status"] == "closed" and "after" in kw["params"]
+        return [{"symbol": "UEC", "status": "filled", "client_order_id": "aat-stop-abc"},
+                {"symbol": "NVDA", "status": "filled", "client_order_id": "entry-xyz"},
+                {"symbol": "SMR", "status": "canceled", "client_order_id": "aat-stop-def"}]
+
+
+check("stopped_today = protective stops that FILLED today, nothing else", _pt.stopped_today(_StopClient()) == {"UEC"})

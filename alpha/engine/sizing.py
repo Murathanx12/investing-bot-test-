@@ -202,7 +202,10 @@ PROFILES = {
     # was measured as a negative-return decision (k=5 0.09x -> k=100 0.73x on
     # CRSP) and a prior has no edge to scale by (cap 1.0). `convex` is long
     # premium only: 5% per name of premium at risk, 40% aggregate.
-    "basket":       {"per_thesis": 0.06, "aggregate": 0.80, "edge_scale_cap": 1.0},
+    # 28 Aug live: 12 basket names moved as ONE bet (nine stopped inside eleven
+    # minutes). A prior that behaves like one bet gets one bet's authority:
+    # 12 x 3% = 36%, worst case at the 8% basket stop ~ -2.9%, not -7.8%.
+    "basket":       {"per_thesis": 0.03, "aggregate": 0.36, "edge_scale_cap": 1.0},
     "convex":       {"per_thesis": 0.05, "aggregate": 0.40, "edge_scale_cap": 2.0},
 }
 
