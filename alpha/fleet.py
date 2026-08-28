@@ -93,7 +93,7 @@ FLEET: dict[str, Mandate] = {
         role="hack6", tier="RISKY", label="BLEND: council vector + drift + basket",
         question="Does MIXING three independent selectors (council vector, post-print drift, theme basket) in one aggressive book beat each of them alone? (Murat: 'the best will be mixing them')",
         brains=("council_vector", "post_event_drift", "theme_basket"), profile="aggressive", universe="window_plus_themes",
-        rank_objective="median", extra_args=("--window-universe",),
+        rank_objective="median", extra_args=("--window-universe", "--council"),
         caveat="The council is fed by `scripts.dislocation_scan --deep` each morning; a day with no packets is a day this account holds cash, and that is recorded, not hidden."),
 }
 
