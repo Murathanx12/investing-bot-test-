@@ -55,6 +55,47 @@ def check(role: str) -> dict:
             "options_level": acct.get("options_approved_level"), "trading_blocked": acct.get("trading_blocked")}
 
 
+def deploy(role: str, *, up: bool) -> None:
+    """Create/refresh the Railway service for a role. Secrets come from the
+    process environment (config.load_env), never from the command line echo."""
+    import shutil
+    import subprocess
+    railway = shutil.which("railway") or shutil.which("railway.exe") or shutil.which("railway.cmd")
+    if not railway:
+        raise SystemExit("railway CLI not on PATH")
+    m = fleet.FLEET[role]
+    svc = f"aat-loop-{role}"
+    env = fleet.env_for(m)
+    pre = f"AAT_{role.upper()}"
+    for k in (f"{pre}_KEY_ID", f"{pre}_SECRET_KEY", *fleet.SECRETS, "AAT_FEATHERLESS_API_KEY"):
+        v = os.getenv(k, "")
+        if v:
+            env[k] = v
+    if not env.get(f"{pre}_KEY_ID"):
+        print(f"{role}: no {pre}_KEY_ID in the environment; not deploying")
+        return
+
+    def run(*cmd, ok_fail=False):
+        r = subprocess.run([railway, *cmd], capture_output=True, text=True)
+        line = (r.stdout + r.stderr).strip().splitlines()
+        print(f"  $ railway {' '.join(c if not c.startswith('AAT_') else c.split('=')[0] + '=...' for c in cmd)[:110]}"
+              + (f"  -> {line[-1][:100]}" if line else ""))
+        if r.returncode and not ok_fail:
+            raise SystemExit(f"railway {cmd[0]} failed for {role}")
+        return r
+
+    print(f"[{role}] {m.label}")
+    run("add", "--service", svc, ok_fail=True)          # exists -> non-zero, fine
+    run("service", svc)
+    run("volume", "add", "-m", "/app/state", ok_fail=True)
+    sets = []
+    for k, v in env.items():
+        sets += ["--set", f"{k}={v}"]
+    run("variables", "--service", svc, "--skip-deploys", *sets)
+    if up:
+        run("up", "--service", svc, "-d")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--plan", action="store_true")
@@ -63,6 +104,8 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--check-all", action="store_true")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--deploy", default=None, help="role or 'all': create the Railway service, volume and variables (keys read from .env)")
+    ap.add_argument("--up", action="store_true", help="with --deploy: also `railway up -d` (starts the LIVE loop)")
     args = ap.parse_args()
     if args.plan:
         plan()
@@ -74,6 +117,11 @@ def main() -> int:
             print(f"# ---- {r} ({fleet.FLEET[r].tier}) ----")
             print(fleet.railway_commands(fleet.FLEET[r]))
             print()
+    if args.deploy:
+        config.load_env()
+        roles = list(fleet.FLEET) if args.deploy == "all" else [args.deploy]
+        for r in roles:
+            deploy(r, up=args.up)
     if args.check or args.check_all:
         config.load_env()
         roles = list(fleet.FLEET) if args.check_all else [config.role()]
@@ -90,7 +138,7 @@ def main() -> int:
                 print(json.dumps(row))
         bad = [r for r in rows if r["state"] == "ERROR"]
         return 1 if bad else 0
-    if not any([args.plan, args.env_template, args.railway, args.check, args.check_all]):
+    if not any([args.plan, args.env_template, args.railway, args.check, args.check_all, args.deploy]):
         ap.print_help()
     return 0
 
