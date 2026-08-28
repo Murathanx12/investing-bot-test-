@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-08-28T05:13:15.882222+00:00",
+ "generated_utc": "2026-08-28T07:01:17.136232+00:00",
  "universe": "HIGH_DISPERSION_US_v1",
  "universe_n": 4634,
  "printers_on_calendar": 200,
@@ -18,9 +18,9 @@
    "event_day": "2026-08-27",
    "dv_bucket": "mega",
    "median_dollar_volume": 26838186207.0,
-   "market_cap_usd": null,
-   "cap_bucket": null,
-   "industry": null,
+   "market_cap_usd": 5517116096366.84,
+   "cap_bucket": "mega",
+   "industry": "Semiconductors",
    "shortable_etb": true,
    "old_universe": true,
    "control_holding": false,
@@ -31,6 +31,258 @@
     "eps_estimate": 2.1384,
     "revenue_actual": 96221000000,
     "revenue_estimate": 94008645045
+   }
+  },
+  {
+   "symbol": "BURL",
+   "centre": -0.00346,
+   "sd": 0.0673,
+   "conviction": 0.6,
+   "score": 0.0308,
+   "direction": "DOWN",
+   "r_day0": -0.0801,
+   "band": "WIDE universe, DOWN, 5-8.2% band, PAIR short loser / long IWM, simple returns (t 1.87; hedged vs IWM t 3.95; n=25856 legs)",
+   "elapsed": 0,
+   "event_day": "2026-08-27",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 227231034.0,
+   "market_cap_usd": 18253239559.95414,
+   "cap_bucket": "large",
+   "industry": "Retail",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-27",
+    "hour": "bmo",
+    "eps_actual": 2.96,
+    "eps_estimate": 2.2248,
+    "revenue_actual": 2997778000,
+    "revenue_estimate": 3080134575
+   }
+  },
+  {
+   "symbol": "ZM",
+   "centre": -0.00231,
+   "sd": 0.05495,
+   "conviction": 0.6,
+   "score": 0.0252,
+   "direction": "DOWN",
+   "r_day0": -0.0739,
+   "band": "WIDE universe, DOWN, 5-8.2% band, PAIR short loser / long IWM, simple returns (t 1.87; hedged vs IWM t 3.95; n=25856 legs)",
+   "elapsed": 1,
+   "event_day": "2026-08-26",
+   "dv_bucket": "large",
+   "median_dollar_volume": 318796452.0,
+   "market_cap_usd": 27071200000.0,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-25",
+    "hour": "amc",
+    "eps_actual": 1.55,
+    "eps_estimate": 1.5213,
+    "revenue_actual": 1277217000,
+    "revenue_estimate": 1306903057
+   }
+  },
+  {
+   "symbol": "BBW",
+   "centre": -0.00259,
+   "sd": 0.078,
+   "conviction": 0.6,
+   "score": 0.0199,
+   "direction": "DOWN",
+   "r_day0": -0.3206,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 0,
+   "event_day": "2026-08-27",
+   "dv_bucket": "small",
+   "median_dollar_volume": 12415313.0,
+   "market_cap_usd": 356564869.2460358,
+   "cap_bucket": "small",
+   "industry": "Retail",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-27",
+    "hour": "bmo",
+    "eps_actual": 0.7,
+    "eps_estimate": 0.6843,
+    "revenue_actual": 115291000,
+    "revenue_estimate": 121698687
+   }
+  },
+  {
+   "symbol": "HQY",
+   "centre": -0.00259,
+   "sd": 0.078,
+   "conviction": 0.6,
+   "score": 0.0199,
+   "direction": "DOWN",
+   "r_day0": -0.1109,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 0,
+   "event_day": "2026-08-27",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 71130919.0,
+   "market_cap_usd": 7807605360.896091,
+   "cap_bucket": "mid",
+   "industry": "Health Care",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-27",
+    "hour": "bmo",
+    "eps_actual": 1.24,
+    "eps_estimate": 1.2048,
+    "revenue_actual": 350732000,
+    "revenue_estimate": 352740772
+   }
+  },
+  {
+   "symbol": "P",
+   "centre": -0.00259,
+   "sd": 0.078,
+   "conviction": 0.6,
+   "score": 0.0199,
+   "direction": "DOWN",
+   "r_day0": -0.0936,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 0,
+   "event_day": "2026-08-27",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 211289288.0,
+   "market_cap_usd": 32987866484.359226,
+   "cap_bucket": "large",
+   "industry": "Technology",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-26",
+    "hour": "amc",
+    "eps_actual": 0.7,
+    "eps_estimate": 0.5897,
+    "revenue_actual": 1185898000,
+    "revenue_estimate": 1120411564
+   }
+  },
+  {
+   "symbol": "DY",
+   "centre": -0.00173,
+   "sd": 0.06369,
+   "conviction": 0.6,
+   "score": 0.0163,
+   "direction": "DOWN",
+   "r_day0": -0.1232,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 1,
+   "event_day": "2026-08-26",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 194048865.0,
+   "market_cap_usd": 9249988869.592262,
+   "cap_bucket": "mid",
+   "industry": "Construction",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-26",
+    "hour": "bmo",
+    "eps_actual": 5.29,
+    "eps_estimate": 4.8574,
+    "revenue_actual": 2005907000,
+    "revenue_estimate": 2039977830
+   }
+  },
+  {
+   "symbol": "STRT",
+   "centre": -0.00173,
+   "sd": 0.06369,
+   "conviction": 0.6,
+   "score": 0.0163,
+   "direction": "DOWN",
+   "r_day0": -0.1033,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 1,
+   "event_day": "2026-08-26",
+   "dv_bucket": "micro",
+   "median_dollar_volume": 6763307.0,
+   "market_cap_usd": 293727767.9534084,
+   "cap_bucket": "micro",
+   "industry": "Auto Components",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-25",
+    "hour": "amc",
+    "eps_actual": null,
+    "eps_estimate": 1.3158,
+    "revenue_actual": null,
+    "revenue_estimate": 149702850
+   }
+  },
+  {
+   "symbol": "CTRN",
+   "centre": -0.00115,
+   "sd": 0.03886,
+   "conviction": 0.42,
+   "score": 0.0125,
+   "direction": "DOWN",
+   "r_day0": -0.0736,
+   "band": "WIDE universe, DOWN, 5-8.2% band, PAIR short loser / long IWM, simple returns (t 1.87; hedged vs IWM t 3.95; n=25856 legs)",
+   "elapsed": 2,
+   "event_day": "2026-08-25",
+   "dv_bucket": "micro",
+   "median_dollar_volume": 8873312.0,
+   "market_cap_usd": 572010586.3039515,
+   "cap_bucket": "small",
+   "industry": "Retail",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-25",
+    "hour": "bmo",
+    "eps_actual": 0.04,
+    "eps_estimate": -0.3519,
+    "revenue_actual": 211632000,
+    "revenue_estimate": 219290820
+   }
+  },
+  {
+   "symbol": "DKS",
+   "centre": -0.00086,
+   "sd": 0.04503,
+   "conviction": 0.42,
+   "score": 0.0081,
+   "direction": "DOWN",
+   "r_day0": -0.3679,
+   "band": "WIDE universe, DOWN, >8.2% band, PAIR short loser / long IWM, simple returns (t 2.51; hedged vs IWM t 4.49; n=25856 legs)",
+   "elapsed": 2,
+   "event_day": "2026-08-25",
+   "dv_bucket": "mid",
+   "median_dollar_volume": 269302270.0,
+   "market_cap_usd": 11793798474.480799,
+   "cap_bucket": "large",
+   "industry": "Retail",
+   "shortable_etb": true,
+   "old_universe": false,
+   "control_holding": false,
+   "calendar": {
+    "date": "2026-08-25",
+    "hour": "bmo",
+    "eps_actual": 3.53,
+    "eps_estimate": 3.801,
+    "revenue_actual": 5586815000,
+    "revenue_estimate": 5704245043
    }
   }
  ],
@@ -56,10 +308,6 @@
    "why": "NotApplicable: ANF: day-0 move +30.46% is UP and ANF is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carries"
   },
   {
-   "symbol": "BBW",
-   "why": "NotApplicable: BBW: day-0 move -32.06% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
-  },
-  {
    "symbol": "BBWI",
    "why": "NotApplicable: BBWI: day-0 move +7.24% is UP and BBWI is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carrie"
   },
@@ -74,10 +322,6 @@
   {
    "symbol": "BOX",
    "why": "NotApplicable: BOX: day-0 move +1.33% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
-  },
-  {
-   "symbol": "BURL",
-   "why": "NotApplicable: BURL: day-0 move -8.01% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-retur"
   },
   {
    "symbol": "BZ",
@@ -100,20 +344,12 @@
    "why": "SourceRefusal: CSIQ: no 8-K Item 2.02 filings (foreign filer or not covered)"
   },
   {
-   "symbol": "CTRN",
-   "why": "NotApplicable: CTRN: day-0 move -7.36% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-retur"
-  },
-  {
    "symbol": "DCI",
    "why": "NotApplicable: DCI: day-0 move -2.94% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
   },
   {
    "symbol": "DG",
    "why": "NotApplicable: DG: day-0 move +2.59% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
-  },
-  {
-   "symbol": "DKS",
-   "why": "NotApplicable: DKS: day-0 move -36.79% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
   },
   {
    "symbol": "DLTR",
@@ -126,10 +362,6 @@
   {
    "symbol": "DXYZ",
    "why": "SourceRefusal: DXYZ: no 8-K Item 2.02 filings (foreign filer or not covered)"
-  },
-  {
-   "symbol": "DY",
-   "why": "NotApplicable: DY: day-0 move -12.32% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-return"
   },
   {
    "symbol": "ESTC",
@@ -154,10 +386,6 @@
   {
    "symbol": "HPQ",
    "why": "NotApplicable: HPQ: day-0 move -2.98% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
-  },
-  {
-   "symbol": "HQY",
-   "why": "NotApplicable: HQY: day-0 move -11.09% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retur"
   },
   {
    "symbol": "HRL",
@@ -228,10 +456,6 @@
    "why": "NotApplicable: OOMA: day-0 move +11.07% is UP and OOMA is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
   },
   {
-   "symbol": "P",
-   "why": "NotApplicable: P: day-0 move -9.36% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-return d"
-  },
-  {
    "symbol": "PAHC",
    "why": "NotApplicable: PAHC: day-0 move +0.62% is inside the flat tercile (|move| < 3.5%, t 0.66) -- there is nothing to continue and the spread would eat it"
   },
@@ -292,10 +516,6 @@
    "why": "NotApplicable: SNPS: day-0 move +12.42% is UP and SNPS is outside the eleven names the two-sided drift was measured on. Across 2532 names an UP print carri"
   },
   {
-   "symbol": "STRT",
-   "why": "NotApplicable: STRT: day-0 move -10.33% is a wide-universe DROP, and the unhedged short of it is worth +0.00%/3d in SIMPLE returns (t 0.03) -- the log-retu"
-  },
-  {
    "symbol": "TIGR",
    "why": "SourceRefusal: TIGR: no 8-K Item 2.02 filings (foreign filer or not covered)"
   },
@@ -330,29 +550,29 @@
   {
    "symbol": "XPEV",
    "why": "SourceRefusal: XPEV: no 8-K Item 2.02 filings (foreign filer or not covered)"
-  },
-  {
-   "symbol": "ZM",
-   "why": "NotApplicable: ZM: day-0 move -7.39% is a wide-universe DROP, and the unhedged short of it is worth +0.04%/3d in SIMPLE returns (t 0.22) -- the log-return "
   }
  ],
- "enriched": 0,
+ "enriched": 10,
  "collapse_audit": {
-  "n": 1,
+  "n": 10,
   "old_universe": [
    "NVDA"
   ],
-  "share_old_universe": 1.0,
+  "share_old_universe": 0.1,
   "mega": [
    "NVDA"
   ],
-  "share_mega": 1.0,
+  "share_mega": 0.1,
   "etf_like": [],
   "by_dv_bucket": {
-   "mega": 1
+   "mega": 1,
+   "mid": 5,
+   "large": 1,
+   "small": 1,
+   "micro": 2
   },
   "control_holdings_in_candidates": [],
-  "verdict": "UNIVERSE_COLLAPSE"
+  "verdict": "OK"
  },
  "control_holdings": {
   "SLDP": "in_universe_no_print",

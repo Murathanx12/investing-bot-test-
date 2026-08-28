@@ -88,6 +88,31 @@ def read(client: AlpacaPaper, acct: dict[str, Any] | None = None) -> DayState:
     except (TypeError, ValueError):
         equity = last = 0.0
 
+    if equity > 0.0 and last <= 0.0:
+        # A BRAND-NEW account reports last_equity=0 until its first close, so on
+        # its first session this gate refused every entry (measured on staging,
+        # 28 Aug: 12 forecasts, 12 refused, "CANNOT DETERMINE"). Every fleet
+        # account and the judged account are new on kickoff day, so this is the
+        # judged account sitting in cash on day one. A guard DERIVES or refuses:
+        # the previous close of a new account is its funding, and the genesis
+        # record (`scripts.genesis --freeze`, required before the first order)
+        # froze that number. No genesis -> still refused, and the message says
+        # which step was skipped.
+        try:
+            from alpha import config as _config, genesis as _genesis
+            g = _genesis.load(_config.role())
+        except Exception as exc:                                          # noqa: BLE001
+            g = None
+            logger.info("daybreak: genesis unreadable: %s", exc)
+        if g is not None and g.starting_equity > 0:
+            dd = equity / g.starting_equity - 1.0
+            return DayState(equity, g.starting_equity, dd, True,
+                            f"FIRST SESSION: the venue has no prior close (last_equity={last!r}); drawdown "
+                            f"{dd:+.2%} measured against the GENESIS starting equity ${g.starting_equity:,.2f}.")
+        return DayState(equity, last, 0.0, False,
+                        f"CANNOT DETERMINE the day's drawdown: equity={equity!r} last_equity={last!r} "
+                        "(a new account has no prior close) and NO GENESIS RECORD for this role to measure "
+                        "against. Run `scripts.genesis --freeze` before the first order. Entries refused.")
     if equity <= 0.0 or last <= 0.0:
         return DayState(equity, last, 0.0, False,
                         f"CANNOT DETERMINE the day's drawdown: equity={equity!r} "

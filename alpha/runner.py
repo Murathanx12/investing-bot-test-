@@ -384,10 +384,15 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             strike_from=lo, strike_to=hi,
         )
     except chain_mod.ChainRefusal:
-        if not wants_pair:
+        # Shares need no chain either. A DIRECTION forecast on a name with no
+        # listed contracts at the contest expiry (FLNC, NTLA on 28 Aug) was
+        # dying here before its share structure was ever built; the option
+        # candidates are simply empty and the row says why.
+        if not wants_pair and forecast.claim != "direction":
             raise
         snapshot = None
-        logger.info("%s: no chain at %s; pair forecast proceeds on stock quotes only", forecast.symbol, expiry)
+        logger.info("%s: no chain at %s; %s forecast proceeds on stock quotes only", forecast.symbol, expiry,
+                    "pair" if wants_pair else "direction")
 
     risk = open_risk if open_risk is not None else open_convex_risk(client)
     best = None
@@ -411,6 +416,12 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
                            "pair" if wants_pair else "share", exc)
         if share is not None:
             candidates.append(share)
+    # A mandate may restrict the KINDS it will hold (`alpha/fleet.py`, e.g. the
+    # options-only account). Empty = every kind. A kind filtered here is a
+    # declared choice of the account, not a refusal, so it is not logged as one.
+    allowed = {k.strip() for k in os.getenv("AAT_STRUCTURE_KINDS", "").split(",") if k.strip()}
+    if allowed:
+        candidates = [c for c in candidates if getattr(c, "kind", None) in allowed]
     # -- CLAIM_EXPRESSION_MATRIX (alpha/claims.py) ---------------------------
     # Structural, and BEFORE anything is priced. `effective_sd` already makes a
     # condor score badly for a directional brain; this makes it inadmissible
@@ -505,7 +516,17 @@ def share_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: s
     raw = (client.stock_quote([symbol]).get("quotes") or {}).get(symbol) or {}
     bid, ask = float(raw.get("bp") or 0.0), float(raw.get("ap") or 0.0)
     synthetic = None
-    spot = snapshot.spot
+    # No chain (FLNC, NTLA at the contest expiry, 28 Aug): spot comes from the
+    # stock's own last trade, exactly as `pair_structure` does. Shares never
+    # needed a chain; only the spot was being read off one.
+    spot = snapshot.spot if snapshot is not None else 0.0
+    if spot <= 0:
+        try:
+            snap = client._request("GET", f"/v2/stocks/{symbol}/snapshot", base=config.data_url(),
+                                   params={"feed": config.stock_feed()}) or {}
+            spot = float(((snap.get("latestTrade") or {}).get("p")) or 0.0)
+        except BrokerRefusal:
+            spot = 0.0
     # The free IEX quote is routinely ONE-SIDED or stale: measured 26 Aug 00:15 ET,
     # NVDA bid 200.45 / ask 0 against a last trade of 212.96. A quote that is
     # missing a side, or whose sides sit more than SYNTHETIC_QUOTE_TOLERANCE from

@@ -185,13 +185,26 @@ def inspect(client, *, role: str) -> tuple[str, float, int, int]:
     return number, equity, len(positions), len(orders)
 
 
+def _fleet_role(role: str) -> bool:
+    """A role declared in `alpha/fleet.py` is one equity curve with a mandate; its
+    birth state is what the day-one drawdown latch (`alpha/daybreak.py`) and the
+    scoreboard measure against, so it may be frozen like the judged account's."""
+    try:
+        from alpha import fleet
+        return role in fleet.FLEET
+    except Exception:                                                     # noqa: BLE001
+        return False
+
+
 def freeze(client, *, role: str, rules_snapshot: str | Path,
            required_equity: float | None = None, force_write: bool = False) -> Genesis:
     """Record the judged account's birth state, or refuse and say which rule."""
-    if role != JUDGED_ROLE:
+    if role != JUDGED_ROLE and not _fleet_role(role) and not force_write:
         raise GenesisRefusal(
-            f"genesis may only be frozen for role {JUDGED_ROLE!r}, not {role!r}. A genesis "
-            "record for a non-judged role is a document that looks authoritative and is not."
+            f"genesis may only be frozen for role {JUDGED_ROLE!r} or a declared fleet role "
+            f"(alpha/fleet.py), not {role!r}. A genesis record for an undeclared role is a "
+            "document that looks authoritative and is not. --force records a scratch account's "
+            "birth state anyway (its order count is written down, not hidden)."
         )
     required = (required_equity if required_equity is not None
                 else float(config.COMPETITION["required_starting_equity"]))
@@ -216,7 +229,11 @@ def freeze(client, *, role: str, rules_snapshot: str | Path,
 
     if not number.startswith("PA"):
         raise GenesisRefusal(f"account {number!r} is not a paper account (no 'PA' prefix).")
-    if number in DENIED_ACCOUNTS:
+    # A NON-judged role frozen with --force is a scratch/fleet account whose
+    # history is RECORDED rather than required to be empty: the counts below go
+    # into the record. The judged role never takes this branch.
+    scratch = role != JUDGED_ROLE and force_write
+    if number in DENIED_ACCOUNTS and not scratch:
         raise GenesisRefusal(
             f"account {number} is DENYLISTED for the judged role: {DENIED_ACCOUNTS[number]} "
             "The competition rules require a brand-new account; this one has a history and "
@@ -228,9 +245,9 @@ def freeze(client, *, role: str, rules_snapshot: str | Path,
             f"${required:,.2f}. A near miss is not a rounding problem -- it is a different "
             "account, or an account that has already moved."
         )
-    if n_pos:
+    if n_pos and not scratch:
         raise GenesisRefusal(f"account {number} already holds {n_pos} position(s). Not new.")
-    if n_ord:
+    if n_ord and not scratch:
         raise GenesisRefusal(
             f"account {number} already carries {n_ord} order(s) of any status. A cancelled or "
             "expired order still means the account has been traded."

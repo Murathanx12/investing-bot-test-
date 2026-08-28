@@ -1,0 +1,20 @@
+{
+  "account_number": "PA3HSRGSPXAY",
+  "code_commit": "15491b8abee0a2d7aec53035b96ea22591777207",
+  "competition": {
+    "deadline_utc": "2026-09-04T15:00:00Z",
+    "kickoff_utc": "2026-08-28T15:00:00Z",
+    "required_starting_equity": 100000.0,
+    "snapshot_date": "2026-08-25",
+    "source": "https://lablab.ai/ai-hackathons/alpaca-ai-trading-agents-hackathon"
+  },
+  "frozen_at_utc": "2026-08-28T08:07:24+00:00",
+  "genesis_sha256": "daba3a06d318b404489230227e9e20ae012c140146c3e65d9649b1cefe79fcbb",
+  "options_level": 3,
+  "order_count_at_genesis": 8,
+  "position_count_at_genesis": 0,
+  "role": "staging",
+  "rules_snapshot_path": "docs/RULES_SNAPSHOT_2026-08-25.md",
+  "rules_snapshot_sha256": "2126c465052c49713aea3b8b11a0054a613fd39b7b0801dd29f6cc8c3fe85c0d",
+  "starting_equity": 100000.0
+}

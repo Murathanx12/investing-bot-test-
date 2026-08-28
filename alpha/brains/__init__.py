@@ -17,8 +17,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-from alpha.brains import (event_move, narrative_dispersion, options_attention, post_event_drift,
-                          relay, vol_gap)
+from alpha.brains import (council_vector, event_move, narrative_dispersion, options_attention,
+                          post_event_drift, relay, theme_basket, vol_gap)
 from alpha.brains.base import Forecast
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,10 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
     "narrative_dispersion": lambda client, sym, h, **kw: narrative_dispersion.forecast(client, sym, h),
     "relay": lambda client, sym, h, **kw: relay.forecast(client, sym, h),
     "post_event_drift": lambda client, sym, h, **kw: post_event_drift.forecast(client, sym, h),
+    # Fleet brains (2026-08-28, alpha/fleet.py). `theme_basket` is a HUMAN PRIOR
+    # labelled as one; `council_vector` reads the research council's synthesis.
+    "theme_basket": lambda client, sym, h, **kw: theme_basket.forecast(client, sym, h),
+    "council_vector": lambda client, sym, h, **kw: council_vector.forecast(client, sym, h),
 }
 
 

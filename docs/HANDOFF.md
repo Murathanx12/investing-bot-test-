@@ -1,3 +1,12 @@
+> **2026-08-28, session 19b (08:00 ET): THE FLEET.** Six new paper accounts,
+> six mandates — read **`docs/FLEET_2026-08-28.md`** and `python -m scripts.fleet
+> --plan`. Two SAFE (`anchor`, `drift`), four RISKY (`thesis` = Murat's
+> future-state basket, `predator`, `convexity` = options only, `council` = the
+> LLM council traded). **`scripts.genesis --freeze --role <role>` is mandatory
+> before the first order on EVERY account** — a new account reports
+> `last_equity=0` and the daily latch refused all 12 entries until it could
+> derive against genesis. `staging` is CLOSED (401); Railway staging is down.
+
 > **2026-08-28, session 19 (00:30 ET):** read
 > **`docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md`** first. The loop now runs
 > from **Railway** (project `loving-elegance`, one service per role, volume at

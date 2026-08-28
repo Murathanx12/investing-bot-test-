@@ -632,3 +632,33 @@ sleeve is parametric.
   independent 12-year, 1,813-event large-cap cell (median +0.31%, 54%).
 - No overnight flattening. No dislocation capital. Small-cap continuation is
   a tail, not a median — a research lane, not a contest lane.
+
+## 13. ADDENDUM 08:00 ET — THE FLEET: six accounts, six mandates, three day-one defects
+
+Murat is creating six NEW paper accounts now (the rules say "create it now so
+your history is clean from minute one"; the old ones are being closed —
+staging went `ACCOUNT_CLOSED_PENDING` mid-run). Full plan and kickoff sequence:
+**`docs/FLEET_2026-08-28.md`**; declaration in code: `alpha/fleet.py`.
+
+| role | tier | what it is |
+|---|---|---|
+| `anchor` | SAFE | the attended beta book + 5% index call, median-ranked |
+| `drift` | SAFE | the measured +1-open drift only, aggressive size |
+| `thesis` | RISKY | Murat's future-state basket (40 verified names, 6%/name, 80% aggregate) |
+| `predator` | RISKY | small-cap post-print continuation, `maximum`, pair enabled |
+| `convexity` | RISKY | options only (long call / bull call spread), EV-ranked on the theme names |
+| `council` | RISKY | the specialised-LLM council's thesis vector, traded |
+
+**Three defects that would have hit the judged account on day one, found by
+running the mandates dry on staging:** a brand-new account reports
+`last_equity=0` so the daily latch refused every entry (fixed: first session
+derives against the GENESIS equity — **genesis --freeze per role is now
+mandatory before the first order**); a prior sized under `maximum` put 25-34%
+in each of three names (fixed: `basket` profile, 4.8% measured); shares died
+on names with no chain at the expiry (fixed: direction claims proceed on stock
+quotes). 93 fleet checks + the whole suite green. Railway staging deployment
+taken down (dead key).
+
+**Gate, not date:** the six Railway services go up the moment the keys are in
+`.env` and `scripts.fleet --check-all` prints FRESH for each. Nothing else in
+this document changes.

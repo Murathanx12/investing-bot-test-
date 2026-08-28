@@ -197,7 +197,18 @@ PROFILES = {
     "conservative": {"per_thesis": 0.03, "aggregate": 0.20, "edge_scale_cap": 1.5},
     "aggressive":   {"per_thesis": 0.08, "aggregate": 0.50, "edge_scale_cap": 2.5},
     "maximum":      {"per_thesis": 0.15, "aggregate": 0.75, "edge_scale_cap": 3.5},
+    # FLEET profiles (2026-08-28, alpha/fleet.py). `basket` is for a HUMAN PRIOR
+    # spread over many names: 15 x 6% rather than 3 x 25%, because concentration
+    # was measured as a negative-return decision (k=5 0.09x -> k=100 0.73x on
+    # CRSP) and a prior has no edge to scale by (cap 1.0). `convex` is long
+    # premium only: 5% per name of premium at risk, 40% aggregate.
+    "basket":       {"per_thesis": 0.06, "aggregate": 0.80, "edge_scale_cap": 1.0},
+    "convex":       {"per_thesis": 0.05, "aggregate": 0.40, "edge_scale_cap": 2.0},
 }
+
+#: Profiles that put more than half of equity at risk are competition-week
+#: profiles: before kickoff they need `AAT_ALLOW_MAXIMUM=1`.
+GATED_PROFILES = ("maximum", "basket")
 
 DEFAULT_PROFILE = "aggressive"
 
@@ -208,9 +219,9 @@ def profile(name: str | None = None) -> dict:
     key = (name or os.getenv("AAT_RISK_PROFILE", DEFAULT_PROFILE)).strip().lower()
     if key not in PROFILES:
         raise ValueError(f"unknown risk profile {key!r}; have {sorted(PROFILES)}")
-    if key == "maximum" and not maximum_allowed():
+    if key in GATED_PROFILES and not maximum_allowed():
         raise ValueError(
-            "the 'maximum' profile is disabled before kickoff: no mechanism has a "
+            f"the {key!r} profile is disabled before kickoff: no mechanism has a "
             "positive live or counterfactual score yet, and 75% of equity at risk is a "
             "bet on a mechanism, not a rehearsal. Set AAT_ALLOW_MAXIMUM=1 to override."
         )
