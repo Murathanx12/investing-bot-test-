@@ -533,3 +533,102 @@ eleven carry no excess. Either way the packet, not a headline, is the reason.
   refused per name.
 - **Staging fill / reconcile / restart** at 09:30 ET; freeze of write-path
   code after that and before the judged account exists.
+
+---
+
+## 12. ADDENDUM 06:10 ET — validation by backtest: two ideas die, one survives, one is bounded
+
+### 12.1 Overnight-only ETF core — REFUTED as a 5-session strategy (2022–2026)
+
+The 32-year finding says close→open is the segment that pays. Tested as the
+thing it would have to be in this contest — hold overnight, flat intraday, 1bp
+round trip, every 5-session window since 2022 (Alpaca daily bars):
+
+| | overnight-only vs buy&hold, per 5 sessions | hit | t |
+|---|---|---|---|
+| SPY, n=1,161 | **−0.16%** | 43% | **−3.05** |
+| QQQ | −0.17% | 45% | −2.36 |
+| IWM | −0.08% | 49% | −1.10 |
+| SPY, last 60 windows only | +0.36% | 65% | +2.13 |
+
+Intraday was **positive** in 2025 and 2026 YTD on all three (SPY +7.9% / +4.3%);
+only the last three months invert it. A 60-session window is one regime. The
+tilt stays what it was — **enter MOC, hold** — and flattening at the open is
+not deployed. (Both OPG order shapes were probed and accepted on staging, so
+the refusal is on evidence, not on plumbing.)
+
+### 12.2 SUE × reaction quadrants on CRSP 2013–2024 — the dislocation hypothesis REFUTED, continuation survives
+
+`scripts/sue_dislocation_backtest.py` (Aegis repo): 116,231 announcements with
+a pre-announcement IBES consensus (≥3 estimates), SUE = (actual − last median
+estimate)/price, reaction = print session + next (excess vs EW market),
+forward = the next 3 sessions excess. Receipt
+`backend/data/optimus/sue_dislocation_2013_2024.json`.
+
+| SUE quintile × reaction | n | mean fwd | median | hit | t (pooled) | t (week blocks) |
+|---|---|---|---|---|---|---|
+| best × **down** ("under-reaction") | 6,048 | −0.02% | −0.20% | 48% | −0.16 | −1.74 |
+| worst × **up** ("delayed downside") | 5,470 | **+0.38%** | +0.03% | 50% | 3.47 | 2.40 |
+| best × up (continuation) | 12,324 | **+0.41%** | +0.11% | 51% | **6.14** | **2.49** |
+| worst × down (continuation) | 12,784 | −0.13% | −0.29% | 48% | −1.82 | −0.55 |
+| best SUE alone | 23,246 | +0.24% | — | 50% | 4.90 | **0.01** |
+
+Three readings, all of which change the plan:
+
+1. **The disagreement quadrants do not pay.** "Good surprise, bad reaction"
+   is flat-to-negative; "bad surprise, good reaction" continues *up*. The
+   price reaction carries the information, not the disagreement. The
+   `EARNINGS_DISLOCATION_v1` ranking, as hypothesised, is **refuted on 12
+   years** and stays shadow; its quadrant labels are renamed in the next pass.
+2. **Continuation is real and it is a right tail.** Best-SUE-and-up: +0.41%
+   mean, +0.11% median, t 2.49 on week blocks. By size the MEDIAN is +0.31%
+   with 54% hit in **large** caps, +0.03% in small caps (whose +0.56% mean is
+   a tail). Under the terminal-wealth rule the large-cap cell is the
+   tradeable one — which is the mega-11 finding, reproduced on 1,813 events.
+3. **Pooled t lies here.** SUE-alone t 4.90 pooled becomes **0.01** on week
+   blocks: earnings cluster, and same-week prints share a market. Every
+   number this project quotes on prints must be blocked by week.
+
+### 12.3 The risk frontier — small sleeve, not a big one
+
+`scripts/risk_frontier.py`: beta core bootstrapped from 1,162 real SPY
+five-session windows; call-debit-spread sleeve **parametric on the
+OptionMetrics receipt's moments** (n=884, mean +3.3%, sd 47.6%, hit 51%),
+drawn on the same market path. Target +2%, floor −5%:
+
+| option budget | P(≥ +2%) | P(≤ −5%) | median |
+|---|---|---|---|
+| 0% (core only, 100%) | 18.7% | 2.1% | +0.41% |
+| **5% + 60% core** | **42.8%** | **2.1%** | −0.03% |
+| 10% + 60% core | 48.6% | 21.7% | −0.89% |
+| 20% + 60% core | 49.4% | 47.6% | −2.33% |
+| 30% + 60% core | 49.5% | 49.6% | −3.52% |
+
+P(target) saturates near 49% by a 10% budget; every dollar above buys only the
+left tail. **The 30% defined-risk cap is far above the frontier; 5–10% is
+where the sleeve earns its place.** Read the ordering, not the decimals — the
+sleeve is parametric.
+
+### 12.4 What the field looks like (Exa, 28 Aug)
+
+- This hackathon: LinkedIn post says **$5,000, 3 winners + 2 social-engagement
+  awards; judging "P&L and creativity or engagement"; submission = dedicated
+  $100k account + one-page write-up (AI logic, risk gates, Alpaca infra) +
+  options in the strategy.** The write-up is a deliverable; `docs/WRITEUP.md`
+  must be regenerated from tonight's receipts.
+- Most-starred: TradingAgents (~100k ★, LLM roles + bull/bear debate + a
+  decision log with reflection injected into the next run), ai-hedge-fund
+  (~63k ★, 14 investor personas; does not trade), FinRL-X (weight-centric
+  pipeline, Alpaca execution). An Alpaca-published multi-agent build uses
+  five isolated lenses → critic → **human gate** → deterministic risk guard.
+  None of them price their own refusals, seal an account's birth, or run a
+  real-quote replay against their own design. That is the differentiator, and
+  it should be the first paragraph of the write-up.
+
+### 12.5 What this changes for kickoff
+
+- Beta core stays; the options sleeve is sized **5–10%** of equity, not 30%.
+- `post_event_drift` on the mega-11 at the +1 open is corroborated by an
+  independent 12-year, 1,813-event large-cap cell (median +0.31%, 54%).
+- No overnight flattening. No dislocation capital. Small-cap continuation is
+  a tail, not a median — a research lane, not a contest lane.
