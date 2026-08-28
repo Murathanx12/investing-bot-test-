@@ -163,14 +163,24 @@ def auction(opps: list[Opportunity], *, equity: float, target: float,
     Returns an `Allocation` whose log records what won each increment and by how
     much, so the decision is auditable rather than a final vector of weights.
     """
-    if objective not in ("target", "growth"):
+    if objective not in ("target", "growth", "median"):
         raise ValueError(f"unknown objective {objective!r}")
 
     def utility(final: np.ndarray) -> float:
         if p_floor_breach(final, floor) > 0.05:
             return -1e9
-        return (p_target(final, target) if objective == "target"
-                else expected_log_wealth(final, equity))
+        if objective == "target":
+            return p_target(final, target)
+        if objective == "median":
+            # FIVE SESSIONS FOLLOW THE MEDIAN. E[log W] does not refuse a small
+            # negative-median lottery ticket -- a $4k ATM call on $100k moves
+            # E[log W] by nothing either way -- and on 28 Aug the BASE book
+            # bought three index calls with medians of -3.8% and -7.4% under
+            # "growth". The median of terminal wealth refuses them, because a
+            # structure that loses on most paths lowers the path the contest
+            # will actually realise.
+            return float(np.median(final) / equity - 1.0)
+        return expected_log_wealth(final, equity)
     alloc = Allocation()
     if not opps:
         alloc.refusals.append("no opportunities offered; cash is the book")
@@ -183,7 +193,7 @@ def auction(opps: list[Opportunity], *, equity: float, target: float,
     base_final = simulate(book, index, equity, n_paths=n_paths, seed=seed)
     base_u = utility(base_final)
     label = (f"P(>= ${target:,.0f})" if objective == "target"
-             else "E[log wealth]")
+             else "median terminal return" if objective == "median" else "E[log wealth]")
     alloc.log.append(f"objective = {objective}; cash-only {label} = {base_u:+.4f}")
 
     for _ in range(max_rounds):

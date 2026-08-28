@@ -122,6 +122,13 @@ def opportunities_from(ev: dict, *, recent_only: bool, equity: float
     return out
 
 
+def index_kind(opps, name: str) -> str:
+    for o in opps:
+        if o.name == name:
+            return o.structure
+    return "unknown"
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--equity", type=float, default=100_000.0)
@@ -137,6 +144,9 @@ def main() -> int:
     p.add_argument("--floor-pct", type=float, default=5.0,
                    help="hard maximum drawdown; breaching it is a VETO")
     p.add_argument("--sessions", type=int, default=5)
+    p.add_argument("--options-min-pct", type=float, default=5.0,
+                   help="equity %% placed in the best positive-median option structure when the "
+                        "auction chose none (the track requires options; 0 disables)")
     p.add_argument("--recent-only", action="store_true",
                    help="use only 2021+ blocks -- fewer samples, current regime")
     p.add_argument("--k", type=int, default=playbook.MIN_BREADTH_K)
@@ -203,7 +213,11 @@ def main() -> int:
     # median structure however fat its right tail. Only ATTACK -- behind, and
     # out of sessions -- switches to P(target), where convexity is worth buying
     # precisely because reliability that cannot reach the target is worthless.
-    objective = "target" if mode == "ATTACK" else "growth"
+    # BASE ranks on the MEDIAN of terminal wealth (the runner does the same per
+    # structure, `runner.rank_objective`); "growth" (E[log W]) is kept for a
+    # real-money book and is what let three negative-median index calls into
+    # the 28 Aug BASE book.
+    objective = "target" if mode == "ATTACK" else "median"
     print(f"   -> objective = {objective}")
     alloc = tournament.auction(opps, equity=equity, target=target, floor=floor,
                                budget=budget, n_paths=6000, betas=betas,
@@ -211,6 +225,39 @@ def main() -> int:
     print()
     for line in alloc.log:
         print(f"   {line}")
+
+    # ---- 2b. THE OPTIONS CONSTRAINT, stated as a constraint -----------------
+    # The track requires options in the strategy. Under the MEDIAN objective a
+    # $100k book buys shares (a $1k spread's median contribution is dwarfed by
+    # $6k of shares), so the requirement is satisfied here as a RULE rather than
+    # smuggled into the objective: the best positive-median option structure at
+    # `--options-min-pct` of equity (default 5%, the risk frontier's knee --
+    # scripts/risk_frontier.py: P(+2%) saturates by a 10% option budget while
+    # P(-5%) explodes above it). It is a defined-risk expression of the beta
+    # view, and the book says so.
+    option_kinds = {n for n in alloc.by_name if index_kind(opps, n) != "long_shares"}
+    if not option_kinds and args.options_min_pct > 0:
+        # Ranked on the receipt's TERMINAL WEALTH, never the median: the short put
+        # spread has the best median in the file (+2.94%) and 2.79x terminal on SPY
+        # against 7.1x for the call debit spread -- "a high hit rate can coexist
+        # with catastrophic wealth" is the whole 26-year finding, and picking the
+        # sleeve by median would have re-funded the refuted core through a side door.
+        def wealth_of(o):
+            return float(((ev.get(o.symbol) or {}).get("structures") or {}).get(o.structure, {}).get("wealth") or 0.0)
+        cands = [o for o in opps if o.structure != "long_shares" and np.median(o.samples) > 0 and wealth_of(o) > 1.0]
+        if cands:
+            best = max(cands, key=wealth_of)
+            usd = min(equity * args.options_min_pct / 100.0, best.max_usd,
+                      max(0.0, budget - alloc.total))
+            if usd >= best.increment_usd:
+                alloc.by_name[best.name] = usd
+                alloc.log.append(f"OPTIONS CONSTRAINT: {best.name} ${usd:,.0f} added by RULE "
+                                 f"(track requires options; option structure with the best TERMINAL WEALTH in the receipt, "
+                                 f"{wealth_of(best):.2f}x, median {np.median(best.samples):+.2%}); not an alpha claim")
+                print(f"   {alloc.log[-1]}")
+        else:
+            print("   OPTIONS CONSTRAINT: no positive-median option structure in the evidence; "
+                  "the requirement is NOT met by this book and the reader must decide")
 
     if not alloc.by_name:
         print("\n   THE AUCTION BOUGHT NOTHING. Every candidate either failed to "
