@@ -85,6 +85,21 @@ def chain_sigma(implied_move: float) -> float:
     return implied_move * math.sqrt(math.pi / 2.0)
 
 
+#: Brains whose claim is DIRECTION. Their `predicted_sd` is a realised-vol
+#: placeholder that the runner never uses against the chain (`effective_sd`
+#: integrates a direction claim at the CHAIN's own width), so "predicted_sd
+#: below the chain on 90% of rows" is a fact about realised vs implied vol, not
+#: a broken ruler. On 28 Aug `post_event_drift` sat at exactly 90.0% one-sided
+#: (n=80) and lost new-position authority on one pass and kept it on the next
+#: -- with NVDA two sessions after its print, i.e. inside the only measured
+#: edge. A sentinel built for width claims must not judge a brain that makes none.
+DIRECTION_BRAINS = ("post_event_drift", "theme_basket", "council_vector")
+
+
+def is_direction_brain(brain: str) -> bool:
+    return brain in DIRECTION_BRAINS or brain.startswith("human:")
+
+
 def ratios(rows) -> dict[str, list[float]]:
     """brain -> [predicted_sd / chain_sigma], for rows that carry both."""
     out: dict[str, list[float]] = {}
@@ -93,6 +108,8 @@ def ratios(rows) -> dict[str, list[float]]:
         im = r.get("implied_move")
         brain = r.get("brain")
         if sd is None or not im or not brain or im <= 0 or sd <= 0:
+            continue
+        if is_direction_brain(brain):
             continue
         out.setdefault(brain, []).append(float(sd) / chain_sigma(float(im)))
     return out

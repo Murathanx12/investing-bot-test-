@@ -175,5 +175,15 @@ with tempfile.TemporaryDirectory() as td:
         genesis.STATE_DIR = old_dir
         os.environ.pop("AAT_ACCOUNT_ROLE", None)
 
+print("\n-- sentinels: a direction brain is not judged on a width it never claims")
+from alpha import sentinels
+
+rows = [{"brain": "post_event_drift", "predicted_sd": 0.01, "implied_move": 0.05} for _ in range(60)]
+rows += [{"brain": "vol_gap", "predicted_sd": 0.01, "implied_move": 0.05} for _ in range(60)]
+rs = sentinels.ratios(rows)
+check("post_event_drift is excluded from the width ratio", "post_event_drift" not in rs)
+check("a width brain is still judged", "vol_gap" in rs and len(rs["vol_gap"]) == 60)
+check("human theses are direction brains", sentinels.is_direction_brain("human:murat"))
+
 print(f"\n{'ALL PASS' if not fails else f'{fails} FAIL'}")
 sys.exit(1 if fails else 0)
