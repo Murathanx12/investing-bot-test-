@@ -191,6 +191,28 @@ dec = {"decision_id": "d", "alpaca_order_id": "o", "symbol": "TSLA", "instrument
        "max_loss_usd": 4005.0, "mdm_edge": 0.167, "order": {"qty": "3"}}
 a = fills.audit(FillClient(), dec)
 check("decision ask summed across legs", abs(a.decision_ask_per_unit - 13.35) < 1e-9)
+
+
+class ShareFillClient:
+    """A SHARES position: the leg symbol IS the underlying, the multiplier is 1,
+    and the mark comes from the STOCK quote endpoint (28 Aug: the option
+    endpoint refused 'NVDA' and every share audit crashed)."""
+    def _request(self, m, path, **kw):
+        return {"status": "filled", "filled_at": "2026-08-28T13:31:00Z", "qty": "110", "limit_price": "227.0",
+                "symbol": "NVDA", "side": "buy", "filled_avg_price": "226.81"}
+    def option_quotes(self, syms): raise AssertionError(f"option endpoint asked for shares: {syms}")
+    def stock_quote(self, syms): return {"quotes": {s: {"bp": 226.5, "ap": 226.7, "t": "x"} for s in syms}}
+
+
+sdec = {"decision_id": "s", "alpaca_order_id": "o2", "symbol": "NVDA", "instrument": "long_shares",
+        "ts_utc": "2026-08-28T13:30:00Z", "legs": [["NVDA", "buy", 1]],
+        "quote_snapshot": {"feed": "sip", "median_quote_age_s": 1, "legs": [{"symbol": "NVDA", "bid": 226.6, "ask": 226.7}]},
+        "max_loss_usd": 748.0, "mdm_edge": 0.1, "order": {"qty": "110"}}
+sa = fills.audit(ShareFillClient(), sdec)
+check("shares: fill audited without touching the option endpoint", sa.fill_per_unit == 226.81)
+check("shares: dollar slippage uses multiplier 1", abs(sa.slippage_usd - round((226.81 - 226.7) * 110, 2)) < 1e-6)
+check("shares: mark comes from the stock quote", abs(sa.mark["exit_per_unit_at_bid"] - 226.5) < 1e-9)
+check("shares: pnl if closed now uses multiplier 1", abs(sa.mark["pnl_usd_if_closed_now"] - round((226.5 - 226.81) * 110, 2)) < 1e-6)
 check("fill summed across legs", abs(a.fill_per_unit - 13.60) < 1e-9)
 check("slippage per unit = fill - decision ask", abs(a.slippage_per_unit - 0.25) < 1e-9)
 check("slippage usd scales by 100 x qty", abs(a.slippage_usd - 75.0) < 1e-6)

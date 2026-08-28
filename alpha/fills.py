@@ -39,6 +39,15 @@ from alpha import ledger
 MULT = 100.0
 
 
+def mult_of(symbol: str, underlying: str) -> float:
+    """100 for an option leg, 1 for shares. A SHARES leg is the one whose
+    symbol IS the underlying -- that is how the runner writes it. 28 Aug:
+    every share position's fill audit crashed for a session because the
+    options quote endpoint was asked for 'NVDA', and share slippage in dollars
+    was multiplied by 100."""
+    return 1.0 if symbol == underlying else MULT
+
+
 @dataclass
 class FillAudit:
     decision_id: str
@@ -107,6 +116,7 @@ def audit(client, decision: dict, *, now: datetime | None = None) -> FillAudit:
     exp_edge = (edge * max_loss) if (edge is not None and max_loss) else None
 
     slip = (fill - dec_ask) if fill is not None else None
+    mult = mult_of(struct_legs[0][0], decision["symbol"]) if struct_legs else MULT
     out = FillAudit(
         decision_id=decision["decision_id"], alpaca_order_id=decision["alpaca_order_id"],
         symbol=decision["symbol"], instrument=decision.get("instrument", ""),
@@ -116,25 +126,31 @@ def audit(client, decision: dict, *, now: datetime | None = None) -> FillAudit:
         limit_price=float(order["limit_price"]) if order.get("limit_price") else None,
         fill_per_unit=round(fill, 4) if fill is not None else None,
         slippage_per_unit=round(slip, 4) if slip is not None else None,
-        slippage_usd=round(slip * MULT * qty, 2) if slip is not None else None,
+        slippage_usd=round(slip * mult * qty, 2) if slip is not None else None,
         mdm_edge=edge, expected_edge_usd=round(exp_edge, 2) if exp_edge else None,
-        slippage_over_edge=(round(slip * MULT * qty / exp_edge, 4)
+        slippage_over_edge=(round(slip * mult * qty / exp_edge, 4)
                             if (slip is not None and exp_edge) else None),
         feed=snap.get("feed", "?"), quote_age_s=float(snap.get("median_quote_age_s") or 0.0),
         legs=legs_out,
     )
     out.mark = mark_now(client, struct_legs, fill_per_unit=fill, qty=qty,
-                        filled_at=order.get("filled_at"), now=at)
+                        filled_at=order.get("filled_at"), now=at, underlying=decision["symbol"])
     return out
 
 
 def mark_now(client, legs: list[tuple], *, fill_per_unit: float | None, qty: int,
-             filled_at: str | None, now: datetime) -> dict[str, Any]:
+             filled_at: str | None, now: datetime, underlying: str = "") -> dict[str, Any]:
     """Exit value at the crossed side, right now, and elapsed time since fill."""
     symbols = [s for s, _, _ in legs]
     if not symbols:
         return {"note": "no legs"}
-    quotes = client.option_quotes(symbols)
+    eq = [x for x in symbols if x == underlying]
+    opt = [x for x in symbols if x != underlying]
+    quotes: dict[str, Any] = {}
+    if opt:
+        quotes.update(client.option_quotes(opt) or {})
+    if eq:
+        quotes.update((client.stock_quote(eq) or {}).get("quotes") or {})
     exit_pu, detail = 0.0, []
     for s, side, r in legs:
         q = quotes.get(s) or {}
@@ -148,7 +164,7 @@ def mark_now(client, legs: list[tuple], *, fill_per_unit: float | None, qty: int
             elapsed_min = round((now - f).total_seconds() / 60.0, 1)
         except ValueError:
             pass
-    pnl = (exit_pu - fill_per_unit) * MULT * qty if fill_per_unit is not None else None
+    pnl = (exit_pu - fill_per_unit) * mult_of(symbols[0], underlying) * qty if fill_per_unit is not None else None
     return {"marked_at": now.isoformat(), "elapsed_min_since_fill": elapsed_min,
             "exit_per_unit_at_bid": round(exit_pu, 4),
             "pnl_usd_if_closed_now": round(pnl, 2) if pnl is not None else None,
