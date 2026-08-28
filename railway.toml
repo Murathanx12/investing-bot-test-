@@ -4,6 +4,9 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 restartPolicyType = "ALWAYS"
-restartPolicyMaxRetries = 0
+# Railway rejected 0 on 2026-08-28 ("expected number to be >=1") and every deploy
+# FAILED with "no associated build" -- a schema change, not a code change. With
+# restartPolicyType ALWAYS the count is not consulted; it must merely parse.
+restartPolicyMaxRetries = 10
 # The loop is the process; there is no HTTP surface to health-check. A crash
 # restarts it and the next cycle re-reads the venue (agent_loop docstring).
