@@ -72,9 +72,13 @@ def normalise_rows(raw: dict[str, Any]) -> list[dict[str, Any]]:
             lo = float(r.get("value_low")); hi = float(r.get("value_high", lo))
         except (TypeError, ValueError):
             continue
+        basis = str(r.get("basis", "unknown")).lower().replace("non gaap", "non-gaap").replace("nongaap", "non-gaap")
+        metric = _canon_metric(str(r.get("metric", "")))
+        if metric == "eps_gaap" and basis.startswith(("non-gaap", "adjusted")):
+            metric = "eps_non_gaap"          # the basis field is authoritative over the name
         out.append({
-            "metric": _canon_metric(str(r.get("metric", ""))),
-            "basis": str(r.get("basis", "unknown")).lower().replace("non gaap", "non-GAAP").replace("nongaap", "non-GAAP"),
+            "metric": metric,
+            "basis": basis,
             "period": str(r.get("period", "")).upper().replace("FISCAL ", "FY").replace(" ", ""),
             "value_low": min(lo, hi), "value_high": max(lo, hi),
             "unit": str(r.get("unit", "")), "kind": str(r.get("kind", "")).lower(),
@@ -152,31 +156,59 @@ def surprise_cube(facts: list[dict[str, Any]], expectations: dict[str, Any]) -> 
     def mid(r):
         return (float(r["value_low"]) + float(r["value_high"])) / 2.0
 
-    cons = {key(r): r for r in (expectations.get("consensus") or []) if _numeric(r)}
-    prior = {key(r): r for r in (expectations.get("prior_guidance") or []) if _numeric(r)}
+    # Both sides go through the SAME canonicalisation: "Q2 FY27" and "Q2FY27",
+    # "Non-GAAP EPS" and "eps_non_gaap" must key identically or nothing matches.
+    def norm(r):
+        try:
+            lo = float(r.get("value_low")); hi = float(r.get("value_high", lo))
+        except (TypeError, ValueError):
+            return None
+        return {"metric": _canon_metric(str(r.get("metric", ""))),
+                "basis": str(r.get("basis") or "unknown").lower().replace("non gaap", "non-gaap").replace("nongaap", "non-gaap"),
+                "period": str(r.get("period", "")).upper().replace("FISCAL ", "FY").replace(" ", ""),
+                "value_low": min(lo, hi), "value_high": max(lo, hi),
+                "quote": str(r.get("quote") or r.get("source_quote") or "")[:200]}
+
+    cons = {key(x): x for x in (norm(r) for r in (expectations.get("consensus") or [])) if x}
+    prior = {key(x): x for x in (norm(r) for r in (expectations.get("prior_guidance") or [])) if x}
+    facts = [{**f, "basis": str(f.get("basis") or "unknown").lower()} for f in facts]
     for r in facts:
         if r.get("kind") == "guide_prior":
             prior.setdefault(key(r), r)
+
+    # A reference whose basis is UNKNOWN (a headline's "vs $X Est" says nothing
+    # about GAAP vs non-GAAP) may match a fact of any basis on the same metric
+    # and period -- but it is flagged `basis_assumed` on the cell, never silent.
+    def lookup(table, k):
+        if k in table:
+            return table[k], False
+        for kk, v in table.items():
+            if kk[0] == k[0] and kk[2] == k[2] and (kk[1] in ("unknown", "", None) or k[1] in ("unknown", "", None)):
+                return v, True
+        return None, False
 
     cells, incomparable = [], []
     for r in facts:
         k = key(r)
         if r.get("kind") == "actual":
-            if k in cons:
-                cells.append(_cell("actual_vs_consensus", r, cons[k], mid))
+            ref, assumed = lookup(cons, k)
+            if ref is not None:
+                cells.append({**_cell("actual_vs_consensus", r, ref, mid), "basis_assumed": assumed})
             else:
                 loose = _loose_match(k, cons)
                 incomparable.append({"axis": "actual_vs_consensus", "metric": k, "why":
                                      f"no consensus with same basis/period{'; nearest ' + str(loose) if loose else ''}"})
         elif r.get("kind") == "guide_new":
-            if k in prior:
-                cells.append(_cell("guide_vs_prior_guide", r, prior[k], mid))
+            ref, assumed = lookup(prior, k)
+            if ref is not None:
+                cells.append({**_cell("guide_vs_prior_guide", r, ref, mid), "basis_assumed": assumed})
             else:
                 loose = _loose_match(k, prior)
                 incomparable.append({"axis": "guide_vs_prior_guide", "metric": k, "why":
                                      f"no prior guide with same metric/basis/period{'; nearest ' + str(loose) + ' NOT subtracted' if loose else ''}"})
-            if k in cons:
-                cells.append(_cell("guide_vs_consensus", r, cons[k], mid))
+            ref, assumed = lookup(cons, k)
+            if ref is not None:
+                cells.append({**_cell("guide_vs_consensus", r, ref, mid), "basis_assumed": assumed})
     return {"cells": cells, "incomparable": incomparable,
             "n_cells": len(cells), "n_incomparable": len(incomparable)}
 

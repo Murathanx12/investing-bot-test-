@@ -1,0 +1,317 @@
+{
+ "rows": 1062527,
+ "decisions": 6667,
+ "by_class": {
+  "EMPIRICAL": {
+   "n": 2676,
+   "saved": 1842628.2977036475,
+   "cost": 2688876.9781213347
+  },
+  "UNCLASSIFIED": {
+   "n": 936,
+   "saved": 127573.08931613232,
+   "cost": 198248.61229575257
+  },
+  "TOURNAMENT": {
+   "n": 3055,
+   "saved": 4740466.03802677,
+   "cost": 2506704.6822580267
+  }
+ },
+ "by_guard": {
+  "book_limits": {
+   "n": 2743,
+   "saved": 4740466.03802677,
+   "cost": 2506704.6822580267,
+   "wins": 1124,
+   "sample": "IWM none 2026-08-28"
+  },
+  "mdm_floor": {
+   "n": 2676,
+   "saved": 1842628.2977036475,
+   "cost": 2688876.9781213347,
+   "wins": 1724,
+   "sample": "SPY none 2026-08-28"
+  },
+  "daily_latch": {
+   "n": 312,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 312,
+   "sample": "NVDA none 2026-08-28"
+  },
+  "UNCLASSIFIED: NVDA already positioned in this book (5 legs); e": {
+   "n": 101,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 101,
+   "sample": "NVDA none 2026-08-28"
+  },
+  "UNCLASSIFIED: SPY already positioned in this book (2 legs); ex": {
+   "n": 96,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 96,
+   "sample": "SPY none 2026-08-28"
+  },
+  "UNCLASSIFIED: AMD already positioned in this book (2 legs); ex": {
+   "n": 94,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 94,
+   "sample": "AMD none 2026-08-28"
+  },
+  "UNCLASSIFIED: AAPL already positioned in this book (1 legs); e": {
+   "n": 84,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 84,
+   "sample": "AAPL none 2026-08-28"
+  },
+  "UNCLASSIFIED: QQQ already positioned in this book (2 legs); ex": {
+   "n": 72,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 72,
+   "sample": "QQQ none 2026-08-28"
+  },
+  "UNCLASSIFIED: MSFT already positioned in this book (1 legs); e": {
+   "n": 67,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 67,
+   "sample": "MSFT none 2026-08-28"
+  },
+  "UNCLASSIFIED: NIO already positioned in this book (2 legs); ex": {
+   "n": 57,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 57,
+   "sample": "NIO none 2026-08-28"
+  },
+  "UNCLASSIFIED: AVGO already positioned in this book (1 legs); e": {
+   "n": 52,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 52,
+   "sample": "AVGO none 2026-08-28"
+  },
+  "UNCLASSIFIED: AVGO already positioned in this book (2 legs); e": {
+   "n": 46,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 46,
+   "sample": "AVGO none 2026-08-28"
+  },
+  "UNCLASSIFIED: TSLA already positioned in this book (3 legs); e": {
+   "n": 38,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 38,
+   "sample": "TSLA none 2026-08-28"
+  },
+  "UNCLASSIFIED: META already positioned in this book (2 legs); e": {
+   "n": 36,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 36,
+   "sample": "META none 2026-08-28"
+  },
+  "UNCLASSIFIED: TSLA already positioned in this book (1 legs); e": {
+   "n": 33,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 33,
+   "sample": "TSLA none 2026-08-28"
+  },
+  "UNCLASSIFIED: NVDA already positioned in this book (4 legs); e": {
+   "n": 28,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 28,
+   "sample": "NVDA none 2026-08-28"
+  },
+  "UNCLASSIFIED: IWM already positioned in this book (3 legs); ex": {
+   "n": 22,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 22,
+   "sample": "IWM none 2026-08-28"
+  },
+  "UNCLASSIFIED: QQQ already positioned in this book (3 legs); ex": {
+   "n": 21,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 21,
+   "sample": "QQQ none 2026-08-28"
+  },
+  "UNCLASSIFIED: NIO already positioned in this book (1 legs); ex": {
+   "n": 19,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 19,
+   "sample": "NIO none 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.07% of $99,534 = $74, but one unit of": {
+   "n": 9,
+   "saved": 17172.02501483821,
+   "cost": 18653.506866936717,
+   "wins": 4,
+   "sample": "NVDA bull_put_spread 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.04% of $99,670 = $43, but one unit of": {
+   "n": 7,
+   "saved": 15960.256002075279,
+   "cost": 16380.299100267486,
+   "wins": 2,
+   "sample": "META long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.04% of $99,584 = $42, but one unit of": {
+   "n": 5,
+   "saved": 18486.285835089104,
+   "cost": 13758.992805755395,
+   "wins": 1,
+   "sample": "MSFT long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.09% of $99,579 = $86, but one unit of": {
+   "n": 5,
+   "saved": 9556.56246818043,
+   "cost": 21390.777042601825,
+   "wins": 3,
+   "sample": "MSFT long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: 1 structures enumerated at 2026-08-28, none clea": {
+   "n": 5,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 5,
+   "sample": "PANW none 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.11% of $100,000 = $107, but one unit ": {
+   "n": 4,
+   "saved": 14576.67571268405,
+   "cost": 10297.741273100617,
+   "wins": 1,
+   "sample": "MSFT long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.01% of $100,000 = $10, but one unit o": {
+   "n": 4,
+   "saved": 14576.67571268405,
+   "cost": 10297.741273100617,
+   "wins": 1,
+   "sample": "MSFT long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 59% of max loss (ceiling 25": {
+   "n": 3,
+   "saved": 5454.545454545456,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "NIO long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.27% of $99,579 = $271, but one unit o": {
+   "n": 3,
+   "saved": 6912.68863566369,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "AMD long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: TSLA already positioned in this book (2 legs); e": {
+   "n": 3,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 3,
+   "sample": "TSLA none 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 26% of max loss (ceiling 25": {
+   "n": 3,
+   "saved": 0.0,
+   "cost": 29044.067796610165,
+   "wins": 3,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.00% of $99,534 = $2, but one unit of ": {
+   "n": 2,
+   "saved": 662.3711340206173,
+   "cost": 5513.432835820897,
+   "wins": 1,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.14% of $98,868 = $137, but one unit o": {
+   "n": 2,
+   "saved": 9479.000796178345,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "GOOGL long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 33% of max loss (ceiling 25": {
+   "n": 2,
+   "saved": 3333.333333333334,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "NIO long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.00% of $98,868 = $1, but one unit of ": {
+   "n": 2,
+   "saved": 9866.652267687168,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "PANW long_put 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 36% of max loss (ceiling 25": {
+   "n": 2,
+   "saved": 0.0,
+   "cost": 14242.935008406488,
+   "wins": 2,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 30% of max loss (ceiling 25": {
+   "n": 2,
+   "saved": 0.0,
+   "cost": 15539.65001454285,
+   "wins": 2,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 31% of max loss (ceiling 25": {
+   "n": 2,
+   "saved": 0.0,
+   "cost": 17065.632879119818,
+   "wins": 2,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 1.14% of $100,000 = $1,136, but one uni": {
+   "n": 1,
+   "saved": 0.0,
+   "cost": 0.0,
+   "wins": 1,
+   "sample": "QQQ long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: approved 0.23% of $99,584 = $228, but one unit o": {
+   "n": 1,
+   "saved": 1536.0169491525426,
+   "cost": 0.0,
+   "wins": 0,
+   "sample": "META long_call 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 37% of max loss (ceiling 25": {
+   "n": 1,
+   "saved": 0.0,
+   "cost": 7220.654627539505,
+   "wins": 1,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 29% of max loss (ceiling 25": {
+   "n": 1,
+   "saved": 0.0,
+   "cost": 9651.556156968876,
+   "wins": 1,
+   "sample": "PANW long_straddle 2026-08-28"
+  },
+  "UNCLASSIFIED: round-trip spread is 32% of max loss (ceiling 25": {
+   "n": 1,
+   "saved": 0.0,
+   "cost": 9191.624614981321,
+   "wins": 1,
+   "sample": "PANW long_straddle 2026-08-28"
+  }
+ }
+}

@@ -1,0 +1,945 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "ESTC",
+ "observed_at_utc": "2026-08-28T06:32:46.679270+00:00",
+ "roles": {
+  "fact": "deepseek",
+  "expectations": "hf_glm",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0001707753-26-000035",
+     "exhibit_type": "EX-99.1",
+     "chars": 31975,
+     "url": "https://www.sec.gov/Archives/edgar/data/1707753/000170775326000035/0001707753-26-000035.txt"
+    },
+    {
+     "date": "2026-05-28",
+     "accession": "0001707753-26-000008",
+     "exhibit_type": "EX-99.1",
+     "chars": 35655,
+     "url": "https://www.sec.gov/Archives/edgar/data/1707753/000170775326000008/0001707753-26-000008.txt"
+    }
+   ],
+   "n_headlines": 10,
+   "has_transcript": true,
+   "ah_move": null,
+   "pre_event_5d_move": -0.025372439478584807,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 478.0,
+     "value_high": 478.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Total revenue was $478 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 15.0,
+     "value_high": 15.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "an increase of 15% year-over-year, as reported and on a constant currency basis"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 449.0,
+     "value_high": 449.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Total subscription revenue was $449 million"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 399.0,
+     "value_high": 399.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Sales-led subscription revenue (calculated as subscription revenue excluding Monthly Elastic Cloud) was $399 million"
+    },
+    {
+     "metric": "backlog",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 1153.0,
+     "value_high": 1153.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Current remaining performance obligations were $1.153 billion"
+    },
+    {
+     "metric": "backlog",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 1854.0,
+     "value_high": 1854.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Remaining performance obligations were $1.854 billion"
+    },
+    {
+     "metric": "gaap_operating_loss",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": -24.0,
+     "value_high": -24.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "GAAP operating loss was $24 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": -5.0,
+     "value_high": -5.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "GAAP operating margin was -5%"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 77.0,
+     "value_high": 77.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Non-GAAP operating income was $77 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 16.2,
+     "value_high": 16.2,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "non-GAAP operating margin was 16.2%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": -0.16,
+     "value_high": -0.16,
+     "unit": "per_share",
+     "kind": "actual",
+     "quote": "GAAP net loss per share was $0.16"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 0.7,
+     "value_high": 0.7,
+     "unit": "per_share",
+     "kind": "actual",
+     "quote": "non-GAAP diluted earnings per share was $0.70"
+    },
+    {
+     "metric": "operating_cash_flow",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 132.0,
+     "value_high": 132.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Operating cash flow was $132 million"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 143.0,
+     "value_high": 143.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "adjusted free cash flow of $143 million"
+    },
+    {
+     "metric": "cash_cash_equivalents_and_marketable_securities",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 1461.0,
+     "value_high": 1461.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Cash, cash equivalents, and marketable securities were $1.461 billion as of July 31, 2026"
+    },
+    {
+     "metric": "customers",
+     "basis": "unknown",
+     "period": "Q1FY27",
+     "value_low": 1800.0,
+     "value_high": 1800.0,
+     "unit": "count",
+     "kind": "kpi",
+     "quote": "Total customer count with Annual Contract Value (ACV) greater than $100,000 was over 1,800"
+    },
+    {
+     "metric": "net_expansion_rate",
+     "basis": "unknown",
+     "period": "Q1FY27",
+     "value_low": 111.0,
+     "value_high": 111.0,
+     "unit": "percent",
+     "kind": "kpi",
+     "quote": "Net Expansion Rate was approximately 111%"
+    },
+    {
+     "metric": "share_repurchases",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 40.0,
+     "value_high": 40.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "representing an aggregate value of approximately $40 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 486.0,
+     "value_high": 487.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Total revenue is expected to be between $486 million and $487 million"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 407.5,
+     "value_high": 408.5,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Sales-led subscription revenue is expected to be between $407.5 million and $408.5 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 0.0,
+     "value_high": 0.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "GAAP operating margin is expected to be positive"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 19.0,
+     "value_high": 19.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP operating margin is expected to be approximately 19.0%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.8,
+     "value_high": 0.82,
+     "unit": "per_share",
+     "kind": "guide_new",
+     "quote": "Non-GAAP diluted earnings per share is expected to be between $0.80 and $0.82"
+    },
+    {
+     "metric": "share_count",
+     "basis": "unknown",
+     "period": "Q2FY27",
+     "value_low": 108.0,
+     "value_high": 109.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "assuming between 108.0 million and 109.0 million diluted weighted average ordinary shares outstanding"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 1998.0,
+     "value_high": 2010.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Total revenue is expected to be between $1.998 billion and $2.010 billion"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 1682.0,
+     "value_high": 1694.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Sales-led subscription revenue is expected to be between $1.682 billion and $1.694 billion"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 0.0,
+     "value_high": 0.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "GAAP operating margin is expected to be positive"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 19.4,
+     "value_high": 19.4,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP operating margin is expected to be approximately 19.4%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 3.29,
+     "value_high": 3.37,
+     "unit": "per_share",
+     "kind": "guide_new",
+     "quote": "Non-GAAP diluted earnings per share is expected to be between $3.29 and $3.37"
+    },
+    {
+     "metric": "share_count",
+     "basis": "unknown",
+     "period": "FY27",
+     "value_low": 108.5,
+     "value_high": 109.5,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "assuming between 108.5 million and 109.5 million diluted weighted average ordinary shares outstanding"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 21.5,
+     "value_high": 21.5,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Adjusted free cash flow margin is expected to be approximately 21.5%"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q1FY27",
+     "value_low": 469.0,
+     "value_high": 470.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Total revenue is expected to be between $469 million and $470 million"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 392.0,
+     "value_high": 393.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Sales-led subscription revenue is expected to be between $392 million and $393 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP operating margin is expected to be approximately 14.0%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q1FY27",
+     "value_low": 0.57,
+     "value_high": 0.59,
+     "unit": "per_share",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP diluted earnings per share is expected to be between $0.57 and $0.59"
+    },
+    {
+     "metric": "share_count",
+     "basis": "unknown",
+     "period": "Q1FY27",
+     "value_low": 106.0,
+     "value_high": 107.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "assuming between 106.0 million and 107.0 million diluted weighted average ordinary shares outstanding"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 1985.0,
+     "value_high": 2000.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Total revenue is expected to be between $1.985 billion and $2.000 billion"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 1673.0,
+     "value_high": 1688.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Sales-led subscription revenue is expected to be between $1.673 billion and $1.688 billion"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 19.0,
+     "value_high": 19.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP operating margin is expected to be approximately 19.0%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 3.21,
+     "value_high": 3.29,
+     "unit": "per_share",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP diluted earnings per share is expected to be between $3.21 and $3.29"
+    },
+    {
+     "metric": "share_count",
+     "basis": "unknown",
+     "period": "FY27",
+     "value_low": 107.5,
+     "value_high": 108.5,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "assuming between 107.5 million and 108.5 million diluted weighted average ordinary shares outstanding"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 21.5,
+     "value_high": 21.5,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Adjusted free cash flow margin is expected to be approximately 21.5%"
+    }
+   ],
+   "share_count_note": "Diluted weighted average ordinary shares outstanding guidance for Q2 FY27 and FY27 reflect only share buybacks completed as of July 31, 2026.",
+   "fx_or_one_off_note": "Guidance assumes exchange rates: 1 Euro = 1.166 USD; 1 GBP = 1.361 USD. Adjusted free cash flow includes cash paid for restructuring and other charges of $13.0 million during Q1 FY27.",
+   "llm": {
+    "provider": "deepseek",
+    "family": "deepseek",
+    "model": "deepseek-chat",
+    "prompt_tokens": 9638,
+    "completion_tokens": 3896,
+    "latency_s": 18.4
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q1 FY2027",
+     "value_low": 0.58,
+     "value_high": 0.58,
+     "unit": "USD per share",
+     "source_quote": "Elastic Q1 Adj. EPS $0.70 Beats $0.58 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q1 FY2027",
+     "value_low": 469745000,
+     "value_high": 469745000,
+     "unit": "USD",
+     "source_quote": "Sales $478.113M Beat $469.745M Estimate"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 0.8,
+     "value_high": 0.8,
+     "unit": "USD per share",
+     "source_quote": "Elastic Sees Q2 Adj EPS $0.80-$0.82 vs $0.80 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 483397000,
+     "value_high": 483397000,
+     "unit": "USD",
+     "source_quote": "Sees Sales $486.000M-$487.000M vs $483.397M Est"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "FY2027",
+     "value_low": 3.24,
+     "value_high": 3.24,
+     "unit": "USD per share",
+     "source_quote": "Raises FY2027 Adj EPS Guidance from $3.21-$3.29 to $3.29-$3.37 vs $3.24 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "FY2027",
+     "value_low": 1993000000,
+     "value_high": 1993000000,
+     "unit": "USD",
+     "source_quote": "Raises FY2027 Sales Guidance from $1.985B-$2.000B to $1.998B-$2.010B vs $1.993B Est"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "revenue",
+     "basis": "company guidance",
+     "period": "Q1 FY2027",
+     "value_low": 469000000,
+     "value_high": 470000000,
+     "unit": "USD",
+     "source_quote": "Total revenue is expected to be between $469 million and $470 million, representing 13.1% year-over-year growth at the midpoint"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "company guidance",
+     "period": "Q1 FY2027",
+     "value_low": 392000000,
+     "value_high": 393000000,
+     "unit": "USD",
+     "source_quote": "Sales-led subscription revenue is expected to be between $392 million and $393 million, representing 15.9% year-over-year growth at the midpoint"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "company guidance",
+     "period": "Q1 FY2027",
+     "value_low": 0.14,
+     "value_high": 0.14,
+     "unit": "non-GAAP operating margin",
+     "source_quote": "Non-GAAP operating margin is expected to be approximately 14.0%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance",
+     "period": "Q1 FY2027",
+     "value_low": 0.57,
+     "value_high": 0.59,
+     "unit": "USD per share",
+     "source_quote": "Non-GAAP diluted earnings per share is expected to be between $0.57 and $0.59"
+    },
+    {
+     "metric": "revenue",
+     "basis": "company guidance",
+     "period": "FY2027",
+     "value_low": 1985000000,
+     "value_high": 2000000000,
+     "unit": "USD",
+     "source_quote": "Total revenue is expected to be between $1.985 billion and $2.000 billion, representing 14.6% year-over-year growth at the midpoint"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "company guidance",
+     "period": "FY2027",
+     "value_low": 1673000000,
+     "value_high": 1688000000,
+     "unit": "USD",
+     "source_quote": "Sales-led subscription revenue is expected to be between $1.673 billion and $1.688 billion, representing 16.9% year-over-year growth at the midpoint"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "company guidance",
+     "period": "FY2027",
+     "value_low": 0.19,
+     "value_high": 0.19,
+     "unit": "non-GAAP operating margin",
+     "source_quote": "Non-GAAP operating margin is expected to be approximately 19.0%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance",
+     "period": "FY2027",
+     "value_low": 3.21,
+     "value_high": 3.29,
+     "unit": "USD per share",
+     "source_quote": "Non-GAAP diluted earnings per share is expected to be between $3.21 and $3.29"
+    }
+   ],
+   "what_the_market_was_braced_for": "Heading into the Q1 FY2027 print, the market expected Elastic to deliver roughly $469.7M of revenue and $0.58 non-GAAP EPS for the quarter (in line with the company's own $469-470M revenue and $0.57-0.59 EPS guidance), with FY2027 consensus at ~$1.993B revenue and ~$3.24 non-GAAP EPS versus company guidance of $1.985-2.000B and $3.21-3.29. The option-implied move is unknown, but the stock drifted down about 2.5% over the five sessions before the release, suggesting a cautious setup. Investors were focused on whether Elastic could beat its Q1 guide and, more importantly, raise full-year FY2027 revenue and EPS guidance above the $1.985-2.000B / $3.21-3.29 ranges set in May 2026.",
+   "latent_kpi_guess": "cRPO (current remaining performance obligations) growth, as the key forward indicator of AI-driven platform demand and the driver of the FY2027 guidance raise",
+   "expectations_confidence": 0.9,
+   "llm": {
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 2718,
+    "completion_tokens": 1779,
+    "latency_s": 9.0
+   }
+  },
+  "surprise_cube": {
+   "cells": [
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 2004.0,
+     "reference_mid": 1992.5,
+     "relative": 0.0058,
+     "sign": 1,
+     "unit": "USD_millions",
+     "fact_quote": "Total revenue is expected to be between $1.998 billion and $2.010 billion",
+     "reference_quote": "Total revenue is expected to be between $1.985 billion and $2.000 billion",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "subscription_revenue",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 1688.0,
+     "reference_mid": 1680.5,
+     "relative": 0.0045,
+     "sign": 1,
+     "unit": "USD_millions",
+     "fact_quote": "Sales-led subscription revenue is expected to be between $1.682 billion and $1.694 billion",
+     "reference_quote": "Sales-led subscription revenue is expected to be between $1.673 billion and $1.688 billion",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 19.4,
+     "reference_mid": 19.0,
+     "relative": 0.0211,
+     "sign": 1,
+     "unit": "percent",
+     "fact_quote": "Non-GAAP operating margin is expected to be approximately 19.4%",
+     "reference_quote": "Non-GAAP operating margin is expected to be approximately 19.0%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 3.33,
+     "reference_mid": 3.25,
+     "relative": 0.0246,
+     "sign": 1,
+     "unit": "per_share",
+     "fact_quote": "Non-GAAP diluted earnings per share is expected to be between $3.29 and $3.37",
+     "reference_quote": "Non-GAAP diluted earnings per share is expected to be between $3.21 and $3.29",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "share_count",
+     "basis": "unknown",
+     "period": "FY27",
+     "fact_mid": 109.0,
+     "reference_mid": 108.0,
+     "relative": 0.0093,
+     "sign": 1,
+     "unit": "count",
+     "fact_quote": "assuming between 108.5 million and 109.5 million diluted weighted average ordinary shares outstanding",
+     "reference_quote": "assuming between 107.5 million and 108.5 million diluted weighted average ordinary shares outstanding",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 21.5,
+     "reference_mid": 21.5,
+     "relative": 0.0,
+     "sign": 0,
+     "unit": "percent",
+     "fact_quote": "Adjusted free cash flow margin is expected to be approximately 21.5%",
+     "reference_quote": "Adjusted free cash flow margin is expected to be approximately 21.5%",
+     "basis_assumed": false
+    }
+   ],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q1FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q1FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "subscription_revenue",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "subscription_revenue",
+      "non-gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "backlog",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "backlog",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gaap_operating_loss",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "non-gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q1FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_cash_flow",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "free_cash_flow",
+      "non-gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_cash_equivalents_and_marketable_securities",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "share_repurchases",
+      "gaap",
+      "Q1FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company guidance', 'Q1FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "subscription_revenue",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance', 'Q1FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance', 'Q1FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'unknown', 'Q1FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+    }
+   ],
+   "n_cells": 6,
+   "n_incomparable": 23
+  },
+  "historical_analog": {
+   "available": false,
+   "why": "no observable day-0 reaction yet"
+  },
+  "market_pricing": {
+   "ah_move": null,
+   "band": null,
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": -0.025372439478584807
+  }
+ },
+ "refusals": [],
+ "fallbacks": [
+  {
+   "role": "expectations",
+   "tried": [
+    {
+     "provider": "nvidia_kimi",
+     "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+    }
+   ],
+   "answered": "hf_glm"
+  }
+ ],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

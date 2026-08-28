@@ -1,0 +1,891 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "AFRM",
+ "observed_at_utc": "2026-08-28T06:36:32.084743+00:00",
+ "roles": {
+  "fact": "deepseek",
+  "expectations": "nvidia_kimi",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-05-07",
+     "accession": "0001628280-26-032105",
+     "exhibit_type": "EX-99.1",
+     "chars": 59405,
+     "url": "https://www.sec.gov/Archives/edgar/data/1820953/000162828026032105/0001628280-26-032105.txt"
+    },
+    {
+     "date": "2026-02-05",
+     "accession": "0001628280-26-005772",
+     "exhibit_type": "EX-99.1",
+     "chars": 60656,
+     "url": "https://www.sec.gov/Archives/edgar/data/1820953/000162828026005772/0001628280-26-005772.txt"
+    }
+   ],
+   "n_headlines": 13,
+   "has_transcript": true,
+   "ah_move": null,
+   "pre_event_5d_move": 0.033453285352525786,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "revenue",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 498.2,
+     "value_high": 498.2,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "RLTC grew 41% to $498 million."
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q3FY26",
+     "value_low": 1038.8,
+     "value_high": 1038.8,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Total revenue grew 33% to $1,039 million."
+    },
+    {
+     "metric": "gross_merchandise_volume_gmv",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 11.6,
+     "value_high": 11.6,
+     "unit": "USD_billions",
+     "kind": "actual",
+     "quote": "GMV grew 35% to $11.6 billion."
+    },
+    {
+     "metric": "net_income",
+     "basis": "gaap",
+     "period": "Q3FY26",
+     "value_low": 102.9,
+     "value_high": 102.9,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Net Income $102.9"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 280.8,
+     "value_high": 280.8,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Adjusted Operating Income was $281 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 27.0,
+     "value_high": 27.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Adjusted Operating Margin was 27%"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "Q3FY26",
+     "value_low": 88.4,
+     "value_high": 88.4,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Operating Income was $88 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q3FY26",
+     "value_low": 8.5,
+     "value_high": 8.5,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Operating Margin 8.5%"
+    },
+    {
+     "metric": "total_transactions",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 45.3,
+     "value_high": 45.3,
+     "unit": "count",
+     "kind": "actual",
+     "quote": "Total transactions during the quarter increased to 45 million"
+    },
+    {
+     "metric": "active_consumers",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 26.8,
+     "value_high": 26.8,
+     "unit": "count",
+     "kind": "actual",
+     "quote": "Active consumers, increased 22% to 26.8 million"
+    },
+    {
+     "metric": "transactions_per_active_consumer",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 6.7,
+     "value_high": 6.7,
+     "unit": "count",
+     "kind": "actual",
+     "quote": "transactions per active consumer increased 20% to 6.7"
+    },
+    {
+     "metric": "active_merchants",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 515.2,
+     "value_high": 515.2,
+     "unit": "count",
+     "kind": "actual",
+     "quote": "Active merchant count increased 44% to 515 thousand"
+    },
+    {
+     "metric": "total_platform_portfolio",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 18.4,
+     "value_high": 18.4,
+     "unit": "USD_billions",
+     "kind": "actual",
+     "quote": "Total Platform Portfolio (Non-GAAP) (in billions) $ 18.4"
+    },
+    {
+     "metric": "equity_capital_required",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 827.7,
+     "value_high": 827.7,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Equity Capital Required (Non-GAAP) (in millions) $ 827.7"
+    },
+    {
+     "metric": "equity_capital_required_as_a_of_total_platform_portfolio",
+     "basis": "non-gaap",
+     "period": "Q3FY26",
+     "value_low": 4.5,
+     "value_high": 4.5,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Equity Capital Required as a % of Total Platform Portfolio (Non-GAAP) 4.5 %"
+    },
+    {
+     "metric": "allowance_for_credit_losses_as_a_of_loans_held_for_investment",
+     "basis": "gaap",
+     "period": "Q3FY26",
+     "value_low": 6.0,
+     "value_high": 6.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Allowance for credit losses as a percent of loans held for investment was 6.0%"
+    },
+    {
+     "metric": "funding_capacity",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 28.2,
+     "value_high": 28.2,
+     "unit": "USD_billions",
+     "kind": "actual",
+     "quote": "Funding Capacity increased to $28.2 billion at the end of FQ3\u201926"
+    },
+    {
+     "metric": "net_cash",
+     "basis": "unknown",
+     "period": "Q3FY26",
+     "value_low": 1.4,
+     "value_high": 1.4,
+     "unit": "USD_billions",
+     "kind": "actual",
+     "quote": "Our net cash position of $1.4 billion"
+    },
+    {
+     "metric": "gmv",
+     "basis": "unknown",
+     "period": "Q4FY26",
+     "value_low": 13.15,
+     "value_high": 13.45,
+     "unit": "USD_billions",
+     "kind": "guide_new",
+     "quote": "GMV $13.15 to $13.45 billion"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q4FY26",
+     "value_low": 1080.0,
+     "value_high": 1110.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue $1,080 to $1,110 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "non-gaap",
+     "period": "Q4FY26",
+     "value_low": 535.0,
+     "value_high": 550.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue Less Transaction Costs $535 to $550 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q4FY26",
+     "value_low": 9.5,
+     "value_high": 11.5,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Operating Margin 9.5 to 11.5%"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q4FY26",
+     "value_low": 27.5,
+     "value_high": 29.5,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Adjusted Operating Margin 27.5 to 29.5%"
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q4FY26",
+     "value_low": 341.0,
+     "value_high": 341.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted Avg. Basic Shares Outstanding 341 million"
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q4FY26",
+     "value_low": 352.0,
+     "value_high": 352.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted Avg. Diluted Shares Outstanding 352 million"
+    },
+    {
+     "metric": "gmv",
+     "basis": "unknown",
+     "period": "FY26",
+     "value_low": 49.265,
+     "value_high": 49.565,
+     "unit": "USD_billions",
+     "kind": "guide_new",
+     "quote": "GMV $49.265 to $49.565 billion"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 4175.0,
+     "value_high": 4205.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue $4,175 to $4,205 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "non-gaap",
+     "period": "FY26",
+     "value_low": 2031.0,
+     "value_high": 2046.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue Less Transaction Costs $2,031 to $2,046 million"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 8.9,
+     "value_high": 9.4,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Operating Margin 8.9 to 9.4%"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY26",
+     "value_low": 28.2,
+     "value_high": 28.8,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Adjusted Operating Margin 28.2 to 28.8%"
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 336.0,
+     "value_high": 336.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted Avg. Basic Shares Outstanding 336 million"
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 349.0,
+     "value_high": 349.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted Avg. Diluted Shares Outstanding 349 million"
+    },
+    {
+     "metric": "gmv",
+     "basis": "unknown",
+     "period": "Q2FY26",
+     "value_low": 13.8,
+     "value_high": 13.8,
+     "unit": "USD_billions",
+     "kind": "actual",
+     "quote": "GMV grew 36% to $13.8 billion"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 1123.0,
+     "value_high": 1123.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Total revenue grew 30% to $1,123 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "non-gaap",
+     "period": "Q2FY26",
+     "value_low": 543.0,
+     "value_high": 543.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "$543M Revenue Less Transaction Costs (\u201cRLTC\u201d)"
+    },
+    {
+     "metric": "net_income",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 130.0,
+     "value_high": 130.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Net Income +$49M ... $130M"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "non-gaap",
+     "period": "Q2FY26",
+     "value_low": 337.0,
+     "value_high": 337.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "30.0% Adjusted Operating Income As a percent of Revenue"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY26",
+     "value_low": 30.0,
+     "value_high": 30.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "30.0% Adjusted Operating Income As a percent of Revenue"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 118.0,
+     "value_high": 118.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "10.5% Operating Income As a percent of Revenue"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 10.5,
+     "value_high": 10.5,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "10.5% Operating Income As a percent of Revenue"
+    }
+   ],
+   "share_count_note": "Share counts are provided as weighted average basic and diluted shares outstanding for guidance periods.",
+   "fx_or_one_off_note": "No foreign exchange or one-off items noted.",
+   "llm": {
+    "provider": "deepseek",
+    "family": "deepseek",
+    "model": "deepseek-chat",
+    "prompt_tokens": 9758,
+    "completion_tokens": 3517,
+    "latency_s": 18.0
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "consensus estimate",
+     "period": "Q4 FY2026",
+     "value_low": 0.34,
+     "value_high": 0.34,
+     "unit": "USD per share",
+     "source_quote": "Affirm Holdings Q4 Adj. EPS $0.48 Beats $0.34 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "consensus estimate",
+     "period": "Q4 FY2026",
+     "value_low": 1.106,
+     "value_high": 1.106,
+     "unit": "USD billions",
+     "source_quote": "Sales $1.165B Beat $1.106B Estimate"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "revenue",
+     "basis": "company prior guidance",
+     "period": "Q4 FY2026",
+     "value_low": null,
+     "value_high": null,
+     "unit": "USD",
+     "source_quote": "Prior quarter (FQ2'26) shareholder letter provided; no explicit Q4 FY2026 revenue guidance range is quoted in the supplied material"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company prior guidance",
+     "period": "Q4 FY2026",
+     "value_low": null,
+     "value_high": null,
+     "unit": "USD per share",
+     "source_quote": "No explicit Q4 EPS guidance quoted in the supplied FQ2'26 shareholder letter excerpt"
+    }
+   ],
+   "what_the_market_was_braced_for": "Heading into the Q4 FY2026 print, the market expected adjusted EPS of about $0.34 and revenue of about $1.106B. Sentiment was constructive: the stock rose ~3.3% over the five sessions before the release, analysts had raised price targets (Morgan Stanley to $80, Oppenheimer to $100), and previews highlighted Affirm's 76% EPS beat the prior quarter, setting a high bar for another beat. Option-implied move is unknown from the material provided.",
+   "latent_kpi_guess": "revenue",
+   "expectations_confidence": 0.7,
+   "llm": {
+    "provider": "nvidia_kimi",
+    "family": "moonshot",
+    "model": "moonshotai/kimi-k3",
+    "prompt_tokens": 2845,
+    "completion_tokens": 578,
+    "latency_s": 30.4
+   }
+  },
+  "surprise_cube": {
+   "cells": [],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus estimate', 'Q4FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus estimate', 'Q4FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_merchandise_volume_gmv",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_income",
+      "gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "total_transactions",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "active_consumers",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "transactions_per_active_consumer",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "active_merchants",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "total_platform_portfolio",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "equity_capital_required",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "equity_capital_required_as_a_of_total_platform_portfolio",
+      "non-gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "allowance_for_credit_losses_as_a_of_loans_held_for_investment",
+      "gaap",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "funding_capacity",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_cash",
+      "unknown",
+      "Q3FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "gmv",
+      "unknown",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "non-gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "Q4FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "gmv",
+      "unknown",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "non-gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "FY26"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gmv",
+      "unknown",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus estimate', 'Q4FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "non-gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus estimate', 'Q4FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_income",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "non-gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    }
+   ],
+   "n_cells": 0,
+   "n_incomparable": 40
+  },
+  "historical_analog": {
+   "available": false,
+   "why": "no observable day-0 reaction yet"
+  },
+  "market_pricing": {
+   "ah_move": null,
+   "band": null,
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": 0.033453285352525786
+  }
+ },
+ "refusals": [],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

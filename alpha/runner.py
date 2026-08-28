@@ -370,16 +370,30 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     lo = hi = None
     if spot_hint:
         lo, hi = spot_hint * (1 - band), spot_hint * (1 + band)
-    snapshot = chain_mod.fetch(
-        client, forecast.symbol, expiry_from=expiry, expiry_to=expiry,
-        strike_from=lo, strike_to=hi,
-    )
+    # A PAIR is equity-only. A wide-universe printer (LUCK, P, DY, HQY on 28 Aug)
+    # often has no listed options at the contest expiry, and a chain refusal
+    # there was killing the whole evaluation of a structure that never needed a
+    # chain. So the chain is fetched, and for a pair forecast its absence is a
+    # note on the row rather than an error: the option candidates are simply
+    # empty and the pair is built from stock quotes.
+    wants_pair = (forecast.claim == "direction" and forecast.centre != 0.0
+                  and (forecast.evidence or {}).get("expression") == equity.PAIR_KIND)
+    try:
+        snapshot = chain_mod.fetch(
+            client, forecast.symbol, expiry_from=expiry, expiry_to=expiry,
+            strike_from=lo, strike_to=hi,
+        )
+    except chain_mod.ChainRefusal:
+        if not wants_pair:
+            raise
+        snapshot = None
+        logger.info("%s: no chain at %s; pair forecast proceeds on stock quotes only", forecast.symbol, expiry)
 
     risk = open_risk if open_risk is not None else open_convex_risk(client)
     best = None
     rejected = []
     cash_beat = 0
-    candidates = list(structures.enumerate_all(snapshot, expiry))
+    candidates = list(structures.enumerate_all(snapshot, expiry)) if snapshot is not None else []
     # SHARES beside the options, for a brain that knows WHICH WAY. The same
     # gate, the same ranker; the instrument with no premium to pay wins only
     # when the shift alone clears one bid-ask (`alpha/engine/equity.py`).
@@ -388,7 +402,6 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
         # measured as a RELATIVE move (short loser / long IWM); the unhedged
         # short of it is worth nothing in simple returns, so `short_shares` is
         # NOT enumerated for it -- only the pair is.
-        wants_pair = (forecast.evidence or {}).get("expression") == equity.PAIR_KIND
         try:
             share = (pair_structure(client, forecast, snapshot, expiry) if wants_pair
                      else share_structure(client, forecast, snapshot, expiry))
@@ -430,7 +443,7 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             # A `direction` brain's sd is already the chain's own width, stated
             # over the structure's LIFE, so it must not be re-scaled by horizon.
             econ = payoff.economics(
-                structure, snapshot.spot, forecast.centre, sd_used,
+                structure, _spot_for(snapshot, structure), forecast.centre, sd_used,
                 # A sd that CAME FROM THE CHAIN is already stated over the
                 # structure's own life. Rescaling it by a declared horizon
                 # inflates it by sqrt(horizon/life) -- a 2-day view on a 1-day
@@ -565,7 +578,14 @@ def pair_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: st
     """Short one share of the loser against dollar-neutral IWM (`equity.pair_short_vs_hedge`)."""
     symbol = forecast.symbol
     hedge = equity.DEFAULT_HEDGE
-    spot = snapshot.spot
+    spot = snapshot.spot if snapshot is not None else 0.0
+    if spot <= 0:
+        try:
+            snap = client._request("GET", f"/v2/stocks/{symbol}/snapshot", base=config.data_url(),
+                                   params={"feed": config.stock_feed()}) or {}
+            spot = float(((snap.get("latestTrade") or {}).get("p")) or 0.0)
+        except BrokerRefusal:
+            spot = 0.0
     bid, ask, raw, synthetic = _stock_quote_or_synthetic(client, symbol, spot)
     if bid <= 0:
         logger.info("%s: no spot and no two-sided stock quote; pair not built", symbol)
@@ -605,7 +625,7 @@ def pair_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: st
         hbars = _daily_bars(client, hedge, equity.GAP_LOOKBACK + 20)
     except Exception as exc:                                              # noqa: BLE001
         logger.info("%s: bars for the pair gap allowance not read (%s); floor applies", symbol, exc)
-    implied = snapshot.implied_move(expiry) or 0.0
+    implied = (snapshot.implied_move(expiry) or 0.0) if snapshot is not None else 0.0
     return equity.pair_short_vs_hedge(
         symbol, spot=spot, bid=bid, ask=ask, hedge_symbol=hedge, hedge_spot=hspot,
         hedge_bid=hbid, hedge_ask=hask, bars=bars, hedge_bars=hbars,
@@ -1203,9 +1223,30 @@ def _rank_value(structure, econ: dict | None, objective: str) -> float:
     return (median / max_loss if max_loss > 0 else 0.0) + 1e-6 * ev
 
 
+def _spot_for(snapshot, structure: sizing.Structure) -> float:
+    """The underlying spot: the chain's when there is a chain, else the share
+    structure's own quote (a pair on a name with no listed options)."""
+    if snapshot is not None and snapshot.spot > 0:
+        return float(snapshot.spot)
+    q = structure.quote or {}
+    for k in ("spot", "mid"):
+        if q.get(k):
+            return float(q[k])
+    b, a = float(q.get("bid") or 0.0), float(q.get("ask") or 0.0)
+    return 0.5 * (b + a) if b > 0 and a > 0 else float(structure.entry_cost or 0.0)
+
+
 def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:
     """The quotes we actually saw, per leg, plus how stale they were."""
     wanted = {sym for sym, _, _ in structure.legs}
+    if snapshot is None:
+        # No chain: a pair on a name with no listed options. The stock quotes
+        # ARE the record; say so rather than fabricating chain fields.
+        return {"underlying": structure.symbol, "spot": _spot_for(None, structure),
+                "spot_source": "stock_quote", "spot_ts": datetime.now(timezone.utc).isoformat(),
+                "feed": config.stock_feed(), "market_open": None, "median_quote_age_s": None,
+                "parity_gap": None, "no_chain": True,
+                "legs": [dict(structure.quote)] if structure.quote else []}
     legs = [
         {"symbol": c.symbol, "bid": c.bid, "ask": c.ask, "bid_size": c.bid_size,
          "ask_size": c.ask_size, "quote_ts": c.quote_ts.isoformat(),

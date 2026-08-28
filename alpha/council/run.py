@@ -35,7 +35,7 @@ ROLE_PREFERENCES: dict[str, list[str]] = {
     "expectations": ["nvidia_kimi", "hf_glm", "nvidia_minimax", "hf_deepseek_v4"],
     "causal": ["nvidia_minimax", "nvidia_kimi", "hf_glm", "deepseek"],
     "skeptic": ["hf_glm", "nvidia_kimi", "nvidia_minimax", "hf_deepseek_v4"],
-    "synthesis": ["deepseek", "hf_deepseek_v4", "nvidia_minimax"],
+    "synthesis": ["deepseek", "hf_deepseek_v4", "nvidia_kimi", "nvidia_minimax"],
 }
 
 MEGA_NAMES = frozenset({"AAPL", "AMD", "AMZN", "AVGO", "GOOGL", "META", "MSFT", "MU", "NVDA", "PANW", "TSLA"})
@@ -56,6 +56,28 @@ def assign(live: dict[str, dict[str, Any]], overrides: dict[str, str] | None = N
                     and providers.PROVIDERS[p].family != providers.PROVIDERS[out["synthesis"]].family), None)
         out["skeptic"] = alt or out["skeptic"]
     return out
+
+
+def _ask(role: str, who: dict[str, str | None], live: dict[str, dict[str, Any]], system: str, user: str,
+         *, caller: str, why: str, max_tokens: int, packet: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Ask the assigned provider; on refusal (timeout, truncated JSON, non-Latin)
+    fall through the role's remaining LIVE providers. Every attempt is recorded
+    on the packet so a fallback is visible, and the provider that answered is
+    written back into `who[role]` so `skeptic_independent` reflects reality."""
+    tried = []
+    order = [who.get(role)] + [p for p in ROLE_PREFERENCES[role] if p != who.get(role) and live.get(p, {}).get("state") == "live"]
+    last: Exception | None = None
+    for prov in [p for p in order if p]:
+        try:
+            raw, meta = providers.chat_json(prov, system, user, caller=caller, why=why, max_tokens=max_tokens)
+            who[role] = prov
+            if tried:
+                packet.setdefault("fallbacks", []).append({"role": role, "tried": tried, "answered": prov})
+            return raw, meta
+        except ProviderRefusal as exc:
+            tried.append({"provider": prov, "why": str(exc)[:120]})
+            last = exc
+    raise ProviderRefusal(f"{role}: every live provider refused: {tried}") from last
 
 
 def _headlines(client, symbol: str, days: int = 4) -> list[dict[str, Any]]:
@@ -114,7 +136,11 @@ def _snips(text: str) -> list[str]:
 
 
 def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = None,
-            overrides: dict[str, str] | None = None, implied_move: float | None = None) -> dict[str, Any]:
+            overrides: dict[str, str] | None = None, implied_move: float | None = None,
+            light: bool = False) -> dict[str, Any]:
+    """`light=True` runs SCOUT, FACT, EXPECTATIONS and the CUBE only -- the
+    ATTENTION_ROUTER's cheap pass over many printers; the deep roles run on the
+    few the cube singles out."""
     symbol = symbol.upper()
     live = live if live is not None else providers.probe()
     who = assign(live, overrides)
@@ -154,9 +180,9 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
     facts: list[dict[str, Any]] = []
     if who["fact"]:
         try:
-            raw, meta = providers.chat_json(
-                who["fact"], roles.FACT_SYSTEM, roles.fact_prompt(symbol, current, prior_text=prior),
-                caller="council.fact", max_tokens=2500,
+            raw, meta = _ask(
+                "fact", who, live, roles.FACT_SYSTEM, roles.fact_prompt(symbol, current, prior_text=prior),
+                caller="council.fact", max_tokens=4000, packet=packet,
                 why="Decides which guidance cells are COMPARABLE; a metric with no exact prior is refused from the cube, not subtracted.")
             facts = roles.normalise_rows(raw)
             packet["steps"]["facts"] = {"rows": facts, "share_count_note": raw.get("share_count_note"),
@@ -168,10 +194,10 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
     expectations: dict[str, Any] = {}
     if who["expectations"]:
         try:
-            raw, meta = providers.chat_json(
-                who["expectations"], roles.EXPECT_SYSTEM,
+            raw, meta = _ask(
+                "expectations", who, live, roles.EXPECT_SYSTEM,
                 roles.expect_prompt(symbol, headlines, prior, implied_move, pre5),
-                caller="council.expectations", max_tokens=1800,
+                caller="council.expectations", max_tokens=2500, packet=packet,
                 why="Decides the reference each fact is graded against; without it the cube has no cells and the synthesis must say none.")
             expectations = raw
             packet["steps"]["expectations"] = {**{k: raw.get(k) for k in ("consensus", "prior_guidance", "what_the_market_was_braced_for",
@@ -184,22 +210,22 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
     packet["steps"]["surprise_cube"] = cube
 
     # 5. CAUSAL EXPANSION
-    if who["causal"] and facts:
+    if who["causal"] and facts and not light:
         try:
-            raw, meta = providers.chat_json(
-                who["causal"], roles.CAUSAL_SYSTEM, roles.causal_prompt(symbol, facts, cube, _snips(current)),
-                caller="council.causal", max_tokens=1500,
+            raw, meta = _ask(
+                "causal", who, live, roles.CAUSAL_SYSTEM, roles.causal_prompt(symbol, facts, cube, _snips(current)),
+                caller="council.causal", max_tokens=2000, packet=packet,
                 why="Decides which OTHER names enter the candidate list as proxies, with a sign and lag the grader can score.")
             packet["steps"]["causal"] = {**raw, "llm": meta}
         except ProviderRefusal as exc:
             refuse("causal", exc)
 
     # 6. SKEPTIC -- different family, no synthesis shown
-    if who["skeptic"] and facts:
+    if who["skeptic"] and facts and not light:
         try:
-            raw, meta = providers.chat_json(
-                who["skeptic"], roles.SKEPTIC_SYSTEM, roles.skeptic_prompt(symbol, facts, cube, ah, implied_move),
-                caller="council.skeptic", max_tokens=1500,
+            raw, meta = _ask(
+                "skeptic", who, live, roles.SKEPTIC_SYSTEM, roles.skeptic_prompt(symbol, facts, cube, ah, implied_move),
+                caller="council.skeptic", max_tokens=2000, packet=packet,
                 why="Decides P(already priced), which can veto a thesis vector before it is sized; a skeptic from the synthesiser's own family is recorded as not independent.")
             packet["steps"]["skeptic"] = {**raw, "llm": meta}
         except ProviderRefusal as exc:
@@ -217,12 +243,12 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
                                          "pre_event_5d_move": pre5}
 
     # 9. SYNTHESIS
-    if who["synthesis"] and facts:
+    if who["synthesis"] and facts and not light:
         bundle = {k: v for k, v in packet["steps"].items()}
         try:
-            raw, meta = providers.chat_json(
-                who["synthesis"], roles.SYNTH_SYSTEM, roles.synth_prompt(symbol, bundle),
-                caller="council.synthesis", max_tokens=1200,
+            raw, meta = _ask(
+                "synthesis", who, live, roles.SYNTH_SYSTEM, roles.synth_prompt(symbol, bundle),
+                caller="council.synthesis", max_tokens=2500, packet=packet,
                 why="Decides the thesis VECTOR a human may adopt via scripts.thesis; direction must be none when the cube has no comparable cell.")
             if cube["n_cells"] == 0:
                 raw["direction"] = "none"
@@ -234,7 +260,8 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
     sk, sy = who["skeptic"], who["synthesis"]
     packet["skeptic_independent"] = bool(sk and sy and providers.PROVIDERS[sk].family != providers.PROVIDERS[sy].family)
     packet["families_used"] = sorted({providers.PROVIDERS[p].family for p in who.values() if p})
-    packet["verdict"] = "OK" if "synthesis" in packet["steps"] else "PARTIAL"
+    packet["light"] = light
+    packet["verdict"] = "OK" if "synthesis" in packet["steps"] else ("LIGHT" if light and facts else "PARTIAL")
     return packet
 
 

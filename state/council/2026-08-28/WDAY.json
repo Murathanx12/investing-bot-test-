@@ -1,13 +1,13 @@
 {
  "schema": "RESEARCH_COUNCIL_v1",
  "symbol": "WDAY",
- "observed_at_utc": "2026-08-28T05:46:03.827277+00:00",
+ "observed_at_utc": "2026-08-28T06:29:53.306302+00:00",
  "roles": {
-  "fact": "hf_deepseek_v4",
+  "fact": "deepseek",
   "expectations": "nvidia_kimi",
-  "causal": "nvidia_minimax",
+  "causal": "nvidia_kimi",
   "skeptic": "hf_glm",
-  "synthesis": "hf_deepseek_v4"
+  "synthesis": "deepseek"
  },
  "steps": {
   "scout": {
@@ -39,9 +39,9 @@
      "metric": "revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2.649,
-     "value_high": 2.649,
-     "unit": "USD_billions",
+     "value_low": 2649.0,
+     "value_high": 2649.0,
+     "unit": "USD_millions",
      "kind": "actual",
      "quote": "Total revenues were $2.649 billion"
     },
@@ -49,9 +49,9 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2.471,
-     "value_high": 2.471,
-     "unit": "USD_billions",
+     "value_low": 2471.0,
+     "value_high": 2471.0,
+     "unit": "USD_millions",
      "kind": "actual",
      "quote": "Subscription revenues were $2.471 billion"
     },
@@ -73,7 +73,7 @@
      "value_high": 11.8,
      "unit": "percent",
      "kind": "actual",
-     "quote": "11.8% of revenues"
+     "quote": "or 11.8% of revenues"
     },
     {
      "metric": "operating_income",
@@ -93,10 +93,10 @@
      "value_high": 31.1,
      "unit": "percent",
      "kind": "actual",
-     "quote": "31.1% of revenues"
+     "quote": "or 31.1% of revenues"
     },
     {
-     "metric": "diluted_net_income_per_share",
+     "metric": "eps_gaap",
      "basis": "gaap",
      "period": "Q2FY27",
      "value_low": 2.57,
@@ -106,7 +106,7 @@
      "quote": "Diluted net income per share was $2.57"
     },
     {
-     "metric": "diluted_net_income_per_share",
+     "metric": "eps_non_gaap",
      "basis": "non-gaap",
      "period": "Q2FY27",
      "value_low": 2.75,
@@ -117,21 +117,21 @@
     },
     {
      "metric": "subscription_revenue",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 9.034,
-     "value_high": 9.034,
-     "unit": "USD_billions",
+     "value_low": 9034.0,
+     "value_high": 9034.0,
+     "unit": "USD_millions",
      "kind": "actual",
      "quote": "12-month subscription revenue backlog was $9.034 billion"
     },
     {
      "metric": "subscription_revenue",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 27.403,
-     "value_high": 27.403,
-     "unit": "USD_billions",
+     "value_low": 27403.0,
+     "value_high": 27403.0,
+     "unit": "USD_millions",
      "kind": "actual",
      "quote": "Total subscription revenue backlog was $27.403 billion"
     },
@@ -167,33 +167,33 @@
     },
     {
      "metric": "share_repurchases",
-     "basis": "unknown",
-     "period": "Q2FY27",
-     "value_low": 1.3,
-     "value_high": 1.3,
-     "unit": "USD_billions",
-     "kind": "actual",
-     "quote": "Workday repurchased approximately 9.8 million shares of Class A common stock for $1.3 billion"
-    },
-    {
-     "metric": "cash_and_equivalents",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 3.403,
-     "value_high": 3.403,
-     "unit": "USD_billions",
+     "value_low": 1300.0,
+     "value_high": 1300.0,
+     "unit": "USD_millions",
      "kind": "actual",
-     "quote": "Cash, cash equivalents, and marketable securities were $3.403 billion as of July 31, 2026"
+     "quote": "repurchased approximately 9.8 million shares of Class A common stock for $1.3 billion"
+    },
+    {
+     "metric": "cash_and_marketable_securities",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 3403.0,
+     "value_high": 3403.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Cash, cash equivalents, and marketable securities were $3.403 billion"
     },
     {
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q3FY27",
-     "value_low": 2.515,
-     "value_high": 2.515,
-     "unit": "USD_billions",
+     "value_low": 2515.0,
+     "value_high": 2515.0,
+     "unit": "USD_millions",
      "kind": "guide_new",
-     "quote": "Subscription revenues of $2.515 billion, representing growth of 12%"
+     "quote": "Subscription revenues of $2.515 billion"
     },
     {
      "metric": "operating_margin",
@@ -209,11 +209,11 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "value_low": 9.94,
-     "value_high": 9.95,
-     "unit": "USD_billions",
+     "value_low": 9940.0,
+     "value_high": 9950.0,
+     "unit": "USD_millions",
      "kind": "guide_new",
-     "quote": "Subscription revenues of $9.940 billion to $9.950 billion, representing growth of 13%"
+     "quote": "Subscription revenues of $9.940 billion to $9.950 billion"
     },
     {
      "metric": "operating_margin",
@@ -223,17 +223,17 @@
      "value_high": 31.0,
      "unit": "percent",
      "kind": "guide_new",
-     "quote": "non-GAAP operating margin guidance to 31.0%"
+     "quote": "Non-GAAP operating margin of 31.0%"
     },
     {
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2.455,
-     "value_high": 2.455,
-     "unit": "USD_billions",
+     "value_low": 2455.0,
+     "value_high": 2455.0,
+     "unit": "USD_millions",
      "kind": "guide_prior",
-     "quote": "Subscription revenues of $2.455 billion, representing growth of 13%"
+     "quote": "Subscription revenues of $2.455 billion"
     },
     {
      "metric": "operating_margin",
@@ -249,11 +249,11 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "value_low": 9.925,
-     "value_high": 9.95,
-     "unit": "USD_billions",
+     "value_low": 9925.0,
+     "value_high": 9950.0,
+     "unit": "USD_millions",
      "kind": "guide_prior",
-     "quote": "Subscription revenues of $9.925 billion to $9.950 billion, representing growth of 12% to 13%"
+     "quote": "Subscription revenues of $9.925 billion to $9.950 billion"
     },
     {
      "metric": "operating_margin",
@@ -263,18 +263,18 @@
      "value_high": 30.5,
      "unit": "percent",
      "kind": "guide_prior",
-     "quote": "non-GAAP operating margin guidance to 30.5%"
+     "quote": "Non-GAAP operating margin of 30.5%"
     }
    ],
-   "share_count_note": "Weighted-average shares used to calculate GAAP and non-GAAP diluted net income per share were 246,307 for the three months ended July 31, 2026.",
-   "fx_or_one_off_note": "Diluted net income per share for Q2 FY27 includes a tax benefit of $1.52 per share related to an intra-entity transfer of certain intellectual property rights as part of an internal legal entity restructuring.",
+   "share_count_note": "Weighted-average diluted shares for Q2 FY27: 246,307 thousand; for Q2 FY26: 270,180 thousand.",
+   "fx_or_one_off_note": "Q2 FY27 GAAP diluted EPS includes a tax benefit of $1.52 per share related to an intra-entity transfer of intellectual property rights.",
    "llm": {
-    "provider": "hf_deepseek_v4",
+    "provider": "deepseek",
     "family": "deepseek",
-    "model": "deepseek-ai/DeepSeek-V4-Flash",
-    "prompt_tokens": 9810,
-    "completion_tokens": 1874,
-    "latency_s": 25.6
+    "model": "deepseek-chat",
+    "prompt_tokens": 9830,
+    "completion_tokens": 2066,
+    "latency_s": 11.3
    }
   },
   "expectations": {
@@ -354,7 +354,7 @@
      "source_quote": "increasing our fiscal 2027 non-GAAP operating margin guidance to 30.5%"
     }
    ],
-   "what_the_market_was_braced_for": "Option-implied move is unknown, but the stock drifted down ~1.6% over the five sessions before the print, suggesting mild caution. Headlines show the market was focused on guidance risk: consensus expected Q3 sales of $2.697B and FY2027 sales of $10.669B, against which the company's guided figures ($2.515B Q3; $9.940B-$9.950B FY) represented a material cut. Q2 consensus was adj. EPS of $2.61 and sales of $2.636B. Investors were also watching management's commentary on FY28 subscription growth (~11% second-half FY27 rate) and margin expansion.",
+   "what_the_market_was_braced_for": "The option-implied move is unknown, but the stock drifted down ~1.6% over the five sessions before the print, suggesting cautious positioning. Consensus expected Q2 adjusted EPS of $2.61 on revenue of $2.636B, with the market focused on whether Workday would hold its FY2027 subscription revenue guidance of $9.925B-$9.950B and its raised 30.5% non-GAAP operating margin target. Forward-looking consensus for Q3 sales stood at $2.697B and FY2027 total sales at $10.669B, levels the company's own guidance trajectory was already tracking below.",
    "latent_kpi_guess": "subscription_revenue",
    "expectations_confidence": 0.72,
    "llm": {
@@ -362,8 +362,8 @@
     "family": "moonshot",
     "model": "moonshotai/kimi-k3",
     "prompt_tokens": 2803,
-    "completion_tokens": 986,
-    "latency_s": 44.4
+    "completion_tokens": 978,
+    "latency_s": 48.8
    }
   },
   "surprise_cube": {
@@ -373,13 +373,14 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "fact_mid": 9.945,
-     "reference_mid": 9.9375,
+     "fact_mid": 9945.0,
+     "reference_mid": 9937.5,
      "relative": 0.0008,
      "sign": 1,
-     "unit": "USD_billions",
-     "fact_quote": "Subscription revenues of $9.940 billion to $9.950 billion, representing growth of 13%",
-     "reference_quote": "Subscription revenues of $9.925 billion to $9.950 billion, representing growth of 12% to 13%"
+     "unit": "USD_millions",
+     "fact_quote": "Subscription revenues of $9.940 billion to $9.950 billion",
+     "reference_quote": "Subscription revenues of $9.925 billion to $9.950 billion",
+     "basis_assumed": false
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -391,8 +392,9 @@
      "relative": 0.0164,
      "sign": 1,
      "unit": "percent",
-     "fact_quote": "non-GAAP operating margin guidance to 31.0%",
-     "reference_quote": "non-GAAP operating margin guidance to 30.5%"
+     "fact_quote": "Non-GAAP operating margin of 31.0%",
+     "reference_quote": "Non-GAAP operating margin of 30.5%",
+     "basis_assumed": false
     }
    ],
    "incomparable": [
@@ -403,7 +405,7 @@
       "gaap",
       "Q2FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'total', 'Q3 FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'total', 'Q3FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -453,7 +455,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "diluted_net_income_per_share",
+      "eps_gaap",
       "gaap",
       "Q2FY27"
      ],
@@ -462,17 +464,17 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "diluted_net_income_per_share",
+      "eps_non_gaap",
       "non-gaap",
       "Q2FY27"
      ],
-     "why": "no consensus with same basis/period"
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'adjusted', 'Q2FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
      "metric": [
       "subscription_revenue",
-      "unknown",
+      "gaap",
       "Q2FY27"
      ],
      "why": "no consensus with same basis/period"
@@ -481,7 +483,7 @@
      "axis": "actual_vs_consensus",
      "metric": [
       "subscription_revenue",
-      "unknown",
+      "gaap",
       "Q2FY27"
      ],
      "why": "no consensus with same basis/period"
@@ -517,7 +519,7 @@
      "axis": "actual_vs_consensus",
      "metric": [
       "share_repurchases",
-      "unknown",
+      "gaap",
       "Q2FY27"
      ],
      "why": "no consensus with same basis/period"
@@ -525,7 +527,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "cash_and_equivalents",
+      "cash_and_marketable_securities",
       "gaap",
       "Q2FY27"
      ],
@@ -538,7 +540,7 @@
       "gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance', 'Q2 FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance', 'Q2FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -547,139 +549,11 @@
       "non-gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'non-GAAP', 'Q2 FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'non-gaap', 'Q2FY2027') NOT subtracted"
     }
    ],
    "n_cells": 2,
    "n_incomparable": 17
-  },
-  "causal": {
-   "edges": [
-    {
-     "target_ticker": "ORCL",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": -1,
-     "lag": "days",
-     "reliability": 0.55,
-     "mechanism": "Workday's raised FY27 subscription and margin guidance signals resilient enterprise HCM/ERP demand, pressuring Oracle's competing Fusion Cloud ERP and HCM net-new bookings narrative."
-    },
-    {
-     "target_ticker": "SAP",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": -1,
-     "lag": "days",
-     "reliability": 0.5,
-     "mechanism": "Strong Workday backlog growth and AI-driven ACV mix suggest continued enterprise wallet share capture from SAP SuccessFactors/HCM Cloud, weighing on SAP's cloud growth optics."
-    },
-    {
-     "target_ticker": "MSFT",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": 0,
-     "lag": "quarters",
-     "reliability": 0.35,
-     "mechanism": "Workday's expanding AI agent footprint (5,500+ customers) competes with Microsoft Dynamics 365 and Copilot HR scenarios, but the overlap is modest and revenue impact is diffuse."
-    },
-    {
-     "target_ticker": "CRM",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": 0,
-     "lag": "quarters",
-     "reliability": 0.3,
-     "mechanism": "Salesforce's Slack-based and Einstein-driven employee experience offerings face incremental competitive pressure from Workday's organic AI agents, though the overlap is partial."
-    },
-    {
-     "target_ticker": "AMZN",
-     "relation": "customer_partner",
-     "economic_sign": 1,
-     "price_sign_expected": 1,
-     "lag": "same_session",
-     "reliability": 0.7,
-     "mechanism": "New Workday Data Cloud partnership with AWS (bi-directional zero-copy integration) directly expands AWS's enterprise data-services footprint and AI workload attach, validating AWS as the preferred cloud for Workday."
-    },
-    {
-     "target_ticker": "MSFT",
-     "relation": "competitor_to_partner",
-     "economic_sign": -1,
-     "price_sign_expected": -1,
-     "lag": "same_session",
-     "reliability": 0.55,
-     "mechanism": "The deepened AWS partnership and zero-copy data integration implicitly favor AWS/Azure alternatives over Microsoft as Workday's primary hyperscaler, modestly pressuring Azure's enterprise data positioning."
-    },
-    {
-     "target_ticker": "GOOGL",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": 0,
-     "lag": "quarters",
-     "reliability": 0.3,
-     "mechanism": "Workday's AI agent adoption and data-cloud strategy compete for enterprise AI budget that could otherwise flow to Google Cloud's Vertex AI and Workspace integrations."
-    },
-    {
-     "target_ticker": "NOW",
-     "relation": "complement_competitor",
-     "economic_sign": 1,
-     "price_sign_expected": 1,
-     "lag": "days",
-     "reliability": 0.45,
-     "mechanism": "Workday's strong enterprise momentum and AI-driven ACV lift demand for ServiceNow's adjacent employee and finance workflow platforms, but they also increasingly compete for the same CIO wallet."
-    },
-    {
-     "target_ticker": "INTU",
-     "relation": "competitor",
-     "economic_sign": -1,
-     "price_sign_expected": 0,
-     "lag": "quarters",
-     "reliability": 0.35,
-     "mechanism": "Workday's mid-market and enterprise finance momentum pressures Intuit's mid-market and enterprise-adjacent offerings, though Intuit's SMB focus limits direct overlap."
-    },
-    {
-     "target_ticker": "ADBE",
-     "relation": "indirect_competitor",
-     "economic_sign": 0,
-     "price_sign_expected": 0,
-     "lag": "quarters",
-     "reliability": 0.2,
-     "mechanism": "Limited direct overlap, but Workday's enterprise AI agent traction signals broader enterprise AI budget availability that may also benefit Adobe's experience and document AI."
-    }
-   ],
-   "bottleneck": "AWS (AMZN) as the hyperscaler bottleneck for Workday Data Cloud integration and enterprise AI workload hosting, with Microsoft Azure and Google Cloud as secondary alternatives.",
-   "world_state_implied": "Enterprise HCM/ERP demand remains resilient with AI shifting from pilot to scaled deployment; hyperscaler partnerships are increasingly decisive for enterprise SaaS AI distribution, and Workday's raised guidance reinforces a 'cloud SaaS AI budget is expanding, not zero-sum' regime.",
-   "llm": {
-    "provider": "nvidia_minimax",
-    "family": "minimax",
-    "model": "minimaxai/minimax-m3",
-    "prompt_tokens": 2666,
-    "completion_tokens": 961,
-    "latency_s": 57.3
-   }
-  },
-  "skeptic": {
-   "why_reaction_is_rational": "The headline 'beats' are optical. Q2 subscription revenue of $2.471B beat the company's own prior guide of $2.455B by only ~$16M (~0.7%), and the FY27 subscription guide was raised by a mere $7.5M at the midpoint ($9.945B vs $9.9375B, +0.08%) \u2014 a rounding error that signals no underlying demand improvement. The only substantive raise is 50bps of non-GAAP operating margin (31.0% vs 30.5%), but Q2 already printed 31.1% against a 30.0% guide, so the full-year raise merely banks the Q2 beat rather than implying H2 outperformance; the Q3 margin guide of 30.0% is flat sequentially in guide terms. Meanwhile the Q3 subscription guide of $2.515B (+12%) implies deceleration from Q2's 13% growth. With no consensus data available to establish an actual-vs-Street beat, the only verifiable positives are a token guide raise and a margin raise that is already embedded in the Q2 print \u2014 both easily priced. The $1.3B buyback (9.8M shares, ~3.5% of shares at ~$133/share implied) mechanically supports EPS and per-share metrics, further reducing the informational content of the print.",
-   "low_quality_positives": [
-    "FY27 subscription revenue guide raise of +$7.5M at midpoint (+0.08%) is noise, not a demand signal",
-    "FY27 non-GAAP margin raise to 31.0% simply annualizes the Q2 beat (31.1% actual vs 30.0% guide); Q3 guide of 30.0% shows no incremental H2 improvement",
-    "GAAP EPS of $2.57 exceeds non-GAAP EPS of $2.75's GAAP operating income base ($313M op income vs ~$680M+ implied net income) \u2014 GAAP net income is inflated by non-operating/one-time items (gains, tax benefits), not core profitability",
-    "EPS and per-share metrics flattered by $1.3B of buybacks (9.8M shares retired in the quarter)",
-    "Non-GAAP operating income of $824M excludes SBC and other recurring costs; the 31.1% margin is a definitional construct, not cash economics (FCF margin was only ~17.4%)",
-    "Backlog figures ($9.034B 12-month, $27.403B total) are reported without year-over-year growth rates or FX/comparable basis, making the headline dollar values unverifiable as acceleration"
-   ],
-   "latent_kpi": "12-month subscription revenue backlog (cRPO) growth rate \u2014 reported as a dollar figure ($9.034B) with no YoY growth rate, FX adjustment, or net-new-ARR disclosure; the market cannot verify whether bookings accelerated, and the Q3 guide's implied deceleration to 12% subscription growth suggests it did not",
-   "p_already_priced": 0.72,
-   "contrarian_requires": "Evidence that the 12-month backlog is growing faster than the ~12-13% revenue trajectory (i.e., bookings acceleration masked by revenue recognition timing), that the margin raise reflects durable structural efficiency (AI-driven support/productivity gains) rather than one-time cost timing, that Q3's implied 12% growth is conservative sandbagging rather than genuine deceleration, and that new AI product SKUs are converting to measurable net-new ARR not yet visible in backlog",
-   "strongest_bear_case": "Workday is a maturing ~12-13% grower with decelerating subscription growth (13% -> 12% implied by Q3 guide), a token full-year raise that confirms no demand inflection, margin expansion already maxed into guidance, and EPS quality degraded by buybacks and one-time GAAP items. At a premium multiple, a 12%-growth HCM vendor with no visible reacceleration catalyst faces multiple compression, and the $1.3B/quarter buyback pace ($5B+/year) is unsustainable support against only $3.4B of cash plus ongoing FCF",
-   "strongest_bull_case": "The margin trajectory is genuinely structural \u2014 31.1% non-GAAP operating margin with a raised full-year floor of 31.0% demonstrates durable operating leverage, $27.4B of total backlog provides multi-year revenue visibility, FCF of $460M in the quarter (~18% annualized FCF margin) funds both heavy buybacks and AI investment, and if cRPO growth is running ahead of recognized revenue growth, the P&L deceleration is an accounting artifact with acceleration queued in backlog",
-   "llm": {
-    "provider": "hf_glm",
-    "family": "zhipu",
-    "model": "zai-org/GLM-5.3-Flash",
-    "prompt_tokens": 2982,
-    "completion_tokens": 1408,
-    "latency_s": 7.9
-   }
   },
   "historical_analog": {
    "available": false,
@@ -691,35 +565,15 @@
    "implied_move": null,
    "reaction_vs_implied": null,
    "pre_event_5d_move": -0.01644578465904778
-  },
-  "synthesis": {
-   "direction": "up",
-   "magnitude": 0.04,
-   "volatility_view": "narrower",
-   "timing": "now",
-   "horizon_sessions": 20,
-   "causal_confidence": 0.65,
-   "p_already_priced": 0.3,
-   "falsifier": "Workday's Q3FY27 subscription revenue growth falls below 12% or non-GAAP operating margin misses 30.0%",
-   "weighted_most": "facts",
-   "one_paragraph": "Workday's Q2FY27 results beat consensus on revenue ($2.649B vs $2.636B) and non-GAAP EPS ($2.75 vs $2.61), while the FY27 guidance revision shows a slight raise in subscription revenue midpoint ($9.945B vs prior $9.9375B) and a meaningful 50bp margin expansion to 31.0% (from 30.5%). The market had braced for a larger cut given the pre-event drift, but the actual guide is incrementally positive on margins and stable on revenue, with strong backlog ($9.034B 12-month) and $1.3B in buybacks signaling confidence. The AWS partnership adds a positive catalyst. The surprise cube has two comparable cells both positive, so direction is not forced to none. I weighted facts most because the actuals and guidance delta are the clearest signal, outweighing the market's cautious positioning.",
-   "llm": {
-    "provider": "hf_deepseek_v4",
-    "family": "deepseek",
-    "model": "deepseek-ai/DeepSeek-V4-Flash",
-    "prompt_tokens": 4939,
-    "completion_tokens": 308,
-    "latency_s": 7.5
-   }
   }
  },
  "refusals": [],
  "skeptic_independent": true,
  "families_used": [
   "deepseek",
-  "minimax",
   "moonshot",
   "zhipu"
  ],
- "verdict": "OK"
+ "light": true,
+ "verdict": "LIGHT"
 }

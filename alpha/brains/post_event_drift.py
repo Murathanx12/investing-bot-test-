@@ -128,6 +128,19 @@ WIDE_UNHEDGED_SHORT_ENABLED = False
 #: wide DOWN side is forecast as a RELATIVE move and expressed ONLY as the pair.
 #: The unhedged short stays refused whatever this flag says.
 WIDE_PAIR_ENABLED = True
+#: RECOMPUTED 2026-08-28 03:10 ET from `state/pead_wide_legs.jsonl` (25,856 legs), the
+#: pair in SIMPLE returns as the structure is paid -- -(exp(raw_3)-1) + (exp(raw_iwm_3)-1),
+#: DOWN prints, bands cut at 5% / 8.2%:
+#:     mid  n=2133  mean +0.209%  sd 7.19%  t 1.34      (unhedged mean -0.10%)
+#:     big  n=3790  mean +0.105%  sd 8.22%  t 0.79      (unhedged mean -0.15%)
+#: That is WEAKER than `WIDE_HEDGED_IWM_SIMPLE` above (+0.35%, t 2.2), which came
+#: from a different cut. Either way a +0.2% centre on a 7% sd is a BREADTH claim,
+#: not a per-name trade, and the per-name gate refuses it correctly (BURL, ZM on
+#: 28 Aug: "+1.4-2.4% of probability mass, below the 5pp floor"). The pair stays
+#: enabled so the refusals are MARKED by the counterfactual ledger -- that is the
+#: regret measurement, and it costs nothing. Sizing the pair as a basket of many
+#: small legs is the research item; it is not a switch to flip during the contest.
+WIDE_HEDGED_IWM_RECOMPUTED_2026_08_28 = {"mid": (0.00209, 0.0719, 1.34, 2133), "big": (0.00105, 0.0822, 0.79, 3790)}
 WIDE_DOWN_SIMPLE = {"mid": (0.00036, 0.22), "big": (0.00004, 0.03)}
 WIDE_HEDGED_IWM_SIMPLE = {"mid": (0.00346, 2.22), "big": (0.00259, 1.96)}
 #: Wide-universe DOWN side: (3-session RAW short-from-next-open centre, 3-session sd).

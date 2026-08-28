@@ -1,0 +1,767 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "MRVL",
+ "observed_at_utc": "2026-08-28T06:31:06.661313+00:00",
+ "roles": {
+  "fact": "deepseek",
+  "expectations": "hf_glm",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0001835632-26-000022",
+     "exhibit_type": "EX-99.1",
+     "chars": 30842,
+     "url": "https://www.sec.gov/Archives/edgar/data/1835632/000183563226000022/0001835632-26-000022.txt"
+    },
+    {
+     "date": "2026-05-27",
+     "accession": "0001835632-26-000014",
+     "exhibit_type": "EX-99.1",
+     "chars": 28446,
+     "url": "https://www.sec.gov/Archives/edgar/data/1835632/000183563226000014/0001835632-26-000014.txt"
+    }
+   ],
+   "n_headlines": 31,
+   "has_transcript": true,
+   "ah_move": -0.009614986116291524,
+   "pre_event_5d_move": -0.03904896553097437,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "net_revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 2739.3,
+     "value_high": 2739.3,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Net revenue for the second quarter of fiscal 2027 was $2.739 billion"
+    },
+    {
+     "metric": "net_revenue_growth_yoy",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 37.0,
+     "value_high": 37.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "grew by 37% year-on-year"
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 53.1,
+     "value_high": 53.1,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Q2 Gross Margin: 53.1% GAAP gross margin"
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 58.9,
+     "value_high": 58.9,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "58.9% non-GAAP gross margin"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 0.33,
+     "value_high": 0.33,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "$0.33 GAAP diluted income per share"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.94,
+     "value_high": 0.94,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "$0.94 non-GAAP diluted income per share"
+    },
+    {
+     "metric": "net_income",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 308.0,
+     "value_high": 308.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "GAAP net income for the second quarter of fiscal 2027 was $308.0 million"
+    },
+    {
+     "metric": "net_income",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 865.9,
+     "value_high": 865.9,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Non-GAAP net income for the second quarter of fiscal 2027 was $865.9 million"
+    },
+    {
+     "metric": "cash_flow_from_operations",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 605.5,
+     "value_high": 605.5,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Cash flow from operations for the second quarter was $605.5 million"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 459.7,
+     "value_high": 459.7,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Operating income 459.7"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 1003.2,
+     "value_high": 1003.2,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Non-GAAP operating income $ 1,003.2"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 16.8,
+     "value_high": 16.8,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "GAAP operating margin 16.8 %"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 36.6,
+     "value_high": 36.6,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Non-GAAP operating margin 36.6 %"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 126.7,
+     "value_high": 126.7,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Purchases of property and equipment (126.7)"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 478.8,
+     "value_high": 478.8,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Cash flow from operations 605.5 minus capex 126.7"
+    },
+    {
+     "metric": "share_repurchases",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 200.0,
+     "value_high": 200.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Repurchases of common stock (200.0)"
+    },
+    {
+     "metric": "net_revenue",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 2992.5,
+     "value_high": 3307.5,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Net revenue is expected to be $3.150 billion +/- 5%."
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 52.9,
+     "value_high": 53.9,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "GAAP gross margin is expected to be 52.9% to 53.9%."
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 57.5,
+     "value_high": 58.5,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP gross margin is expected to be 57.5% to 58.5%."
+    },
+    {
+     "metric": "operating_expenses",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 1015.0,
+     "value_high": 1015.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "GAAP operating expenses are expected to be approximately $1.015 billion."
+    },
+    {
+     "metric": "operating_expenses",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 655.0,
+     "value_high": 655.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Non-GAAP operating expenses are expected to be approximately $655 million."
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 900.0,
+     "value_high": 900.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Basic weighted-average shares outstanding are expected to be 900 million."
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 921.0,
+     "value_high": 921.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Diluted weighted-average shares outstanding are expected to be 921 million."
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 0.48,
+     "value_high": 0.58,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "GAAP diluted net income per share is expected to be $0.53 +/- $0.05 per share."
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 1.05,
+     "value_high": 1.15,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Non-GAAP diluted net income per share is expected to be $1.10 +/- $0.05 per share."
+    },
+    {
+     "metric": "net_revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 2700.0,
+     "value_high": 2700.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Net revenue is expected to be $2.700 billion +/- 5%."
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 52.1,
+     "value_high": 53.1,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "GAAP gross margin is expected to be 52.1% to 53.1%."
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 58.25,
+     "value_high": 59.25,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP gross margin is expected to be 58.25% to 59.25%."
+    },
+    {
+     "metric": "operating_expenses",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 960.0,
+     "value_high": 960.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "GAAP operating expenses are expected to be approximately $960 million."
+    },
+    {
+     "metric": "operating_expenses",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 600.0,
+     "value_high": 600.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP operating expenses are expected to be approximately $600 million."
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 899.0,
+     "value_high": 899.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "Basic weighted-average shares outstanding are expected to be 899 million."
+    },
+    {
+     "metric": "share_count",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 915.0,
+     "value_high": 915.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "Diluted weighted-average shares outstanding are expected to be 915 million."
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 0.32,
+     "value_high": 0.42,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "GAAP diluted net income per share is expected to be $0.37 +/- $0.05 per share."
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.88,
+     "value_high": 0.98,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP diluted net income per share is expected to be $0.93 +/- $0.05 per share."
+    }
+   ],
+   "share_count_note": "Share counts are in millions.",
+   "fx_or_one_off_note": "No FX or one-off items noted.",
+   "llm": {
+    "provider": "deepseek",
+    "family": "deepseek",
+    "model": "deepseek-chat",
+    "prompt_tokens": 10850,
+    "completion_tokens": 3124,
+    "latency_s": 15.1
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 0.92,
+     "value_high": 0.92,
+     "unit": "USD per share",
+     "source_quote": "Marvell Tech Q2 Adj. EPS $0.94 Beats $0.92 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 2710000000,
+     "value_high": 2710000000,
+     "unit": "USD",
+     "source_quote": "Sales $2.739B Beat $2.710B Estimate"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 0.52,
+     "value_high": 0.52,
+     "unit": "USD per share",
+     "source_quote": "Marvell Tech Sees Q3 GAAP EPS $0.48-$0.58 vs $0.52 Est"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 1.07,
+     "value_high": 1.07,
+     "unit": "USD per share",
+     "source_quote": "Marvell Tech Sees Q3 Adj EPS $1.05-$1.15 vs $1.07 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 3034000000,
+     "value_high": 3034000000,
+     "unit": "USD",
+     "source_quote": "Sees Sales $2.993B-$3.308B vs $3.034B Est"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "revenue",
+     "basis": "company guidance",
+     "period": "Q2 FY2027",
+     "value_low": 2565000000,
+     "value_high": 2835000000,
+     "unit": "USD",
+     "source_quote": "Net revenue is expected to be $2.700 billion +/- 5%."
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance",
+     "period": "Q2 FY2027",
+     "value_low": 0.88,
+     "value_high": 0.98,
+     "unit": "USD per share",
+     "source_quote": "Non-GAAP diluted net income per share is expected to be $0.93 +/- $0.05 per share."
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "company guidance",
+     "period": "Q2 FY2027",
+     "value_low": 0.32,
+     "value_high": 0.42,
+     "unit": "USD per share",
+     "source_quote": "GAAP diluted net income per share is expected to be $0.37 +/- $0.05 per share."
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "company guidance (non-GAAP opex ~$600M on ~$2.7B revenue)",
+     "period": "Q2 FY2027",
+     "value_low": null,
+     "value_high": null,
+     "unit": "implied non-GAAP operating margin ~77.8% gross margin less opex; non-GAAP gross margin guided 58.25%-59.25%",
+     "source_quote": "Non-GAAP gross margin is expected to be 58.25% to 59.25%. Non-GAAP operating expenses are expected to be approximately $600 million."
+    }
+   ],
+   "what_the_market_was_braced_for": "Heading into the Q2 FY2027 print, the market expected Marvell to deliver roughly $2.71B in revenue (vs. company guidance of $2.70B +/- 5%) and non-GAAP EPS of about $0.92-$0.93 (guidance midpoint $0.93 +/- $0.05), i.e., a quarter in line with the high end of guidance after Q1's record $2.418B. For the forward quarter, consensus was set at ~$3.034B revenue and ~$1.07 non-GAAP EPS (GAAP ~$0.52). The stock had drifted down ~3.9% over the five sessions before the print, and headlines flagged a very large potential swing (~$20.8B market value) around the release, with the option-implied move not quantified in the available material. Investors were also focused on management's raised FY2027 (~$12B, ~45% YoY growth) and FY2028 (~$18B, ~50% YoY growth) revenue outlooks and the pace of ~$1B capacity prepayments to suppliers.",
+   "latent_kpi_guess": "Data center / custom AI (XPU) revenue growth \u2014 specifically whether the data center business was tracking to the guided ~60% FY2027 growth and the custom chip business doubling in FY2028",
+   "expectations_confidence": 0.85,
+   "llm": {
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 3074,
+    "completion_tokens": 1316,
+    "latency_s": 6.7
+   }
+  },
+  "surprise_cube": {
+   "cells": [],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_revenue_growth_yoy",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_margin",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_margin",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_gaap', 'analyst consensus', 'Q3FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_income",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_income",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_flow_from_operations",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "capex",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "free_cash_flow",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "share_repurchases",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "net_revenue",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('net_revenue', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "gross_margin",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('gross_margin', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "gross_margin",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('gross_margin', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_expenses",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_expenses', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "operating_expenses",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_expenses', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'gaap', 'Q2FY27') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_gaap', 'company guidance', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance', 'Q2FY2027') NOT subtracted"
+    }
+   ],
+   "n_cells": 0,
+   "n_incomparable": 25
+  },
+  "historical_analog": {
+   "available": true,
+   "population": "wide universe (2532 names, 25856 prints), excess over beta*QQQ, beta on 120 prior sessions, 3 sessions",
+   "band": "<3.5%",
+   "sign": "down",
+   "stats": {
+    "n": 10981,
+    "mean": -0.00028,
+    "median": -0.00026,
+    "hit": 0.496,
+    "t": -0.59,
+    "n_weeks": 130,
+    "t_week_blocks": 0.71,
+    "mean_week_blocks": 0.00086
+   },
+   "by_sign_mid_band": null,
+   "note": "UP prints outside the mega-11 carry no excess (t -1.99 mid band); DOWN prints drift further (t 4.29 mid band) and are paid only as a pair vs IWM in simple returns"
+  },
+  "market_pricing": {
+   "ah_move": -0.009614986116291524,
+   "band": "<3.5%",
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": -0.03904896553097437
+  }
+ },
+ "refusals": [],
+ "fallbacks": [
+  {
+   "role": "expectations",
+   "tried": [
+    {
+     "provider": "nvidia_kimi",
+     "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+    }
+   ],
+   "answered": "hf_glm"
+  }
+ ],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

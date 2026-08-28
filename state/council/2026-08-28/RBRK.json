@@ -1,0 +1,784 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "RBRK",
+ "observed_at_utc": "2026-08-28T06:34:27.082973+00:00",
+ "roles": {
+  "fact": "hf_deepseek_v4",
+  "expectations": "hf_glm",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0001943896-26-000055",
+     "exhibit_type": "EX-99.1",
+     "chars": 31849,
+     "url": "https://www.sec.gov/Archives/edgar/data/1943896/000194389626000055/0001943896-26-000055.txt"
+    },
+    {
+     "date": "2026-06-04",
+     "accession": "0001943896-26-000041",
+     "exhibit_type": "EX-99.1",
+     "chars": 28876,
+     "url": "https://www.sec.gov/Archives/edgar/data/1943896/000194389626000041/0001943896-26-000041.txt"
+    }
+   ],
+   "n_headlines": 12,
+   "has_transcript": true,
+   "ah_move": null,
+   "pre_event_5d_move": 0.09738595592004096,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "Q2FY27",
+     "value_low": 1660000000.0,
+     "value_high": 1660000000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Subscription ARR grew 33% year-over-year to $1.66 billion"
+    },
+    {
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "Q2FY27",
+     "value_low": 1480000000.0,
+     "value_high": 1480000000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Cloud ARR grew 39% year-over-year to $1.48 billion"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 427300000.0,
+     "value_high": 427300000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Total revenue was $427.3 million"
+    },
+    {
+     "metric": "subscription_revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 407200000.0,
+     "value_high": 407200000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Subscription revenue was $407.2 million"
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 78.4,
+     "value_high": 78.4,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "GAAP gross margin was 78.4%"
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 81.0,
+     "value_high": 81.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Non-GAAP gross margin was 81.0%"
+    },
+    {
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Subscription ARR contribution margin was 14.0%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": -0.3,
+     "value_high": -0.3,
+     "unit": "per_share",
+     "kind": "actual",
+     "quote": "GAAP net loss per share was $(0.30)"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.2,
+     "value_high": 0.2,
+     "unit": "per_share",
+     "kind": "actual",
+     "quote": "Non-GAAP net income per share, diluted, was $0.20"
+    },
+    {
+     "metric": "cash_flow_from_operations",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 76800000.0,
+     "value_high": 76800000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Cash flow from operations was $76.8 million"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 65700000.0,
+     "value_high": 65700000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Free cash flow was $65.7 million"
+    },
+    {
+     "metric": "cash_and_short_term_investments",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 1750000000.0,
+     "value_high": 1750000000.0,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Cash, cash equivalents, and short-term investments were $1.75 billion"
+    },
+    {
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "Q2FY27",
+     "value_low": 3084.0,
+     "value_high": 3084.0,
+     "unit": "count",
+     "kind": "actual",
+     "quote": "Rubrik had 3,084 customers with Subscription ARR of $100,000 or more"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 429000000.0,
+     "value_high": 431000000.0,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Revenue of $429 million to $431 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP subscription ARR contribution margin of approximately 14%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 0.07,
+     "value_high": 0.09,
+     "unit": "per_share",
+     "kind": "guide_new",
+     "quote": "Non-GAAP net income per share of $0.07 to $0.09"
+    },
+    {
+     "metric": "share_count",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 230000000.0,
+     "value_high": 230000000.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted-average shares outstanding of approximately 230 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "FY27",
+     "value_low": 1880000000.0,
+     "value_high": 1885000000.0,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Subscription ARR between $1,880 million and $1,885 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 1685000000.0,
+     "value_high": 1693000000.0,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Revenue of $1,685 million to $1,693 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 15.5,
+     "value_high": 15.5,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP subscription ARR contribution margin of approximately 15.5%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 0.47,
+     "value_high": 0.53,
+     "unit": "per_share",
+     "kind": "guide_new",
+     "quote": "Non-GAAP net income per share of $0.47 to $0.53"
+    },
+    {
+     "metric": "share_count",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 228000000.0,
+     "value_high": 228000000.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Weighted-average shares outstanding of approximately 228 million"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 323000000.0,
+     "value_high": 333000000.0,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Free cash flow of $323 million to $333 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 395000000.0,
+     "value_high": 397000000.0,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Revenue of $395 million to $397 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 11.0,
+     "value_high": 12.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP subscription ARR contribution margin of approximately 11-12%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.03,
+     "value_high": 0.05,
+     "unit": "per_share",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP net income per share of $0.03 to $0.05"
+    },
+    {
+     "metric": "share_count",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 224000000.0,
+     "value_high": 224000000.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "Weighted-average shares outstanding of approximately 224 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "FY27",
+     "value_low": 1854000000.0,
+     "value_high": 1862000000.0,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Subscription ARR between $1,854 million and $1,862 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 1638000000.0,
+     "value_high": 1648000000.0,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Revenue of $1,638 million to $1,648 million"
+    },
+    {
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP subscription ARR contribution margin of approximately ~14%"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 0.25,
+     "value_high": 0.35,
+     "unit": "per_share",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP net income per share of $0.25 to $0.35"
+    },
+    {
+     "metric": "share_count",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 228000000.0,
+     "value_high": 228000000.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "Weighted-average shares outstanding of approximately 228 million"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 293000000.0,
+     "value_high": 303000000.0,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Free cash flow of $293 million to $303 million"
+    }
+   ],
+   "share_count_note": "Weighted-average shares outstanding for Q3 FY27 guide is ~230 million; for FY27 guide is ~228 million.",
+   "fx_or_one_off_note": "No foreign exchange or one-off items noted.",
+   "llm": {
+    "provider": "hf_deepseek_v4",
+    "family": "deepseek",
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "prompt_tokens": 9960,
+    "completion_tokens": 2571,
+    "latency_s": 40.2
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 0.04,
+     "value_high": 0.04,
+     "unit": "USD per share",
+     "source_quote": "Rubrik Q2 Adj. EPS $0.22 Beats $0.04 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 396278000,
+     "value_high": 396278000,
+     "unit": "USD",
+     "source_quote": "Sales $427.260M Beat $396.278M Estimate"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 0.06,
+     "value_high": 0.06,
+     "unit": "USD per share",
+     "source_quote": "Rubrik Sees Q3 Adj EPS $0.07-$0.09 vs $0.06 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 418285000,
+     "value_high": 418285000,
+     "unit": "USD",
+     "source_quote": "Sees Sales $429.000M-$431.000M vs $418.285M Est"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "FY2027",
+     "value_low": 0.31,
+     "value_high": 0.31,
+     "unit": "USD per share",
+     "source_quote": "Raises FY2027 Adj EPS Guidance from $0.25-$0.35 to $0.47-$0.53 vs $0.31 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "FY2027",
+     "value_low": 1645000000,
+     "value_high": 1645000000,
+     "unit": "USD",
+     "source_quote": "Raises FY2027 Sales Guidance from $1.638B-$1.648B to $1.685B-$1.693B vs $1.645B Est"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "revenue",
+     "basis": "company guidance (Q1 FY2027 press release, June 4, 2026)",
+     "period": "Q2 FY2027",
+     "value_low": 395000000,
+     "value_high": 397000000,
+     "unit": "USD",
+     "source_quote": "Revenue of $395 million to $397 million."
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance (Q1 FY2027 press release, June 4, 2026)",
+     "period": "Q2 FY2027",
+     "value_low": 0.03,
+     "value_high": 0.05,
+     "unit": "USD per share",
+     "source_quote": "Non-GAAP net income per share of $0.03 to $0.05."
+    },
+    {
+     "metric": "arr",
+     "basis": "company guidance (Q1 FY2027 press release, June 4, 2026)",
+     "period": "FY2027",
+     "value_low": 1854000000,
+     "value_high": 1862000000,
+     "unit": "USD",
+     "source_quote": "Subscription ARR between $1,854 million and $1,862 million."
+    },
+    {
+     "metric": "revenue",
+     "basis": "company guidance (Q1 FY2027 press release, June 4, 2026)",
+     "period": "FY2027",
+     "value_low": 1638000000,
+     "value_high": 1648000000,
+     "unit": "USD",
+     "source_quote": "Revenue of $1,638 million to $1,648 million."
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance (Q1 FY2027 press release, June 4, 2026)",
+     "period": "FY2027",
+     "value_low": 0.25,
+     "value_high": 0.35,
+     "unit": "USD per share",
+     "source_quote": "Non-GAAP net income per share of $0.25 to $0.35."
+    }
+   ],
+   "what_the_market_was_braced_for": "Heading into the Q2 FY2027 print, the market expected roughly $396.3M in revenue (vs. company guidance of $395-397M) and ~$0.04 in non-GAAP EPS (vs. guidance of $0.03-$0.05), i.e., consensus sat essentially on top of the company's own guidance. For the full year, analysts modeled ~$1.645B revenue and ~$0.31 non-GAAP EPS, again aligned with guidance of $1.638-1.648B and $0.25-$0.35. The option-implied move is unknown, but the stock had run up ~9.7% over the five sessions before the print, suggesting elevated expectations and a high bar after the Q1 beat-and-raise. Consensus for Q3 (implied by the post-release guidance comparison) was ~$418.3M revenue and ~$0.06 EPS.",
+   "latent_kpi_guess": "Subscription ARR growth (and net new subscription ARR / contribution margin), as the key forward indicator of durable growth for this subscription cybersecurity platform.",
+   "expectations_confidence": 0.85,
+   "llm": {
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 2805,
+    "completion_tokens": 1601,
+    "latency_s": 10.4
+   }
+  },
+  "surprise_cube": {
+   "cells": [
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "arr",
+     "basis": "unknown",
+     "period": "FY27",
+     "fact_mid": 1882500000.0,
+     "reference_mid": 1858000000.0,
+     "relative": 0.0132,
+     "sign": 1,
+     "unit": "USD",
+     "fact_quote": "Subscription ARR between $1,880 million and $1,885 million",
+     "reference_quote": "Subscription ARR between $1,854 million and $1,862 million",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 1689000000.0,
+     "reference_mid": 1643000000.0,
+     "relative": 0.028,
+     "sign": 1,
+     "unit": "USD",
+     "fact_quote": "Revenue of $1,685 million to $1,693 million",
+     "reference_quote": "Revenue of $1,638 million to $1,648 million",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "arr",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 15.5,
+     "reference_mid": 14.0,
+     "relative": 0.1071,
+     "sign": 1,
+     "unit": "percent",
+     "fact_quote": "Non-GAAP subscription ARR contribution margin of approximately 15.5%",
+     "reference_quote": "Non-GAAP subscription ARR contribution margin of approximately ~14%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 0.5,
+     "reference_mid": 0.3,
+     "relative": 0.6667,
+     "sign": 1,
+     "unit": "per_share",
+     "fact_quote": "Non-GAAP net income per share of $0.47 to $0.53",
+     "reference_quote": "Non-GAAP net income per share of $0.25 to $0.35",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "share_count",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 228000000.0,
+     "reference_mid": 228000000.0,
+     "relative": 0.0,
+     "sign": 0,
+     "unit": "count",
+     "fact_quote": "Weighted-average shares outstanding of approximately 228 million",
+     "reference_quote": "Weighted-average shares outstanding of approximately 228 million",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 328000000.0,
+     "reference_mid": 298000000.0,
+     "relative": 0.1007,
+     "sign": 1,
+     "unit": "USD",
+     "fact_quote": "Free cash flow of $323 million to $333 million",
+     "reference_quote": "Free cash flow of $293 million to $303 million",
+     "basis_assumed": false
+    }
+   ],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "subscription_revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_margin",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_margin",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_flow_from_operations",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "free_cash_flow",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_and_short_term_investments",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company guidance (q1 fy2027 press release, june 4, 2026)', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "arr",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('arr', 'company guidance (q1 fy2027 press release, june 4, 2026)', 'FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance (q1 fy2027 press release, june 4, 2026)', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "share_count",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'non-gaap', 'Q2FY27') NOT subtracted"
+    }
+   ],
+   "n_cells": 6,
+   "n_incomparable": 17
+  },
+  "historical_analog": {
+   "available": false,
+   "why": "no observable day-0 reaction yet"
+  },
+  "market_pricing": {
+   "ah_move": null,
+   "band": null,
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": 0.09738595592004096
+  }
+ },
+ "refusals": [],
+ "fallbacks": [
+  {
+   "role": "fact",
+   "tried": [
+    {
+     "provider": "deepseek",
+     "why": "POST https://api.deepseek.com/chat/completions -> <urlopen error [WinError 10054] An existing connection was forcibly cl"
+    }
+   ],
+   "answered": "hf_deepseek_v4"
+  },
+  {
+   "role": "expectations",
+   "tried": [
+    {
+     "provider": "nvidia_kimi",
+     "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+    }
+   ],
+   "answered": "hf_glm"
+  }
+ ],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

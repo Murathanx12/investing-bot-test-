@@ -383,3 +383,108 @@ project has had that arrives *before* the drift window opens, and grading
 is a real, cheap, cross-sectional test of whether management's words carry
 information the price has not yet absorbed — on the whole market, not eleven
 names.
+
+---
+
+## 11. ADDENDUM 03:45 ET — the council, the pair, and what the guards cost
+
+### 11.1 Built in this window (all read-only unless stated)
+
+| lane | status | receipt |
+|---|---|---|
+| **SURPRISE_CUBE_v1** | built, code not model; 17 checks | `alpha/council/roles.py`, `tests_smoke_council.py` |
+| **RESEARCH_COUNCIL_v1** | built; 5 roles across **4 model families** (deepseek / moonshot / minimax / zhipu); skeptic never shares weights with the synthesiser; per-role fallback across live rows | `alpha/council/`, `scripts/council.py` |
+| primary source | **EDGAR full-submission `.txt` → Exhibit 99.1** (the folder index did not list the exhibit for S or WDAY) | `alpha/sources/sec.press_releases` |
+| **PAIR_SHORT_VS_IWM** | built on the WRITE PATH (worktree, merged): one decision id, two equity legs, joint stress, leg-2 failure flattens leg 1, book/exits/protect handle both legs; **38 checks** | `alpha/engine/equity.py`, `tests_smoke_pair.py` |
+| no-chain pairs | a wide printer with no listed options (LUCK, P, DY, HQY) no longer errors: the chain is optional for a pair | `runner.evaluate` |
+| **GUARD_CLASS_v1** | registry of 28 guards: HARD / EMPIRICAL / TOURNAMENT / RETEST_DUE, each with scope and `reopens_when` | `alpha/guards.py` |
+| **REFUSAL_REGRET_v1** | prices every refused world in the counterfactual ledger by guard (1,062,527 rows → 6,667 distinct refusals) | `scripts/refusal_regret.py`, `state/refusal_regret.json` |
+| **EARNINGS_DISLOCATION_v1** | shadow scan: light council on recent printers, four quadrants of cube-vs-reaction | `scripts/dislocation_scan.py` |
+| ATTENTION_ROUTER | `council(light=True)` = facts + expectations + cube; `--deep N` runs the full council on the most dislocated | same |
+
+### 11.2 What the council said, versus what the digest said
+
+| name | one-shot digest (01:30) | council cube (03:20) |
+|---|---|---|
+| **S** | "guide lowered → down" | revenue guide **+0.4%**, operating income **+5%**, EPS **−11.4%**, share count **+3.1%**; direction `down`, p_priced 0.72 |
+| **WDAY** | "$10.64B → $9.94B cut" | subscription revenue FY27 **+0.08%** (maintained), operating margin **+1.6%** (raised); the total-vs-subscription pair listed **INCOMPARABLE** |
+| MRVL | up, 10% | 0 comparable cells (no consensus with matching basis) → synthesis forced `none` |
+
+The cube refuses to subtract unlike quantities; that is the whole fix. The
+`basis_assumed` flag marks cells where a headline's "vs $X Est" carried no
+GAAP/non-GAAP basis.
+
+### 11.3 The pair: built, reachable, and correctly refused — for now
+
+Recomputed from the 25,856-leg receipt in SIMPLE returns as the structure is
+actually paid (short leg −(e^r−1), hedge leg e^r−1), DOWN prints:
+
+| band | n | hedged mean / 3 sessions | sd | t |
+|---|---|---|---|---|
+| 5–8.2% | 2,133 | **+0.21%** | 7.19% | **1.34** |
+| >8.2% | 3,790 | +0.10% | 8.22% | 0.79 |
+
+Weaker than the +0.35% / t 2.2 constant the brain carried (a different cut).
+Either way a +0.2% centre on a 7% sd is a **breadth claim** — it pays over
+hundreds of legs, never on one — and the per-name MDM gate refuses it
+correctly (BURL, ZM tonight: "+1.4–2.4% of probability mass below the 5pp
+floor"). The pair stays **enabled** so every refusal is marked by the
+counterfactual ledger; basket sizing is the research item. Nothing was forced
+through at 3 a.m.
+
+### 11.4 What the guards cost — the first measurement
+
+`scripts.refusal_regret`, parallel worlds at $5,000 risk, last mark per decision:
+
+| class | n | saved $ | cost $ | net $ |
+|---|---|---|---|---|
+| TOURNAMENT (book limits, latch, one-per-underlying) | 3,055 | 4,740,466 | 2,506,705 | **+2,233,761** |
+| EMPIRICAL (the MDM floor) | 2,676 | 1,842,628 | 2,688,877 | **−846,249** |
+
+The EMPIRICAL line is the one Murat is worried about, and it looked damning:
+64% of what the floor refused would have won. Then by *how far below 5pp*:
+
+| edge bucket | n | win% | net $ |
+|---|---|---|---|
+| 0–1pp | 85 | 29% | +88,873 |
+| 1–2pp | 185 | 33% | +125,603 |
+| 2–3pp | 176 | 30% | +31,456 |
+| 3–4pp | 190 | 27% | −121,943 |
+| 4–5pp | 155 | 26% | −67,308 |
+
+Win rate is 26–33% *everywhere*; the positive net is **long_call +$685k (72%
+hit) against long_put −$563k (5% hit)**, all marked on 28 Aug after CRM +22%,
+SNPS +13%, CRWD +20%, NVDA +9%. That is the tape's sign, not the gate's. Not
+evidence to lower the floor; recorded on the guard as its `reopens_when`
+(win% rising toward the floor on ≥ 2 regimes). **The doctrine held under the
+pressure to relax it, and it held because the number was computed.**
+
+### 11.5 Agents: what each has earned the authority to do (as of 03:45 ET)
+
+| role | provider (family) | measured | authority |
+|---|---|---|---|
+| FACT ACCOUNTANT | deepseek (deepseek) → hf DeepSeek-V4 fallback | S: 5 comparable cells from the 8-K; WDAY: 2 | write facts; **no direction** |
+| EXPECTATIONS | nvidia kimi-k3 (moonshot) | consensus rows from headlines; timed out once on a 10k prior release → fallback | write reference rows |
+| SURPRISE CUBE | code | 17 checks incl. the S and WDAY regressions | the only thing allowed to subtract |
+| CAUSAL | nvidia minimax-m3 (minimax) | 3.9 s; edges with sign+lag | candidate names for the scout, ungraded |
+| SKEPTIC | hf GLM-5.3-Flash (zhipu) | p_priced 0.72–0.75 on S/WDAY | can lower a thesis vector's weight; ungraded |
+| SYNTHESIS | deepseek | forced `none` when the cube is empty (MRVL) | a thesis VECTOR for a human; **no order path** |
+| HISTORICAL / MARKET | code | band-keyed lookups | reference only |
+
+No LLM has broker authority (pinned: `tests_smoke_council` asserts the council
+package imports no broker code). Track records per role start accruing today;
+none has one yet, and the roadmap will not pretend otherwise.
+
+### 11.6 What can trade at kickoff, what stays shadow
+
+- **Trades (attended / loop):** beta core (`competition_book`, human sends);
+  `post_event_drift` on the mega-11 at the +1 open (NVDA today, `long_shares`
+  under the median ranker); human theses via `scripts.thesis` → seed → loop.
+- **Enabled, expected to be refused, regret-marked:** the wide-universe DOWN
+  pair.
+- **Shadow only:** council packets, dislocation quadrants, causal edges, the
+  four sentinel-quarantined brains.
+- **Tournament risk mode:** BASE (need 0.40%/session to a +2% target).
+
+Freeze of write-path code: **after the 09:30 ET staging fill is reconciled**,
+and before the judged account is created.
