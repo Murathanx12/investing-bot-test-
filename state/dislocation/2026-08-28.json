@@ -1,0 +1,49 @@
+{
+ "date": "2026-08-28",
+ "rows": [
+  {
+   "symbol": "S",
+   "cube_net": -0.0292,
+   "cells": 5,
+   "incomparable": 20,
+   "reaction": -0.06170118995152063,
+   "quadrant": "CONTINUATION_VS_OVERREACTION",
+   "dislocation": 0.001802,
+   "verdict": "LIGHT",
+   "refusals": []
+  },
+  {
+   "symbol": "WDAY",
+   "cube_net": 0.0172,
+   "cells": 2,
+   "incomparable": 15,
+   "reaction": null,
+   "quadrant": "NO_REACTION_YET",
+   "dislocation": 0.0,
+   "verdict": "LIGHT",
+   "refusals": []
+  },
+  {
+   "symbol": "ESTC",
+   "cube_net": 0.0653,
+   "cells": 6,
+   "incomparable": 23,
+   "reaction": null,
+   "quadrant": "NO_REACTION_YET",
+   "dislocation": 0.0,
+   "verdict": "LIGHT",
+   "refusals": []
+  },
+  {
+   "symbol": "RBRK",
+   "cube_net": 0.9157,
+   "cells": 6,
+   "incomparable": 17,
+   "reaction": null,
+   "quadrant": "NO_REACTION_YET",
+   "dislocation": 0.0,
+   "verdict": "LIGHT",
+   "refusals": []
+  }
+ ]
+}

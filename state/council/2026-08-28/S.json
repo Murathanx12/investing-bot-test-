@@ -1,11 +1,11 @@
 {
  "schema": "RESEARCH_COUNCIL_v1",
  "symbol": "S",
- "observed_at_utc": "2026-08-28T06:27:38.189268+00:00",
+ "observed_at_utc": "2026-08-28T06:49:44.637506+00:00",
  "roles": {
   "fact": "hf_deepseek_v4",
-  "expectations": "nvidia_kimi",
-  "causal": "nvidia_kimi",
+  "expectations": "hf_glm",
+  "causal": "nvidia_minimax",
   "skeptic": "hf_glm",
   "synthesis": "deepseek"
  },
@@ -56,24 +56,34 @@
      "quote": "compared to $242 million"
     },
     {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 21.0,
+     "value_high": 21.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Revenue grew 21% year-over-year to $292 million"
+    },
+    {
      "metric": "arr",
      "basis": "unknown",
      "period": "Q2FY27",
      "value_low": 1218.0,
      "value_high": 1218.0,
      "unit": "USD_millions",
-     "kind": "kpi",
-     "quote": "ARR grew 22% to $1,218 million as of July 31, 2026"
+     "kind": "actual",
+     "quote": "ARR grew 22% year-over-year to $1.218 billion"
     },
     {
-     "metric": "arr",
+     "metric": "arr_growth",
      "basis": "unknown",
-     "period": "Q1FY27",
-     "value_low": 1163.0,
-     "value_high": 1163.0,
-     "unit": "USD_millions",
-     "kind": "kpi",
-     "quote": "ARR grew 23% to $1,163 million as of April 30, 2026"
+     "period": "Q2FY27",
+     "value_low": 22.0,
+     "value_high": 22.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "ARR grew 22% year-over-year to $1.218 billion"
     },
     {
      "metric": "customers",
@@ -82,7 +92,7 @@
      "value_low": 1715.0,
      "value_high": 1715.0,
      "unit": "count",
-     "kind": "kpi",
+     "kind": "actual",
      "quote": "Customers with ARR of $100,000 or more grew 13% to 1,715 as of July 31, 2026"
     },
     {
@@ -172,7 +182,7 @@
      "value_low": 813.0,
      "value_high": 813.0,
      "unit": "USD_millions",
-     "kind": "kpi",
+     "kind": "actual",
      "quote": "Cash, cash equivalents, and investments were $813 million as of July 31, 2026"
     },
     {
@@ -184,6 +194,46 @@
      "unit": "USD_millions",
      "kind": "guide_new",
      "quote": "Revenue $309 - 311 million"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 38.0,
+     "value_high": 40.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Non-GAAP operating income $38 - 40 million"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 0.08,
+     "value_high": 0.09,
+     "unit": "per_share",
+     "kind": "guide_new",
+     "quote": "Non-GAAP diluted earnings per share (EPS) $0.08 - 0.09"
+    },
+    {
+     "metric": "diluted_shares_outstanding",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 370.0,
+     "value_high": 370.0,
+     "unit": "count",
+     "kind": "guide_new",
+     "quote": "Diluted weighted average shares outstanding 370 million"
+    },
+    {
+     "metric": "tax_rate",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 17.0,
+     "value_high": 17.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP tax rate 17%"
     },
     {
      "metric": "revenue",
@@ -198,32 +248,12 @@
     {
      "metric": "operating_income",
      "basis": "non-gaap",
-     "period": "Q3FY27",
-     "value_low": 38.0,
-     "value_high": 40.0,
-     "unit": "USD_millions",
-     "kind": "guide_new",
-     "quote": "Non-GAAP operating income $38 - 40 million"
-    },
-    {
-     "metric": "operating_income",
-     "basis": "non-gaap",
      "period": "FY27",
      "value_low": 124.0,
      "value_high": 128.0,
      "unit": "USD_millions",
      "kind": "guide_new",
      "quote": "Non-GAAP operating income $124 - 128 million"
-    },
-    {
-     "metric": "eps_non_gaap",
-     "basis": "non-gaap",
-     "period": "Q3FY27",
-     "value_low": 0.08,
-     "value_high": 0.09,
-     "unit": "per_share",
-     "kind": "guide_new",
-     "quote": "Non-GAAP diluted earnings per share (EPS) $0.08 - 0.09"
     },
     {
      "metric": "eps_non_gaap",
@@ -238,32 +268,12 @@
     {
      "metric": "diluted_shares_outstanding",
      "basis": "non-gaap",
-     "period": "Q3FY27",
-     "value_low": 370.0,
-     "value_high": 370.0,
-     "unit": "count",
-     "kind": "guide_new",
-     "quote": "Diluted weighted average shares outstanding 370 million"
-    },
-    {
-     "metric": "diluted_shares_outstanding",
-     "basis": "non-gaap",
      "period": "FY27",
      "value_low": 361.0,
      "value_high": 361.0,
      "unit": "count",
      "kind": "guide_new",
      "quote": "Diluted weighted average shares outstanding 361 million"
-    },
-    {
-     "metric": "tax_rate",
-     "basis": "non-gaap",
-     "period": "Q3FY27",
-     "value_low": 17.0,
-     "value_high": 17.0,
-     "unit": "percent",
-     "kind": "guide_new",
-     "quote": "Non-GAAP tax rate 17%"
     },
     {
      "metric": "tax_rate",
@@ -286,16 +296,6 @@
      "quote": "Revenue $289 - 291 million"
     },
     {
-     "metric": "revenue",
-     "basis": "gaap",
-     "period": "FY27",
-     "value_low": 1195.0,
-     "value_high": 1205.0,
-     "unit": "USD_millions",
-     "kind": "guide_prior",
-     "quote": "Revenue $1.195 - 1.205 billion"
-    },
-    {
      "metric": "operating_income",
      "basis": "non-gaap",
      "period": "Q2FY27",
@@ -304,6 +304,46 @@
      "unit": "USD_millions",
      "kind": "guide_prior",
      "quote": "Non-GAAP operating income $23 - 25 million"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 0.06,
+     "value_high": 0.08,
+     "unit": "per_share",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP diluted earnings per share (EPS) $0.06 - 0.08"
+    },
+    {
+     "metric": "diluted_shares_outstanding",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 347.0,
+     "value_high": 347.0,
+     "unit": "count",
+     "kind": "guide_prior",
+     "quote": "Diluted weighted average shares outstanding 347 million"
+    },
+    {
+     "metric": "tax_rate",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 17.0,
+     "value_high": 17.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP tax rate 17%"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 1195.0,
+     "value_high": 1205.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Revenue $1.195 - 1.205 billion"
     },
     {
      "metric": "operating_income",
@@ -318,32 +358,12 @@
     {
      "metric": "eps_non_gaap",
      "basis": "non-gaap",
-     "period": "Q2FY27",
-     "value_low": 0.06,
-     "value_high": 0.08,
-     "unit": "per_share",
-     "kind": "guide_prior",
-     "quote": "Non-GAAP diluted earnings per share (EPS) $0.06 - 0.08"
-    },
-    {
-     "metric": "eps_non_gaap",
-     "basis": "non-gaap",
      "period": "FY27",
      "value_low": 0.32,
      "value_high": 0.38,
      "unit": "per_share",
      "kind": "guide_prior",
      "quote": "Non-GAAP diluted earnings per share (EPS) $0.32 - 0.38"
-    },
-    {
-     "metric": "diluted_shares_outstanding",
-     "basis": "non-gaap",
-     "period": "Q2FY27",
-     "value_low": 347.0,
-     "value_high": 347.0,
-     "unit": "count",
-     "kind": "guide_prior",
-     "quote": "Diluted weighted average shares outstanding 347 million"
     },
     {
      "metric": "diluted_shares_outstanding",
@@ -358,16 +378,6 @@
     {
      "metric": "tax_rate",
      "basis": "non-gaap",
-     "period": "Q2FY27",
-     "value_low": 17.0,
-     "value_high": 17.0,
-     "unit": "percent",
-     "kind": "guide_prior",
-     "quote": "Non-GAAP tax rate 17%"
-    },
-    {
-     "metric": "tax_rate",
-     "basis": "non-gaap",
      "period": "FY27",
      "value_low": 17.0,
      "value_high": 17.0,
@@ -376,140 +386,140 @@
      "quote": "Non-GAAP tax rate 17%"
     }
    ],
-   "share_count_note": "Diluted weighted average shares outstanding for Q3 FY27 guidance is 370 million, for FY27 guidance is 361 million; prior Q2 FY27 guidance was 347 million, prior FY27 guidance was 350 million.",
-   "fx_or_one_off_note": "No foreign exchange or one-off items explicitly noted in the press release.",
+   "share_count_note": "Diluted weighted average shares outstanding for Q3 FY27 guidance: 370 million; for FY27 guidance: 361 million. Prior Q2 FY27 guidance: 347 million; prior FY27 guidance: 350 million.",
+   "fx_or_one_off_note": "No foreign exchange or one-off items explicitly noted in the release.",
    "llm": {
     "provider": "hf_deepseek_v4",
     "family": "deepseek",
     "model": "deepseek-ai/DeepSeek-V4-Flash",
     "prompt_tokens": 9721,
-    "completion_tokens": 2580,
-    "latency_s": 40.6
+    "completion_tokens": 2632,
+    "latency_s": 45.1
    }
   },
   "expectations": {
    "consensus": [
     {
      "metric": "eps_non_gaap",
-     "basis": "consensus",
+     "basis": "analyst consensus",
      "period": "Q2 FY2027",
      "value_low": 0.07,
      "value_high": 0.07,
-     "unit": "USD/share",
+     "unit": "USD per share",
      "source_quote": "SentinelOne Q2 Adj. EPS $0.08 Beats $0.07 Estimate"
     },
     {
      "metric": "revenue",
-     "basis": "consensus",
+     "basis": "analyst consensus",
      "period": "Q2 FY2027",
-     "value_low": 290.25,
-     "value_high": 290.25,
-     "unit": "USD millions",
+     "value_low": 290250000,
+     "value_high": 290250000,
+     "unit": "USD",
      "source_quote": "Sales $291.981M Beat $290.250M Estimate"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "consensus",
+     "basis": "analyst consensus (for Q3 guidance comparison)",
      "period": "Q3 FY2027",
      "value_low": 0.11,
      "value_high": 0.11,
-     "unit": "USD/share",
+     "unit": "USD per share",
      "source_quote": "SentinelOne Sees Q3 Adj EPS $0.08-$0.09 vs $0.11 Est"
     },
     {
      "metric": "revenue",
-     "basis": "consensus",
+     "basis": "analyst consensus (for Q3 guidance comparison)",
      "period": "Q3 FY2027",
-     "value_low": 309.442,
-     "value_high": 309.442,
-     "unit": "USD millions",
+     "value_low": 309442000,
+     "value_high": 309442000,
+     "unit": "USD",
      "source_quote": "Sees Sales $309.000M-$311.000M vs $309.442M Est"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "consensus",
+     "basis": "analyst consensus (for FY guidance comparison)",
      "period": "FY2027",
      "value_low": 0.35,
      "value_high": 0.35,
-     "unit": "USD/share",
+     "unit": "USD per share",
      "source_quote": "Lowers FY2027 Adj EPS Guidance from $0.32-$0.38 to $0.30-$0.32 vs $0.35 Est"
     },
     {
      "metric": "revenue",
-     "basis": "consensus",
+     "basis": "analyst consensus (for FY guidance comparison)",
      "period": "FY2027",
-     "value_low": 1205,
-     "value_high": 1205,
-     "unit": "USD millions",
+     "value_low": 1205000000,
+     "value_high": 1205000000,
+     "unit": "USD",
      "source_quote": "Raises FY2027 Sales Guidance from $1.195B-$1.205B to $1.202B-$1.207B vs $1.205B Est"
     }
    ],
    "prior_guidance": [
     {
      "metric": "revenue",
-     "basis": "company_guidance",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
      "period": "Q2 FY2027",
-     "value_low": 289,
-     "value_high": 291,
-     "unit": "USD millions",
-     "source_quote": "Q2 Fiscal Year 2027 Guidance: Revenue $289 - 291 million"
-    },
-    {
-     "metric": "operating_income",
-     "basis": "company_guidance",
-     "period": "Q2 FY2027",
-     "value_low": 23,
-     "value_high": 25,
-     "unit": "USD millions",
-     "source_quote": "Non-GAAP operating income $23 - 25 million"
+     "value_low": 289000000,
+     "value_high": 291000000,
+     "unit": "USD",
+     "source_quote": "Q2 Fiscal Year 2027 Guidance Revenue $289 - 291 million"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "company_guidance",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
      "period": "Q2 FY2027",
      "value_low": 0.06,
      "value_high": 0.08,
-     "unit": "USD/share",
+     "unit": "USD per share",
      "source_quote": "Non-GAAP diluted earnings per share (EPS) $0.06 - 0.08"
     },
     {
-     "metric": "revenue",
-     "basis": "company_guidance",
-     "period": "FY2027",
-     "value_low": 1195,
-     "value_high": 1205,
-     "unit": "USD millions",
-     "source_quote": "Fiscal Year 2027 Guidance: Revenue $1.195 - 1.205 billion"
+     "metric": "operating_income",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
+     "period": "Q2 FY2027",
+     "value_low": 23000000,
+     "value_high": 25000000,
+     "unit": "USD (non-GAAP)",
+     "source_quote": "Non-GAAP operating income $23 - 25 million"
     },
     {
-     "metric": "operating_income",
-     "basis": "company_guidance",
+     "metric": "revenue",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
      "period": "FY2027",
-     "value_low": 115,
-     "value_high": 125,
-     "unit": "USD millions",
-     "source_quote": "Non-GAAP operating income $115 - 125 million"
+     "value_low": 1195000000,
+     "value_high": 1205000000,
+     "unit": "USD",
+     "source_quote": "Fiscal Year 2027 Guidance Revenue $1.195 - 1.205 billion"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "company_guidance",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
      "period": "FY2027",
      "value_low": 0.32,
      "value_high": 0.38,
-     "unit": "USD/share",
+     "unit": "USD per share",
      "source_quote": "Non-GAAP diluted earnings per share (EPS) $0.32 - 0.38"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "company guidance issued with Q1 FY2027 results (May 28, 2026)",
+     "period": "FY2027",
+     "value_low": 115000000,
+     "value_high": 125000000,
+     "unit": "USD (non-GAAP)",
+     "source_quote": "Non-GAAP operating income $115 - 125 million"
     }
    ],
-   "what_the_market_was_braced_for": "Market expected Q2 FY2027 adj EPS of ~$0.07 on revenue of ~$290.25M, consistent with company guidance of $0.06-$0.08 EPS and $289-291M revenue. Option-implied move is unknown, but the stock had run up ~8.4% in the five sessions before the print, suggesting elevated expectations; investors were also watching forward guidance, with consensus at $0.11 EPS / $309.4M sales for Q3 and $0.35 EPS / $1.205B sales for FY2027.",
-   "latent_kpi_guess": "arr",
+   "what_the_market_was_braced_for": "The market expected SentinelOne to report Q2 FY2027 non-GAAP EPS of ~$0.07 on revenue of ~$290.25M (top end of the company's own $289-291M guidance), with the key focus on forward guidance: Q3 non-GAAP EPS of ~$0.11 on revenue of ~$309.4M and FY2027 non-GAAP EPS of ~$0.35 on revenue of ~$1.205B. The stock had run up ~8.4% over the five sessions before the print amid a broader cybersecurity rally, implying elevated expectations. The market was braced for continued ARR acceleration and operating leverage; headlines indicate the print beat Q2 estimates but guidance disappointed (Q3 EPS guided to $0.08-$0.09 vs $0.11 est; FY EPS cut to $0.30-$0.32 vs $0.35 est), sending shares lower.",
+   "latent_kpi_guess": "ARR growth / net new ARR trajectory (with the implied FY2027 non-GAAP EPS guidance as the key profitability signal)",
    "expectations_confidence": 0.85,
    "llm": {
-    "provider": "nvidia_kimi",
-    "family": "moonshot",
-    "model": "moonshotai/kimi-k3",
-    "prompt_tokens": 2619,
-    "completion_tokens": 1155,
-    "latency_s": 53.3
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 2528,
+    "completion_tokens": 1595,
+    "latency_s": 8.7
    }
   },
   "surprise_cube": {
@@ -593,7 +603,7 @@
       "gaap",
       "Q2FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus', 'Q2FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -602,7 +612,43 @@
       "gaap",
       "Q2FY26"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus', 'Q2FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "arr_growth",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "customers",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
     },
     {
      "axis": "actual_vs_consensus",
@@ -674,7 +720,16 @@
       "non-gaap",
       "Q2FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'consensus', 'Q2FY2027')"
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_and_investments",
+      "unknown",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -683,7 +738,7 @@
       "gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company_guidance', 'Q2FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company guidance issued with q1 fy2027 results (may 28, 2026)', 'Q2FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -692,7 +747,7 @@
       "non-gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_income', 'company_guidance', 'Q2FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_income', 'company guidance issued with q1 fy2027 results (may 28, 2026)', 'Q2FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -701,7 +756,7 @@
       "non-gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company_guidance', 'Q2FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance issued with q1 fy2027 results (may 28, 2026)', 'Q2FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -723,7 +778,7 @@
     }
    ],
    "n_cells": 5,
-   "n_incomparable": 15
+   "n_incomparable": 20
   },
   "historical_analog": {
    "available": true,
@@ -761,22 +816,10 @@
   }
  },
  "refusals": [],
- "fallbacks": [
-  {
-   "role": "fact",
-   "tried": [
-    {
-     "provider": "deepseek",
-     "why": "deepseek: non-JSON reply '{\\n  \"rows\": [\\n    {\\n      \"metric\": \"revenue\",\\n      \"basis\": \"GAAP\",\\n      \"period\": \"Q2"
-    }
-   ],
-   "answered": "hf_deepseek_v4"
-  }
- ],
  "skeptic_independent": true,
  "families_used": [
   "deepseek",
-  "moonshot",
+  "minimax",
   "zhipu"
  ],
  "light": true,

@@ -31,7 +31,11 @@ STATE = Path(os.getenv("AAT_LEDGER_DIR") or "state")
 
 #: Preference order per role. Families: deepseek / moonshot / minimax / google / zhipu.
 ROLE_PREFERENCES: dict[str, list[str]] = {
-    "fact": ["deepseek", "hf_deepseek_v4", "nvidia_minimax"],
+    # FACT: measured by scripts.role_bakeoff on S + WDAY against the EX-99.1 answer key
+    # (2026-08-28): hf DeepSeek-V4-Flash 9/10, deepseek-chat 6/10 (pre-fix scoring;
+    # intermittently down tonight), GLM 4/10 (truncated JSON on a 30k prompt),
+    # minimax 0/10 (60 s timeout on the long prompt). Order follows the table.
+    "fact": ["hf_deepseek_v4", "deepseek", "hf_glm"],
     "expectations": ["nvidia_kimi", "hf_glm", "nvidia_minimax", "hf_deepseek_v4"],
     "causal": ["nvidia_minimax", "nvidia_kimi", "hf_glm", "deepseek"],
     "skeptic": ["hf_glm", "nvidia_kimi", "nvidia_minimax", "hf_deepseek_v4"],

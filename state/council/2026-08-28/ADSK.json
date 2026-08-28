@@ -1,0 +1,864 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "ADSK",
+ "observed_at_utc": "2026-08-28T06:37:50.376381+00:00",
+ "roles": {
+  "fact": "deepseek",
+  "expectations": "hf_glm",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0000769397-26-000059",
+     "exhibit_type": "EX-99.1",
+     "chars": 29940,
+     "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000059/0000769397-26-000059.txt"
+    },
+    {
+     "date": "2026-05-28",
+     "accession": "0000769397-26-000041",
+     "exhibit_type": "EX-99.1",
+     "chars": 29266,
+     "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000041/0000769397-26-000041.txt"
+    }
+   ],
+   "n_headlines": 9,
+   "has_transcript": true,
+   "ah_move": null,
+   "pre_event_5d_move": 0.07866756928958263,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "billings",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 1854.0,
+     "value_high": 1854.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Billings $ 1,854"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 2046.0,
+     "value_high": 2046.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Revenue $ 2,046"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 16.0,
+     "value_high": 16.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Second quarter revenue grew 16 percent year over year as reported"
+    },
+    {
+     "metric": "revenue",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "14 percent on a constant currency basis"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 29.0,
+     "value_high": 29.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "GAAP Operating Margin 29 %"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 41.0,
+     "value_high": 41.0,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Non-GAAP Operating Margin 41 %"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 2.33,
+     "value_high": 2.33,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "GAAP EPS $ 2.33"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 3.3,
+     "value_high": 3.3,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Non-GAAP EPS $ 3.30"
+    },
+    {
+     "metric": "cash_flow_from_operating_activities",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 575.0,
+     "value_high": 575.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Cash flow from operating activities $ 575"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 561.0,
+     "value_high": 561.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Free cash flow $ 561"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 2125.0,
+     "value_high": 2140.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue (in millions) $2,125 - $2,140"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q3FY27",
+     "value_low": 1.57,
+     "value_high": 1.87,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "GAAP EPS $1.57 - $1.87"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q3FY27",
+     "value_low": 3.04,
+     "value_high": 3.09,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Non-GAAP EPS $3.04 - $3.09"
+    },
+    {
+     "metric": "billings",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 8575.0,
+     "value_high": 8650.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Billings (in millions) $8,575 - $8,650"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 8295.0,
+     "value_high": 8345.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Revenue (in millions) $8,295 - $8,345"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 25.0,
+     "value_high": 27.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "GAAP operating margin 25% - 27%"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 39.0,
+     "value_high": 39.0,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Non-GAAP operating margin ~39%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 7.89,
+     "value_high": 8.72,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "GAAP EPS $7.89 - $8.72"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 12.52,
+     "value_high": 12.6,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Non-GAAP EPS $12.52 - $12.60"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 2725.0,
+     "value_high": 2750.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Free cash flow (in millions) (2) $2,725 - $2,750"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 2005.0,
+     "value_high": 2015.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Revenue (in millions) $2,005 - $2,015"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 1.84,
+     "value_high": 1.97,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "EPS GAAP $1.84 - $1.97"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "Q2FY27",
+     "value_low": 3.1,
+     "value_high": 3.14,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "EPS non-GAAP $3.10 - $3.14"
+    },
+    {
+     "metric": "billings",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 8505.0,
+     "value_high": 8580.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Billings (in millions) $8,505 - $8,580"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 8155.0,
+     "value_high": 8215.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Revenue (in millions) $8,155 - $8,215"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 26.0,
+     "value_high": 28.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "GAAP operating margin 26% - 28%"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 39.0,
+     "value_high": 39.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Non-GAAP operating margin ~39%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 8.07,
+     "value_high": 8.63,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "EPS GAAP $8.07 - $8.63"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 12.4,
+     "value_high": 12.65,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "EPS non-GAAP $12.40 - $12.65"
+    },
+    {
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 2725.0,
+     "value_high": 2800.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Free cash flow (in millions) (2) $2,725 - $2,800"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Capital expenditures (14)"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "FY27",
+     "value_low": 70.0,
+     "value_high": 70.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "approximately $70 million of capital expenditures"
+    },
+    {
+     "metric": "deferred_revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 4258.0,
+     "value_high": 4258.0,
+     "unit": "USD_millions",
+     "kind": "kpi",
+     "quote": "Deferred Revenue $ 4,258"
+    },
+    {
+     "metric": "unbilled_deferred_revenue",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 3175.0,
+     "value_high": 3175.0,
+     "unit": "USD_millions",
+     "kind": "kpi",
+     "quote": "Unbilled deferred revenue (1) 3,175"
+    },
+    {
+     "metric": "backlog",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 7433.0,
+     "value_high": 7433.0,
+     "unit": "USD_millions",
+     "kind": "kpi",
+     "quote": "Remaining performance obligations (\u201cRPO\u201d) (1) 7,433"
+    },
+    {
+     "metric": "backlog",
+     "basis": "gaap",
+     "period": "Q2FY27",
+     "value_low": 5245.0,
+     "value_high": 5245.0,
+     "unit": "USD_millions",
+     "kind": "kpi",
+     "quote": "Current RPO (1) 5,245"
+    },
+    {
+     "metric": "transaction_expenses_related_to_maintainx",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "value_low": 45.0,
+     "value_high": 45.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "approximately $45 million of transaction expenses related to the MaintainX acquisition"
+    }
+   ],
+   "share_count_note": "Weighted average diluted shares for Q2 FY27 were 211 million.",
+   "fx_or_one_off_note": "Constant currency revenue growth was 14% for Q2 FY27. Guidance includes MaintainX acquisition.",
+   "llm": {
+    "provider": "deepseek",
+    "family": "deepseek",
+    "model": "deepseek-chat",
+    "prompt_tokens": 9344,
+    "completion_tokens": 3182,
+    "latency_s": 14.2
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 3.12,
+     "value_high": 3.12,
+     "unit": "USD per share",
+     "source_quote": "Autodesk Q2 Adj. EPS $3.30 Beats $3.12 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 2012000000,
+     "value_high": 2012000000,
+     "unit": "USD",
+     "source_quote": "Sales $2.046B Beat $2.012B Estimate"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "Q3 FY2027",
+     "value_low": 3.14,
+     "value_high": 3.14,
+     "unit": "USD per share",
+     "source_quote": "Autodesk Sees Q3 Adj EPS $3.04-$3.09 vs $3.14 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "Q3 FY2027",
+     "value_low": 2082000000,
+     "value_high": 2082000000,
+     "unit": "USD",
+     "source_quote": "Sees Sales $2.125B-$2.140B vs $2.082B Est"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "Q3 FY2027",
+     "value_low": 2.16,
+     "value_high": 2.16,
+     "unit": "USD per share",
+     "source_quote": "Autodesk Sees Q3 GAAP EPS $1.57-$1.87 vs $2.16 Est"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "FY2027",
+     "value_low": 12.6,
+     "value_high": 12.6,
+     "unit": "USD per share",
+     "source_quote": "Autodesk Narrows FY2027 Adj EPS Guidance from $12.40-$12.65 to $12.52-$12.60 vs $12.60 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "FY2027",
+     "value_low": 8206000000,
+     "value_high": 8206000000,
+     "unit": "USD",
+     "source_quote": "Raises FY2027 Sales Guidance from $8.155B-$8.215B to $8.575B-$8.650B vs $8.206B Est"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "analyst consensus (forward guidance comparison)",
+     "period": "FY2027",
+     "value_low": 8.44,
+     "value_high": 8.44,
+     "unit": "USD per share",
+     "source_quote": "Autodesk Widens FY2027 GAAP EPS Guidance from $8.07-$8.63 to $7.89-$8.72 vs $8.44 Est"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "revenue",
+     "basis": "company guidance (Q1 FY27 press release, May 28, 2026)",
+     "period": "Q2 FY2027",
+     "value_low": 2005000000,
+     "value_high": 2015000000,
+     "unit": "USD",
+     "source_quote": "Revenue (in millions) $2,005 - $2,015"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "Q2 FY2027",
+     "value_low": 1.84,
+     "value_high": 1.97,
+     "unit": "USD per share",
+     "source_quote": "EPS GAAP $1.84 - $1.97"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "Q2 FY2027",
+     "value_low": 3.1,
+     "value_high": 3.14,
+     "unit": "USD per share",
+     "source_quote": "EPS non-GAAP $3.10 - $3.14"
+    },
+    {
+     "metric": "revenue",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "FY2027",
+     "value_low": 8155000000,
+     "value_high": 8215000000,
+     "unit": "USD",
+     "source_quote": "Revenue (in millions) $8,155 - $8,215"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "FY2027",
+     "value_low": 8.07,
+     "value_high": 8.63,
+     "unit": "USD per share",
+     "source_quote": "EPS GAAP $8.07 - $8.63"
+    },
+    {
+     "metric": "eps_non_gaap",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "FY2027",
+     "value_low": 12.4,
+     "value_high": 12.65,
+     "unit": "USD per share",
+     "source_quote": "EPS non-GAAP $12.40 - $12.65"
+    },
+    {
+     "metric": "backlog",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "FY2027",
+     "value_low": 8505000000,
+     "value_high": 8580000000,
+     "unit": "USD (billings)",
+     "source_quote": "Billings (in millions) $8,505 - $8,580"
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "company guidance (Q1 FY27 press release)",
+     "period": "FY2027",
+     "value_low": 0.39,
+     "value_high": 0.39,
+     "unit": "non-GAAP operating margin (approx.)",
+     "source_quote": "Non-GAAP operating margin ~39%"
+    }
+   ],
+   "what_the_market_was_braced_for": "The market expected Autodesk to report Q2 FY27 non-GAAP EPS of ~$3.12 (within the company's own $3.10-$3.14 guidance) on revenue of ~$2.012B (above the company's $2.005-$2.015B guide), with the stock having drifted up ~7.9% over the five sessions before the print, suggesting elevated expectations. The option-implied move is unknown. Forward-looking, analysts modeled Q3 non-GAAP EPS of $3.14, Q3 revenue of $2.082B, Q3 GAAP EPS of $2.16, FY27 non-GAAP EPS of $12.60, FY27 revenue of $8.206B, and FY27 GAAP EPS of $8.44.",
+   "latent_kpi_guess": "Q3 FY2027 non-GAAP EPS guidance (the print's headline disappointment was Q3 EPS guidance of $3.04-$3.09 vs $3.14 consensus, which drove shares lower despite Q2 beats and a raised FY27 revenue outlook)",
+   "expectations_confidence": 0.9,
+   "llm": {
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 2750,
+    "completion_tokens": 2000,
+    "latency_s": 7.4
+   }
+  },
+  "surprise_cube": {
+   "cells": [
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "billings",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 8612.5,
+     "reference_mid": 8542.5,
+     "relative": 0.0082,
+     "sign": 1,
+     "unit": "USD_millions",
+     "fact_quote": "Billings (in millions) $8,575 - $8,650",
+     "reference_quote": "Billings (in millions) $8,505 - $8,580",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 8320.0,
+     "reference_mid": 8185.0,
+     "relative": 0.0165,
+     "sign": 1,
+     "unit": "USD_millions",
+     "fact_quote": "Revenue (in millions) $8,295 - $8,345",
+     "reference_quote": "Revenue (in millions) $8,155 - $8,215",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 26.0,
+     "reference_mid": 27.0,
+     "relative": -0.037,
+     "sign": -1,
+     "unit": "percent",
+     "fact_quote": "GAAP operating margin 25% - 27%",
+     "reference_quote": "GAAP operating margin 26% - 28%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "operating_margin",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 39.0,
+     "reference_mid": 39.0,
+     "relative": 0.0,
+     "sign": 0,
+     "unit": "percent",
+     "fact_quote": "Non-GAAP operating margin ~39%",
+     "reference_quote": "Non-GAAP operating margin ~39%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY27",
+     "fact_mid": 8.305,
+     "reference_mid": 8.350000000000001,
+     "relative": -0.0054,
+     "sign": -1,
+     "unit": "USD",
+     "fact_quote": "GAAP EPS $7.89 - $8.72",
+     "reference_quote": "EPS GAAP $8.07 - $8.63",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "eps_non_gaap",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 12.559999999999999,
+     "reference_mid": 12.525,
+     "relative": 0.0028,
+     "sign": 1,
+     "unit": "USD",
+     "fact_quote": "Non-GAAP EPS $12.52 - $12.60",
+     "reference_quote": "EPS non-GAAP $12.40 - $12.65",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "free_cash_flow",
+     "basis": "non-gaap",
+     "period": "FY27",
+     "fact_mid": 2737.5,
+     "reference_mid": 2762.5,
+     "relative": -0.009,
+     "sign": -1,
+     "unit": "USD_millions",
+     "fact_quote": "Free cash flow (in millions) (2) $2,725 - $2,750",
+     "reference_quote": "Free cash flow (in millions) (2) $2,725 - $2,800",
+     "basis_assumed": false
+    }
+   ],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "billings",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_gaap', 'analyst consensus (forward guidance comparison)', 'Q3FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q2FY2027')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "cash_flow_from_operating_activities",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "free_cash_flow",
+      "non-gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company guidance (q1 fy27 press release, may 28, 2026)', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_gaap', 'company guidance (q1 fy27 press release)', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "eps_non_gaap",
+      "non-gaap",
+      "Q3FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance (q1 fy27 press release)', 'Q2FY2027') NOT subtracted"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "capex",
+      "gaap",
+      "Q2FY27"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "capex",
+      "gaap",
+      "FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": [
+      "transaction_expenses_related_to_maintainx",
+      "non-gaap",
+      "FY27"
+     ],
+     "why": "no prior guide with same metric/basis/period"
+    }
+   ],
+   "n_cells": 7,
+   "n_incomparable": 16
+  },
+  "historical_analog": {
+   "available": false,
+   "why": "no observable day-0 reaction yet"
+  },
+  "market_pricing": {
+   "ah_move": null,
+   "band": null,
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": 0.07866756928958263
+  }
+ },
+ "refusals": [],
+ "fallbacks": [
+  {
+   "role": "expectations",
+   "tried": [
+    {
+     "provider": "nvidia_kimi",
+     "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+    }
+   ],
+   "answered": "hf_glm"
+  }
+ ],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

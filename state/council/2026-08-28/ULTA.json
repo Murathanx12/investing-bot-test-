@@ -1,0 +1,547 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "ULTA",
+ "observed_at_utc": "2026-08-28T06:39:25.980908+00:00",
+ "roles": {
+  "fact": "deepseek",
+  "expectations": "nvidia_kimi",
+  "causal": "nvidia_kimi",
+  "skeptic": "hf_glm",
+  "synthesis": "deepseek"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0001104659-26-102438",
+     "exhibit_type": "EX-99.1",
+     "chars": 18249,
+     "url": "https://www.sec.gov/Archives/edgar/data/1403568/000110465926102438/0001104659-26-102438.txt"
+    },
+    {
+     "date": "2026-06-02",
+     "accession": "0001104659-26-069464",
+     "exhibit_type": "EX-99.1",
+     "chars": 15777,
+     "url": "https://www.sec.gov/Archives/edgar/data/1403568/000110465926069464/0001104659-26-069464.txt"
+    }
+   ],
+   "n_headlines": 11,
+   "has_transcript": false,
+   "ah_move": null,
+   "pre_event_5d_move": 0.049903881628769575,
+   "implied_move": null
+  },
+  "facts": {
+   "rows": [
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 3035.7,
+     "value_high": 3035.7,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Net sales increased 8.9% to $3.0 billion"
+    },
+    {
+     "metric": "comparable_sales_growth",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 3.8,
+     "value_high": 3.8,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "Comparable sales increased 3.8%."
+    },
+    {
+     "metric": "gross_profit",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 1186.952,
+     "value_high": 1186.952,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Gross profit increased 8.7% to $1.2 billion."
+    },
+    {
+     "metric": "gross_margin",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 39.1,
+     "value_high": 39.1,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "As a percentage of net sales, gross profit decreased to 39.1% compared to 39.2%"
+    },
+    {
+     "metric": "sg_a_expenses",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 802.8,
+     "value_high": 802.8,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Selling, general and administrative (SG&A) expenses increased 8.2% to $802.8 million"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 379.6,
+     "value_high": 379.6,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Operating income increased 10.1% to $379.6 million."
+    },
+    {
+     "metric": "operating_margin",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 12.5,
+     "value_high": 12.5,
+     "unit": "percent",
+     "kind": "actual",
+     "quote": "As a percentage of net sales, operating income was 12.5% compared to 12.4%."
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 6.55,
+     "value_high": 6.55,
+     "unit": "USD",
+     "kind": "actual",
+     "quote": "Diluted earnings per share increased 13.3% to $6.55."
+    },
+    {
+     "metric": "net_income",
+     "basis": "gaap",
+     "period": "Q2FY26",
+     "value_low": 282.006,
+     "value_high": 282.006,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "Net income $ 282,006"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "H1FY26",
+     "value_low": 139.5,
+     "value_high": 139.5,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "During the first six months of fiscal 2026, the Company invested $139.5 million in capital expenditures"
+    },
+    {
+     "metric": "share_repurchases",
+     "basis": "gaap",
+     "period": "H1FY26",
+     "value_low": 791.1,
+     "value_high": 791.1,
+     "unit": "USD_millions",
+     "kind": "actual",
+     "quote": "During the first six months of fiscal 2026, the Company repurchased 1.4 million shares of its common stock at a cost of $791.1 million"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 6.7,
+     "value_high": 7.2,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Net sales growth 6.7% to 7.2%"
+    },
+    {
+     "metric": "comparable_sales_growth",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 3.2,
+     "value_high": 3.7,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Comparable sales growth 3.2% to 3.7%"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 8.3,
+     "value_high": 9.3,
+     "unit": "percent",
+     "kind": "guide_new",
+     "quote": "Operating income growth 8.3% to 9.3%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 28.7,
+     "value_high": 29.0,
+     "unit": "USD",
+     "kind": "guide_new",
+     "quote": "Diluted earnings per share $28.70 to $29.00"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 400.0,
+     "value_high": 450.0,
+     "unit": "USD_millions",
+     "kind": "guide_new",
+     "quote": "Capital expenditures $400 million to $450 million no change"
+    },
+    {
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 6.0,
+     "value_high": 7.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Net sales growth 6% to 7%"
+    },
+    {
+     "metric": "comparable_sales_growth",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 2.5,
+     "value_high": 3.5,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Comparable sales growth 2.5% to 3.5%"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 6.5,
+     "value_high": 9.0,
+     "unit": "percent",
+     "kind": "guide_prior",
+     "quote": "Operating income growth 6.5% to 9%"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 28.36,
+     "value_high": 28.8,
+     "unit": "USD",
+     "kind": "guide_prior",
+     "quote": "Diluted earnings per share $28.36 to $28.80"
+    },
+    {
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "FY26",
+     "value_low": 400.0,
+     "value_high": 450.0,
+     "unit": "USD_millions",
+     "kind": "guide_prior",
+     "quote": "Capital expenditures $400 million to $450 million"
+    }
+   ],
+   "share_count_note": "Diluted weighted average shares outstanding for Q2 FY26: 43,062 thousand; for H1 FY26: 43,513 thousand.",
+   "fx_or_one_off_note": "No FX or one-off items noted.",
+   "llm": {
+    "provider": "deepseek",
+    "family": "deepseek",
+    "model": "deepseek-chat",
+    "prompt_tokens": 10623,
+    "completion_tokens": 1946,
+    "latency_s": 9.9
+   }
+  },
+  "expectations": {
+   "consensus": [
+    {
+     "metric": "eps_non_gaap",
+     "basis": "consensus",
+     "period": "Q2 FY2026",
+     "value_low": 6.16,
+     "value_high": 6.16,
+     "unit": "USD per share",
+     "source_quote": "Ulta Beauty Q2 EPS $6.55 Beats $6.16 Estimate"
+    },
+    {
+     "metric": "revenue",
+     "basis": "consensus",
+     "period": "Q2 FY2026",
+     "value_low": 2.955,
+     "value_high": 2.955,
+     "unit": "USD billions",
+     "source_quote": "Sales $3.036B Beat $2.955B Estimate"
+    },
+    {
+     "metric": "eps_gaap",
+     "basis": "consensus",
+     "period": "FY2026",
+     "value_low": 28.94,
+     "value_high": 28.94,
+     "unit": "USD per share",
+     "source_quote": "Raises FY2026 GAAP EPS Guidance from $28.36-$28.80 to $28.70-$29.00 vs $28.94 Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "consensus",
+     "period": "FY2026",
+     "value_low": 13.209,
+     "value_high": 13.209,
+     "unit": "USD billions",
+     "source_quote": "Raises FY2026 Sales Guidance from $13.136B-$13.260B to $13.223B-$13.285B vs $13.209B Est"
+    }
+   ],
+   "prior_guidance": [
+    {
+     "metric": "eps_gaap",
+     "basis": "company_guidance",
+     "period": "FY2026",
+     "value_low": 28.36,
+     "value_high": 28.8,
+     "unit": "USD per share",
+     "source_quote": "Diluted earnings per share ... $28.05 to $28.55 ... $28.36 to $28.80"
+    },
+    {
+     "metric": "revenue",
+     "basis": "company_guidance",
+     "period": "FY2026",
+     "value_low": 0.06,
+     "value_high": 0.07,
+     "unit": "net sales growth fraction",
+     "source_quote": "Net sales growth 6% to 7% no change"
+    },
+    {
+     "metric": "revenue",
+     "basis": "company_guidance",
+     "period": "FY2026",
+     "value_low": 0.025,
+     "value_high": 0.035,
+     "unit": "comparable sales growth fraction",
+     "source_quote": "Comparable sales growth 2.5% to 3.5% no change"
+    },
+    {
+     "metric": "operating_income",
+     "basis": "company_guidance",
+     "period": "FY2026",
+     "value_low": 0.065,
+     "value_high": 0.09,
+     "unit": "operating income growth fraction",
+     "source_quote": "Operating income growth 6% to 9% ... 6.5% to 9%"
+    }
+   ],
+   "what_the_market_was_braced_for": "Option-implied move is unknown, but the stock had run up ~5% over the five sessions before the print, suggesting elevated expectations. Consensus looked for Q2 EPS of $6.16 on sales of $2.955B, with FY2026 consensus at $28.94 EPS and $13.209B sales \u2014 already above the company's prior guided range of $28.36-$28.80, so the market was positioned for a beat-and-raise, consistent with Ulta's streak of four straight EPS beats.",
+   "latent_kpi_guess": "eps_non_gaap",
+   "expectations_confidence": 0.85,
+   "llm": {
+    "provider": "nvidia_kimi",
+    "family": "moonshot",
+    "model": "moonshotai/kimi-k3",
+    "prompt_tokens": 3117,
+    "completion_tokens": 974,
+    "latency_s": 51.9
+   }
+  },
+  "surprise_cube": {
+   "cells": [
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "revenue",
+     "basis": "gaap",
+     "period": "FY26",
+     "fact_mid": 6.95,
+     "reference_mid": 6.5,
+     "relative": 0.0692,
+     "sign": 1,
+     "unit": "percent",
+     "fact_quote": "Net sales growth 6.7% to 7.2%",
+     "reference_quote": "Net sales growth 6% to 7%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "comparable_sales_growth",
+     "basis": "gaap",
+     "period": "FY26",
+     "fact_mid": 3.45,
+     "reference_mid": 3.0,
+     "relative": 0.15,
+     "sign": 1,
+     "unit": "percent",
+     "fact_quote": "Comparable sales growth 3.2% to 3.7%",
+     "reference_quote": "Comparable sales growth 2.5% to 3.5%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "operating_income",
+     "basis": "gaap",
+     "period": "FY26",
+     "fact_mid": 8.8,
+     "reference_mid": 7.75,
+     "relative": 0.1355,
+     "sign": 1,
+     "unit": "percent",
+     "fact_quote": "Operating income growth 8.3% to 9.3%",
+     "reference_quote": "Operating income growth 6.5% to 9%",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "eps_gaap",
+     "basis": "gaap",
+     "period": "FY26",
+     "fact_mid": 28.85,
+     "reference_mid": 28.58,
+     "relative": 0.0094,
+     "sign": 1,
+     "unit": "USD",
+     "fact_quote": "Diluted earnings per share $28.70 to $29.00",
+     "reference_quote": "Diluted earnings per share $28.36 to $28.80",
+     "basis_assumed": false
+    },
+    {
+     "axis": "guide_vs_prior_guide",
+     "metric": "capex",
+     "basis": "gaap",
+     "period": "FY26",
+     "fact_mid": 425.0,
+     "reference_mid": 425.0,
+     "relative": 0.0,
+     "sign": 0,
+     "unit": "USD_millions",
+     "fact_quote": "Capital expenditures $400 million to $450 million no change",
+     "reference_quote": "Capital expenditures $400 million to $450 million",
+     "basis_assumed": false
+    }
+   ],
+   "incomparable": [
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "revenue",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus', 'Q2FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "comparable_sales_growth",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_profit",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "gross_margin",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "sg_a_expenses",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_income",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "operating_margin",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "eps_gaap",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period; nearest ('eps_gaap', 'consensus', 'FY2026')"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "net_income",
+      "gaap",
+      "Q2FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "capex",
+      "gaap",
+      "H1FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    },
+    {
+     "axis": "actual_vs_consensus",
+     "metric": [
+      "share_repurchases",
+      "gaap",
+      "H1FY26"
+     ],
+     "why": "no consensus with same basis/period"
+    }
+   ],
+   "n_cells": 5,
+   "n_incomparable": 11
+  },
+  "historical_analog": {
+   "available": false,
+   "why": "no observable day-0 reaction yet"
+  },
+  "market_pricing": {
+   "ah_move": null,
+   "band": null,
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": 0.049903881628769575
+  }
+ },
+ "refusals": [],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "moonshot",
+  "zhipu"
+ ],
+ "light": true,
+ "verdict": "LIGHT"
+}

@@ -1,11 +1,11 @@
 {
  "schema": "RESEARCH_COUNCIL_v1",
  "symbol": "WDAY",
- "observed_at_utc": "2026-08-28T06:29:53.306302+00:00",
+ "observed_at_utc": "2026-08-28T06:50:58.052767+00:00",
  "roles": {
-  "fact": "deepseek",
-  "expectations": "nvidia_kimi",
-  "causal": "nvidia_kimi",
+  "fact": "hf_deepseek_v4",
+  "expectations": "hf_glm",
+  "causal": "nvidia_minimax",
   "skeptic": "hf_glm",
   "synthesis": "deepseek"
  },
@@ -39,9 +39,9 @@
      "metric": "revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2649.0,
-     "value_high": 2649.0,
-     "unit": "USD_millions",
+     "value_low": 2.649,
+     "value_high": 2.649,
+     "unit": "USD_billions",
      "kind": "actual",
      "quote": "Total revenues were $2.649 billion"
     },
@@ -49,9 +49,9 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2471.0,
-     "value_high": 2471.0,
-     "unit": "USD_millions",
+     "value_low": 2.471,
+     "value_high": 2.471,
+     "unit": "USD_billions",
      "kind": "actual",
      "quote": "Subscription revenues were $2.471 billion"
     },
@@ -73,7 +73,7 @@
      "value_high": 11.8,
      "unit": "percent",
      "kind": "actual",
-     "quote": "or 11.8% of revenues"
+     "quote": "11.8% of revenues"
     },
     {
      "metric": "operating_income",
@@ -93,10 +93,10 @@
      "value_high": 31.1,
      "unit": "percent",
      "kind": "actual",
-     "quote": "or 31.1% of revenues"
+     "quote": "31.1% of revenues"
     },
     {
-     "metric": "eps_gaap",
+     "metric": "diluted_net_income_per_share",
      "basis": "gaap",
      "period": "Q2FY27",
      "value_low": 2.57,
@@ -106,7 +106,7 @@
      "quote": "Diluted net income per share was $2.57"
     },
     {
-     "metric": "eps_non_gaap",
+     "metric": "diluted_net_income_per_share",
      "basis": "non-gaap",
      "period": "Q2FY27",
      "value_low": 2.75,
@@ -117,22 +117,22 @@
     },
     {
      "metric": "subscription_revenue",
-     "basis": "gaap",
+     "basis": "unknown",
      "period": "Q2FY27",
-     "value_low": 9034.0,
-     "value_high": 9034.0,
-     "unit": "USD_millions",
-     "kind": "actual",
+     "value_low": 9.034,
+     "value_high": 9.034,
+     "unit": "USD_billions",
+     "kind": "kpi",
      "quote": "12-month subscription revenue backlog was $9.034 billion"
     },
     {
      "metric": "subscription_revenue",
-     "basis": "gaap",
+     "basis": "unknown",
      "period": "Q2FY27",
-     "value_low": 27403.0,
-     "value_high": 27403.0,
-     "unit": "USD_millions",
-     "kind": "actual",
+     "value_low": 27.403,
+     "value_high": 27.403,
+     "unit": "USD_billions",
+     "kind": "kpi",
      "quote": "Total subscription revenue backlog was $27.403 billion"
     },
     {
@@ -167,33 +167,33 @@
     },
     {
      "metric": "share_repurchases",
-     "basis": "gaap",
+     "basis": "unknown",
      "period": "Q2FY27",
-     "value_low": 1300.0,
-     "value_high": 1300.0,
-     "unit": "USD_millions",
+     "value_low": 1.3,
+     "value_high": 1.3,
+     "unit": "USD_billions",
      "kind": "actual",
-     "quote": "repurchased approximately 9.8 million shares of Class A common stock for $1.3 billion"
+     "quote": "Workday repurchased approximately 9.8 million shares of Class A common stock for $1.3 billion"
     },
     {
-     "metric": "cash_and_marketable_securities",
+     "metric": "cash_and_equivalents",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 3403.0,
-     "value_high": 3403.0,
-     "unit": "USD_millions",
+     "value_low": 3.403,
+     "value_high": 3.403,
+     "unit": "USD_billions",
      "kind": "actual",
-     "quote": "Cash, cash equivalents, and marketable securities were $3.403 billion"
+     "quote": "Cash, cash equivalents, and marketable securities were $3.403 billion as of July 31, 2026"
     },
     {
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q3FY27",
-     "value_low": 2515.0,
-     "value_high": 2515.0,
-     "unit": "USD_millions",
+     "value_low": 2.515,
+     "value_high": 2.515,
+     "unit": "USD_billions",
      "kind": "guide_new",
-     "quote": "Subscription revenues of $2.515 billion"
+     "quote": "Subscription revenues of $2.515 billion, representing growth of 12%"
     },
     {
      "metric": "operating_margin",
@@ -209,11 +209,11 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "value_low": 9940.0,
-     "value_high": 9950.0,
-     "unit": "USD_millions",
+     "value_low": 9.94,
+     "value_high": 9.95,
+     "unit": "USD_billions",
      "kind": "guide_new",
-     "quote": "Subscription revenues of $9.940 billion to $9.950 billion"
+     "quote": "Subscription revenues of $9.940 billion to $9.950 billion, representing growth of 13%"
     },
     {
      "metric": "operating_margin",
@@ -229,11 +229,11 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "Q2FY27",
-     "value_low": 2455.0,
-     "value_high": 2455.0,
-     "unit": "USD_millions",
+     "value_low": 2.455,
+     "value_high": 2.455,
+     "unit": "USD_billions",
      "kind": "guide_prior",
-     "quote": "Subscription revenues of $2.455 billion"
+     "quote": "Subscription revenues of $2.455 billion, representing growth of 13%"
     },
     {
      "metric": "operating_margin",
@@ -249,11 +249,11 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "value_low": 9925.0,
-     "value_high": 9950.0,
-     "unit": "USD_millions",
+     "value_low": 9.925,
+     "value_high": 9.95,
+     "unit": "USD_billions",
      "kind": "guide_prior",
-     "quote": "Subscription revenues of $9.925 billion to $9.950 billion"
+     "quote": "Subscription revenues of $9.925 billion to $9.950 billion, representing growth of 12% to 13%"
     },
     {
      "metric": "operating_margin",
@@ -266,104 +266,104 @@
      "quote": "Non-GAAP operating margin of 30.5%"
     }
    ],
-   "share_count_note": "Weighted-average diluted shares for Q2 FY27: 246,307 thousand; for Q2 FY26: 270,180 thousand.",
-   "fx_or_one_off_note": "Q2 FY27 GAAP diluted EPS includes a tax benefit of $1.52 per share related to an intra-entity transfer of intellectual property rights.",
+   "share_count_note": "Weighted-average shares used to calculate GAAP and non-GAAP diluted net income per share were 246,307 thousand for Q2 FY27.",
+   "fx_or_one_off_note": "Diluted net income per share for Q2 FY27 includes a tax benefit of $1.52 per share related to an intra-entity transfer of certain intellectual property rights.",
    "llm": {
-    "provider": "deepseek",
+    "provider": "hf_deepseek_v4",
     "family": "deepseek",
-    "model": "deepseek-chat",
-    "prompt_tokens": 9830,
-    "completion_tokens": 2066,
-    "latency_s": 11.3
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "prompt_tokens": 9810,
+    "completion_tokens": 1860,
+    "latency_s": 28.4
    }
   },
   "expectations": {
    "consensus": [
     {
      "metric": "revenue",
-     "basis": "total",
-     "period": "Q3 FY2027",
-     "value_low": 2.697,
-     "value_high": 2.697,
-     "unit": "USD billions",
-     "source_quote": "Workday Sees Q3 Sales $2.515B vs $2.697B Est"
-    },
-    {
-     "metric": "revenue",
-     "basis": "total",
-     "period": "FY2027",
-     "value_low": 10.669,
-     "value_high": 10.669,
-     "unit": "USD billions",
-     "source_quote": "Workday Lowers FY2027 Sales Guidance from $10.635B-$10.660B to $9.940B-$9.950B vs $10.669B Est"
+     "basis": "analyst consensus",
+     "period": "Q2 FY2027",
+     "value_low": 2636000000,
+     "value_high": 2636000000,
+     "unit": "USD",
+     "source_quote": "Workday Q2 Adj. EPS $2.75 Beats $2.61 Estimate, Sales $2.649B Beat $2.636B Estimate"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "adjusted",
+     "basis": "analyst consensus",
      "period": "Q2 FY2027",
      "value_low": 2.61,
      "value_high": 2.61,
      "unit": "USD per share",
-     "source_quote": "Workday Q2 Adj. EPS $2.75 Beats $2.61 Estimate"
+     "source_quote": "Workday Q2 Adj. EPS $2.75 Beats $2.61 Estimate, Sales $2.649B Beat $2.636B Estimate"
     },
     {
      "metric": "revenue",
-     "basis": "total",
-     "period": "Q2 FY2027",
-     "value_low": 2.636,
-     "value_high": 2.636,
-     "unit": "USD billions",
-     "source_quote": "Sales $2.649B Beat $2.636B Estimate"
+     "basis": "analyst consensus",
+     "period": "Q3 FY2027",
+     "value_low": 2697000000,
+     "value_high": 2697000000,
+     "unit": "USD",
+     "source_quote": "Workday Sees Q3 Sales $2.515B vs $2.697B Est"
+    },
+    {
+     "metric": "revenue",
+     "basis": "analyst consensus",
+     "period": "FY2027",
+     "value_low": 10669000000,
+     "value_high": 10669000000,
+     "unit": "USD",
+     "source_quote": "Workday Lowers FY2027 Sales Guidance from $10.635B-$10.660B to $9.940B-$9.950B vs $10.669B Est"
     }
    ],
    "prior_guidance": [
     {
      "metric": "subscription_revenue",
-     "basis": "company guidance",
+     "basis": "company guidance (Q1 FY2027 release, May 21, 2026)",
      "period": "Q2 FY2027",
-     "value_low": 2.455,
-     "value_high": 2.455,
-     "unit": "USD billions",
+     "value_low": 2455000000,
+     "value_high": 2455000000,
+     "unit": "USD",
      "source_quote": "Subscription revenues of $2.455 billion, representing growth of 13%"
     },
     {
      "metric": "operating_margin",
-     "basis": "non-GAAP",
+     "basis": "company guidance, non-GAAP (Q1 FY2027 release)",
      "period": "Q2 FY2027",
-     "value_low": 30.0,
-     "value_high": 30.0,
-     "unit": "percent",
+     "value_low": 0.3,
+     "value_high": 0.3,
+     "unit": "percent of revenues",
      "source_quote": "Non-GAAP operating margin of 30.0%"
     },
     {
      "metric": "subscription_revenue",
-     "basis": "company guidance",
+     "basis": "company guidance (Q1 FY2027 release, reiterated)",
      "period": "FY2027",
-     "value_low": 9.925,
-     "value_high": 9.95,
-     "unit": "USD billions",
+     "value_low": 9925000000,
+     "value_high": 9950000000,
+     "unit": "USD",
      "source_quote": "Subscription revenues of $9.925 billion to $9.950 billion, representing growth of 12% to 13%"
     },
     {
      "metric": "operating_margin",
-     "basis": "non-GAAP",
+     "basis": "company guidance, non-GAAP (Q1 FY2027 release, raised)",
      "period": "FY2027",
-     "value_low": 30.5,
-     "value_high": 30.5,
-     "unit": "percent",
+     "value_low": 0.305,
+     "value_high": 0.305,
+     "unit": "percent of revenues",
      "source_quote": "increasing our fiscal 2027 non-GAAP operating margin guidance to 30.5%"
     }
    ],
-   "what_the_market_was_braced_for": "The option-implied move is unknown, but the stock drifted down ~1.6% over the five sessions before the print, suggesting cautious positioning. Consensus expected Q2 adjusted EPS of $2.61 on revenue of $2.636B, with the market focused on whether Workday would hold its FY2027 subscription revenue guidance of $9.925B-$9.950B and its raised 30.5% non-GAAP operating margin target. Forward-looking consensus for Q3 sales stood at $2.697B and FY2027 total sales at $10.669B, levels the company's own guidance trajectory was already tracking below.",
+   "what_the_market_was_braced_for": "Heading into the print, the market expected Q2 FY2027 revenue of ~$2.636B and non-GAAP EPS of $2.61, with the key focus on forward guidance: consensus looked for Q3 revenue of ~$2.697B and FY2027 total revenue of ~$10.669B, versus the company's own prior FY2027 subscription revenue guidance of $9.925B-$9.950B (12-13% growth) and 30.5% non-GAAP operating margin. The stock had drifted down ~1.6% over the five sessions before the release, and the option-implied move is unknown, so there is no evidence the market priced an unusually large swing; expectations were for an in-line quarter with guidance roughly consistent with the reiterated outlook.",
    "latent_kpi_guess": "subscription_revenue",
-   "expectations_confidence": 0.72,
+   "expectations_confidence": 0.85,
    "llm": {
-    "provider": "nvidia_kimi",
-    "family": "moonshot",
-    "model": "moonshotai/kimi-k3",
-    "prompt_tokens": 2803,
-    "completion_tokens": 978,
-    "latency_s": 48.8
+    "provider": "hf_glm",
+    "family": "zhipu",
+    "model": "zai-org/GLM-5.3-Flash",
+    "prompt_tokens": 2742,
+    "completion_tokens": 1448,
+    "latency_s": 7.9
    }
   },
   "surprise_cube": {
@@ -373,13 +373,13 @@
      "metric": "subscription_revenue",
      "basis": "gaap",
      "period": "FY27",
-     "fact_mid": 9945.0,
-     "reference_mid": 9937.5,
+     "fact_mid": 9.945,
+     "reference_mid": 9.9375,
      "relative": 0.0008,
      "sign": 1,
-     "unit": "USD_millions",
-     "fact_quote": "Subscription revenues of $9.940 billion to $9.950 billion",
-     "reference_quote": "Subscription revenues of $9.925 billion to $9.950 billion",
+     "unit": "USD_billions",
+     "fact_quote": "Subscription revenues of $9.940 billion to $9.950 billion, representing growth of 13%",
+     "reference_quote": "Subscription revenues of $9.925 billion to $9.950 billion, representing growth of 12% to 13%",
      "basis_assumed": false
     },
     {
@@ -405,7 +405,7 @@
       "gaap",
       "Q2FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'total', 'Q3FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q2FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -455,7 +455,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "eps_gaap",
+      "diluted_net_income_per_share",
       "gaap",
       "Q2FY27"
      ],
@@ -464,26 +464,8 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "eps_non_gaap",
+      "diluted_net_income_per_share",
       "non-gaap",
-      "Q2FY27"
-     ],
-     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'adjusted', 'Q2FY2027')"
-    },
-    {
-     "axis": "actual_vs_consensus",
-     "metric": [
-      "subscription_revenue",
-      "gaap",
-      "Q2FY27"
-     ],
-     "why": "no consensus with same basis/period"
-    },
-    {
-     "axis": "actual_vs_consensus",
-     "metric": [
-      "subscription_revenue",
-      "gaap",
       "Q2FY27"
      ],
      "why": "no consensus with same basis/period"
@@ -519,7 +501,7 @@
      "axis": "actual_vs_consensus",
      "metric": [
       "share_repurchases",
-      "gaap",
+      "unknown",
       "Q2FY27"
      ],
      "why": "no consensus with same basis/period"
@@ -527,7 +509,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "cash_and_marketable_securities",
+      "cash_and_equivalents",
       "gaap",
       "Q2FY27"
      ],
@@ -540,7 +522,7 @@
       "gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance', 'Q2FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance (q1 fy2027 release, may 21, 2026)', 'Q2FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -549,11 +531,11 @@
       "non-gaap",
       "Q3FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'non-gaap', 'Q2FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance, non-gaap (q1 fy2027 release)', 'Q2FY2027') NOT subtracted"
     }
    ],
    "n_cells": 2,
-   "n_incomparable": 17
+   "n_incomparable": 15
   },
   "historical_analog": {
    "available": false,
@@ -571,7 +553,7 @@
  "skeptic_independent": true,
  "families_used": [
   "deepseek",
-  "moonshot",
+  "minimax",
   "zhipu"
  ],
  "light": true,

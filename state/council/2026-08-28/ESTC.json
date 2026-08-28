@@ -1,11 +1,11 @@
 {
  "schema": "RESEARCH_COUNCIL_v1",
  "symbol": "ESTC",
- "observed_at_utc": "2026-08-28T06:32:46.679270+00:00",
+ "observed_at_utc": "2026-08-28T06:51:52.797494+00:00",
  "roles": {
   "fact": "deepseek",
   "expectations": "hf_glm",
-  "causal": "nvidia_kimi",
+  "causal": "nvidia_minimax",
   "skeptic": "hf_glm",
   "synthesis": "deepseek"
  },
@@ -176,14 +176,14 @@
      "quote": "adjusted free cash flow of $143 million"
     },
     {
-     "metric": "cash_cash_equivalents_and_marketable_securities",
+     "metric": "cash_and_marketable_securities",
      "basis": "gaap",
      "period": "Q1FY27",
      "value_low": 1461.0,
      "value_high": 1461.0,
      "unit": "USD_millions",
      "kind": "actual",
-     "quote": "Cash, cash equivalents, and marketable securities were $1.461 billion as of July 31, 2026"
+     "quote": "Cash, cash equivalents, and marketable securities were $1.461 billion"
     },
     {
      "metric": "customers",
@@ -206,7 +206,7 @@
      "quote": "Net Expansion Rate was approximately 111%"
     },
     {
-     "metric": "share_repurchases",
+     "metric": "share_repurchase_value",
      "basis": "gaap",
      "period": "Q1FY27",
      "value_low": 40.0,
@@ -267,7 +267,7 @@
     },
     {
      "metric": "share_count",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "Q2FY27",
      "value_low": 108.0,
      "value_high": 109.0,
@@ -327,7 +327,7 @@
     },
     {
      "metric": "share_count",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "FY27",
      "value_low": 108.5,
      "value_high": 109.5,
@@ -387,7 +387,7 @@
     },
     {
      "metric": "share_count",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "Q1FY27",
      "value_low": 106.0,
      "value_high": 107.0,
@@ -437,7 +437,7 @@
     },
     {
      "metric": "share_count",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "FY27",
      "value_low": 107.5,
      "value_high": 108.5,
@@ -456,22 +456,22 @@
      "quote": "Adjusted free cash flow margin is expected to be approximately 21.5%"
     }
    ],
-   "share_count_note": "Diluted weighted average ordinary shares outstanding guidance for Q2 FY27 and FY27 reflect only share buybacks completed as of July 31, 2026.",
+   "share_count_note": "Diluted weighted average shares outstanding guidance reflects only share buybacks completed as of July 31, 2026.",
    "fx_or_one_off_note": "Guidance assumes exchange rates: 1 Euro = 1.166 USD; 1 GBP = 1.361 USD. Adjusted free cash flow includes cash paid for restructuring and other charges of $13.0 million during Q1 FY27.",
    "llm": {
     "provider": "deepseek",
     "family": "deepseek",
     "model": "deepseek-chat",
     "prompt_tokens": 9638,
-    "completion_tokens": 3896,
-    "latency_s": 18.4
+    "completion_tokens": 3865,
+    "latency_s": 18.1
    }
   },
   "expectations": {
    "consensus": [
     {
      "metric": "eps_non_gaap",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "Q1 FY2027",
      "value_low": 0.58,
      "value_high": 0.58,
@@ -480,7 +480,7 @@
     },
     {
      "metric": "revenue",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "Q1 FY2027",
      "value_low": 469745000,
      "value_high": 469745000,
@@ -489,7 +489,7 @@
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "Q2 FY2027",
      "value_low": 0.8,
      "value_high": 0.8,
@@ -498,7 +498,7 @@
     },
     {
      "metric": "revenue",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "Q2 FY2027",
      "value_low": 483397000,
      "value_high": 483397000,
@@ -507,7 +507,7 @@
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "FY2027",
      "value_low": 3.24,
      "value_high": 3.24,
@@ -516,7 +516,7 @@
     },
     {
      "metric": "revenue",
-     "basis": "analyst consensus",
+     "basis": "consensus",
      "period": "FY2027",
      "value_low": 1993000000,
      "value_high": 1993000000,
@@ -527,7 +527,7 @@
    "prior_guidance": [
     {
      "metric": "revenue",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "Q1 FY2027",
      "value_low": 469000000,
      "value_high": 470000000,
@@ -536,7 +536,7 @@
     },
     {
      "metric": "subscription_revenue",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "Q1 FY2027",
      "value_low": 392000000,
      "value_high": 393000000,
@@ -545,16 +545,16 @@
     },
     {
      "metric": "operating_margin",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "Q1 FY2027",
-     "value_low": 0.14,
-     "value_high": 0.14,
-     "unit": "non-GAAP operating margin",
+     "value_low": 14.0,
+     "value_high": 14.0,
+     "unit": "percent (non-GAAP)",
      "source_quote": "Non-GAAP operating margin is expected to be approximately 14.0%"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "Q1 FY2027",
      "value_low": 0.57,
      "value_high": 0.59,
@@ -563,7 +563,7 @@
     },
     {
      "metric": "revenue",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "FY2027",
      "value_low": 1985000000,
      "value_high": 2000000000,
@@ -572,7 +572,7 @@
     },
     {
      "metric": "subscription_revenue",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "FY2027",
      "value_low": 1673000000,
      "value_high": 1688000000,
@@ -581,16 +581,16 @@
     },
     {
      "metric": "operating_margin",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "FY2027",
-     "value_low": 0.19,
-     "value_high": 0.19,
-     "unit": "non-GAAP operating margin",
+     "value_low": 19.0,
+     "value_high": 19.0,
+     "unit": "percent (non-GAAP)",
      "source_quote": "Non-GAAP operating margin is expected to be approximately 19.0%"
     },
     {
      "metric": "eps_non_gaap",
-     "basis": "company guidance",
+     "basis": "company_guidance",
      "period": "FY2027",
      "value_low": 3.21,
      "value_high": 3.29,
@@ -598,16 +598,16 @@
      "source_quote": "Non-GAAP diluted earnings per share is expected to be between $3.21 and $3.29"
     }
    ],
-   "what_the_market_was_braced_for": "Heading into the Q1 FY2027 print, the market expected Elastic to deliver roughly $469.7M of revenue and $0.58 non-GAAP EPS for the quarter (in line with the company's own $469-470M revenue and $0.57-0.59 EPS guidance), with FY2027 consensus at ~$1.993B revenue and ~$3.24 non-GAAP EPS versus company guidance of $1.985-2.000B and $3.21-3.29. The option-implied move is unknown, but the stock drifted down about 2.5% over the five sessions before the release, suggesting a cautious setup. Investors were focused on whether Elastic could beat its Q1 guide and, more importantly, raise full-year FY2027 revenue and EPS guidance above the $1.985-2.000B / $3.21-3.29 ranges set in May 2026.",
-   "latent_kpi_guess": "cRPO (current remaining performance obligations) growth, as the key forward indicator of AI-driven platform demand and the driver of the FY2027 guidance raise",
+   "what_the_market_was_braced_for": "Heading into the Q1 FY2027 print, the market expected Elastic to deliver roughly $469.7M of revenue and $0.58 non-GAAP EPS for the quarter (in line with the company's own $469-470M / $0.57-0.59 guidance), with FY2027 anchored at ~$1.993B revenue and $3.24 non-GAAP EPS. The option-implied move is unknown, but the stock had drifted down about 2.5% over the five sessions before the release, suggesting a cautious setup. Attention was on whether Elastic would beat its own Q1 guide and, more importantly, raise full-year guidance; the consensus FY27 EPS of $3.24 sat near the midpoint of the company's $3.21-$3.29 range, implying the market expected at most a modest raise.",
+   "latent_kpi_guess": "Remaining performance obligations (cRPO/RPO) growth, as the acceleration in customer commitments and AI-driven platform consolidation was the key narrative investors were tracking alongside the FY27 guidance raise.",
    "expectations_confidence": 0.9,
    "llm": {
     "provider": "hf_glm",
     "family": "zhipu",
     "model": "zai-org/GLM-5.3-Flash",
     "prompt_tokens": 2718,
-    "completion_tokens": 1779,
-    "latency_s": 9.0
+    "completion_tokens": 1767,
+    "latency_s": 7.9
    }
   },
   "surprise_cube": {
@@ -671,7 +671,7 @@
     {
      "axis": "guide_vs_prior_guide",
      "metric": "share_count",
-     "basis": "unknown",
+     "basis": "gaap",
      "period": "FY27",
      "fact_mid": 109.0,
      "reference_mid": 108.0,
@@ -705,7 +705,7 @@
       "gaap",
       "Q1FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q1FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus', 'Q1FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -714,7 +714,7 @@
       "gaap",
       "Q1FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('revenue', 'analyst consensus', 'Q1FY2027')"
+     "why": "no consensus with same basis/period; nearest ('revenue', 'consensus', 'Q1FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -804,7 +804,7 @@
       "non-gaap",
       "Q1FY27"
      ],
-     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'analyst consensus', 'Q1FY2027')"
+     "why": "no consensus with same basis/period; nearest ('eps_non_gaap', 'consensus', 'Q1FY2027')"
     },
     {
      "axis": "actual_vs_consensus",
@@ -827,7 +827,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "cash_cash_equivalents_and_marketable_securities",
+      "cash_and_marketable_securities",
       "gaap",
       "Q1FY27"
      ],
@@ -836,7 +836,7 @@
     {
      "axis": "actual_vs_consensus",
      "metric": [
-      "share_repurchases",
+      "share_repurchase_value",
       "gaap",
       "Q1FY27"
      ],
@@ -849,7 +849,7 @@
       "gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('revenue', 'company_guidance', 'Q1FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -858,7 +858,7 @@
       "non-gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('subscription_revenue', 'company_guidance', 'Q1FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -867,7 +867,7 @@
       "gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company_guidance', 'Q1FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -876,7 +876,7 @@
       "non-gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company_guidance', 'Q1FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -885,16 +885,16 @@
       "non-gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('eps_non_gaap', 'company_guidance', 'Q1FY2027') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
      "metric": [
       "share_count",
-      "unknown",
+      "gaap",
       "Q2FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'unknown', 'Q1FY27') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('share_count', 'gaap', 'Q1FY27') NOT subtracted"
     },
     {
      "axis": "guide_vs_prior_guide",
@@ -903,7 +903,7 @@
       "gaap",
       "FY27"
      ],
-     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company guidance', 'Q1FY2027') NOT subtracted"
+     "why": "no prior guide with same metric/basis/period; nearest ('operating_margin', 'company_guidance', 'Q1FY2027') NOT subtracted"
     }
    ],
    "n_cells": 6,
@@ -924,20 +924,20 @@
  "refusals": [],
  "fallbacks": [
   {
-   "role": "expectations",
+   "role": "fact",
    "tried": [
     {
-     "provider": "nvidia_kimi",
-     "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+     "provider": "hf_deepseek_v4",
+     "why": "hf_deepseek_v4: non-JSON reply '{\"rows\": [{\"metric\": \"total_revenue\", \"basis\": \"GAAP\", \"period\": \"Q1 FY27\", \"value_low\":"
     }
    ],
-   "answered": "hf_glm"
+   "answered": "deepseek"
   }
  ],
  "skeptic_independent": true,
  "families_used": [
   "deepseek",
-  "moonshot",
+  "minimax",
   "zhipu"
  ],
  "light": true,

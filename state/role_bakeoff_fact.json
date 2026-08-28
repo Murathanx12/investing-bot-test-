@@ -1,0 +1,82 @@
+{
+ "role": "fact",
+ "at_utc": "2026-08-28T06:48:21.718237+00:00",
+ "answer_key_source": "EDGAR EX-99.1",
+ "board": {
+  "hf_deepseek_v4": {
+   "S": {
+    "required": 5,
+    "found": 5,
+    "missing": [],
+    "n_rows": 34,
+    "valid_json": true,
+    "latency_s": 29.6,
+    "tokens": 12309
+   },
+   "WDAY": {
+    "required": 5,
+    "found": 4,
+    "missing": [
+     "eps_non_gaap@Q2FY27"
+    ],
+    "n_rows": 23,
+    "valid_json": true,
+    "latency_s": 28.3,
+    "tokens": 11670
+   }
+  },
+  "hf_glm": {
+   "S": {
+    "required": 5,
+    "found": 0,
+    "missing": [
+     "REFUSED: hf_glm: non-JSON reply '{\\n  \"rows\": [\\n    {\"metric\": \"Reve"
+    ],
+    "n_rows": 0,
+    "valid_json": false,
+    "latency_s": 14.6,
+    "tokens": null
+   },
+   "WDAY": {
+    "required": 5,
+    "found": 4,
+    "missing": [
+     "operating_margin@FY27"
+    ],
+    "n_rows": 28,
+    "valid_json": true,
+    "latency_s": 13.0,
+    "tokens": 13257
+   }
+  },
+  "nvidia_minimax": {
+   "S": {
+    "required": 5,
+    "found": 0,
+    "missing": [
+     "REFUSED: POST https://integrate.api.nvidia.com/v1/chat/completions ->"
+    ],
+    "n_rows": 0,
+    "valid_json": false,
+    "latency_s": 61.6,
+    "tokens": null
+   },
+   "WDAY": {
+    "required": 5,
+    "found": 0,
+    "missing": [
+     "REFUSED: POST https://integrate.api.nvidia.com/v1/chat/completions ->"
+    ],
+    "n_rows": 0,
+    "valid_json": false,
+    "latency_s": 60.6,
+    "tokens": null
+   }
+  }
+ },
+ "totals": {
+  "hf_deepseek_v4": 9,
+  "hf_glm": 4,
+  "nvidia_minimax": 0
+ }
+}
