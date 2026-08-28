@@ -97,13 +97,20 @@ def forecast(client, symbol: str, horizon_days: float, *, bars: list[dict] | Non
     # extreme; the middle of the drawdown range is where the money was lost.
     # So: the rebound cell is bought at full tilt, names near their highs at a
     # quarter tilt, and the -50..-10% middle is DECLINED with the number.
-    if dd20 <= REBOUND_DD and rv >= REBOUND_RV:
-        tilt, cell = TILT_SIGMA, "rebound(dd<=-50%,rv>=100%): +2.32%/5d, t 2.60, n=88"
-    elif dd20 > NEAR_HIGH_DD:
+    # SECOND PASS (scripts/knife_rebound_split.py, same session): the rebound
+    # cell's +2.32% was an ARTEFACT of requiring >=5 names per window, which
+    # selects crisis months. At >=3 names it is +0.19% mean / -0.63% MEDIAN /
+    # hit 46% / t 0.40 / 0.75x vs 2.1x over 360 windows, and no year, hold
+    # (1/3/5/10), edge (-40/-50/-60%, rv 80/100/150%) or size tercile has a
+    # positive median. NO drawdown cell of this construction pays at five
+    # sessions. Only names near their highs are bought, at half tilt, and the
+    # row says the cell is flat.
+    if dd20 > NEAR_HIGH_DD:
         tilt, cell = TILT_SIGMA * 0.5, "near-high(dd>-10%): -0.13%/5d, t -0.7 (flat)"
     else:
-        raise NotInBasket(f"{symbol}: dd20 {dd20:+.0%} at rv {rv:.0%} is the MIDDLE cell -- measured -0.31%/5d excess, "
-                          "t -2.35 over 595 windows (2013-2024). Declined with the number, not bought on the story.")
+        raise NotInBasket(f"{symbol}: dd20 {dd20:+.0%} at rv {rv:.0%} -- every drawdown cell of this construction "
+                          "measured a NEGATIVE median over 5 sessions (2013-2024; -20..-50%: -0.31%, t -2.35; "
+                          "<-50%: median -0.63%, t 0.40). Declined with the number, not bought on the story.")
     sd_h = sd_daily * math.sqrt(max(horizon_days, 1.0))
     centre = tilt * sd_h
     return Forecast(

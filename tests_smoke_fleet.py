@@ -90,8 +90,11 @@ try:
 except theme_basket.NotInBasket as exc:
     check("MIDDLE cell (-30% at high vol) declined with the number", "-0.31%" in str(exc), str(exc))
 deep = noisy[:60] + [noisy[59] * (1 - 0.60 * i / 20) for i in range(1, 21)]     # -60% in 20 sessions
-f2 = theme_basket.forecast(None, sym, 5.0, bars=bars(deep))
-check("REBOUND cell bought at full tilt", f2.evidence["cell"].startswith("rebound") and f2.evidence["tilt_sigma"] == theme_basket.TILT_SIGMA)
+try:
+    theme_basket.forecast(None, sym, 5.0, bars=bars(deep))
+    check("DEEP cell (-60%) declined too -- its +2.32% was a >=5-names artefact", False)
+except theme_basket.NotInBasket as exc:
+    check("DEEP cell (-60%) declined too -- its +2.32% was a >=5-names artefact", "-0.63%" in str(exc), str(exc))
 check("steady near-high name bought at half tilt", f.evidence["cell"].startswith("near-high") and f.evidence["tilt_sigma"] == theme_basket.TILT_SIGMA * 0.5)
 try:
     theme_basket.forecast(None, sym, 5.0, bars=bars(steady[:20]))
