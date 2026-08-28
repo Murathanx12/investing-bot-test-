@@ -1,0 +1,95 @@
+{
+ "schema": "RESEARCH_COUNCIL_v1",
+ "symbol": "S",
+ "observed_at_utc": "2026-08-28T05:44:00.598508+00:00",
+ "roles": {
+  "fact": "hf_deepseek_v4",
+  "expectations": "nvidia_kimi",
+  "causal": "nvidia_minimax",
+  "skeptic": "hf_glm",
+  "synthesis": "hf_deepseek_v4"
+ },
+ "steps": {
+  "scout": {
+   "releases": [
+    {
+     "date": "2026-08-27",
+     "accession": "0001583708-26-000052",
+     "exhibit_type": "EX-99.1",
+     "chars": 33218,
+     "url": "https://www.sec.gov/Archives/edgar/data/1583708/000158370826000052/0001583708-26-000052.txt"
+    },
+    {
+     "date": "2026-05-28",
+     "accession": "0001583708-26-000039",
+     "exhibit_type": "EX-99.1",
+     "chars": 30810,
+     "url": "https://www.sec.gov/Archives/edgar/data/1583708/000158370826000039/0001583708-26-000039.txt"
+    }
+   ],
+   "n_headlines": 8,
+   "has_transcript": false,
+   "ah_move": -0.06170118995152063,
+   "pre_event_5d_move": 0.08357211079274118,
+   "implied_move": null
+  },
+  "surprise_cube": {
+   "cells": [],
+   "incomparable": [],
+   "n_cells": 0,
+   "n_incomparable": 0
+  },
+  "historical_analog": {
+   "available": true,
+   "population": "wide universe (2532 names, 25856 prints), excess over beta*QQQ, beta on 120 prior sessions, 3 sessions",
+   "band": "3.5-8.2%",
+   "sign": "down",
+   "stats": {
+    "n": 7436,
+    "mean": 0.00107,
+    "median": 0.00076,
+    "hit": 0.508,
+    "t": 1.39,
+    "n_weeks": 130,
+    "t_week_blocks": 2.23,
+    "mean_week_blocks": 0.00445
+   },
+   "by_sign_mid_band": {
+    "n": 3690,
+    "mean": 0.00443,
+    "median": 0.00411,
+    "hit": 0.537,
+    "t": 4.29,
+    "n_weeks": 130,
+    "t_week_blocks": 2.3,
+    "mean_week_blocks": 0.00841
+   },
+   "note": "UP prints outside the mega-11 carry no excess (t -1.99 mid band); DOWN prints drift further (t 4.29 mid band) and are paid only as a pair vs IWM in simple returns"
+  },
+  "market_pricing": {
+   "ah_move": -0.06170118995152063,
+   "band": "3.5-8.2%",
+   "implied_move": null,
+   "reaction_vs_implied": null,
+   "pre_event_5d_move": 0.08357211079274118
+  }
+ },
+ "refusals": [
+  {
+   "step": "fact",
+   "why": "hf_deepseek_v4: non-JSON reply '{\"rows\": [{\"metric\": \"revenue\", \"basis\": \"GAAP\", \"period\": \"Q2 FY27\", \"value_low\": 291.981, \"value_h'"
+  },
+  {
+   "step": "expectations",
+   "why": "POST https://integrate.api.nvidia.com/v1/chat/completions -> The read operation timed out"
+  }
+ ],
+ "skeptic_independent": true,
+ "families_used": [
+  "deepseek",
+  "minimax",
+  "moonshot",
+  "zhipu"
+ ],
+ "verdict": "PARTIAL"
+}
