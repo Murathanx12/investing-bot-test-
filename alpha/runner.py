@@ -364,6 +364,7 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
     return: sizing on payoff rather than on edge is how an options book quietly
     becomes a lottery ticket.
     """
+    objective, _objective_why = rank_objective(state)
     band = max(4.0 * forecast.sd, 0.06)
     spot_hint = forecast.evidence.get("last_close")
     lo = hi = None
@@ -446,19 +447,23 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
                         f"{econ.summary()} -- expected P&L is not positive after the spread. "
                         "Cash is a structure with EV exactly zero and it wins this comparison."))))
             continue
-        if best is None or econ.ev_over_max_loss > best[1].economics["ev_over_max_loss"]:
+        mine = _rank_value(structure, verdict.economics, objective)
+        if best is None or mine > _rank_value(best[0], best[1].economics, objective):
             if best is not None:
                 rejected.append((best[0], replace(
                     best[1], approved=False, risk_fraction=0.0,
-                    reason=f"out-ranked on EV/max-loss by {structure.kind} "
-                           f"({econ.ev_over_max_loss:+.0%} vs "
+                    reason=f"out-ranked on {objective}/max-loss by {structure.kind} "
+                           f"({mine:+.0%} vs "
+                           f"{_rank_value(best[0], best[1].economics, objective):+.0%}; "
+                           f"EV {econ.ev_over_max_loss:+.0%} vs "
                            f"{best[1].economics['ev_over_max_loss']:+.0%}). {best[1].reason}")))
             best = (structure, verdict)
         else:
             rejected.append((structure, replace(
                 verdict, approved=False, risk_fraction=0.0,
-                reason=f"out-ranked on EV/max-loss by {best[0].kind} "
-                       f"({best[1].economics['ev_over_max_loss']:+.0%} vs "
+                reason=f"out-ranked on {objective}/max-loss by {best[0].kind} "
+                       f"({_rank_value(best[0], best[1].economics, objective):+.0%} vs {mine:+.0%}; "
+                       f"EV {best[1].economics['ev_over_max_loss']:+.0%} vs "
                        f"{econ.ev_over_max_loss:+.0%}). {verdict.reason}")))
 
     if best is None:
@@ -769,7 +774,9 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                       if e[1].brain not in shadow_brains and e[0] not in demoted]
         # Across brains on one symbol the champion is the best EXPECTED ECONOMICS,
         # not the largest approved size -- size is the sizer's answer, not the ranker's.
-        champion = max(executable, key=lambda e: _ev_ratio(e[3])) if executable else None
+        objective, objective_why = rank_objective(state)
+        champion = (max(executable, key=lambda e: _rank_value(e[2], e[3].economics, objective))
+                    if executable else None)
         for e in evaluated:
             if e is champion:
                 continue
@@ -801,7 +808,8 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         # already on the ledger row, and was being read by nobody.
         _ce = champion[3].economics or {}
         _p_win = _ce.get("p_profit")
-        if _p_win is not None and _p_win < 0.5:
+        logger.info("RANKED ON %s -- %s", objective.upper(), objective_why)
+        if objective == "mean" and _p_win is not None and _p_win < 0.5:
             _better = [(e[2].kind, (e[3].economics or {}).get("p_profit"))
                        for e in evaluated
                        if e is not champion and (e[3].economics or {}).get("p_profit", 0) >= 0.5]
@@ -960,6 +968,58 @@ def _fmt_usd(v) -> str:
 
 def _ev_ratio(verdict: sizing.SizingVerdict) -> float:
     return float((verdict.economics or {}).get("ev_over_max_loss") or 0.0)
+
+
+#: Sessions in the contest window. Used only to turn the window fraction into
+#: the `sessions_left` that `tournament.mode_for` reasons in.
+CONTEST_SESSIONS = 5
+
+
+def rank_objective(state: sizing.TournamentState) -> tuple[str, str]:
+    """Which number ranks structures: "median" (terminal wealth) or "mean" (EV).
+
+    Decided 2026-08-28. The 27 Aug finding (docs/FINDING_2026-08-27_THE_RANKER_
+    OPTIMISES_THE_MEAN.md) left this open: on a live NVDA chain the EV ranker
+    picked a long_call at +38% EV / P(profit) 33% / median -$137 over
+    long_shares at +12% / 56% / +$1. Both are right; they answer different
+    questions, and the contest is FIVE compounding sessions, where terminal
+    wealth follows the median. Every refutation this week came from substituting
+    terminal wealth for the mean, so the default follows the same substitution.
+
+    The mean is still the right objective in exactly one state, and it is the
+    one `tournament.mode_for` already pre-registers: ATTACK -- behind late with
+    a target that a positive-median book cannot reach, where only dispersion can
+    change rank. So the ranker follows the MODE rather than a constant.
+
+    `AAT_RANK_OBJECTIVE=mean|median` overrides, and says so in the reason.
+    """
+    forced = os.getenv("AAT_RANK_OBJECTIVE", "").strip().lower()
+    if forced in ("mean", "median"):
+        return forced, f"AAT_RANK_OBJECTIVE={forced} (override)"
+    from alpha import tournament
+
+    try:
+        target_pct = float(os.getenv("AAT_TARGET_PCT", "2") or 2.0)
+    except ValueError:
+        target_pct = 2.0
+    sessions_left = max(0, int(math.ceil(state.fraction_of_window_remaining * CONTEST_SESSIONS)))
+    mode, why = tournament.mode_for(state.equity, target=state.starting_equity * (1 + target_pct / 100.0),
+                                    start_equity=state.starting_equity, sessions_left=sessions_left)
+    if mode == "ATTACK":
+        return "mean", f"ATTACK: {why}"
+    return "median", f"{mode}: {why}"
+
+
+def _rank_value(structure, econ: dict | None, objective: str) -> float:
+    """The scalar a structure is ranked on, per unit of max loss."""
+    econ = econ or {}
+    ev = float(econ.get("ev_over_max_loss") or 0.0)
+    if objective == "mean":
+        return ev
+    max_loss = float(getattr(structure, "max_loss", 0.0) or 0.0)
+    median = float(econ.get("median_usd") or 0.0)
+    # EV as a tie-break in the last place so two zero-median structures still order.
+    return (median / max_loss if max_loss > 0 else 0.0) + 1e-6 * ev
 
 
 def _quote_snapshot(structure: sizing.Structure, snapshot) -> dict:

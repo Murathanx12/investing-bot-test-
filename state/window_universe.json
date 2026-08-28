@@ -1,7 +1,7 @@
 {
   "kickoff": "2026-08-28",
   "deadline": "2026-09-04",
-  "generated_utc": "2026-08-27T17:23:40+00:00",
+  "generated_utc": "2026-08-28T04:09:36+00:00",
   "drift_sessions": [
     1,
     3
@@ -12,14 +12,16 @@
       "INTU",
       "KSS",
       "SJM",
+      "JKS",
       "DY",
+      "WSM",
       "BBWI",
       "HEI",
       "ZM",
       "ANF",
-      "FIVE",
       "DCI",
       "GES",
+      "JOYY",
       "SMTC",
       "BOX"
     ],
@@ -30,21 +32,17 @@
       "CRM",
       "BBY",
       "BILI",
+      "DLTR",
       "BURL",
       "HRL",
       "SNPS",
       "A",
       "URBN",
-      "VSXY",
-      "WOOF",
-      "GMS",
       "CRWD",
       "CSIQ",
       "P",
-      "AFYA",
       "VEEV",
       "OKTA",
-      "OLLI",
       "NTNX",
       "TITN",
       "PAHC",
@@ -59,9 +57,12 @@
       "MRVL",
       "WDAY",
       "ADSK",
+      "GMS",
       "AFRM",
       "ESTC",
       "RBRK",
+      "TPIC",
+      "SNBR",
       "S"
     ],
     "2026-08-31": [
@@ -71,64 +72,63 @@
     "2026-09-01": [
       "NIO",
       "MDT",
-      "ASO",
-      "AEO",
       "MMED"
     ],
     "2026-09-02": [
-      "DLTR",
+      "DELL",
       "M",
       "PANW",
       "PSNY",
+      "OLLI",
       "MDB",
+      "GIII",
       "CRDO",
+      "SPWH",
       "GTLB"
     ],
     "2026-09-03": [
       "AVGO",
       "HPE",
       "GOLD",
-      "LULU",
+      "MOMO",
+      "CPB",
       "NTAP",
       "CIEN",
+      "VSXY",
+      "WOOF",
       "SNOW",
+      "FIVE",
+      "TTC",
+      "CPRT",
       "VFS",
+      "ZGN",
       "CAL",
-      "GIII",
+      "GCO",
+      "BRC",
+      "LE",
       "AGX",
-      "SHOE",
-      "SPWH",
       "MTRX"
     ],
     "2026-09-04": [
-      "DELL",
-      "CPB",
-      "TTC",
-      "ZGN",
+      "LULU",
       "ZS",
       "DOCU",
       "KFY",
-      "GCO",
       "NX",
       "IOT",
-      "BRC",
       "GWRE",
       "PATH",
       "WLY",
       "FIZZ",
-      "TTAN",
       "PLCE"
     ]
   },
   "universe": [
     "A",
     "ADSK",
-    "AEO",
     "AFRM",
-    "AFYA",
     "AGX",
     "ANF",
-    "ASO",
     "AVGO",
     "BBWI",
     "BBY",
@@ -140,6 +140,7 @@
     "CHA",
     "CIEN",
     "CPB",
+    "CPRT",
     "CRDO",
     "CRM",
     "CRWD",
@@ -169,8 +170,11 @@
     "HRL",
     "INTU",
     "IOT",
+    "JKS",
+    "JOYY",
     "KFY",
     "KSS",
+    "LE",
     "LUCK",
     "LULU",
     "M",
@@ -178,6 +182,7 @@
     "MDB",
     "MDT",
     "MMED",
+    "MOMO",
     "MRVL",
     "MTRX",
     "NIO",
@@ -196,14 +201,14 @@
     "RBRK",
     "S",
     "SAIC",
-    "SHOE",
     "SJM",
     "SMTC",
+    "SNBR",
     "SNOW",
     "SNPS",
     "SPWH",
     "TITN",
-    "TTAN",
+    "TPIC",
     "TTC",
     "ULTA",
     "URBN",
@@ -213,6 +218,7 @@
     "WDAY",
     "WLY",
     "WOOF",
+    "WSM",
     "ZGN",
     "ZM",
     "ZS"
@@ -243,16 +249,28 @@
       "eps_estimate": -0.5663
     },
     {
-      "symbol": "DKS",
-      "print_date": "2026-08-24",
-      "hour": "unknown(treated amc)",
+      "symbol": "VIPS",
+      "print_date": "2026-08-25",
+      "hour": "bmo",
       "reacts_on": "2026-08-25",
       "drift_open": "2026-08-25",
       "drift_close": "2026-08-27",
       "usable_sessions": 3,
       "status": "BEFORE_KICKOFF",
-      "revenue_estimate": 5713943083.0,
-      "eps_estimate": 3.7958
+      "revenue_estimate": 25431113851.0,
+      "eps_estimate": 3.9617
+    },
+    {
+      "symbol": "DKS",
+      "print_date": "2026-08-25",
+      "hour": "bmo",
+      "reacts_on": "2026-08-25",
+      "drift_open": "2026-08-25",
+      "drift_close": "2026-08-27",
+      "usable_sessions": 3,
+      "status": "BEFORE_KICKOFF",
+      "revenue_estimate": 5704245043.0,
+      "eps_estimate": 3.801
     },
     {
       "symbol": "PICS",
@@ -267,7 +285,7 @@
       "eps_estimate": 1.9965
     },
     {
-      "symbol": "JKS",
+      "symbol": "BZ",
       "print_date": "2026-08-25",
       "hour": "bmo",
       "reacts_on": "2026-08-25",
@@ -275,8 +293,8 @@
       "drift_close": "2026-08-27",
       "usable_sessions": 3,
       "status": "BEFORE_KICKOFF",
-      "revenue_estimate": 2135432556.0,
-      "eps_estimate": -0.707
+      "revenue_estimate": 2479295593.0,
+      "eps_estimate": 2.1854
     },
     {
       "symbol": "PVH",
@@ -287,20 +305,8 @@
       "drift_close": "2026-08-27",
       "usable_sessions": 3,
       "status": "BEFORE_KICKOFF",
-      "revenue_estimate": 2115069532.0,
+      "revenue_estimate": 2121002444.0,
       "eps_estimate": 3.1078
-    },
-    {
-      "symbol": "WSM",
-      "print_date": "2026-08-25",
-      "hour": "bmo",
-      "reacts_on": "2026-08-25",
-      "drift_open": "2026-08-25",
-      "drift_close": "2026-08-27",
-      "usable_sessions": 3,
-      "status": "BEFORE_KICKOFF",
-      "revenue_estimate": 1936222520.0,
-      "eps_estimate": 2.0764
     },
     {
       "symbol": "GOTU",
@@ -313,18 +319,6 @@
       "status": "BEFORE_KICKOFF",
       "revenue_estimate": 1670510436.0,
       "eps_estimate": -0.4692
-    },
-    {
-      "symbol": "JOYY",
-      "print_date": "2026-08-24",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-25",
-      "drift_open": "2026-08-25",
-      "drift_close": "2026-08-27",
-      "usable_sessions": 3,
-      "status": "BEFORE_KICKOFF",
-      "revenue_estimate": 586662945.0,
-      "eps_estimate": 1.3651
     },
     {
       "symbol": "MZTI",
@@ -371,20 +365,20 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 4353836207.0,
-      "eps_estimate": 3.6537
+      "revenue_estimate": 4353098839.0,
+      "eps_estimate": 3.6532
     },
     {
       "symbol": "KSS",
-      "print_date": "2026-08-25",
-      "hour": "unknown(treated amc)",
+      "print_date": "2026-08-26",
+      "hour": "bmo",
       "reacts_on": "2026-08-26",
       "drift_open": "2026-08-26",
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
       "revenue_estimate": 3377994237.0,
-      "eps_estimate": 0.5752
+      "eps_estimate": 0.5799
     },
     {
       "symbol": "SJM",
@@ -395,8 +389,20 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 2143003274.0,
-      "eps_estimate": 2.2219
+      "revenue_estimate": 2152376074.0,
+      "eps_estimate": 2.2385
+    },
+    {
+      "symbol": "JKS",
+      "print_date": "2026-08-26",
+      "hour": "bmo",
+      "reacts_on": "2026-08-26",
+      "drift_open": "2026-08-26",
+      "drift_close": "2026-08-28",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 2135432556.0,
+      "eps_estimate": -0.707
     },
     {
       "symbol": "DY",
@@ -407,8 +413,20 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 2039462830.0,
-      "eps_estimate": 4.8221
+      "revenue_estimate": 2039977830.0,
+      "eps_estimate": 4.8574
+    },
+    {
+      "symbol": "WSM",
+      "print_date": "2026-08-26",
+      "hour": "bmo",
+      "reacts_on": "2026-08-26",
+      "drift_open": "2026-08-26",
+      "drift_close": "2026-08-28",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 1946330408.0,
+      "eps_estimate": 2.0987
     },
     {
       "symbol": "BBWI",
@@ -419,8 +437,8 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1526045256.0,
-      "eps_estimate": 0.2465
+      "revenue_estimate": 1526718456.0,
+      "eps_estimate": 0.2478
     },
     {
       "symbol": "HEI",
@@ -431,8 +449,8 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1357879966.0,
-      "eps_estimate": 1.5161
+      "revenue_estimate": 1363244187.0,
+      "eps_estimate": 1.5283
     },
     {
       "symbol": "ZM",
@@ -443,32 +461,20 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1306878162.0,
-      "eps_estimate": 1.5205
+      "revenue_estimate": 1306903057.0,
+      "eps_estimate": 1.5213
     },
     {
       "symbol": "ANF",
-      "print_date": "2026-08-25",
-      "hour": "unknown(treated amc)",
+      "print_date": "2026-08-26",
+      "hour": "bmo",
       "reacts_on": "2026-08-26",
       "drift_open": "2026-08-26",
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1258860697.0,
-      "eps_estimate": 1.9958
-    },
-    {
-      "symbol": "FIVE",
-      "print_date": "2026-08-25",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-26",
-      "drift_open": "2026-08-26",
-      "drift_close": "2026-08-28",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1235786691.0,
-      "eps_estimate": 1.3645
+      "revenue_estimate": 1260025863.0,
+      "eps_estimate": 2.0086
     },
     {
       "symbol": "DCI",
@@ -479,8 +485,8 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1051523120.0,
-      "eps_estimate": 1.1355
+      "revenue_estimate": 1053684520.0,
+      "eps_estimate": 1.1384
     },
     {
       "symbol": "GES",
@@ -495,6 +501,18 @@
       "eps_estimate": 0.197
     },
     {
+      "symbol": "JOYY",
+      "print_date": "2026-08-25",
+      "hour": "amc",
+      "reacts_on": "2026-08-26",
+      "drift_open": "2026-08-26",
+      "drift_close": "2026-08-28",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 585600156.0,
+      "eps_estimate": 1.3069
+    },
+    {
       "symbol": "SMTC",
       "print_date": "2026-08-25",
       "hour": "amc",
@@ -503,8 +521,8 @@
       "drift_close": "2026-08-28",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 335216880.0,
-      "eps_estimate": 0.62
+      "revenue_estimate": 335213432.0,
+      "eps_estimate": 0.626
     },
     {
       "symbol": "BOX",
@@ -527,8 +545,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 93634391959.0,
-      "eps_estimate": 2.1283
+      "revenue_estimate": 94008645045.0,
+      "eps_estimate": 2.1384
     },
     {
       "symbol": "HPQ",
@@ -539,8 +557,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 14437812912.0,
-      "eps_estimate": 0.6639
+      "revenue_estimate": 14524343016.0,
+      "eps_estimate": 0.6984
     },
     {
       "symbol": "DG",
@@ -551,8 +569,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 11532252077.0,
-      "eps_estimate": 2.0559
+      "revenue_estimate": 11532494467.0,
+      "eps_estimate": 2.0679
     },
     {
       "symbol": "CRM",
@@ -563,8 +581,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 11432284970.0,
-      "eps_estimate": 3.3057
+      "revenue_estimate": 11433452176.0,
+      "eps_estimate": 3.3065
     },
     {
       "symbol": "BBY",
@@ -575,8 +593,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 9627351471.0,
-      "eps_estimate": 1.3547
+      "revenue_estimate": 9688750058.0,
+      "eps_estimate": 1.3937
     },
     {
       "symbol": "BILI",
@@ -591,16 +609,28 @@
       "eps_estimate": 1.544
     },
     {
-      "symbol": "BURL",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
+      "symbol": "DLTR",
+      "print_date": "2026-08-27",
+      "hour": "bmo",
       "reacts_on": "2026-08-27",
       "drift_open": "2026-08-27",
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 3094552143.0,
-      "eps_estimate": 2.2093
+      "revenue_estimate": 4956462866.0,
+      "eps_estimate": 1.1643
+    },
+    {
+      "symbol": "BURL",
+      "print_date": "2026-08-27",
+      "hour": "bmo",
+      "reacts_on": "2026-08-27",
+      "drift_open": "2026-08-27",
+      "drift_close": "2026-08-31",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 3080134575.0,
+      "eps_estimate": 2.2248
     },
     {
       "symbol": "HRL",
@@ -611,8 +641,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 3081844451.0,
-      "eps_estimate": 0.3574
+      "revenue_estimate": 3069728238.0,
+      "eps_estimate": 0.3569
     },
     {
       "symbol": "SNPS",
@@ -647,44 +677,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1680784152.0,
-      "eps_estimate": 1.759
-    },
-    {
-      "symbol": "VSXY",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-27",
-      "drift_open": "2026-08-27",
-      "drift_close": "2026-08-31",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1649177310.0,
-      "eps_estimate": 0.7715
-    },
-    {
-      "symbol": "WOOF",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-27",
-      "drift_open": "2026-08-27",
-      "drift_close": "2026-08-31",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1522411098.0,
-      "eps_estimate": 0.0703
-    },
-    {
-      "symbol": "GMS",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-27",
-      "drift_open": "2026-08-27",
-      "drift_close": "2026-08-31",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1476581822.0,
-      "eps_estimate": 2.0267
+      "revenue_estimate": 1681090152.0,
+      "eps_estimate": 1.7637
     },
     {
       "symbol": "CRWD",
@@ -696,7 +690,7 @@
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
       "revenue_estimate": 1468832374.0,
-      "eps_estimate": 0.2984
+      "eps_estimate": 0.2986
     },
     {
       "symbol": "CSIQ",
@@ -719,20 +713,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1119006544.0,
-      "eps_estimate": 0.5891
-    },
-    {
-      "symbol": "AFYA",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-27",
-      "drift_open": "2026-08-27",
-      "drift_close": "2026-08-31",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1007154120.0,
-      "eps_estimate": 2.1896
+      "revenue_estimate": 1120411564.0,
+      "eps_estimate": 0.5897
     },
     {
       "symbol": "VEEV",
@@ -743,7 +725,7 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 923408978.0,
+      "revenue_estimate": 923387721.0,
       "eps_estimate": 2.2663
     },
     {
@@ -755,20 +737,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 808880675.0,
-      "eps_estimate": 0.9841
-    },
-    {
-      "symbol": "OLLI",
-      "print_date": "2026-08-26",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-08-27",
-      "drift_open": "2026-08-27",
-      "drift_close": "2026-08-31",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 773509860.0,
-      "eps_estimate": 1.1563
+      "revenue_estimate": 810938923.0,
+      "eps_estimate": 0.9867
     },
     {
       "symbol": "NTNX",
@@ -779,8 +749,8 @@
       "drift_close": "2026-08-31",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 752703900.0,
-      "eps_estimate": 0.4952
+      "revenue_estimate": 753028402.0,
+      "eps_estimate": 0.4949
     },
     {
       "symbol": "TITN",
@@ -851,13 +821,13 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 3738795275.0,
-      "eps_estimate": 0.4987
+      "revenue_estimate": 3726587475.0,
+      "eps_estimate": 0.4859
     },
     {
       "symbol": "CHA",
-      "print_date": "2026-08-27",
-      "hour": "unknown(treated amc)",
+      "print_date": "2026-08-28",
+      "hour": "bmo",
       "reacts_on": "2026-08-28",
       "drift_open": "2026-08-28",
       "drift_close": "2026-09-01",
@@ -875,8 +845,8 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 3045092791.0,
-      "eps_estimate": 6.2909
+      "revenue_estimate": 3042402266.0,
+      "eps_estimate": 6.3094
     },
     {
       "symbol": "MRVL",
@@ -887,8 +857,8 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 2756646022.0,
-      "eps_estimate": 0.939
+      "revenue_estimate": 2765623277.0,
+      "eps_estimate": 0.9428
     },
     {
       "symbol": "WDAY",
@@ -899,7 +869,7 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 2688693480.0,
+      "revenue_estimate": 2688681821.0,
       "eps_estimate": 2.6605
     },
     {
@@ -911,8 +881,20 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 2050834684.0,
-      "eps_estimate": 3.1811
+      "revenue_estimate": 2052199087.0,
+      "eps_estimate": 3.1864
+    },
+    {
+      "symbol": "GMS",
+      "print_date": "2026-08-27",
+      "hour": "unknown(treated amc)",
+      "reacts_on": "2026-08-28",
+      "drift_open": "2026-08-28",
+      "drift_close": "2026-09-01",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 1476581822.0,
+      "eps_estimate": 2.0267
     },
     {
       "symbol": "AFRM",
@@ -923,7 +905,7 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 1128021784.0,
+      "revenue_estimate": 1128495360.0,
       "eps_estimate": 0.3504
     },
     {
@@ -935,7 +917,7 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 479128455.0,
+      "revenue_estimate": 479139787.0,
       "eps_estimate": 0.5959
     },
     {
@@ -947,8 +929,32 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 404147878.0,
+      "revenue_estimate": 404203519.0,
       "eps_estimate": 0.0402
+    },
+    {
+      "symbol": "TPIC",
+      "print_date": "2026-08-27",
+      "hour": "amc",
+      "reacts_on": "2026-08-28",
+      "drift_open": "2026-08-28",
+      "drift_close": "2026-09-01",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 365364000.0,
+      "eps_estimate": -0.6222
+    },
+    {
+      "symbol": "SNBR",
+      "print_date": "2026-08-27",
+      "hour": "unknown(treated amc)",
+      "reacts_on": "2026-08-28",
+      "drift_open": "2026-08-28",
+      "drift_close": "2026-09-01",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 334350900.0,
+      "eps_estimate": -0.1938
     },
     {
       "symbol": "S",
@@ -959,7 +965,7 @@
       "drift_close": "2026-09-01",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 295958518.0,
+      "revenue_estimate": 296047370.0,
       "eps_estimate": 0.0731
     },
     {
@@ -983,8 +989,8 @@
       "drift_close": "2026-09-02",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 749685125.0,
-      "eps_estimate": 2.5667
+      "revenue_estimate": 766476375.0,
+      "eps_estimate": 2.6231
     },
     {
       "symbol": "NIO",
@@ -1007,32 +1013,8 @@
       "drift_close": "2026-09-03",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 9643429853.0,
+      "revenue_estimate": 9640136374.0,
       "eps_estimate": 1.4017
-    },
-    {
-      "symbol": "ASO",
-      "print_date": "2026-08-31",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-01",
-      "drift_open": "2026-09-01",
-      "drift_close": "2026-09-03",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1670200074.0,
-      "eps_estimate": 2.1163
-    },
-    {
-      "symbol": "AEO",
-      "print_date": "2026-08-31",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-01",
-      "drift_open": "2026-09-01",
-      "drift_close": "2026-09-03",
-      "usable_sessions": 3,
-      "status": "FULL_WINDOW",
-      "revenue_estimate": 1385307334.0,
-      "eps_estimate": 0.2193
     },
     {
       "symbol": "MMED",
@@ -1043,20 +1025,20 @@
       "drift_close": "2026-09-03",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 842838648.0,
-      "eps_estimate": 0.1008
+      "revenue_estimate": 843606708.0,
+      "eps_estimate": 0.0952
     },
     {
-      "symbol": "DLTR",
+      "symbol": "DELL",
       "print_date": "2026-09-01",
-      "hour": "unknown(treated amc)",
+      "hour": "amc",
       "reacts_on": "2026-09-02",
       "drift_open": "2026-09-02",
       "drift_close": "2026-09-04",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 4947908310.0,
-      "eps_estimate": 1.1297
+      "revenue_estimate": 45852452985.0,
+      "eps_estimate": 5.012
     },
     {
       "symbol": "M",
@@ -1067,8 +1049,8 @@
       "drift_close": "2026-09-04",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 4901916000.0,
-      "eps_estimate": 0.3514
+      "revenue_estimate": 4917152535.0,
+      "eps_estimate": 0.3743
     },
     {
       "symbol": "PANW",
@@ -1079,8 +1061,8 @@
       "drift_close": "2026-09-04",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 3416862595.0,
-      "eps_estimate": 0.9934
+      "revenue_estimate": 3418599992.0,
+      "eps_estimate": 0.9959
     },
     {
       "symbol": "PSNY",
@@ -1095,6 +1077,18 @@
       "eps_estimate": -1.8462
     },
     {
+      "symbol": "OLLI",
+      "print_date": "2026-09-02",
+      "hour": "bmo",
+      "reacts_on": "2026-09-02",
+      "drift_open": "2026-09-02",
+      "drift_close": "2026-09-04",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 769643335.0,
+      "eps_estimate": 1.1605
+    },
+    {
       "symbol": "MDB",
       "print_date": "2026-09-01",
       "hour": "amc",
@@ -1103,8 +1097,20 @@
       "drift_close": "2026-09-04",
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
-      "revenue_estimate": 739204062.0,
-      "eps_estimate": 1.6134
+      "revenue_estimate": 740237019.0,
+      "eps_estimate": 1.6221
+    },
+    {
+      "symbol": "GIII",
+      "print_date": "2026-09-02",
+      "hour": "bmo",
+      "reacts_on": "2026-09-02",
+      "drift_open": "2026-09-02",
+      "drift_close": "2026-09-04",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 579781260.0,
+      "eps_estimate": 0.1913
     },
     {
       "symbol": "CRDO",
@@ -1116,7 +1122,19 @@
       "usable_sessions": 3,
       "status": "FULL_WINDOW",
       "revenue_estimate": 479841323.0,
-      "eps_estimate": 1.1855
+      "eps_estimate": 1.1874
+    },
+    {
+      "symbol": "SPWH",
+      "print_date": "2026-09-01",
+      "hour": "amc",
+      "reacts_on": "2026-09-02",
+      "drift_open": "2026-09-02",
+      "drift_close": "2026-09-04",
+      "usable_sessions": 3,
+      "status": "FULL_WINDOW",
+      "revenue_estimate": 302644200.0,
+      "eps_estimate": -0.0816
     },
     {
       "symbol": "GTLB",
@@ -1139,8 +1157,8 @@
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 29947978596.0,
-      "eps_estimate": 3.3015
+      "revenue_estimate": 29949335931.0,
+      "eps_estimate": 3.3013
     },
     {
       "symbol": "HPE",
@@ -1151,8 +1169,8 @@
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 11987236843.0,
-      "eps_estimate": 0.9299
+      "revenue_estimate": 12012105740.0,
+      "eps_estimate": 0.939
     },
     {
       "symbol": "GOLD",
@@ -1167,16 +1185,28 @@
       "eps_estimate": 0.867
     },
     {
-      "symbol": "LULU",
-      "print_date": "2026-09-02",
-      "hour": "amc",
+      "symbol": "MOMO",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
       "reacts_on": "2026-09-03",
       "drift_open": "2026-09-03",
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 2509611355.0,
-      "eps_estimate": 1.8353
+      "revenue_estimate": 2519978340.0,
+      "eps_estimate": 1.6524
+    },
+    {
+      "symbol": "CPB",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 2166849283.0,
+      "eps_estimate": 0.392
     },
     {
       "symbol": "NTAP",
@@ -1187,8 +1217,8 @@
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 1867676355.0,
-      "eps_estimate": 2.1499
+      "revenue_estimate": 1874397706.0,
+      "eps_estimate": 2.1613
     },
     {
       "symbol": "CIEN",
@@ -1199,8 +1229,32 @@
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 1662179423.0,
-      "eps_estimate": 1.7566
+      "revenue_estimate": 1662569553.0,
+      "eps_estimate": 1.7587
+    },
+    {
+      "symbol": "VSXY",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 1651718130.0,
+      "eps_estimate": 0.7873
+    },
+    {
+      "symbol": "WOOF",
+      "print_date": "2026-09-02",
+      "hour": "amc",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 1522564098.0,
+      "eps_estimate": 0.0703
     },
     {
       "symbol": "SNOW",
@@ -1211,8 +1265,44 @@
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 1511567814.0,
-      "eps_estimate": 0.4554
+      "revenue_estimate": 1512000855.0,
+      "eps_estimate": 0.4552
+    },
+    {
+      "symbol": "FIVE",
+      "print_date": "2026-09-02",
+      "hour": "amc",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 1242801986.0,
+      "eps_estimate": 1.4064
+    },
+    {
+      "symbol": "TTC",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 1203091800.0,
+      "eps_estimate": 1.3215
+    },
+    {
+      "symbol": "CPRT",
+      "print_date": "2026-09-02",
+      "hour": "amc",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 1163345190.0,
+      "eps_estimate": 0.3898
     },
     {
       "symbol": "VFS",
@@ -1224,7 +1314,19 @@
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
       "revenue_estimate": 1160828350.0,
-      "eps_estimate": -0.3358
+      "eps_estimate": -0.3333
+    },
+    {
+      "symbol": "ZGN",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 990706475.0,
+      "eps_estimate": 0.1616
     },
     {
       "symbol": "CAL",
@@ -1239,16 +1341,40 @@
       "eps_estimate": 0.3804
     },
     {
-      "symbol": "GIII",
-      "print_date": "2026-09-02",
-      "hour": "unknown(treated amc)",
+      "symbol": "GCO",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
       "reacts_on": "2026-09-03",
       "drift_open": "2026-09-03",
       "drift_close": "2026-09-07",
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 579781260.0,
-      "eps_estimate": 0.1913
+      "revenue_estimate": 533684000.0,
+      "eps_estimate": -1.3812
+    },
+    {
+      "symbol": "BRC",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 431680565.0,
+      "eps_estimate": 1.4797
+    },
+    {
+      "symbol": "LE",
+      "print_date": "2026-09-03",
+      "hour": "bmo",
+      "reacts_on": "2026-09-03",
+      "drift_open": "2026-09-03",
+      "drift_close": "2026-09-07",
+      "usable_sessions": 2,
+      "status": "TRUNCATED_BY_DEADLINE",
+      "revenue_estimate": 310096610.0,
+      "eps_estimate": 0.0996
     },
     {
       "symbol": "AGX",
@@ -1260,31 +1386,7 @@
       "usable_sessions": 2,
       "status": "TRUNCATED_BY_DEADLINE",
       "revenue_estimate": 303620342.0,
-      "eps_estimate": 2.6906
-    },
-    {
-      "symbol": "SHOE",
-      "print_date": "2026-09-02",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-03",
-      "drift_open": "2026-09-03",
-      "drift_close": "2026-09-07",
-      "usable_sessions": 2,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 303581916.0,
-      "eps_estimate": 0.3366
-    },
-    {
-      "symbol": "SPWH",
-      "print_date": "2026-09-02",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-03",
-      "drift_open": "2026-09-03",
-      "drift_close": "2026-09-07",
-      "usable_sessions": 2,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 302644200.0,
-      "eps_estimate": -0.0816
+      "eps_estimate": 2.6684
     },
     {
       "symbol": "MTRX",
@@ -1299,19 +1401,7 @@
       "eps_estimate": 0.153
     },
     {
-      "symbol": "DELL",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 45746068740.0,
-      "eps_estimate": 4.9897
-    },
-    {
-      "symbol": "CPB",
+      "symbol": "LULU",
       "print_date": "2026-09-03",
       "hour": "amc",
       "reacts_on": "2026-09-04",
@@ -1319,32 +1409,8 @@
       "drift_close": "2026-09-08",
       "usable_sessions": 1,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 2174577803.0,
-      "eps_estimate": 0.3971
-    },
-    {
-      "symbol": "TTC",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 1201738400.0,
-      "eps_estimate": 1.3174
-    },
-    {
-      "symbol": "ZGN",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 990706475.0,
-      "eps_estimate": 0.1616
+      "revenue_estimate": 2507391162.0,
+      "eps_estimate": 1.8304
     },
     {
       "symbol": "ZS",
@@ -1361,13 +1427,13 @@
     {
       "symbol": "DOCU",
       "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
+      "hour": "amc",
       "reacts_on": "2026-09-04",
       "drift_open": "2026-09-04",
       "drift_close": "2026-09-08",
       "usable_sessions": 1,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 884753355.0,
+      "revenue_estimate": 884780915.0,
       "eps_estimate": 1.1075
     },
     {
@@ -1383,21 +1449,9 @@
       "eps_estimate": 1.3716
     },
     {
-      "symbol": "GCO",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 533684000.0,
-      "eps_estimate": -1.3812
-    },
-    {
       "symbol": "NX",
       "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
+      "hour": "amc",
       "reacts_on": "2026-09-04",
       "drift_open": "2026-09-04",
       "drift_close": "2026-09-08",
@@ -1409,26 +1463,14 @@
     {
       "symbol": "IOT",
       "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
+      "hour": "amc",
       "reacts_on": "2026-09-04",
       "drift_open": "2026-09-04",
       "drift_close": "2026-09-08",
       "usable_sessions": 1,
       "status": "TRUNCATED_BY_DEADLINE",
       "revenue_estimate": 488094084.0,
-      "eps_estimate": 0.1639
-    },
-    {
-      "symbol": "BRC",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 423767720.0,
-      "eps_estimate": 1.4797
+      "eps_estimate": 0.1614
     },
     {
       "symbol": "GWRE",
@@ -1439,8 +1481,8 @@
       "drift_close": "2026-09-08",
       "usable_sessions": 1,
       "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 410779132.0,
-      "eps_estimate": 0.9508
+      "revenue_estimate": 410254536.0,
+      "eps_estimate": 0.9607
     },
     {
       "symbol": "PATH",
@@ -1477,18 +1519,6 @@
       "status": "TRUNCATED_BY_DEADLINE",
       "revenue_estimate": 353980800.0,
       "eps_estimate": 0.612
-    },
-    {
-      "symbol": "TTAN",
-      "print_date": "2026-09-03",
-      "hour": "unknown(treated amc)",
-      "reacts_on": "2026-09-04",
-      "drift_open": "2026-09-04",
-      "drift_close": "2026-09-08",
-      "usable_sessions": 1,
-      "status": "TRUNCATED_BY_DEADLINE",
-      "revenue_estimate": 291292752.0,
-      "eps_estimate": 0.3569
     },
     {
       "symbol": "PLCE",

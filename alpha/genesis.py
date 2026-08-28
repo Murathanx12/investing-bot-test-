@@ -68,6 +68,10 @@ DENIED_ACCOUNTS: dict[str, str] = {
     "PA32Q5IW7TAS": ("role `dev`, labelled 'hackathon' in the Alpaca UI. $84,888 on 2026-08-27 "
                      "(-15.1%), 8 positions, 27 orders, opened under the PRE_UNITS_FIX "
                      "arithmetic. The corpse being dissected, never the judged book."),
+    "PA3HSRGSPXAY": ("role `staging`. Created 2026-08-28 03:42 UTC as a clean $100k level-3 book "
+                     "and used the same night for the FIRST live execution probe: six orders sent "
+                     "and cancelled. An order of any status makes it legacy by the rule below. "
+                     "The rehearsal account for the contest week; never the judged one."),
     "PA3AOJPJTSBW": ("role `exp1`. $95,880 on 2026-08-27 (-4.1%), 8 positions, 16 orders, "
                      "daily-loss latched. Legacy."),
     "PA3I7VTCC0BM": ("role `market`. The passive-beta benchmark. 1 order, 0 positions -- an "

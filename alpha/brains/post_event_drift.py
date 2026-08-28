@@ -65,7 +65,7 @@ DELIBERATELY CONSERVATIVE IN TWO PLACES
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from alpha.brains.base import Forecast
 from alpha.brains.event_move import event_days_from_sec
@@ -78,9 +78,19 @@ from alpha.brains.vol_gap import _daily_bars, _ewma_sd
 #: a substitute for the name's live volatility.
 #: Receipts: state/source_pead_horizon.json, state/source_pead_decompose.json
 ARRIVAL: dict[int, tuple[float, float, float]] = {
+    # 0 = the day-0 bar is CLOSED and the +1 open has not happened: the
+    #     "day+1 OPEN -> +3 close" arrival, +1.08% / t 2.82, all three sessions
+    #     left. Until 2026-08-28 this state was refused as "still forming", so
+    #     the brain could never take the best-measured entry and traded a full
+    #     session late every time (`state/source_pead_horizon.json`). The floor
+    #     is the sd of sign*(d1+d2+d3) over the same 108 rows (0.0448; the two
+    #     rows below reproduce as 0.0353 / 0.0259 by the same arithmetic).
+    0: (0.0108, 0.0448, 3.0),
     1: (0.0072, 0.0345, 2.0),
     2: (0.0041, 0.0255, 1.0),
 }
+#: t-statistics of the three arrivals, same receipt, for the rationale line.
+ARRIVAL_T = {0: 2.82, 1: 2.17, 2: 1.67}
 
 #: THE ELEVEN NAMES THE +1.13% TWO-SIDED DRIFT WAS MEASURED ON. Outside them the
 #: rule is DIFFERENT, and it was measured on 2,532 names / 25,856 SEC-dated prints
@@ -133,6 +143,36 @@ BETA_WINDOW = 120
 VOL_HALF_LIFE = 10.0
 
 
+def _bar_is_closed(client, day: str) -> bool:
+    """Is the daily bar dated `day` a CLOSED session?
+
+    Daily bars carry no such flag: the bar for today looks the same at 10:00 ET
+    as at 20:00 ET. The venue clock does know. A bar is closed if its date is
+    before today's ET date, or if it IS today's date and the venue reports the
+    market closed after the 16:00 bell. A client with no usable clock (the test
+    fakes, a transport failure) falls back to "closed only if before today",
+    which is the old behaviour and refuses rather than guesses.
+    """
+    try:
+        clock = client.clock() if hasattr(client, "clock") else {}
+    except Exception:                                                   # noqa: BLE001
+        clock = {}
+    ts = str(clock.get("timestamp") or "")
+    try:
+        now_et = datetime.fromisoformat(ts) if ts else None
+    except ValueError:
+        now_et = None
+    if now_et is None:
+        today = (datetime.now(timezone.utc) - timedelta(hours=4)).date().isoformat()
+        return day < today
+    today = now_et.date().isoformat()
+    if day < today:
+        return True
+    if day == today:
+        return (not bool(clock.get("is_open"))) and now_et.hour >= 16
+    return False
+
+
 class NotApplicable(RuntimeError):
     pass
 
@@ -153,11 +193,11 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
     i0 = days.index(event["event_day"])
     elapsed = (len(days) - 1) - i0
 
-    if elapsed <= 0:
+    if elapsed < 0 or (elapsed == 0 and not _bar_is_closed(client, event["event_day"])):
         raise NotApplicable(
             f"{symbol}: the day-0 close ({event['event_day']}) is still forming. Daily bars cannot "
-            "tell an in-progress session from a closed one, and the measured entry is the day+1 "
-            "open, which costs +0.05% (t 0.42) to wait for.")
+            "tell an in-progress session from a closed one; the venue clock can, and it says this "
+            "session has not closed. The measured entry is the day+1 open.")
     if elapsed > MAX_ELAPSED_SESSIONS:
         raise NotApplicable(
             f"{symbol}: {elapsed} sessions since the print on {event['event_day']}; the measured "
@@ -214,12 +254,12 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
     if wide:
         # Raw t is 1.9 / 2.5 and 2026 is negative: a tilt the gate may well refuse. That
         # is the honest number; the hedged pair (t ~4) is the expression to build next.
-        conviction = 0.6 * (1.0 if elapsed == 1 else 0.7)
+        conviction = 0.6 * (1.0 if elapsed <= 1 else 0.7)
         band = (f"WIDE universe, DOWN, {'>8.2%' if overextended else '5-8.2%'} band, RAW short from next open "
                 f"(t {WIDE_HEADLINE['down_big_t'] if overextended else WIDE_HEADLINE['down_mid_t']}; hedged vs IWM "
                 f"t {WIDE_HEDGED_IWM['big' if overextended else 'mid'][1]}; n={WIDE_HEADLINE['legs']} legs)")
     else:
-        conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed == 1 else 0.7)
+        conviction = (0.6 if overextended else 1.0) * (1.0 if elapsed <= 1 else 0.7)
         band = ("over-extended (>8.2%, t 1.26)" if overextended
                 else f"mid band ({MIN_ABS_MOVE:.1%}-{OVEREXTENDED_MOVE:.1%}, t 3.45, hit 81%)")
 
@@ -230,7 +270,7 @@ def forecast(client, symbol: str, horizon_days: float, *, lookback_days: int = 4
             f"{symbol} printed {event['session']} on {event['release_date']}; the first reflecting "
             f"close {event['event_day']} moved {r0:+.2%} -- {band}. {elapsed} session(s) elapsed, so "
             f"{sessions_left:.0f} of the measured +1..+3 drift window remain, worth {centre:+.2%} "
-            f"excess over beta*QQQ (n=108, t {2.17 if elapsed == 1 else 1.67:.2f}). Spread {sd:.1%} "
+            f"excess over beta*QQQ (n=108, t {ARRIVAL_T[elapsed]:.2f}). Spread {sd:.1%} "
             f"= max(live {daily_sd:.2%}/day over {sessions_left:.0f}d, measured floor {floor_sd:.1%})."),
         signal_shape="declared:gradient",
         evidence={

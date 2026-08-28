@@ -1,3 +1,13 @@
+> **2026-08-28, session 19 (00:30 ET):** read
+> **`docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md`** first. The loop now runs
+> from **Railway** (project `loving-elegance`, one service per role, volume at
+> `/app/state`) — the PC no longer has to be on. The execution probe was run LIVE
+> for the first time (all shapes accepted, receipt in `state/evidence/`). The
+> drift brain can now take the +1 open it was refusing, and the ranker follows
+> the tournament mode (BASE → median, ATTACK → EV). `dev` key is dead (401);
+> `staging` = `PA3HSRGSPXAY` is the rehearsal account and is denylisted for
+> the judged role.
+
 > ## SESSION 18 (2026-08-28) -- THE CORE WAS NEVER PRICED, AND COULD NOT HAVE BEEN PLACED
 >
 > **RESULT IMPROVEMENT: NONE in P&L. One 70%-of-risk allocation REFUTED before

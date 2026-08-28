@@ -266,3 +266,25 @@ book.read = real_read
 if __name__ == "__main__":
     print(f"\n{len(fails)} failures" + (": " + ", ".join(fails) if fails else ""))
     raise SystemExit(1 if fails else 0)
+
+
+print("\n-- ranker: the objective follows the tournament MODE (2026-08-28)")
+import os as _os
+_base = sizing.TournamentState(equity=100_000, starting_equity=100_000, fraction_of_window_remaining=1.0)
+_os.environ.pop("AAT_RANK_OBJECTIVE", None)
+obj, why = runner.rank_objective(_base)
+check("at kickoff, +2% target -> BASE -> ranks on the MEDIAN", obj == "median", why)
+_behind = sizing.TournamentState(equity=94_000, starting_equity=100_000, fraction_of_window_remaining=0.2)
+obj_b, why_b = runner.rank_objective(_behind)
+check("behind late -> ATTACK -> ranks on the MEAN (convexity is rational there)", obj_b == "mean", why_b)
+_os.environ["AAT_RANK_OBJECTIVE"] = "mean"
+check("AAT_RANK_OBJECTIVE overrides and says so", runner.rank_objective(_base) == ("mean", "AAT_RANK_OBJECTIVE=mean (override)"))
+_os.environ.pop("AAT_RANK_OBJECTIVE", None)
+_call = sizing.Structure("X", "long_call", direction="up", entry_cost=250.0, max_loss=250.0, breakeven_move=0.04,
+                         implied_move=0.03, quote_spread_pct=0.08, days_to_expiry=2, legs=(("X", "buy", 1),))
+_shr = sizing.Structure("X", "long_shares", direction="up", entry_cost=180.0, max_loss=10.8, breakeven_move=0.0,
+                        implied_move=0.03, quote_spread_pct=0.0, days_to_expiry=2, legs=(("X", "buy", 1),))
+_e_call = {"ev_over_max_loss": 0.38, "median_usd": -137.0, "p_profit": 0.33}
+_e_shr = {"ev_over_max_loss": 0.12, "median_usd": 1.0, "p_profit": 0.56}
+check("the 27 Aug NVDA case: MEDIAN objective picks shares", runner._rank_value(_shr, _e_shr, "median") > runner._rank_value(_call, _e_call, "median"))
+check("the 27 Aug NVDA case: MEAN objective still picks the call", runner._rank_value(_call, _e_call, "mean") > runner._rank_value(_shr, _e_shr, "mean"))

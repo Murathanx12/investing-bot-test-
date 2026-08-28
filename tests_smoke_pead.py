@@ -51,14 +51,22 @@ def bars_with_print(*, day0_move: float, elapsed: int, n: int = 200) -> tuple[li
 
 
 class FakeClient:
-    def __init__(self, bars):
+    def __init__(self, bars, clock=None):
         self._bars = bars
+        self._clock = clock
 
     def stock_bars(self, symbol, **kw):
         return {"bars": {symbol: self._bars}}
 
+    def clock(self):
+        # No clock configured -> the brain's fallback ("closed only if before
+        # today"), which is the pre-2026-08-28 behaviour.
+        if self._clock is None:
+            raise RuntimeError("no clock")
+        return self._clock
 
-def run(*, day0_move: float, elapsed: int, session: str = "amc", symbol: str = "NVDA"):
+
+def run(*, day0_move: float, elapsed: int, session: str = "amc", symbol: str = "NVDA", clock=None):
     bars, event_day = bars_with_print(day0_move=day0_move, elapsed=elapsed)
     releases = [{"date": event_day, "session": session, "date_source": "sec_8k_item_2.02"}]
     real = ped.event_days_from_sec
@@ -73,7 +81,7 @@ def run(*, day0_move: float, elapsed: int, session: str = "amc", symbol: str = "
 
     ped.event_days_from_sec = fake
     try:
-        return ped.forecast(FakeClient(bars), symbol, 3.0)
+        return ped.forecast(FakeClient(bars, clock), symbol, 3.0)
     finally:
         ped.event_days_from_sec = real
 
@@ -83,11 +91,30 @@ def run(*, day0_move: float, elapsed: int, session: str = "amc", symbol: str = "
 # (every other name) is pinned at the end of this file.
 print("\n-- post_event_drift: the arrival clock")
 
+# The series ends on 2026-08-26. Three clocks for the same bars:
+#   * the venue says it is 2026-08-26 and OPEN  -> the day-0 bar is forming -> refused;
+#   * the venue says it is 2026-08-26 20:00 ET, CLOSED -> the bar is closed -> the
+#     +1 OPEN arrival (+1.08%, t 2.82, 3 sessions left). Until 2026-08-28 this
+#     state was refused too, so the brain could never take its best-measured entry;
+#   * no clock at all -> falls back to "closed only if before today" -> closed here.
+OPEN_ON_DAY0 = {"is_open": True, "timestamp": "2026-08-26T14:30:00-04:00"}
+CLOSED_AFTER_DAY0 = {"is_open": False, "timestamp": "2026-08-26T20:00:00-04:00"}
+CLOSED_BEFORE_BELL = {"is_open": False, "timestamp": "2026-08-26T08:00:00-04:00"}
 try:
-    run(day0_move=0.06, elapsed=0)
-    check("day-0 still forming is refused", False)
+    run(day0_move=0.06, elapsed=0, clock=OPEN_ON_DAY0)
+    check("day-0 still forming (venue OPEN on day 0) is refused", False)
 except ped.NotApplicable as exc:
-    check("day-0 still forming is refused", "still forming" in str(exc))
+    check("day-0 still forming (venue OPEN on day 0) is refused", "still forming" in str(exc))
+try:
+    run(day0_move=0.06, elapsed=0, clock=CLOSED_BEFORE_BELL)
+    check("day-0 pre-market on day 0 is refused (closed, but before the bell)", False)
+except ped.NotApplicable as exc:
+    check("day-0 pre-market on day 0 is refused (closed, but before the bell)", "still forming" in str(exc))
+f0 = run(day0_move=0.06, elapsed=0, clock=CLOSED_AFTER_DAY0)
+check("day-0 CLOSED -> the +1 OPEN arrival is quoted (+1.08%)", abs(f0.centre - 0.0108) < 1e-9, f"{f0.centre:+.4f}")
+check("day-0 CLOSED -> three sessions of window left", f0.horizon_days == 3.0)
+check("day-0 CLOSED -> full conviction, not the late-arrival haircut", f0.conviction == 1.0, str(f0.conviction))
+check("day-0 CLOSED -> sd floored at the 3-session dispersion", f0.sd >= 0.0448 - 1e-9, f"{f0.sd:.4f}")
 
 f1 = run(day0_move=0.06, elapsed=1)
 check("one session elapsed -> quotes the +0.72% arrival", abs(f1.centre - 0.0072) < 1e-9,

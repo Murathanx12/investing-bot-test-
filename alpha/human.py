@@ -290,20 +290,37 @@ def record(t: Thesis) -> str:
     return row["thesis_id"]
 
 
+#: A SECOND, read-only source of theses: the committed seed. The loop runs on
+#: Railway with its ledger on a volume the laptop cannot write to, so a thesis
+#: typed here would never reach the pass that acts on it. `docs/seed/` is copied
+#: into the volume on container start but `cp -rn` never overwrites, so an
+#: APPENDED thesis would be lost too. Reading the seed file directly, beside the
+#: ledger copy, closes both gaps: record on the laptop -> copy the line into
+#: docs/seed/human_theses.jsonl -> commit -> `railway up`. Git is then the
+#: tamper-evident record of when the view was stated, which is what a thesis
+#: needs anyway. Rows are de-duplicated on their content hash.
+SEED_LOG = Path(__file__).resolve().parent.parent / "docs" / "seed" / LOG
+SEED_LOG_IN_IMAGE = Path("/app/seed") / LOG
+
+
 def load_all() -> list[Thesis]:
-    p = path()
-    if not p.exists():
-        return []
-    out = []
-    for line in p.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
+    out, seen = [], set()
+    for p in (path(), SEED_LOG, SEED_LOG_IN_IMAGE):
+        if not p.exists():
             continue
-        d = json.loads(line)
-        d.pop("thesis_id", None)
-        try:
-            out.append(Thesis(**d))
-        except ThesisRefusal:
-            continue                  # a row that no longer validates is not silently repaired
+        for line in p.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            d = json.loads(line)
+            d.pop("thesis_id", None)
+            key = json.dumps(d, sort_keys=True)
+            if key in seen:
+                continue
+            seen.add(key)
+            try:
+                out.append(Thesis(**d))
+            except ThesisRefusal:
+                continue              # a row that no longer validates is not silently repaired
     return out
 
 
