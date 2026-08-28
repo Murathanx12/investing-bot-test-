@@ -88,6 +88,9 @@ def normalise_rows(raw: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 _METRIC_MAP = [
+    # Margins BEFORE the nouns they qualify: "subscription ARR contribution
+    # margin" is a margin, not ARR (RBRK, 28 Aug: it collided with the ARR row).
+    (r"contribution margin", "contribution_margin"),
     (r"subscription.*rev", "subscription_revenue"),
     (r"total.*rev|^revenue|net sales|^sales", "revenue"),
     (r"non.?gaap.*eps|adj.*eps|eps.*non.?gaap|diluted.*per share.*non|non.?gaap.*per share", "eps_non_gaap"),

@@ -488,3 +488,48 @@ none has one yet, and the roadmap will not pretend otherwise.
 
 Freeze of write-path code: **after the 09:30 ET staging fill is reconciled**,
 and before the judged account is created.
+
+### 11.7 The bakeoff, and the first dislocation table (05:10 ET)
+
+`scripts.role_bakeoff --role fact` — five guidance rows per release from the
+EX-99.1 answer key, ranges compared low-to-low and high-to-high:
+
+| provider | family | S | WDAY | latency | note |
+|---|---|---|---|---|---|
+| hf DeepSeek-V4-Flash | deepseek | **5/5** | 4/5 | ~30 s | missed Q2 non-GAAP EPS once |
+| deepseek-chat | deepseek | — | 5/5 | ~10 s | intermittently DOWN tonight (connection resets) |
+| GLM-5.3-Flash | zhipu | 0/5 (truncated JSON) | 4/5 | ~14 s | fine on short text, not on a 30k prompt |
+| minimax-m3 | minimax | 0/5 | 0/5 | 60 s timeout | not a reader |
+| kimi-k3 | moonshot | refused | refused | — | not a reader; fine for EXPECTATIONS (short prompts) |
+
+`ROLE_PREFERENCES["fact"]` now follows the table. This is the pattern for every
+role: an answer key, a score, then an assignment — never the reverse.
+
+`scripts.dislocation_scan` on four printers (light council, ~$0.01):
+
+| sym | cube net | cells | reaction | quadrant |
+|---|---|---|---|---|
+| **S** | −0.029 | 5 | −6.2% | CONTINUATION_VS_OVERREACTION |
+| RBRK | +0.25 (capped; EPS guide $0.30→$0.50, FCF +10%, rev +2.8%) | 6 | n/a | NO_REACTION_YET |
+| ESTC | +0.065 | 6 | n/a | NO_REACTION_YET |
+| WDAY | +0.017 | 2 | n/a | NO_REACTION_YET |
+
+The reaction column fills at 09:30. **RBRK** is the name to watch at the open:
+the strongest across-the-board raise of the night, outside the eleven, with no
+observable after-hours print on our feed. If it opens flat, that is the
+UNDER_REACTION quadrant and a human thesis candidate; if it gaps, it is
+CONTINUATION_VS_PRICED and the historical analog says UP prints outside the
+eleven carry no excess. Either way the packet, not a headline, is the reason.
+
+### 11.8 Not done, honestly
+
+- **Tournament risk frontier** (review item 9): not simulated. `mode_for`'s
+  1.5%/session ATTACK threshold and the 30%/6%/3-entry caps are inherited
+  policy. The regret report shows the caps SAVED +$2.2M net in the parallel
+  worlds, which argues for keeping them through day one and simulating after.
+- **Agent track records**: the scaffolding exists (every packet carries the
+  provider per role); zero graded outcomes yet. First grades after +3 sessions.
+- **Basket sizing for the pair**: research item; the pair is enabled and
+  refused per name.
+- **Staging fill / reconcile / restart** at 09:30 ET; freeze of write-path
+  code after that and before the judged account exists.

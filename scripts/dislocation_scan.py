@@ -63,7 +63,10 @@ def cube_net(cube: dict) -> tuple[float, int]:
     net, n = 0.0, 0
     for c in cube.get("cells") or []:
         if c.get("axis") in FORWARD_AXES and c.get("relative") is not None:
-            net += float(c["relative"])
+            # Each cell is capped at +/-25%: an EPS guide going 0.30 -> 0.50 is a
+            # +67% relative and would otherwise be the whole net (RBRK, 28 Aug).
+            # The net is an ordering device, not a magnitude.
+            net += max(-0.25, min(0.25, float(c["relative"])))
             n += 1
     return net, n
 
