@@ -42,6 +42,10 @@
 > effective nodes), `alpha/tournament.py`. Aegis gains
 > `copy_lab/sentinel.py` -- a refusing lane and a dead lane no longer print alike.
 >
+> **NEXT SESSION: `docs/NEXT_SESSION_2026-08-28_EXECUTE.md`.** The research
+> phase is closed. Competition keys arrive; the job is a legal, funded,
+> options-containing book in the judged account and nothing else.
+>
 > Suite **1390 checks**, all pass. **Nothing was placed.**
 
 > ## SESSION 17 (2026-08-28) -- WHY WE LOST, WITH 32 YEARS OF RECEIPTS
