@@ -172,7 +172,8 @@ def env_for(m: Mandate) -> dict[str, str]:
 def env_template() -> str:
     lines = ["# THE FLEET -- one key pair per role; paste each account's keys here",
              "# The $25 API credit: paste it under its provider's own name (AAT_DEEPSEEK_API_KEY /",
-             "# AAT_NVIDIA_API_KEY / AAT_HF_TOKEN / AAT_OPENAI_API_KEY) and `scripts.council --probe` will find it.", ""]
+             "# AAT_NVIDIA_API_KEY / AAT_HF_TOKEN / AAT_OPENAI_API_KEY) and `scripts.council --probe` will find it.",
+             "# Featherless.ai ($25 credit):", "AAT_FEATHERLESS_API_KEY=", ""]
     for r, m in FLEET.items():
         lines += [f"# {r:<10} {m.tier:<5} {m.label}", f"AAT_{r.upper()}_KEY_ID=", f"AAT_{r.upper()}_SECRET_KEY=", ""]
     return "\n".join(lines)

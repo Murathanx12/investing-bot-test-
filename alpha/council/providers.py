@@ -72,6 +72,10 @@ PROVIDERS: dict[str, Provider] = {
     # 28 Aug, if that is where it came from). `probe()` reports it as no-key
     # until then; the skeptic role prefers a family the synthesis did not use.
     "openai": Provider("openai", "openai", "https://api.openai.com/v1", "AAT_OPENAI_API_KEY", "gpt-5-mini", 60.0),
+    # Featherless.ai (OpenAI-compatible, HF model ids) -- Murat's $25 credit, 28 Aug.
+    # A fifth family (alibaba/qwen) the skeptic can use against a deepseek synthesis.
+    "featherless": Provider("featherless", "alibaba", os.getenv("AAT_FEATHERLESS_BASE_URL", "https://api.featherless.ai/v1"),
+                            "AAT_FEATHERLESS_API_KEY", os.getenv("AAT_FEATHERLESS_MODEL", "Qwen/Qwen2.5-72B-Instruct"), 60.0),
 }
 
 
