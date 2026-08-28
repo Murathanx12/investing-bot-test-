@@ -1,50 +1,31 @@
-# AEGIS Alpha Terminal — one-page write-up (DRAFT, 2026-08-26; numbers to be replaced with the judged account's)
+# AEGIS Alpha Terminal — one-page write-up (2026-08-28, pre-kickoff; the judged account's numbers replace the placeholders on 4 Sep)
 
-## What did not work (first, on purpose)
+## What did not work — first, on purpose, and each one with a receipt
 
-Every item below is a receipt in `state/`, reproducible with one command, walk-forward where a rule is involved.
-
-- **Buying the print was the wrong side.** 117 real earnings prints (2024–26, exact SEC 8-K dates, expired-contract closes): median long straddle **−18%**, 43% clear break-even. **NVDA 0 of 8.** The agent had planned that exact NVDA straddle at 18.5% risk; the evidence withdrew it before the print.
-- **Isolating the event variance did not help.** Solving two expiries for ambient + jump variance is the textbook method; as a *predictor* of the realised move it lost to the raw front-expiry number (corr 0.18 vs 0.33), and our own history of the name lost to both (0.29). The chain knows more than the company's last eight prints.
-- **No short structure is a free lunch either.** Iron butterfly +5% of max loss (t 0.7); the iron condor wins 63% of the time and loses money. The conditional rule (name's history vs chain → long or short) survives walk-forward only on the short side, weakly (n=46, t 1.4).
-- **The skew does not know the direction** (45% hit on 106 prints). Concave surfaces move slightly more and pay convexity buyers worse (RoF 2025), too weakly to trade.
-- **Expressing a print through its peers is priced.** 290 peer straddles on originator print days: mean −4.2%, hit 34%, t −2.0; the history/implied ratio that ranks peers does not sort outcomes. This afternoon's "ARM and TSM are the cheap place to own NVDA's print" would have lost.
-- **Prediction markets give width, not side.** Kalshi's payrolls ladder mapped through 28 first-print surprises → SPY 10:45 move: corr 0.03, walk-forward −0.57. The crowd's dispersion is usable; its centre is not.
-- **Two unlocked writers corrupted the tamper-evident ledger** (6 interleaved lines, chain break at line 1203) and **the "one position per symbol" rule was per pass, not per book** — the restarted loop re-bought the same straddle every 30 minutes. Both found by reading the live book, both fixed and tested, the corrupt lines left in place and counted.
-- **Social sentiment is closed to a free script** (Reddit, StockTwits, GDELT, LunarCrush refused); the narrative brain reads Benzinga via the LLM instead. **The free option feed is seconds, not minutes, late** (measured 3–4 s) — the $99 feed was declined on evidence.
+- **Our own first design was wrong, and we found out before funding it.** The planned 70%-of-risk short-put-spread core on SPY/QQQ/IWM was replayed over **11,859,415 real OptionMetrics bid/ask quotes, 1996–2025**, crossing the spread against us: it fails on two of three underlyings and beats holding the underlying on **none** (terminal 2.79× / 0.05× / 0.21× vs 5.39× / 5.14× / 2.50×). Conditioning on how rich the premium was does not rescue it (six of six top bins lose to holding). `docs/FINDING_2026-08-28_THE_CORE_WAS_NEVER_PRICED.md`.
+- **Buying the print was the wrong side.** 117 real earnings prints (SEC 8-K dates, expired-contract closes): median long straddle −18%; NVDA 0 of 8. The index straddle is t −5.7 to −8.7 over 26 years. Peer straddles on originator print days: t −2.0.
+- **Five-day momentum, the lab's own winner, was a survivorship artefact**: 0.1× terminal over CRSP 1993–2024 once the universe is point-in-time.
+- **"All of it happens overnight" is true over 32 years and false as a five-session strategy since 2022**: overnight-only vs buy-and-hold on SPY, 1,161 windows, −0.16% per window, t −3.05. We enter at the close and hold; we do not flatten at the open.
+- **"Earnings dislocation" — trade where the surprise and the reaction disagree — is refuted on 116,231 announcements (IBES × CRSP, 2013–2024)**: the disagreement cells are flat; the reaction carries the information (best surprise *and* up: +0.41%/3 sessions, t 2.49 on week blocks, large-cap median +0.31%). The same table showed that a pooled t of 4.90 becomes 0.01 when blocked by week — prints cluster.
+- **A 2,676-refusal audit of our strictest gate**: 64% of what it refused would have won, net −$846k in $5,000-risk parallel worlds — and by distance-to-threshold the win rate is flat at 26–33% in every bucket; the net is long calls vs long puts on one rally day. The gate stayed. The measurement is written on it.
+- **The autonomous lane collapses to mega-caps by construction** (75 of 76 recent printers declined; the only two-sided post-print drift we could measure is on eleven names). The route out — a short-loser/long-IWM pair — is built, and its recomputed edge (t 1.34 / 0.79 on 5,923 legs) is a breadth claim the per-name gate correctly refuses. It stays enabled so every refusal is priced.
 
 ## AI logic
 
-Five brains, independent by **data source**, each returning a return distribution (centre + sd + conviction), never a direction. The LLM emits numbers on declared axes (`NARRATIVE_SHOCK_v1`: truth, credibility, novelty, attention, disagreement, market belief, impact, already-priced → a belief-gap case) and **has no trade verb** — the MCP server is started with the trading toolset withheld (44 tools vs 72).
+**Models have non-overlapping jobs and never vote.** A RESEARCH COUNCIL reads each printer's own 8-K Exhibit 99.1: a FACT ACCOUNTANT (no opinion on direction), an EXPECTATIONS reconstructor (prior guide, consensus in the headlines, the option-implied move), a **SURPRISE CUBE that is code** — it subtracts only where metric, basis and period match, so "prior total revenue vs new subscription revenue" is refused as incomparable and "revenue guide raised, EPS guide lowered" keeps both signs — then CAUSAL expansion (sign + lag per edge), a SKEPTIC from a **different model family** that never sees the synthesis, deterministic historical-analog and market-pricing lookups, and a SYNTHESIS that emits a thesis *vector* (direction, magnitude, volatility view, timing, P(already priced), falsifier). Roles are assigned by a per-role bakeoff against the filing's answer key, not by preference. No model has an order verb: the council package imports no broker code (pinned by test); the MCP server is started with the trading toolset withheld.
 
-| Brain | Source | Executes on |
-|---|---|---|
-| `vol_gap` | daily bars vs chain | dev (**assigned**, not earned) |
-| `event_move` | SEC print history vs chain, last 8 prints | dev |
-| `options_attention` | option tape, seasoned contracts | exp1 (**assigned**) |
-| `narrative_dispersion` | news → DeepSeek axes + Polymarket/Kalshi belief | exp1 |
-| `relay` | peer co-movement on originator prints | shadow only (refuted, above) |
+The one brain with capital authority, `post_event_drift`, is two-sided on eleven mega-caps and takes the +1 open (+1.08%, t 2.82, n=108) — an entry it could not take until a venue-clock fix on 28 Aug. Human theses enter through a typed wire (direction, expected move, catalyst in the future, falsifier required) and pass the same gates as every brain. **The ranker follows the tournament mode**: BASE ranks structures on median/max-loss (five compounding sessions follow the median); ATTACK — behind late — ranks on EV, the one state where buying convexity is rational. That switch was pre-registered, not improvised.
 
-The engine enumerates eight defined-risk structures from the live chain at the side we would cross, computes each one's **minimum detectable move**, and keeps it only if our distribution puts ≥5pp more mass beyond it than the chain's. Geometry 2 reads the surface back (ATM IV, skew, curvature, event-variance strip) so the card can say "the market has already bought the tail". Several brains, **one position per symbol per book, nothing averaged**; losers are written as shadow worlds and priced forward at equal risk. Positions that cite the same scheduled event share one **event-node budget** (25%).
+## Risk gates — three kinds, and they are not confused with each other
 
-## Two accounts, two arms — and neither is a champion yet
-
-`dev` and `exp1` run different brain sets on the same sessions with the account stamped on every ledger row, so "do attention and narrative earn execution?" gets answered by fills and marks rather than by a prior.
-
-**The split is a design choice, not a result, and we will not claim otherwise.** The counterfactual ledger holds 267,802 rows and looks like a scoreboard; it spans **two calendar days**. On it `vol_gap` appears best at +13.8% mean return-on-risk — but its top 3 of 27 observations carry 113% of that sum, decision ids are minute-derived so one view of META across three passes of one afternoon counts as three decisions, and collapsing to date blocks halves every n. **META went up on 25 August and three brains had shadow exposure to it.** Even the comforting reading — *every road not taken lost money* — decomposes into long premium decaying over two flat sessions, and on the short-premium side those refusals were mildly wrong (`bear_call_spread` refusals: +2.2% median, 59% win).
-
-Receipt: `docs/FINDING_2026-08-26_THE_SCOREBOARD_IS_TWO_DAYS.md`. **A 285 MB ledger feels like evidence. File size is not sample size.**
-
-First pass (25 Aug): both bought QQQ straddles, exp1 at twice the size; both sold NVDA condors into the print.
-
-## Risk gates
-
-Bounded worst case at entry (naked shorts not representable). Spread > 25% of max loss → refused. Edge < 5pp → refused. Per-thesis / aggregate / event-node caps binding *within* a pass. Limit orders only; no order without a quote snapshot; flat by 10:45 ET on judging day; never through an expiry. A 5-minute exit pass whose starvation by a slow entry pass is **bounded and measured, not prevented**: entry passes run a median 368s (p90 439s), the ceiling was cut 1500s → 600s, and an exit pass now runs immediately after every entry pass, so worst-case lateness fell from ~26 min to ~11. The earlier claim here — that it *can never* be starved — was wrong.
+`alpha/guards.py` classes every refusal: **HARD** (paper host only, declared role, genesis verified, denylisted legacy accounts, no order without a quote snapshot, idempotent order ids, options `tif=day` only, multileg needs a limit, zero-egress tests, no LLM order path) — never bends; **EMPIRICAL** (claim matrix, the 5pp minimum-detectable-move floor, refuted structures, the wide-universe rules) — scoped, with a named reopening condition, and **priced**: `scripts.refusal_regret` reads 1.06M counterfactual rows and reports what each guard saved or cost; **TOURNAMENT** (book limits, event-node cap, −3% daily latch, one position per underlying, concentration by true max loss) — moves with equity and time. A risk frontier (bootstrapped SPY windows, option sleeve parametric on the OptionMetrics moments) says P(+2%) saturates by a 10% option budget while P(−5%) explodes above it; the sleeve is 5–10% of equity, not the 30% the earlier book allowed. Exits every 5 minutes; nothing held through an expiry; flat before judging.
 
 ## Alpaca infrastructure
 
-Paper-only client (live host not on the allowlist; separate `AAT_*` credential namespace; `PA` prefix verified server-side). MCP server with the trading toolset withheld; official CLI for the audit path. Market data on the free plan: news, chain snapshots, **expired** option bars (the backtests above), stock bars/trades. Unattended loop containerised (`Dockerfile`, `railway.toml`).
+Trading API through one paper-only client (live host not on the allowlist, `AAT_*` credential namespace, account number verified server-side); MCP server read/explain only; official CLI as the independent audit path. **The execution probe was run live on a scratch account**: equity limit / market-on-close / limit-on-close / market-on-open, single-leg option limit, multileg debit and credit spreads — all accepted at options level 3, all cancelled, receipt in `state/evidence/`. The judged account is born with a **genesis record** (number, $100,000.00, zero orders of any status, options level, rules-snapshot hash, code commit) and every live pass verifies it. The loop runs on **Railway**, one service per account role, ledgers on a volume, the laptop not required.
 
 ## Evidence
 
-Hash-chained, cross-process-locked ledgers: `decisions.jsonl` (every candidate, refused ones included), `forecasts.jsonl` (every brain, every pass, before pricing), `counterfactual.jsonl` (every road not taken, marked at equal risk), `fills.jsonl` (decision quote vs fill vs mark), `belief_series.jsonl` (the crowd, hourly). One event card per catalyst; one dashboard (`scripts/dashboard.py`) that shows the refusals because they are the product. Eight backtest receipts, six of them negative.
+Hash-chained ledgers: `decisions.jsonl` (every candidate, refusals included), `forecasts.jsonl`, `counterfactual.jsonl` (every road not taken, marked at equal risk), `fills.jsonl` (quote at decision vs fill vs mark), council packets per printer with sources and prompt hashes, and `state/refusal_regret.json`. Eleven backtest receipts; eight of them negative. The dashboard shows the refusals, because they are the product.
+
+*P&L: [to be filled from the judged account on 4 Sep — equity, vs SPY/QQQ, realised/unrealised, trades placed/refused].*

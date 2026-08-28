@@ -78,8 +78,16 @@ def quadrant(net: float, n: int, reaction: float | None) -> str:
         return "NO_REACTION_YET"
     cs = "+" if net > 0 else "-" if net < 0 else "0"
     rs = "+" if reaction > 0.01 else "-" if reaction < -0.01 else "0"
-    return {("+", "-"): "UNDER_REACTION_OR_LATENT_KPI", ("-", "+"): "DELAYED_DOWNSIDE_OR_POSITIONING",
-            ("+", "+"): "CONTINUATION_VS_PRICED", ("-", "-"): "CONTINUATION_VS_OVERREACTION"}.get((cs, rs), f"{cs}/{rs}")
+    # Labels after the 2013-2024 SUE x reaction backtest (Aegis
+    # scripts/sue_dislocation_backtest.py, 116,231 events): the DISAGREEMENT
+    # cells do not pay -- "good surprise / bad reaction" is flat (t -0.16) and
+    # "bad surprise / good reaction" continues UP (t 2.40 blocked). The reaction
+    # carries the information. So the labels say what history says, not what
+    # the hypothesis hoped.
+    return {("+", "-"): "DISAGREE_UP_DOWN (history: flat, t -0.16)",
+            ("-", "+"): "DISAGREE_DOWN_UP (history: continues UP, t 2.40)",
+            ("+", "+"): "AGREE_UP (history: continues, median +0.11%, large +0.31%)",
+            ("-", "-"): "AGREE_DOWN (history: continues down, t -1.82)"}.get((cs, rs), f"{cs}/{rs}")
 
 
 def main() -> int:
@@ -108,7 +116,7 @@ def main() -> int:
         rows.append({"symbol": s, "cube_net": round(net, 4), "cells": n, "incomparable": cube.get("n_incomparable", 0),
                      "reaction": ah, "quadrant": q, "dislocation": round(score, 6), "verdict": pk.get("verdict"),
                      "refusals": [r["step"] for r in pk.get("refusals", [])]})
-    rows.sort(key=lambda r: (-(r["quadrant"] in ("UNDER_REACTION_OR_LATENT_KPI", "DELAYED_DOWNSIDE_OR_POSITIONING")), -r["dislocation"]))
+    rows.sort(key=lambda r: (-(r["quadrant"].startswith("AGREE_UP")), -r["dislocation"]))
     print(f"\n{'sym':<6}{'cube':>8}{'cells':>6}{'incomp':>7}{'react':>8}  {'quadrant':<34}{'dislocation':>12}  refusals")
     for r in rows:
         print(f"{r['symbol']:<6}{r['cube_net']:>+8.3f}{r['cells']:>6}{r['incomparable']:>7}"

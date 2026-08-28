@@ -126,10 +126,15 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--equity", type=float, default=100_000.0)
     p.add_argument("--evidence", default="state/evidence/core_replay.json")
-    p.add_argument("--target-pct", type=float, default=8.0,
+    # Defaults aligned 2026-08-28 with the runner's `AAT_TARGET_PCT` (2) and the
+    # risk frontier (scripts/risk_frontier.py): an 8% target over five sessions
+    # is 1.6%/session, which flips `mode_for` to ATTACK on day one -- and the
+    # recorded winner of the last edition was +$19. The floor follows the
+    # frontier's -5% row rather than a 15% drawdown nobody wants to explain.
+    p.add_argument("--target-pct", type=float, default=2.0,
                    help="terminal equity target as a %% gain; the contest "
                         "objective is P(reaching it), not the median")
-    p.add_argument("--floor-pct", type=float, default=15.0,
+    p.add_argument("--floor-pct", type=float, default=5.0,
                    help="hard maximum drawdown; breaching it is a VETO")
     p.add_argument("--sessions", type=int, default=5)
     p.add_argument("--recent-only", action="store_true",
