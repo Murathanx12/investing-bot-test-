@@ -1,0 +1,92 @@
+# Machine-readable context policy for AEGIS agents.
+version: 1
+updated_at: 2026-08-28
+
+entrypoint: AEGIS.md
+
+canonical_required:
+  - docs/canonical/00_NORTH_STAR.md
+  - docs/canonical/01_SYSTEM_ARCHITECTURE.md
+  - docs/canonical/02_ROADMAP.md
+  - docs/canonical/03_DAILY_INTELLIGENCE_LOOP.md
+
+operational_required:
+  - docs/START_HERE_NEXT_SESSION.md
+
+# Historical documents are retrieval sources, not default prompt stuffing.
+historical_retrieval_globs:
+  - docs/FINDING_*.md
+  - docs/ROADMAP_*.md
+  - docs/*HANDOFF*.md
+  - docs/*SESSION*.md
+  - docs/*NEGATIVE*.md
+  - docs/*RESULT*.md
+  - state/**/*.json
+  - state/**/*.jsonl
+  - research/**/*.md
+
+# These are intentionally not loaded wholesale into every model context.
+exclude_from_default_context:
+  - docs/HANDOFF.md
+  - docs/archive/**
+  - state/raw/**
+  - state/cache/**
+
+context_pack_policy:
+  max_historical_documents: 12
+  prefer:
+    - measured findings directly relevant to the task
+    - latest verified live-state receipts
+    - negative results that constrain the proposed action
+    - source/data-quality findings
+  require_metadata:
+    - source_path
+    - source_hash
+    - retrieved_at
+    - relevance_reason
+
+model_roles:
+  local_or_optimus:
+    - retrieval
+    - entity_linking
+    - clustering
+    - routine_extraction
+    - compression
+    - context_pack_construction
+  deepseek:
+    - multilingual_asia_extraction
+    - causal_synthesis
+    - adversarial_reasoning
+  fable_overseer:
+    - experiment_design_review
+    - causal_attribution_review
+    - promotion_challenge
+    - leakage_and_confound_review
+  frontier_panel:
+    - high_value_unresolved_cases
+    - independent_critique
+
+truth_priority:
+  operational:
+    - venue_state
+    - executable_code
+    - current_tests_and_deployment_receipts
+    - canonical_docs
+    - historical_handoffs
+  strategy:
+    - docs/canonical/00_NORTH_STAR.md
+    - docs/canonical/01_SYSTEM_ARCHITECTURE.md
+    - docs/canonical/02_ROADMAP.md
+    - dated_roadmaps
+
+write_policy:
+  strategic_change: docs/canonical/02_ROADMAP.md
+  strategic_goal_change: docs/canonical/00_NORTH_STAR.md
+  measured_result: docs/FINDING_YYYY-MM-DD_<NAME>.md
+  temporary_operational_state: dated_runbook_or_receipt
+  session_handoff: delta_only_with_links_to_canon
+
+immutable_decision_rule: >-
+  Strategy and models may adapt. Existing positions and predictions retain the
+  data vintage, model/version/hash, thesis and decision contract under which
+  they were created; later changes append a new version and never rewrite history.
