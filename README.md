@@ -77,8 +77,8 @@ On top of that:
 |---|---|
 | Spread | round-trip spread > 25% of max loss → refused |
 | Resolution | probability edge over the chain < 5pp → refused |
-| Concentration | ≤ 5% of equity per thesis, scaled by the size of the edge |
-| Aggregate | ≤ 35% of equity in premium at risk simultaneously |
+| Concentration | per-name cap set by the account's sizing PROFILE (`alpha/engine/sizing.py`): conservative 3% · aggressive 8% · basket 6% · convex 5% · maximum 15%; scaled by the size of the edge |
+| Aggregate | per-profile envelope: 20% / 50% / 80% / 40% / 75% of equity at risk simultaneously. The SAFE accounts (hack1, hack2) run the two smallest; the RISKY fleet (hack3-6) runs the rest by declared mandate (`alpha/fleet.py`) |
 | Structure | no undefined-risk position, ever |
 | Deadline | every position closable by 10:45 ET on 4 Sep |
 
