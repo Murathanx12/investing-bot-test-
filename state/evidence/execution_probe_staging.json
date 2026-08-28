@@ -1,0 +1,194 @@
+{
+ "role": "staging",
+ "account": "PA3HSRGSPXAY",
+ "at_utc": "2026-08-28T04:06:24.552809+00:00",
+ "market_open": false,
+ "options_level": 3,
+ "results": [
+  {
+   "name": "equity LIMIT day, unfillable price",
+   "expect": "accepted",
+   "payload": {
+    "symbol": "SPY",
+    "qty": 1,
+    "side": "buy",
+    "type": "limit",
+    "limit_price": "100.00",
+    "time_in_force": "day"
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=6ab65fe7-4584-4f4a-b056-1c3249c3bf13",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "equity MARKET-ON-CLOSE (cls)",
+   "expect": "accepted before 15:50 ET, REJECTED after",
+   "payload": {
+    "symbol": "SPY",
+    "qty": 1,
+    "side": "buy",
+    "type": "market",
+    "time_in_force": "cls"
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=dfeb7864-2f2c-4673-9cec-8670fa031a36",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "equity limit-on-close (loc), unfillable",
+   "expect": "accepted before 15:50 ET",
+   "payload": {
+    "symbol": "SPY",
+    "qty": 1,
+    "side": "buy",
+    "type": "limit",
+    "limit_price": "100.00",
+    "time_in_force": "cls"
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=aab61ea1-cc9b-4e12-96ff-85a8866f4aaf",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "single-leg option limit day, unfillable",
+   "expect": "accepted at options level 2+",
+   "payload": {
+    "symbol": "SPY260918P00700000",
+    "qty": 1,
+    "side": "buy",
+    "type": "limit",
+    "limit_price": "0.01",
+    "time_in_force": "day"
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=a46ede86-9b3c-4ea4-9b54-d367c9ddb837",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "single-leg option with cls  (THE v1 BUG)",
+   "expect": "REJECTED -- options accept tif=day only",
+   "payload": {
+    "symbol": "SPY260918P00700000",
+    "qty": 1,
+    "side": "buy",
+    "type": "limit",
+    "limit_price": "0.01",
+    "time_in_force": "cls"
+   },
+   "local_refusals": [
+    "time_in_force='cls' is not accepted for options; Alpaca permits ('day',) only. This is the exact rejection the book's 'enter MARKET-ON-CLOSE' instruction would have hit."
+   ],
+   "venue": "NOT SENT (refused locally)"
+  },
+  {
+   "name": "multileg DEBIT spread, limit day, unfillable",
+   "expect": "accepted at options LEVEL 3 ONLY",
+   "payload": {
+    "order_class": "mleg",
+    "qty": 1,
+    "type": "limit",
+    "limit_price": "0.01",
+    "time_in_force": "day",
+    "legs": [
+     {
+      "symbol": "SPY260918P00700000",
+      "side": "buy",
+      "ratio_qty": "1",
+      "position_intent": "buy_to_open"
+     },
+     {
+      "symbol": "SPY260918P00690000",
+      "side": "sell",
+      "ratio_qty": "1",
+      "position_intent": "sell_to_open"
+     }
+    ]
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=05bf7ed9-a8a4-40df-9782-9699443a8be8",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "multileg CREDIT spread, limit day, unfillable credit",
+   "expect": "accepted at level 3 -- proves the credit-spread payload shape",
+   "payload": {
+    "order_class": "mleg",
+    "qty": 1,
+    "type": "limit",
+    "limit_price": "-30.00",
+    "time_in_force": "day",
+    "legs": [
+     {
+      "symbol": "SPY260918P00755000",
+      "side": "sell",
+      "ratio_qty": "1",
+      "position_intent": "sell_to_open"
+     },
+     {
+      "symbol": "SPY260918P00716000",
+      "side": "buy",
+      "ratio_qty": "1",
+      "position_intent": "buy_to_open"
+     }
+    ]
+   },
+   "local_refusals": [],
+   "venue": "ACCEPTED status=accepted id=23e31e13-2697-4b29-8e40-cec35b255f8c",
+   "after_cancel": "canceled"
+  },
+  {
+   "name": "multileg spread as a MARKET order",
+   "expect": "refused by US before the venue",
+   "payload": {
+    "order_class": "mleg",
+    "qty": 1,
+    "type": "market",
+    "time_in_force": "day",
+    "legs": [
+     {
+      "symbol": "SPY260918P00700000",
+      "side": "buy",
+      "ratio_qty": "1",
+      "position_intent": "buy_to_open"
+     },
+     {
+      "symbol": "SPY260918P00690000",
+      "side": "sell",
+      "ratio_qty": "1",
+      "position_intent": "sell_to_open"
+     }
+    ]
+   },
+   "local_refusals": [
+    "a multileg option order should be a LIMIT: a market order on a spread whose quote is 10% wide is an unbounded fill"
+   ],
+   "venue": "NOT SENT (refused locally)"
+  },
+  {
+   "name": "multileg limit WITHOUT a limit price",
+   "expect": "REJECTED -- 'limit price is required for limit orders'",
+   "payload": {
+    "order_class": "mleg",
+    "qty": 1,
+    "type": "limit",
+    "time_in_force": "day",
+    "legs": [
+     {
+      "symbol": "SPY260918P00700000",
+      "side": "buy",
+      "ratio_qty": "1",
+      "position_intent": "buy_to_open"
+     }
+    ]
+   },
+   "local_refusals": [
+    "limit order without a limit_price is rejected as 'limit price is required for limit orders'"
+   ],
+   "venue": "NOT SENT (refused locally)"
+  }
+ ],
+ "left": {
+  "open_orders_after_sweep": 0,
+  "positions": 0
+ }
+}

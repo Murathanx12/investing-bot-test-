@@ -31,6 +31,14 @@ runner = importlib.reload(runner)
 from alpha.brains.base import Forecast
 from alpha.engine import equity, payoff, sizing
 
+# The runner gates on days-to-expiry measured from TODAY. A hardcoded expiry
+# passed on 27 Aug and refused every share structure on 28 Aug ("none cleared
+# the gates" -- zero days left). Dates are RELATIVE so the test says the same
+# thing every day it runs.
+_TODAY = datetime.now(timezone.utc).date()
+EXPIRY = (_TODAY + timedelta(days=1)).isoformat()
+EVENT_DATE = _TODAY.isoformat()  # event_pending is event_date >= today
+
 print("\n-- equity.shares: a bounded structure from a stock quote")
 s = equity.shares("NVDA", spot=180.0, bid=179.98, ask=180.02, direction="up",
                   implied_move=0.03, horizon_days=2.0, days_to_expiry=2.0)
@@ -127,23 +135,23 @@ print("\n-- runner.evaluate: shares enumerated beside the options for a directio
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.03)
 runner.structures.enumerate_all = lambda snapshot, expiry: [call]
 f_up = Forecast("post_event_drift", "NVDA", 2.0, 0.0072, 0.03, 1.0, "drift", "declared:gradient",
-                {"last_close": 180.0, "event_date": "2026-08-27"}, claim="direction")
-st, v, snap, rej = runner.evaluate(FakeClient(), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
+                {"last_close": 180.0, "event_date": EVENT_DATE}, claim="direction")
+st, v, snap, rej = runner.evaluate(FakeClient(), f_up, state=state, expiry=EXPIRY, open_risk=0.0)
 check("champion is long_shares", st is not None and st.kind == "long_shares", getattr(st, "kind", v.reason[:80]))
 check("verdict integrated at the chain's width", v.economics and v.economics.get("sd_source") == "chain_implied_move")
 check("the call is in the rejected list", any(x.kind == "long_call" for x, _ in rej))
 f_dn = Forecast("post_event_drift", "NVDA", 2.0, -0.0072, 0.03, 1.0, "drift", "declared:gradient",
-                {"last_close": 180.0, "event_date": "2026-08-27"}, claim="direction")
-st_d, v_d, _, _ = runner.evaluate(FakeClient(), f_dn, state=state, expiry="2026-08-28", open_risk=0.0)
+                {"last_close": 180.0, "event_date": EVENT_DATE}, claim="direction")
+st_d, v_d, _, _ = runner.evaluate(FakeClient(), f_dn, state=state, expiry=EXPIRY, open_risk=0.0)
 check("DOWN centre -> short_shares (the sign is spent)", st_d is not None and st_d.kind == "short_shares", getattr(st_d, "kind", v_d.reason[:80]))
-st_ns, v_ns, _, _ = runner.evaluate(FakeClient(shortable=False), f_dn, state=state, expiry="2026-08-28", open_risk=0.0)
+st_ns, v_ns, _, _ = runner.evaluate(FakeClient(shortable=False), f_dn, state=state, expiry=EXPIRY, open_risk=0.0)
 check("DOWN centre, not shortable -> nothing clears", st_ns is None, v_ns.reason[:80])
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.054)
-st_p, v_p, _, _ = runner.evaluate(FakeClient(), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
+st_p, v_p, _, _ = runner.evaluate(FakeClient(), f_up, state=state, expiry=EXPIRY, open_risk=0.0)
 check("pre-print chain width -> shares refused as well", st_p is None, v_p.reason[:90])
 dist_f = Forecast("vol_gap", "NVDA", 2.0, 0.0, 0.03, 1.0, "quiet", "declared:step", {"last_close": 180.0})
 runner.chain_mod.fetch = lambda *a, **k: FakeChain(implied=0.03)
-_, _, _, rej_dist = runner.evaluate(FakeClient(), dist_f, state=state, expiry="2026-08-28", open_risk=0.0)
+_, _, _, rej_dist = runner.evaluate(FakeClient(), dist_f, state=state, expiry=EXPIRY, open_risk=0.0)
 check("a dispersion/distribution brain never sees a share structure", not any(x.kind in equity.KINDS for x, _ in rej_dist))
 
 print("\n-- sizing to shares: notional cap, order payload")
@@ -162,11 +170,11 @@ qs = runner._quote_snapshot(st, snap)
 check("quote snapshot carries the stock quote", qs["legs"] and qs["legs"][0]["symbol"] == "NVDA" and qs["parity_gap"] is None)
 check("held_underlyings counts a share position", runner.held_underlyings(FakeClient([{"asset_class": "us_equity", "symbol": "NVDA", "qty": "10"}])) == {"NVDA": 1})
 # The free feed's one-sided after-hours quote (measured: NVDA bid 200.45 / ask 0 vs trade 212.96).
-st_syn, v_syn, snap_syn, _ = runner.evaluate(FakeClient(bid=200.45, ask=0.0), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
+st_syn, v_syn, snap_syn, _ = runner.evaluate(FakeClient(bid=200.45, ask=0.0), f_up, state=state, expiry=EXPIRY, open_risk=0.0)
 check("one-sided quote -> synthetic quote around the last trade, labelled",
       st_syn is not None and st_syn.kind == "long_shares" and st_syn.quote["synthetic"] is not None
       and abs(st_syn.entry_cost - 180.0 * 1.0005) < 1e-9, str(getattr(st_syn, "quote", v_syn.reason[:60])))
-st_far, _, _, _ = runner.evaluate(FakeClient(bid=185.0, ask=185.1), f_up, state=state, expiry="2026-08-28", open_risk=0.0)
+st_far, _, _, _ = runner.evaluate(FakeClient(bid=185.0, ask=185.1), f_up, state=state, expiry=EXPIRY, open_risk=0.0)
 check("two-sided but 2.8% off the trade -> also synthetic", st_far is not None and st_far.quote["synthetic"] is not None)
 
 print("\n-- run_pass end to end (dry), and the book that results")
@@ -174,11 +182,11 @@ tmp = tempfile.mkdtemp(); ledger.LEDGER_DIR = __import__("pathlib").Path(tmp)
 real_read = book.read
 book.read = lambda client, **k: book.reconstruct(client.positions(), equity=100_000, account_role=None, rows=[])
 runner.book_mod = book
-res = runner.run_pass(FakeClient(), [f_up], expiry="2026-08-28", dry_run=False)
+res = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=False)
 rows = ledger.read_all()
 sub = [r for r in rows if r["action"] == "submitted"]
 check("one share order submitted", res.submitted == 1 and len(sub) == 1 and sub[0]["instrument"] == "long_shares", str(res))
-check("row carries claim and node", sub[0]["outcome"]["claim"] == "direction" and sub[0]["outcome"]["event_node"] == "print:2026-08-27")
+check("row carries claim and node", sub[0]["outcome"]["claim"] == "direction" and sub[0]["outcome"]["event_node"] == f"print:{EVENT_DATE}")
 qty = int(sub[0]["order"]["qty"])
 pos = [{"asset_class": "us_equity", "symbol": "NVDA", "qty": str(qty), "cost_basis": str(qty * 180.02),
         "avg_entry_price": "180.02", "current_price": "181.0", "unrealized_plpc": "0.0054"}]
@@ -197,9 +205,9 @@ b = book.reconstruct(pos, equity=100_000, account_role=role_in_effect, rows=rows
 check("book matches the share row", len(b.structures) == 1 and b.structures[0].kind == "long_shares", b.summary()[:100])
 mlpu = float(sub[0]["max_loss_per_unit"])
 check("book charges shares at the row's stress charge", abs(b.max_loss_usd - qty * mlpu) < 1e-6 and abs(mlpu - 10.8) < 1e-9, f"{b.max_loss_usd:.0f} vs {qty * mlpu:.0f}")
-check("node exposure carries the share risk", abs(b.by_node.get("print:2026-08-27", 0) - qty * mlpu) < 1e-6)
+check("node exposure carries the share risk", abs(b.by_node.get(f"print:{EVENT_DATE}", 0) - qty * mlpu) < 1e-6)
 check("premium-paid view excludes shares", b.premium_paid_usd == 0.0)
-res2 = runner.run_pass(FakeClient(pos), [f_up], expiry="2026-08-28", dry_run=False)
+res2 = runner.run_pass(FakeClient(pos), [f_up], expiry=EXPIRY, dry_run=False)
 check("already positioned -> the next pass refuses", res2.submitted == 0 and res2.refused == 1)
 
 # REFUSAL DECOMPOSITION. "48 forecasts, 48 refused, errors=0" is operationally
@@ -221,7 +229,7 @@ except ValueError as exc:
 # BUILT every order and simply did not send it was indistinguishable from one
 # where risk blocked all of it -- the smoke run on 26 Aug reported "refused=48"
 # for a pass that had built 48 orders, and that reading went into a handoff.
-res_dry = runner.run_pass(FakeClient(), [f_up], expiry="2026-08-28", dry_run=True)
+res_dry = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=True)
 check("a dry pass BUILDS and does not refuse",
       res_dry.dry_run == 1 and res_dry.refused == 0 and res_dry.submitted == 0, str(res_dry))
 b_orphan = book.reconstruct([{**pos[0], "qty": "-5"}], equity=100_000, account_role=None, rows=[])

@@ -1,0 +1,10 @@
+# The image carries CODE. Ledgers live on the Railway volume at /app/state;
+# the laptop's 1.3 GB of state must never be baked into an image (a stale
+# copy of a ledger that then gets shadowed by an empty volume is two ways to
+# be wrong at once).
+state/
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+.env.*
