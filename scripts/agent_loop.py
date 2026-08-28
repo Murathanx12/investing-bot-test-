@@ -161,6 +161,10 @@ def main() -> int:
                          "zero forecasts in late August and looks like a quiet market."))
     p.add_argument("--refresh-window-minutes", type=int, default=360,
                    help="how often to regenerate state/window_universe.json (0 = never)")
+    p.add_argument("--council", action="store_true",
+                   help="every 6h run scripts.dislocation_scan --deep 3 on the day's printers so "
+                        "council_vector has packets on THIS host's volume (the council brain reads "
+                        "state/council/<day>/; a scan on the laptop writes to the laptop)")
     p.add_argument("--manage-only", action="store_true",
                    help="LEGACY MODE: run exits, fills, counterfactual and autopsy, but NEVER "
                         "an entry pass. The book can only get smaller. Use for a book that is "
@@ -171,7 +175,7 @@ def main() -> int:
     config.load_env()
     client = AlpacaPaper()
 
-    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0,
+    last = {"exit": 0.0, "entry": 0.0, "cf": 0.0, "fill": 0.0, "belief": 0.0, "candidates": 0.0, "council": 0.0,
             "autopsy": 0.0, "window": 0.0}
     consecutive_errors = 0
     # THE HEARTBEAT. A dead process cannot report its own death, so the receipt
@@ -254,6 +258,12 @@ def _cycle(client, args, last: dict) -> int:
             # The WHOLE market's recent printers through the one positive-t brain,
             # so an entry pass can see a $2B name that printed, not just the old fifteen.
             _run("scripts.candidates", "--sessions", "3", live=False); last["candidates"] = now
+        if getattr(args, "council", False) and now - last["council"] >= 6 * 3600:
+            # The council packets are what `council_vector` trades from. Run
+            # after candidates so the printers list is fresh; --deep 3 = full
+            # council (fact/expectations/cube/causal/skeptic/synthesis) on the
+            # three most dislocated, light pass on the rest. Places nothing.
+            _run("scripts.dislocation_scan", "--deep", "3", live=False); last["council"] = now
         if is_open and getattr(args, "manage_only", False) and now - last["entry"] >= 3600:
             # Say it OUT LOUD, hourly. A legacy book that silently stopped
             # entering looks exactly like a book whose entry pass is broken, and
