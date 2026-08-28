@@ -98,7 +98,17 @@ def main() -> int:
     args = ap.parse_args()
     config.load_env()
     client = AlpacaPaper()
-    symbols = [s.upper() for s in (args.symbols or recent_printers())][:args.max]
+    if args.symbols:
+        symbols = [s.upper() for s in args.symbols]
+    else:
+        # The premarket digest (whole universe, East first) ranks names by
+        # |move| x (1 - already priced) x confidence; the council spends its
+        # few slots on THAT ranking, then on recent printers. Absent digest ->
+        # printers only, as before.
+        from scripts.premarket_digest import latest as _digest
+        dg = _digest() or {}
+        symbols = list(dict.fromkeys((dg.get("council_symbols") or []) + recent_printers()))
+    symbols = symbols[:args.max]
     if not symbols:
         print("no printers: pass --symbols or build state/window_universe.json")
         return 2

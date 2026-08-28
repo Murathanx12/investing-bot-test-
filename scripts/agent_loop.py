@@ -60,7 +60,7 @@ log = logging.getLogger("loop")
 #: slow pass, it is a stuck one, and the next cycle re-reads the venue anyway.
 #: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
 #: for why this is the proportionate fix and venue-side structure stops are not.)
-TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
+TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.premarket_digest": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
               "scripts.fill_audit": 300}
 
 
@@ -268,6 +268,10 @@ def _cycle(client, args, last: dict) -> int:
             # inside 900s and was killed every time -- and it BLOCKS this loop
             # while it runs. Sized to ~12 min and gated to CLOSED hours, so an
             # exit never waits behind an LLM call.
+            # Whole-universe overnight digest FIRST (East -> West, ~130 names,
+            # ~6 LLM calls), so the council's four slots go to the digest's
+            # ranking rather than to whoever printed last. Shadow; places nothing.
+            _run("scripts.premarket_digest", live=False)
             _run("scripts.dislocation_scan", "--max", "4", "--deep", "2", live=False); last["council"] = now
         if is_open and getattr(args, "manage_only", False) and now - last["entry"] >= 3600:
             # Say it OUT LOUD, hourly. A legacy book that silently stopped
