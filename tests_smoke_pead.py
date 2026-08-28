@@ -192,20 +192,35 @@ try:
 except ped.NotApplicable as exc:
     check("wide universe: a 4% drop is refused (response curve dead below 5%)", "less than 5%" in str(exc), str(exc)[:80])
 # The wide DOWN side: in SIMPLE returns the unhedged short earns +0.04% / +0.00%
-# (the log drift was the index rising). REFUSED until a pair structure exists.
-for mv, label in ((-0.06, "5-8.2%"), (-0.15, ">8.2%")):
-    try:
-        run(day0_move=mv, elapsed=1, symbol="TEST")
-        check(f"wide universe: a {label} DROP is refused unhedged (simple-return short is worth nothing)", False)
-    except ped.NotApplicable as exc:
-        check(f"wide universe: a {label} DROP is refused unhedged (simple-return short is worth nothing)",
-              "SIMPLE returns" in str(exc) and "PAIR" in str(exc), str(exc)[:90])
+# (the log drift was the index rising). Since 2026-08-28 the PAIR structure
+# exists, so the brain forecasts the HEDGED simple-return centre and marks the
+# expression; with the pair switched off it refuses exactly as before.
+for mv, label, band in ((-0.06, "5-8.2%", "mid"), (-0.15, ">8.2%", "big")):
+    wp = run(day0_move=mv, elapsed=1, symbol="TEST")
+    check(f"wide universe: a {label} DROP is forecast as a PAIR (short loser / long IWM)",
+          wp.evidence.get("expression") == "pair_short_vs_iwm" and wp.evidence.get("unhedged_short_refused") is True)
+    check(f"wide universe: {label} pair centre = hedged simple {ped.WIDE_HEDGED_IWM_SIMPLE[band][0]:+.3%} x 2/3 sessions left",
+          abs(wp.centre + ped.WIDE_HEDGED_IWM_SIMPLE[band][0] * 2 / 3) < 1e-9, f"{wp.centre:+.4%}")
+    check(f"wide universe: {label} pair is a DIRECTION claim with cut conviction", wp.claim == "direction" and wp.conviction < 1.0)
+ped.WIDE_PAIR_ENABLED = False
+try:
+    for mv, label in ((-0.06, "5-8.2%"), (-0.15, ">8.2%")):
+        try:
+            run(day0_move=mv, elapsed=1, symbol="TEST")
+            check(f"(pair off) wide universe: a {label} DROP is refused unhedged", False)
+        except ped.NotApplicable as exc:
+            check(f"(pair off) wide universe: a {label} DROP is refused unhedged (simple-return short is worth nothing)",
+                  "SIMPLE returns" in str(exc) and "PAIR" in str(exc), str(exc)[:90])
+finally:
+    ped.WIDE_PAIR_ENABLED = True
 check("the refusal is a switch, not a deletion: the pair numbers are on record",
       ped.WIDE_UNHEDGED_SHORT_ENABLED is False and ped.WIDE_HEDGED_IWM_SIMPLE["mid"][1] > 2.0)
 # If the switch is ever flipped, the forecast must be the RAW from-open number, not the excess.
 ped.WIDE_UNHEDGED_SHORT_ENABLED = True
 try:
     wd = run(day0_move=-0.06, elapsed=1, symbol="TEST")
+    check("(switch on) the unhedged switch outranks the pair: no pair expression on the row",
+          wd.evidence.get("expression") is None)
     check("(switch on) wide DOWN centre = RAW 0.272% x 2/3 sessions left, NOT the 0.44% excess-vs-QQQ",
           abs(wd.centre + 0.00272 * 2 / 3) < 1e-9, f"{wd.centre:+.4%}")
     check("(switch on) wide conviction is cut and the hedged number rides along",

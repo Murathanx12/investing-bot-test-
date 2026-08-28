@@ -120,7 +120,10 @@ PROFIT_TARGET = 0.025
 #: Hard cap on share notional per name, as a fraction of equity.
 MAX_NOTIONAL_FRACTION = 0.25
 
-KINDS = frozenset({"long_shares", "short_shares"})
+KINDS = frozenset({"long_shares", "short_shares", "pair_short_vs_iwm"})
+#: The hedged expression of a wide-universe DOWN print. See `pair_short_vs_hedge`.
+PAIR_KIND = "pair_short_vs_iwm"
+DEFAULT_HEDGE = "IWM"
 
 
 def is_equity_symbol(symbol: str) -> bool:
@@ -204,3 +207,91 @@ def stop_hit(unrealized_plpc: float) -> bool:
 
 def target_hit(unrealized_plpc: float) -> bool:
     return unrealized_plpc >= PROFIT_TARGET
+
+
+def pair_short_vs_hedge(symbol: str, *, spot: float, bid: float, ask: float,
+                        hedge_symbol: str = DEFAULT_HEDGE, hedge_spot: float,
+                        hedge_bid: float, hedge_ask: float,
+                        bars: list[dict] | None, hedge_bars: list[dict] | None,
+                        implied_move: float, event_pending: bool,
+                        horizon_days: float, days_to_expiry: float,
+                        shortable: bool = True, quote: dict | None = None) -> Structure | None:
+    """ONE short share of `symbol` against `spot/hedge_spot` shares of the hedge.
+
+    WHY A PAIR, MEASURED (`alpha/brains/post_event_drift.py`, 2,532 names):
+    outside the eleven mega-caps a DOWN print of 5%+ keeps falling -- but in
+    SIMPLE returns the unhedged short earns +0.04% / +0.00% per three sessions
+    (t 0.22 / 0.03): the log-return "drift" was the index rising and the short
+    being paid in simple terms. The PAIR (short the loser, long IWM, dollar
+    neutral) keeps +0.35% / +0.26% (t 2.2 / 2.0). So the edge is RELATIVE, and
+    the structure has to be too. `WIDE_UNHEDGED_SHORT_ENABLED` stays False.
+
+    THE UNIT. One unit = 1 short share + `hedge_ratio = spot / hedge_spot`
+    hedge shares (fractional per unit; rounded once, on the whole position, by
+    `runner.build_order`). `entry_cost` is the short leg's notional at the bid
+    (negative, a credit, like `short_shares`); the hedge leg's notional rides in
+    the quote so the two orders can be built without re-deriving anything.
+
+    THE CHARGE, AND WHAT IT IS NOT. A short share has no ceiling; this is a
+    STRESS-LOSS CHARGE exactly as `shares` declares for `short_shares`, and it is
+    charged on BOTH legs: the short leg's stop + measured gap allowance (raised
+    to the chain's implied move if an event is pending), PLUS the hedge leg's
+    own gap allowance -- the hedge can gap against us on the same night. Charged
+    at the spread rather than the leg because the leg's worst case is not the
+    position's, and because a pair that was charged at one leg would look half
+    as risky as the two-legged thing it is. `risk_semantics` says all of this on
+    the row.
+    """
+    if spot <= 0 or bid <= 0 or ask <= 0 or ask < bid:
+        return None
+    if hedge_spot <= 0 or hedge_bid <= 0 or hedge_ask <= 0 or hedge_ask < hedge_bid:
+        logger.info("%s: pair not built -- hedge %s quote unusable", symbol, hedge_symbol)
+        return None
+    if not shortable:
+        logger.info("%s: pair not built -- venue says not shortable/easy-to-borrow", symbol)
+        return None
+    hedge_ratio = spot / hedge_spot
+    mid = 0.5 * (bid + ask)
+    hmid = 0.5 * (hedge_bid + hedge_ask)
+    spread_pct = ((ask - bid) / mid if mid > 0 else 0.0) + ((hedge_ask - hedge_bid) / hmid if hmid > 0 else 0.0)
+    horizon = max(0.5, float(horizon_days or 1.0))
+    dte = max(0.5, float(days_to_expiry or horizon))
+    width = float(implied_move or 0.0) * max(1.0, math.sqrt(horizon / dte))
+    short_charge, short_note = stress_charge(bars, implied_move=implied_move, event_pending=event_pending)
+    hedge_gap, hedge_note = gap_allowance(hedge_bars)
+    # Per unit, in dollars: the short leg on ONE share of spot, the hedge leg on
+    # `hedge_ratio` shares of hedge_spot == the same dollars of spot.
+    max_loss = spot * short_charge + spot * hedge_gap
+    semantics = {
+        "max_loss_is": "STRESS_LOSS_CHARGE on the SPREAD, not a contractual worst case",
+        "stress_loss_charge_frac": round(short_charge + hedge_gap, 5),
+        "stress_loss_charge_note": (f"short leg: {short_note}; hedge leg {hedge_symbol}: gap {hedge_gap:.2%} ({hedge_note})"),
+        "theoretical_max_loss": "UNBOUNDED (short share leg, no ceiling); the hedge bounds the RELATIVE move only",
+        "theoretical_max_loss_per_unit": None,
+        "hedge_ratio": round(hedge_ratio, 6),
+    }
+    quote = {**(quote or {}), "risk_semantics": semantics, "hedge_symbol": hedge_symbol,
+             "hedge_ratio": round(hedge_ratio, 6), "hedge_bid": hedge_bid, "hedge_ask": hedge_ask,
+             "hedge_last_trade": hedge_spot}
+    return Structure(
+        symbol=symbol,
+        kind=PAIR_KIND,
+        direction="down",
+        entry_cost=-bid,
+        max_loss=max_loss,
+        max_gain=None,
+        breakeven_move=0.0,
+        implied_move=width,
+        quote_spread_pct=spread_pct,
+        days_to_expiry=horizon,
+        legs=((symbol, "sell", 1), (hedge_symbol, "buy", 1)),
+        staleness_penalty=0.0,
+        quote=quote,
+    )
+
+
+def hedge_shares(units: int, hedge_ratio: float) -> int:
+    """Hedge shares for `units` short shares: rounded ONCE on the whole position."""
+    if units < 1 or hedge_ratio <= 0:
+        return 0
+    return max(1, int(round(units * hedge_ratio)))

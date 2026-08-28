@@ -139,7 +139,7 @@ def _entry_row_for_shares(symbol: str, rows: list[dict] | None) -> dict | None:
     for r in rows:
         if r.get("action") != "submitted" or r.get("symbol") != symbol:
             continue
-        if r.get("instrument") not in ("long_shares", "short_shares"):
+        if r.get("instrument") not in ("long_shares", "short_shares", "pair_short_vs_iwm"):
             continue
         if r.get("account_role") not in (role, None):
             continue
@@ -180,9 +180,143 @@ def _evaluate_shares(position: dict, *, plpc: float, et: datetime,
         "inside stop and target. Holding."))
 
 
+PAIR_KIND = "pair_short_vs_iwm"
+
+
+def live_pairs(rows: list[dict] | None, positions: list[dict]) -> list[dict]:
+    """Every submitted PAIR row in this account whose short leg is still held.
+
+    Returns dicts: {row, short, hedge, hedge_shares, short_pos, hedge_pos}. The
+    hedge leg is a share position in an ETF the book may also hold for its own
+    reasons, so a pair is identified by its SHORT leg and its recorded hedge
+    share count, never by "the IWM position"."""
+    import os
+
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+    rows = rows if rows is not None else ledger.read_all()
+    by_sym = {p.get("symbol"): p for p in positions}
+    out = []
+    latest: dict[str, dict] = {}
+    for r in rows:
+        if r.get("action") != "submitted" or r.get("instrument") != PAIR_KIND:
+            continue
+        if r.get("account_role") not in (role, None):
+            continue
+        sym = r.get("symbol")
+        if sym not in latest or (r.get("ts_utc") or "") > (latest[sym].get("ts_utc") or ""):
+            latest[sym] = r
+    for sym, r in latest.items():
+        oc = r.get("outcome") or {}
+        hedge = str(oc.get("hedge_symbol") or "IWM")
+        h = int(oc.get("hedge_shares") or 0)
+        sp = by_sym.get(sym)
+        hp = by_sym.get(hedge)
+        if sp is None and hp is None:
+            continue                     # closed on both sides; nothing live
+        out.append({"row": r, "short": sym, "hedge": hedge, "hedge_shares": h,
+                    "short_pos": sp if (sp and float(sp.get("qty") or 0) < 0) else None,
+                    "hedge_pos": hp if (hp and float(hp.get("qty") or 0) > 0) else None})
+    return out
+
+
+def hedge_reserved(pairs: list[dict]) -> dict[str, int]:
+    """Hedge shares that belong to a live pair (short leg still held), by symbol.
+    These must not carry a protective stop of their own and must not be closed
+    as a free-standing position: they leave with their short leg."""
+    out: dict[str, int] = {}
+    for pr in pairs:
+        if pr["short_pos"] is not None and pr["hedge_pos"] is not None:
+            out[pr["hedge"]] = out.get(pr["hedge"], 0) + pr["hedge_shares"]
+    return out
+
+
+def pair_plpc(pr: dict) -> float:
+    """Joint P&L of the pair as a fraction of the SHORT leg's cost basis.
+
+    The hedge position may be larger than the pair's share of it (the book may
+    hold the ETF on its own), so the hedge's P&L is pro-rated to the recorded
+    hedge share count."""
+    sp, hp = pr["short_pos"], pr["hedge_pos"]
+    if sp is None:
+        return 0.0
+    cost = abs(float(sp.get("cost_basis") or 0.0))
+    if cost <= 0:
+        return 0.0
+    pnl = float(sp.get("unrealized_pl") or 0.0)
+    if hp is not None:
+        hq = float(hp.get("qty") or 0.0)
+        if hq > 0:
+            pnl += float(hp.get("unrealized_pl") or 0.0) * min(1.0, pr["hedge_shares"] / hq)
+    return pnl / cost
+
+
+def _evaluate_pair(pr: dict, *, et: datetime) -> ExitVerdict:
+    """Stop, target and horizon on the JOINT P&L; both legs leave together."""
+    from alpha.engine import equity
+
+    plpc = pair_plpc(pr)
+    if pr["hedge_pos"] is None:
+        return ExitVerdict(True, (
+            "pair with its HEDGE LEG GONE: an unhedged short is the structure this brain refuses "
+            "to hold (simple-return short is worth nothing). Flattening the short leg."), urgency="immediate")
+    if equity.stop_hit(plpc):
+        return ExitVerdict(True, (
+            f"pair at {plpc:+.2%} joint against the declared {-equity.STOP_FRACTION:.0%} stop. "
+            "This is the number the book was charged at; past it the position is an undeclared bet."))
+    if equity.target_hit(plpc):
+        return ExitVerdict(True, (
+            f"pair at {plpc:+.2%} joint against a +{equity.PROFIT_TARGET:.1%} target -- several times "
+            "the measured three-session hedged drift. Collected."))
+    row = pr["row"]
+    horizon = float(((row.get("outcome") or {}).get("horizon_days")) or 1.0)
+    elapsed = _sessions_since(row.get("ts_utc") or "", et.date())
+    last_session = elapsed >= math.ceil(horizon) - 1
+    if elapsed >= math.ceil(horizon) or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+        return ExitVerdict(True, (
+            f"drift window spent: {elapsed} session(s) since entry against a {horizon:.0f}-session "
+            "horizon. The pair was measured over +1..+3 and has no opinion after that."))
+    return ExitVerdict(False, (
+        f"pair {plpc:+.2%} joint, session {elapsed + 1} of {math.ceil(horizon)} in the drift window, "
+        "inside stop and target. Holding both legs."))
+
+
+def close_pair_hedge(client, pr: dict, reason: str, summary: dict, *, dry_run: bool,
+                     urgency: str = "normal") -> bool:
+    """Close the pair's hedge shares BY COUNT (never the whole ETF position).
+    Returns True if a close was sent. Records the exit either way."""
+    if pr.get("hedge_pos") is None or int(pr.get("hedge_shares") or 0) < 1:
+        return False
+    hq = int(min(pr["hedge_shares"], float(pr["hedge_pos"].get("qty") or 0)))
+    if hq < 1:
+        return False
+    why = f"{reason}; closing {hq} {pr['hedge']}"
+    d_id = ledger.new_decision_id(pr["hedge"], "exit")
+    verdict = ExitVerdict(True, why, urgency)
+    if dry_run:
+        summary["actions"].append(("dry_run", pr["hedge"], why))
+        _record_exit(d_id, pr["hedge_pos"], verdict, action="dry_run")
+        return False
+    try:
+        client.close_position(pr["hedge"], qty=hq)
+        summary["closed"] += 1
+        summary["actions"].append(("closed", pr["hedge"], why))
+        logger.info("CLOSED %s x%d -- %s", pr["hedge"], hq, why)
+        _record_exit(d_id, pr["hedge_pos"], verdict, action="closed")
+        return True
+    except BrokerRefusal as exc:
+        summary["errors"] += 1
+        summary["actions"].append(("error", pr["hedge"], str(exc)))
+        logger.error("PAIR hedge close failed %s: %s -- a free-standing long remains", pr["hedge"], exc)
+        _record_exit(d_id, pr["hedge_pos"], verdict, action="close_failed", error=str(exc))
+        return False
+
+
 def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None,
-             rows: list[dict] | None = None) -> ExitVerdict:
-    """Should this position be closed, and why. `rows` is the ledger, read once per pass."""
+             rows: list[dict] | None = None, pair: dict | None = None) -> ExitVerdict:
+    """Should this position be closed, and why. `rows` is the ledger, read once per pass.
+
+    `pair` (from `live_pairs`) means this position is the SHORT leg of a pair
+    and is judged on the joint P&L; the hedge leg is never judged alone."""
     current = now or datetime.now(timezone.utc)
     et = current + ET_OFFSET
 
@@ -224,6 +358,8 @@ def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None,
     # holding past it is an unpriced bet.
     asset_class = position.get("asset_class") or ""
     if asset_class == "us_equity" or (not asset_class and expiry is None and _looks_like_share(symbol)):
+        if pair is not None:
+            return _evaluate_pair(pair, et=et)
         return _evaluate_shares(position, plpc=plpc, et=et, rows=rows)
 
     # 3/4. Targets and stops, asymmetric by whether we are long or short premium.
@@ -346,8 +482,15 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
     # best and nothing at all between 16:00 and the next session. A broker error
     # here must not abort the exit pass: an unplaced stop is the status quo ante,
     # a skipped `evaluate` loop is a position nobody is watching at all.
+    rows = None
+    pairs: list[dict] = []
+    if any((p.get("asset_class") or "") == "us_equity" for p in positions):
+        rows = ledger.read_all()
+        pairs = live_pairs(rows, positions)
+    reserved = hedge_reserved(pairs)
+    pair_by_short = {pr["short"]: pr for pr in pairs if pr["short_pos"] is not None}
     try:
-        summary["protect"] = protect.ensure(client, positions, dry_run=dry_run)
+        summary["protect"] = protect.ensure(client, positions, dry_run=dry_run, exclude_qty=reserved)
         if summary["protect"]["placed"] or summary["protect"]["orphans"]:
             logger.info("protective stops: %s", summary["protect"])
     except BrokerRefusal as exc:
@@ -356,14 +499,26 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
         logger.warning("protective stop pass failed: %s", exc)
 
     leg_action, arbiter_close = _arbiter_pass(client, summary)
-    rows = None
-    if any((p.get("asset_class") or "") == "us_equity" for p in positions):
-        rows = ledger.read_all()
+
+    # ORPHAN HEDGES: a pair whose short leg is gone (stopped at the venue, or
+    # closed by hand) leaves its hedge shares as a free-standing long the book
+    # never chose. They leave now, by the recorded share count, never the
+    # whole ETF position.
+    for pr in pairs:
+        if pr["short_pos"] is None:
+            close_pair_hedge(client, pr, f"orphan hedge: the short leg of the {pr['short']} pair is gone",
+                             summary, dry_run=dry_run)
 
     for position in positions:
         summary["checked"] += 1
-        verdict = evaluate(position, deadline_utc=deadline_utc, rows=rows)
         symbol = position.get("symbol", "")
+        if symbol in reserved and float(position.get("qty") or 0) <= reserved[symbol] + 1e-9:
+            # Entirely a hedge leg (or legs): judged with its short, never alone.
+            summary["held"] += 1
+            logger.debug("hold %s: hedge leg of a live pair (%d reserved)", symbol, reserved[symbol])
+            continue
+        pr = pair_by_short.get(symbol)
+        verdict = evaluate(position, deadline_utc=deadline_utc, rows=rows, pair=pr)
         if symbol in arbiter_close and not verdict.close:
             verdict = ExitVerdict(True, "arbiter CLOSE: remaining edge below the close cost (act mode)")
         elif verdict.close and verdict.urgency != "immediate" and leg_action.get(symbol) == "HOLD_EVENT_PENDING":
@@ -409,6 +564,12 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
             summary["actions"].append(("error", symbol, str(exc)))
             logger.warning("close failed %s: %s", symbol, exc)
             _record_exit(decision_id, position, verdict, action="close_failed", error=str(exc))
+            continue
+        if pr is not None:
+            # BOTH LEGS LEAVE. The short is gone; its hedge follows by the
+            # recorded count, so an ETF the book also holds on its own is untouched.
+            close_pair_hedge(client, pr, f"hedge leg of the {symbol} pair: {verdict.reason}",
+                             summary, dry_run=False, urgency=verdict.urgency)
 
     return summary
 

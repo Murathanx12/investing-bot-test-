@@ -308,10 +308,17 @@ class AlpacaPaper:
         logger.info("submitting %s (decision=%s)", payload.get("symbol") or "multileg", decision_id)
         return self._request("POST", "/v2/orders", body=payload)
 
-    def close_position(self, symbol: str, *, percentage: str | None = None) -> dict[str, Any]:
+    def close_position(self, symbol: str, *, percentage: str | None = None,
+                       qty: int | None = None) -> dict[str, Any]:
+        """Close all, a percentage, or `qty` shares of a position.
+
+        `qty` exists for the PAIR: its hedge leg is a share position in an ETF
+        the book may ALSO hold for its own reasons, and closing the symbol
+        would close both. The venue accepts `qty` XOR `percentage`."""
+        params = {"percentage": percentage} if qty is None else {"qty": str(int(qty))}
         return self._request(
             "DELETE", f"/v2/positions/{urllib.parse.quote(symbol)}",
-            params={"percentage": percentage},
+            params=params,
         )
 
     def submit_protective_stop(self, order: dict[str, Any]) -> dict[str, Any]:
