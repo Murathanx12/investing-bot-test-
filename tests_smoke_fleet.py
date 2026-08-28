@@ -23,7 +23,8 @@ def check(name, ok, detail=""):
 
 
 print("\n-- fleet: six mandates, all executable")
-check("six roles", len(fleet.FLEET) == 6, str(list(fleet.FLEET)))
+check("six roles named hack1..hack6", list(fleet.FLEET) == [f"hack{i}" for i in range(1, 7)], str(list(fleet.FLEET)))
+check("hack6 is a BLEND of three selectors", len(fleet.FLEET["hack6"].brains) >= 3)
 check("1-2 safe, rest risky", 1 <= len(fleet.SAFE) <= 2 and len(fleet.RISKY) == 6 - len(fleet.SAFE), f"{fleet.SAFE} {fleet.RISKY}")
 for r, m in fleet.FLEET.items():
     check(f"{r}: role name valid", r == r.lower() and r.replace("_", "").isalnum() and r not in ("dev", "competition"))
@@ -40,7 +41,7 @@ for r, m in fleet.FLEET.items():
     if m.structure_kinds:
         check(f"{r}: kinds env", env.get("AAT_STRUCTURE_KINDS") == ",".join(m.structure_kinds))
 check("safe roles never run a gated profile", all(fleet.FLEET[r].profile not in sizing.GATED_PROFILES for r in fleet.SAFE))
-check("the thesis account is a BASKET (<=6% per name, many names)", fleet.FLEET["thesis"].profile == "basket" and sizing.PROFILES["basket"]["per_thesis"] <= 0.06)
+check("the thesis account is a BASKET (<=6% per name, many names)", fleet.FLEET["hack3"].profile == "basket" and sizing.PROFILES["basket"]["per_thesis"] <= 0.06)
 check("an options-only mandate exists and excludes shares",
       any(m.structure_kinds and "long_shares" not in m.structure_kinds and all("call" in k or "put" in k for k in m.structure_kinds)
           for m in fleet.FLEET.values()))

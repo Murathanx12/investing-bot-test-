@@ -61,38 +61,38 @@ class Mandate:
 
 
 FLEET: dict[str, Mandate] = {
-    "anchor": Mandate(
-        role="anchor", tier="SAFE", label="Beta core + defined-risk sleeve",
+    "hack1": Mandate(
+        role="hack1", tier="SAFE", label="ANCHOR: beta core + defined-risk sleeve",
         question="Does the attended book (SPY/QQQ/IWM shares + one ATM index call at 5%) hold +0.3% median over five sessions?",
         brains=("post_event_drift",), profile="conservative", universe="index",
         fixed_symbols=("SPY", "QQQ", "IWM", "NVDA", "AVGO", "PANW"), rank_objective="median",
         caveat="Entered by hand via scripts.competition_book after 15:45 ET; the loop only manages exits and the +1-open drift on the index-linked printers."),
-    "drift": Mandate(
-        role="drift", tier="SAFE", label="Measured edge only",
+    "hack2": Mandate(
+        role="hack2", tier="SAFE", label="DRIFT: measured edge only",
         question="Does the one brain with a positive live counterfactual (+1-open post-print drift, +1.08%, t 2.82) pay at aggressive size?",
         brains=("post_event_drift",), shadow=("narrative_dispersion",), profile="aggressive", universe="window",
         rank_objective="median", extra_args=("--window-universe",)),
-    "thesis": Mandate(
-        role="thesis", tier="RISKY", label="Murat's future-state basket",
+    "hack3": Mandate(
+        role="hack3", tier="RISKY", label="THESIS: Murat's future-state basket",
         question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought after a 20-50% drawdown?",
         brains=("theme_basket",), profile="basket", universe="themes", allow_maximum=True,
         rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
-        caveat="Hand-curated universe (survivorship-shaped); basket down 20-50%/20 sessions, rv60 60-170%. Graded vs IWM and vs `drift`."),
-    "predator": Mandate(
-        role="predator", tier="RISKY", label="Small-cap post-print continuation",
+        caveat="Hand-curated universe (survivorship-shaped); basket down 20-50%/20 sessions, rv60 60-170%. Graded vs IWM and vs `hack2`."),
+    "hack4": Mandate(
+        role="hack4", tier="RISKY", label="PREDATOR: small-cap post-print continuation",
         question="Does the 116,231-event continuation cell (surprise and reaction agree) pay outside the mega-11 via shares and the short-loser/long-IWM pair?",
         brains=("post_event_drift",), shadow=("narrative_dispersion",), profile="maximum", universe="window",
         allow_maximum=True, rank_objective="median", extra_args=("--window-universe",)),
-    "convexity": Mandate(
-        role="convexity", tier="RISKY", label="Options only, EV-ranked",
+    "hack5": Mandate(
+        role="hack5", tier="RISKY", label="CONVEXITY: options only, EV-ranked",
         question="When the ranker is allowed to chase the mean (long calls, bull call spreads) on the high-vol theme names, does five sessions of it end above the median book?",
         brains=("theme_basket", "post_event_drift"), profile="convex", universe="themes_with_options",
         allow_maximum=False, rank_objective="mean", structure_kinds=("long_call", "bull_call_spread"),
         caveat="Long premium on 100%-vol names: the receipt says P(profit) ~33-51% per structure; this account exists to measure the tail, not to be the safe one."),
-    "council": Mandate(
-        role="council", tier="RISKY", label="LLM council vector",
-        question="Does a thesis vector synthesised by specialised models (fact/expectations/cube/causal/skeptic of another family) beat the price-only drift brain on the same printers?",
-        brains=("council_vector", "post_event_drift"), profile="aggressive", universe="window",
+    "hack6": Mandate(
+        role="hack6", tier="RISKY", label="BLEND: council vector + drift + basket",
+        question="Does MIXING three independent selectors (council vector, post-print drift, theme basket) in one aggressive book beat each of them alone? (Murat: 'the best will be mixing them')",
+        brains=("council_vector", "post_event_drift", "theme_basket"), profile="aggressive", universe="window_plus_themes",
         rank_objective="median", extra_args=("--window-universe",),
         caveat="The council is fed by `scripts.dislocation_scan --deep` each morning; a day with no packets is a day this account holds cash, and that is recorded, not hidden."),
 }
@@ -126,6 +126,10 @@ def universe_for(m: Mandate) -> list[str] | None:
         return theme_symbols()
     if m.universe == "themes_with_options":
         return theme_symbols(with_options_only=True)
+    if m.universe == "window_plus_themes":
+        # `--window-universe` supplies the printers on the loop side; the explicit
+        # list here is ADDED to it (agent_loop unions --universe with the window).
+        return theme_symbols()
     return list(m.fixed_symbols)
 
 
