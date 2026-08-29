@@ -190,7 +190,9 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
           greeks: BookGreeks | None = None, new_delta_usd: float | None = None,
           new_theta_usd_per_day: float | None = None, new_daily_sigma: float | None = None,
           per_underlying_cap: float = PER_UNDERLYING_CAP,
-          n_risk: float | None = None) -> Admission:
+          n_risk: float | None = None,
+          gross_cap: float | None = None, gross_usd: float | None = None,
+          add_notional_usd: float = 0.0, committed_notional_usd: float = 0.0) -> Admission:
     """Admit or refuse `contracts` units of `structure` on the POST-trade book.
 
     `per_underlying_cap` defaults to 15% and the runner raises it to the
@@ -215,6 +217,24 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
         "min_free_frac": MIN_FREE_FRACTION, "per_underlying_cap": per_underlying_cap,
         "reserved_expression": is_reserved_expression,
     }
+    # -- GROSS NOTIONAL (2026-08-29) -------------------------------------------
+    # The risk caps above sum WORST CASES; nothing here bounded the sum of
+    # NOTIONAL, so a 3% stop on 300% gross cost -9% on 28 Aug. A book whose
+    # gross cannot be measured is refused, not assumed flat.
+    if gross_cap is not None:
+        if gross_usd is None:
+            m["gross"] = "CANNOT DETERMINE"
+            return Admission(False, (
+                f"GROSS: the book's notional could not be measured, so the {gross_cap:.0%} "
+                "gross cap cannot be checked. Refused rather than assumed flat."), m)
+        post_gross = gross_usd + committed_notional_usd + max(0.0, add_notional_usd)
+        m["post_gross_frac"] = round(post_gross / equity, 4)
+        m["gross_cap"] = gross_cap
+        if post_gross > gross_cap * equity + 1e-9:
+            return Admission(False, (
+                f"GROSS: after this order the book would carry {post_gross / equity:.0%} of equity "
+                f"in notional (cap {gross_cap:.0%}). Twelve names at 25% each is 300% gross, and a "
+                "3% stop on 300% gross is -9% -- the 28 Aug number."), m)
     if post_sym > per_underlying_cap * equity + 1e-9:
         return Admission(False, (
             f"CONCENTRATION: {sym} would carry {post_sym / equity:.1%} of equity in true max loss "

@@ -206,8 +206,40 @@ PROFILES = {
     # minutes). A prior that behaves like one bet gets one bet's authority:
     # 12 x 3% = 36%, worst case at the 8% basket stop ~ -2.9%, not -7.8%.
     "basket":       {"per_thesis": 0.03, "aggregate": 0.36, "edge_scale_cap": 1.0},
-    "convex":       {"per_thesis": 0.05, "aggregate": 0.40, "edge_scale_cap": 2.0},
+    # 28 Aug live: five 5-DTE OTM calls at 5% premium each lost 60% apiece --
+    # that is the MEDIAN outcome of that structure, not a tail. Premium at
+    # risk is capped at 15% aggregate; see CONVEX_MIN_DTE / CONVEX_MAX_BREAKEVEN.
+    "convex":       {"per_thesis": 0.05, "aggregate": 0.15, "edge_scale_cap": 2.0},
 }
+
+#: GROSS NOTIONAL CAP per profile, as a fraction of equity (2026-08-29).
+#:
+#: `per_thesis` and `aggregate` are RISK fractions: shares = risk / (stop+gap),
+#: capped at 25% notional PER NAME, and admission sums max_loss. Nothing
+#: bounded the SUM of notional, so twelve basket names x 25% = 300% gross on
+#: paper margin, and a 3% stop on 300% gross is -9% -- Friday's number. The
+#: Friday-night "fix" (3%/36% at an 8% stop) left every name at 25% notional
+#: and raised the worst case to 12 x 25% x 8% = -24%. A wider stop on uncapped
+#: gross is a bigger loss. This cap binds on Σ|notional| after the order.
+GROSS_NOTIONAL_CAP = {
+    "conservative": 0.60,
+    "aggressive": 1.00,
+    "maximum": 1.50,
+    "basket": 1.00,
+    "convex": 1.00,
+}
+DEFAULT_GROSS_NOTIONAL_CAP = 1.00
+
+#: Convex-book entry rules (2026-08-29). A long option whose expiry is inside
+#: the forecast horizon is a lottery ticket on the print, and one whose
+#: break-even needs more than the market's own expected move is priced to lose.
+CONVEX_MIN_DTE = 10.0
+CONVEX_MAX_BREAKEVEN_TO_IMPLIED = 1.0
+
+
+def gross_cap(risk_profile: str | None) -> float:
+    key = (risk_profile or "").strip().lower()
+    return GROSS_NOTIONAL_CAP.get(key, DEFAULT_GROSS_NOTIONAL_CAP)
 
 #: Profiles that put more than half of equity at risk are competition-week
 #: profiles: before kickoff they need `AAT_ALLOW_MAXIMUM=1`.

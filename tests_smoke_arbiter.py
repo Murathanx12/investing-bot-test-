@@ -40,6 +40,17 @@ positions = {
     "NVDA260828C00222500": {"avg_entry_price": "2.25", "current_price": "3.00", "qty": "-10"},
     "NVDA260828C00232500": {"avg_entry_price": "0.79", "current_price": "1.10", "qty": "10"},
 }
+
+# The manage() section below reads the REAL clock (the test pins that on
+# purpose), so ITS contracts must expire in the future: on 2026-08-29 the
+# literal 260828 legs were flattened as expired before the override ran.
+_exp = datetime.now(timezone.utc).date() + timedelta(days=14)
+while _exp.weekday() != 4:
+    _exp += timedelta(days=1)
+EXP = _exp.strftime("%y%m%d")
+st_live = book.OpenStructure("20260825T1540:vol_gap:NVDA", "vol_gap", "NVDA", "bear_call_spread", 10, 760.0, -146.0,
+                             [(f"NVDA{EXP}C00222500", "sell", 1), (f"NVDA{EXP}C00232500", "buy", 1)],
+                             "print:2026-08-26", t_entry, "dev", row)
 att = attribution.attribute_structure(st, positions, 212.0, now=now)
 check("actual is the venue mark move", abs(att.actual_usd - (-10 * (3.00 - 2.25) * 100 + 10 * (1.10 - 0.79) * 100)) < 1e-6, f"{att.actual_usd:,.0f}")
 total = att.delta_usd + att.gamma_usd + att.vega_usd + att.theta_usd + att.spread_usd + att.residual_usd
@@ -103,9 +114,9 @@ class FakeClient:
     def cancel_order(self, order_id): self.cancelled.append(order_id)
     def submit_protective_stop(self, order): self.stops.append(order); return {"id": "stop-1"}
     def positions(self):
-        return [{"asset_class": "us_option", "symbol": "NVDA260828C00222500", "qty": "-10", "cost_basis": "-2250",
+        return [{"asset_class": "us_option", "symbol": f"NVDA{EXP}C00222500", "qty": "-10", "cost_basis": "-2250",
                  "avg_entry_price": "2.25", "current_price": "6.00", "unrealized_pl": "-3750", "unrealized_plpc": "-1.67"},
-                {"asset_class": "us_option", "symbol": "NVDA260828C00232500", "qty": "10", "cost_basis": "790",
+                {"asset_class": "us_option", "symbol": f"NVDA{EXP}C00232500", "qty": "10", "cost_basis": "790",
                  "avg_entry_price": "0.79", "current_price": "3.50", "unrealized_pl": "2710", "unrealized_plpc": "3.43"}]
     def close_position(self, symbol, **k): closed.append(symbol); return {}
     def latest_trade(self, symbols): return {"trades": {s: {"p": 212.0} for s in symbols}}
@@ -126,7 +137,7 @@ ledger.record(ledger.Decision(
     # on AAT_ACCOUNT_ROLE being unset, and one that depended on it being set.
     # A fixture that encodes a moment in time is an ambient-state test wearing
     # a logic test's name.
-    legs=tuple(st.legs), account_role="dev",
+    legs=tuple(st_live.legs), account_role="dev",
     outcome={"event_node": f"print:{(datetime.now(timezone.utc) + timedelta(days=1)).date()}"}))
 ledger.record(ledger.Decision(
     decision_id="f:vol_gap:NVDA:forecast", ts_utc="2026-08-25T19:00:00+00:00", symbol="NVDA", brain="vol_gap",
@@ -141,7 +152,7 @@ s = exits.manage(FakeClient(), deadline_utc="2026-09-04T15:00:00Z", dry_run=Fals
 rows = ledger.read_all()
 arb = [r for r in rows if r["brain"] == "arbiter"]
 check("advise: the arbiter wrote a verdict row", arb and arb[-1]["action"] == "arbiter_hold", arb[-1]["action"] if arb else "none")
-check("advise: the leg stop still fired on the short leg (-167% of credit)", "NVDA260828C00222500" in closed, str(closed))
+check("advise: the leg stop still fired on the short leg (-167% of credit)", f"NVDA{EXP}C00222500" in closed, str(closed))
 closed.clear()
 os.environ["AAT_ARBITER"] = "act"
 s = exits.manage(FakeClient(), deadline_utc="2026-09-04T15:00:00Z", dry_run=False)

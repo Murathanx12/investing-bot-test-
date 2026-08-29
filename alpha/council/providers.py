@@ -114,9 +114,33 @@ def chat_json(provider: str, system: str, user: str, *, caller: str, why: str,
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError) as exc:
         raise ProviderRefusal(f"{provider} ({p.model}): {exc}") from exc
     try:
-        text = data["choices"][0]["message"]["content"] or ""
+        choice = data["choices"][0]
+        text = choice["message"]["content"] or ""
     except (KeyError, IndexError, TypeError) as exc:
         raise ProviderRefusal(f"{provider}: malformed reply {str(data)[:120]!r}") from exc
+
+    # A REASONING MODEL SPENDS `max_tokens` BEFORE IT ANSWERS (measured 2026-08-29).
+    #
+    # `moonshotai/kimi-k3` returns its chain of thought in `reasoning_content`
+    # and the answer in `content`, and BOTH draw on the same budget. At
+    # max_tokens=64 it returned reasoning plus `'{"ok": true, "n": 3'` -- valid
+    # JSON truncated mid-object; at 900 the same prompt answered cleanly in 45
+    # completion tokens.
+    #
+    # Without this branch the empty or clipped `content` fell through to
+    # `json.loads` and surfaced as "non-JSON reply" -- which reads as THE MODEL
+    # IS BROKEN when the true cause is OUR budget, and is the kind of wrong
+    # diagnosis that gets a live provider struck off the rotation. The refusal
+    # still refuses; it just names the right cause and the fix.
+    finish = str(choice.get("finish_reason") or "")
+    if finish == "length" and (not text.strip() or not text.rstrip().endswith("}")):
+        thinking = choice.get("message", {}).get("reasoning_content") or ""
+        raise ProviderRefusal(
+            f"{provider} ({p.model}): TRUNCATED at max_tokens={max_tokens} "
+            f"(finish_reason=length, {len(text)} chars of answer"
+            + (f", {len(thinking)} chars of reasoning" if thinking else "")
+            + "). This is a budget refusal, not a dead provider -- a reasoning "
+              "model spends max_tokens on thought before it answers. Raise it.")
     if _non_latin_share(text) > 0.10:
         raise ProviderRefusal(f"{provider}: non-Latin reply refused")
     text = text.strip()

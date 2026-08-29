@@ -20,6 +20,7 @@ import json
 import sys
 
 from alpha import config, counterfactual, ledger
+from alpha.engine import equity as equity_mod
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 
 #: The risk budget every world is scaled to when the real decision committed
@@ -48,14 +49,35 @@ def main() -> int:
                 legs.add(str(leg[0]))
     quotes: dict[str, dict] = {}
     if legs:
-        try:
-            client = AlpacaPaper()
-            raw = client.option_quotes(sorted(legs))
-            quotes = {sym: {"bid": q.get("bp"), "ask": q.get("ap")}
-                      for sym, q in raw.items()}
-            print(f"  quoted {len(quotes)} of {len(legs)} distinct legs")
-        except BrokerRefusal as exc:
-            print(f"  [FAIL] could not fetch quotes: {exc}")
+        # SHARE legs are marked from the STOCK quote, OPTION legs from the option
+        # quote. Until 2026-08-29 every leg went to the option endpoint, which
+        # rejects "BBW" as a malformed OCC symbol -- and four of six loops had
+        # exited non-zero 17 times in a row, marking nothing, which reads exactly
+        # like a quiet market. Each family fails on its own; a missing quote is
+        # recorded as MISSING, never as zero P&L.
+        client = AlpacaPaper()
+        shares = sorted(x for x in legs if equity_mod.is_equity_symbol(x))
+        options = sorted(x for x in legs if not equity_mod.is_equity_symbol(x))
+        failures = []
+        if options:
+            try:
+                raw = client.option_quotes(options)
+                quotes.update({sym: {"bid": q.get("bp"), "ask": q.get("ap")} for sym, q in raw.items()})
+            except BrokerRefusal as exc:
+                failures.append(f"options: {exc}")
+        if shares:
+            try:
+                raw = (client.stock_quote(shares) or {}).get("quotes") or {}
+                quotes.update({sym: {"bid": q.get("bp"), "ask": q.get("ap")} for sym, q in raw.items()})
+            except BrokerRefusal as exc:
+                failures.append(f"shares: {exc}")
+        missing = sorted(legs - set(quotes))
+        print(f"  quoted {len(quotes)} of {len(legs)} distinct legs "
+              f"({len(options)} option, {len(shares)} share); missing {len(missing)}"
+              + (f": {missing[:8]}" if missing else ""))
+        for f in failures:
+            print(f"  [FAIL] {f}")
+        if failures and not quotes:
             return 2
     else:
         print("  no legs recorded on any row -- older rows predate leg capture")

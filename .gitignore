@@ -14,3 +14,6 @@ state/belief_vs_chain/
 state/night_shadow/bars_daily.json.gz
 state/night_shadow/*.log
 state/dashboard.html
+
+# 2026-08-29: the PIT observation corpus is a regenerable data store (21 MB, 30k rows); receipts live in docs/
+state/corpus/

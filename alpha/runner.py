@@ -177,6 +177,8 @@ REFUSAL_CLASSES = (
     "risk",               # admission, event-node cap, latch, unbounded book
     "already_held",       # a position or a resting order exists for this symbol
     "stopped_today",      # a protective stop closed this symbol earlier in the session
+    "opening_range",      # shares are not bought in the first 15 minutes (28 Aug: stops at 09:36)
+    "convex_rule",        # long premium refused on DTE / break-even vs the market's own width
     "capital",            # approved size does not buy one unit
     "insufficient_data",  # the inputs to decide were not there
     "cash",               # a structure cleared and CASH still beat it on EV
@@ -233,6 +235,52 @@ def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = Non
         fraction_of_window_remaining=remaining,
         field_leader_estimate=field_leader_estimate,
     )
+
+
+def gross_notional_usd(client: AlpacaPaper) -> float | None:
+    """Σ|market_value| across every open position, or None when it cannot be read.
+
+    The number the gross cap binds on. None is a STATE the admission controller
+    refuses against; it is never coerced to zero, because an unreadable book is
+    not a flat book (2026-08-29)."""
+    try:
+        total = 0.0
+        for pos in client.positions():
+            mv = pos.get("market_value")
+            if mv is None:
+                qty = float(pos.get("qty") or 0.0)
+                px = float(pos.get("current_price") or pos.get("avg_entry_price") or 0.0)
+                mult = 100.0 if (pos.get("asset_class") == "us_option") else 1.0
+                mv = qty * px * mult
+            total += abs(float(mv))
+        return total
+    except Exception as exc:                                            # noqa: BLE001
+        logger.warning("gross notional unreadable (%s); admission will refuse on GROSS", exc)
+        return None
+
+
+def in_opening_range(now_et=None) -> bool:
+    """True inside the first 15 minutes of the regular session (09:30-09:45 ET).
+
+    28 Aug: every share entry filled 09:30-09:33 and every 3% stop fired by
+    09:48 while the index moved 0.1%. The opening print is the most expensive
+    fill of the day and its range is wider than any stop we run."""
+    from alpha import exits as _exits
+    t = (now_et or _exits.now_et()).time()
+    return (t.hour == 9 and 30 <= t.minute < 45)
+
+
+def structure_notional_usd(structure: sizing.Structure, n: int) -> float:
+    """Dollar notional this order adds to gross.
+
+    `entry_cost` is PER UNIT in dollars for every kind -- one share for share
+    kinds, one contract (already x100) for option structures -- so notional is
+    |entry_cost| x n in both cases. Shares prefer the last trade when the quote
+    carries one, which is what the venue's market_value will be marked at."""
+    if structure.kind in equity_mod.KINDS:
+        spot = float((structure.quote or {}).get("last_trade") or abs(structure.entry_cost))
+        return abs(spot) * n
+    return abs(float(structure.entry_cost or 0.0)) * n
 
 
 def held_underlyings(client: AlpacaPaper) -> dict[str, int]:
@@ -853,6 +901,8 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     node_committed: dict[str, float] = (
         {node: usd / state.equity for node, usd in book.by_node.items()} if state.equity else {})
     held = held_underlyings(client)
+    # Gross notional is measured ONCE per pass and accumulated as orders go out.
+    gross = {"usd": gross_notional_usd(client), "committed": 0.0}
     in_flight = open_order_underlyings(client)
     for sym, n in in_flight.items():
         held[sym] = held.get(sym, 0) + n
@@ -1007,7 +1057,8 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         before = committed
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
-                             reserved=reserve_for, n_risk=book_n_risk, printing=printing)
+                             reserved=reserve_for, n_risk=book_n_risk, printing=printing,
+                             gross=gross)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -1019,7 +1070,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              book=None, greeks=None, risk_profile: str | None = None,
              reserved: dict[str, float] | None = None,
              n_risk: float | None = None,
-             printing: set | None = None) -> float:
+             printing: set | None = None,
+             gross: dict | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
@@ -1050,6 +1102,34 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
         return committed
 
     n = contracts_for(structure, verdict.risk_fraction, state.equity)
+    profile_key = (risk_profile or "").strip().lower()
+    # -- OPENING RANGE (2026-08-29): no share entry 09:30-09:45 ET ------------
+    if structure.kind in equity_mod.KINDS and in_opening_range():
+        result.refuse("opening_range")
+        _record(decision_id, forecast, structure, verdict, snapshot, state,
+                action="refused", contracts=n,
+                reason=("OPENING RANGE: shares are not bought in the first 15 minutes. On 28 Aug "
+                        "every entry filled 09:30-09:33 and every 3% stop fired by 09:48 on a "
+                        "0.1% index move. The next pass is after 09:45."))
+        return committed
+    # -- CONVEX RULES (2026-08-29): long premium needs time and a fair break-even
+    if profile_key == "convex" and structure.kind not in equity_mod.KINDS:
+        dte = float(structure.days_to_expiry or 0.0)
+        be = abs(float(structure.breakeven_move or 0.0))
+        width = abs(float(structure.implied_move or 0.0))
+        why = None
+        if dte < sizing.CONVEX_MIN_DTE:
+            why = (f"{dte:.0f} DTE < {sizing.CONVEX_MIN_DTE:.0f}: a long option inside the horizon "
+                   "is a lottery ticket on the print (28 Aug: five 5-DTE calls, -60% each).")
+        elif width > 0 and be > sizing.CONVEX_MAX_BREAKEVEN_TO_IMPLIED * width:
+            why = (f"break-even {be:.1%} exceeds the market's own expected move {width:.1%}: "
+                   "priced to lose on the median path.")
+        if why:
+            result.refuse("convex_rule")
+            _record(decision_id, forecast, structure, verdict, snapshot, state,
+                    action="refused", contracts=n, reason="CONVEX RULE: " + why)
+            return committed
+    add_notional = structure_notional_usd(structure, n) if n >= 1 else 0.0
     if n >= 1 and book is not None:
         d_new, t_new = admission.structure_greeks(structure, n, snapshot)
         sig_new = (structure.implied_move / math.sqrt(max(1.0, structure.days_to_expiry))
@@ -1061,7 +1141,11 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             per_underlying_cap=max(admission.PER_UNDERLYING_CAP, env["per_thesis"] * env["edge_scale_cap"]),
             committed_usd=committed * state.equity, own_event=event_node(forecast),
             reserved_events=reserved, greeks=greeks, new_delta_usd=d_new,
-            new_theta_usd_per_day=t_new, new_daily_sigma=sig_new, n_risk=n_risk)
+            new_theta_usd_per_day=t_new, new_daily_sigma=sig_new, n_risk=n_risk,
+            gross_cap=sizing.gross_cap(risk_profile),
+            gross_usd=(gross or {}).get("usd"),
+            add_notional_usd=add_notional,
+            committed_notional_usd=float((gross or {}).get("committed") or 0.0))
         verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
         if not adm.ok:
             result.refuse("risk")
@@ -1084,6 +1168,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     pair_orders = built if isinstance(built, list) else None
     order = pair_order_record(built) if pair_orders else built
     add = (structure.max_loss * n) / state.equity if state.equity else 0.0
+    if gross is not None:
+        gross["committed"] = float(gross.get("committed") or 0.0) + add_notional
     if dry_run:
         result.dry_run += 1
         _record(decision_id, forecast, structure, verdict, snapshot, state,
