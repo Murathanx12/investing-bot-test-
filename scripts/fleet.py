@@ -17,11 +17,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import pathlib
+import subprocess
 import os
 import sys
 
 from alpha import config, fleet
 
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def plan() -> None:
     print(f"{'role':<10}{'tier':<6}{'profile':<13}{'objective':<10}{'universe':<21}{'brains':<32}label")
@@ -74,6 +78,22 @@ def deploy(role: str, *, up: bool) -> None:
     if not env.get(f"{pre}_KEY_ID"):
         print(f"{role}: no {pre}_KEY_ID in the environment; not deploying")
         return
+    # WHICH CODE IS UP THERE. `agent_loop._commit()` shells out to `git rev-parse`
+    # and its docstring says a heartbeat that cannot name its build "explains an
+    # outage as a mystery rather than as a deploy" -- but `railway up` TARS THE
+    # WORKING DIRECTORY and .git is gitignored, so in the container that call has
+    # always returned None. The deploy is the only process that knows the answer,
+    # so it states it here, as a variable, next to every other variable it sets.
+    # A dirty tree is stamped as such: deploying uncommitted code is allowed and
+    # pretending it was the commit is not.
+    try:
+        sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
+                                      cwd=str(ROOT), text=True, timeout=10).strip()
+        dirty = subprocess.check_output(["git", "status", "--porcelain"],
+                                        cwd=str(ROOT), text=True, timeout=20).strip()
+        env["AAT_BUILD_COMMIT"] = sha + ("+dirty" if dirty else "")
+    except (OSError, subprocess.SubprocessError):
+        env["AAT_BUILD_COMMIT"] = "UNKNOWN"
 
     def run(*cmd, ok_fail=False):
         r = subprocess.run([railway, *cmd], capture_output=True, text=True)

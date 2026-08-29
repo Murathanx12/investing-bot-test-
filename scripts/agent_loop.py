@@ -81,6 +81,15 @@ def _market_open(client) -> bool:
 def _commit() -> str | None:
     """Which code is running. A heartbeat that cannot say that explains an
     outage as a mystery rather than as a deploy."""
+    # AAT_BUILD_COMMIT FIRST. `railway up` tars the working directory and .git is
+    # gitignored, so in the deployed container `git rev-parse` has always failed
+    # and this function has always returned None -- the heartbeat could not name
+    # its own build, which is the exact failure the docstring above describes.
+    # `scripts/fleet.deploy` now sets the variable at deploy time (it is the only
+    # process that knows), and a dirty tree is stamped `<sha>+dirty`.
+    stamped = os.getenv("AAT_BUILD_COMMIT", "").strip()
+    if stamped:
+        return stamped
     try:
         return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
                                        cwd=str(Path(__file__).resolve().parent.parent),
