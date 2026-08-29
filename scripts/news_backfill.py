@@ -3,6 +3,8 @@
     python -m scripts.news_backfill --months 12                 # the tradeable universe
     python -m scripts.news_backfill --months 12 --murat         # Murat's twenty names
     python -m scripts.news_backfill --months 6 --symbols SLDP KYTX AARD
+    python -m scripts.news_backfill --months 12 --universe fleet --no-finnhub
+                                     # the ~160-name fleet universe, Alpaca batch only
     python -m scripts.news_backfill --stats                     # what the corpus holds
 
 WHY (measured, 2026-08-29)
@@ -68,13 +70,44 @@ MURAT_NAMES = ["SLDP", "DKNG", "HUBS", "BHVN", "AMSC", "KYTX", "PRCH", "NTLA",
 FINNHUB_PAUSE_S = 1.1          # 60/min free tier, with headroom
 ALPACA_PAGE_LIMIT = 50
 
+#: Below this many items over the whole backfill a name is reported as THIN.
+#: Three is the floor at which a digest can tell "quiet" from "unseen".
+THIN_ITEMS = 3
+
+
+def window_universe_symbols() -> list[str]:
+    """The names `scripts.window_universe --json` wrote. Empty if it never ran --
+    stated as empty, not silently absent, so the caller can print it."""
+    p = corpus.STATE / "window_universe.json"
+    if not p.exists():
+        return []
+    try:
+        return [str(s).upper() for s in json.loads(p.read_text(encoding="utf-8")).get("universe", [])]
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def wide_universe() -> list[str]:
+    """MURAT_NAMES + the theme basket + the window universe + the three indices,
+    deduped -- the ~160 names the fleet can actually trade. Shared by every
+    collector so "the universe" is one function and not four lists."""
+    syms: set[str] = set(MURAT_NAMES) | {"SPY", "QQQ", "IWM"}
+    try:
+        syms.update(s.upper() for s in fleet.theme_symbols())
+    except Exception:                                                   # noqa: BLE001
+        pass
+    syms.update(window_universe_symbols())
+    return sorted(syms)
+
 
 def _universe(args: argparse.Namespace) -> list[str]:
     syms: set[str] = set()
     if args.symbols:
         syms.update(s.upper() for s in args.symbols)
-    if args.murat:
+    if args.murat or getattr(args, "universe", None) == "murat":
         syms.update(MURAT_NAMES)
+    if getattr(args, "universe", None) == "fleet":
+        syms.update(wide_universe())
     if not syms:
         syms.update({"SPY", "QQQ", "IWM"})
         try:
@@ -181,6 +214,8 @@ def main() -> int:
     ap.add_argument("--months", type=int, default=12, help="how far back (default 12)")
     ap.add_argument("--symbols", nargs="*", default=None)
     ap.add_argument("--murat", action="store_true", help="Murat's twenty names")
+    ap.add_argument("--universe", choices=("default", "murat", "fleet"), default="default",
+                    help="fleet = MURAT_NAMES + theme basket + window universe (~160 names)")
     ap.add_argument("--no-alpaca", action="store_true")
     ap.add_argument("--no-finnhub", action="store_true")
     ap.add_argument("--max-pages", type=int, default=40)
@@ -201,6 +236,8 @@ def main() -> int:
     print(f"backfill {len(syms)} names, {start} -> {end} ({args.months} months)")
 
     stored, dup, refusals = 0, 0, []
+    #: items SEEN per symbol per month (before dedupe) -- the coverage table.
+    seen: dict[str, dict[str, int]] = {s: {} for s in syms}
 
     if not args.no_alpaca:
         # `/v1beta1/news` is the MARKET DATA host. It reads; it cannot place an
@@ -215,6 +252,9 @@ def main() -> int:
         print(f"  (news read with role {news_role!r} -- data endpoint, places nothing)")
         for m0, m1 in corpus.iter_months(start, end):
             obs, refs = alpaca_history(client, syms, m0, min(m1, end), max_pages=args.max_pages)
+            for o in obs:
+                for s_ in o.symbols:
+                    seen.setdefault(s_, {})[m0[:7]] = seen.setdefault(s_, {}).get(m0[:7], 0) + 1
             n, d = corpus.append_many(obs)
             stored += n
             dup += d
@@ -239,6 +279,8 @@ def main() -> int:
                 if not r:
                     months_ok += 1
                 time.sleep(FINNHUB_PAUSE_S)
+            for o in got:
+                seen.setdefault(sym, {})[o.effective_at[:7]] = seen.setdefault(sym, {}).get(o.effective_at[:7], 0) + 1
             n, d = corpus.append_many(got)
             stored += n
             dup += d
@@ -263,6 +305,33 @@ def main() -> int:
         print(f"NO COVERAGE ({len(missing)}): {' '.join(missing)}")
     if refusals:
         print(f"refusals ({len(refusals)}): " + "; ".join(refusals[:6]))
+
+    if args.universe == "fleet" or len(syms) > 40:
+        # COVERAGE PER SYMBOL AS ITEMS/MONTH. A wide batch backfill returns one
+        # number per page and nothing per name; the names that got NOTHING are
+        # the finding, and a total that averages NVDA's thousands over them
+        # hides it. Every name prints, thin ones are listed by name.
+        months = [m0[:7] for m0, _ in corpus.iter_months(start, end)]
+        n_months = max(1, len(months))
+        thin: list[str] = []
+        print(f"\ncoverage this run (items seen / month, {n_months} months):")
+        for s_ in syms:
+            per = seen.get(s_, {})
+            total = sum(per.values())
+            covered = sum(1 for m in months if per.get(m, 0) > 0)
+            if total < THIN_ITEMS:
+                thin.append(s_)
+            print(f"  {s_:<6} {total:>6} items  {total / n_months:>6.1f}/mo  months with any {covered:>2}/{n_months}")
+        print(f"\nTHIN (< {THIN_ITEMS} items this run, {len(thin)}/{len(syms)}): "
+              + (" ".join(thin) if thin else "none"))
+        receipt = corpus.CORPUS / f"news_backfill_coverage_{today.isoformat()}.json"
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        receipt.write_text(json.dumps({"at": corpus.utcnow(), "start": start, "end": end,
+                                       "universe": args.universe, "n_symbols": len(syms),
+                                       "alpaca": not args.no_alpaca, "finnhub": not args.no_finnhub,
+                                       "seen": seen, "thin": thin, "refusals": refusals},
+                                      indent=1), encoding="utf-8")
+        print(f"receipt: {receipt}")
     return 0
 
 
