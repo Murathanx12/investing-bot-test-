@@ -338,8 +338,44 @@ def reconcile(view: dict, future: list[dict], *, today: str) -> list[str]:
     return fixes
 
 
+def reconcile_numeric(view: dict, symbol: str, *, price: float | None,
+                      rec_counts: dict | None, today: str) -> list[str]:
+    """Conditions (a) and (b) are ARITHMETIC. Measure them; never ask a model.
+
+    (a) target/price >= 1.5 and (b) consensus rating >= 4.1 are two divisions.
+    They were reaching the sheet as the language model's opinion because no
+    target source was wired -- and the same model, on the same run, dated three
+    catalysts that had already happened. A number a model reports is a number
+    nobody measured.
+
+    `alpha/analyst_targets.py` computes both from sources with timestamps: the
+    corpus's dated broker notes for (a), Finnhub's recommendation counts for
+    (b). The model's own answer is kept beside the measurement as a CORRECTION,
+    exactly as `reconcile` keeps its catalyst downgrades -- the disagreement
+    rate is the calibration signal, and overwriting it silently would delete
+    the only evidence of how much to trust the next verdict.
+    """
+    from alpha import analyst_targets
+
+    mr = view.get("murat_rule")
+    if not isinstance(mr, dict):
+        return []
+    fixes: list[str] = []
+    measured = analyst_targets.conditions(symbol, price=price, rec=rec_counts, as_of=today)
+    view["murat_rule_measured"] = measured
+    for key in ("upside_ratio", "rating"):
+        was, now = mr.get(key), measured.get(key)
+        mr[key] = now
+        detail = measured.get("upside_detail" if key == "upside_ratio" else "rating_detail")
+        if was != now:
+            fixes.append(f"murat_rule.{key} {was!r} -> {now!r} (MEASURED: "
+                         f"{(detail or {}).get('status', '?')})")
+    return fixes
+
+
 def digest_one(symbol: str, *, months: int, live: dict, skeptic: bool,
-               max_headlines: int = 400, budget: dict | None = None) -> dict:
+               max_headlines: int = 400, budget: dict | None = None,
+               price: float | None = None, rec_counts: dict | None = None) -> dict:
     since = (date.today() - timedelta(days=31 * months)).replace(day=1).isoformat()
     past = _dedupe(corpus.read(since=since, until=date.today().isoformat(),
                                tense="past", symbols=[symbol]))
@@ -430,6 +466,9 @@ def digest_one(symbol: str, *, months: int, live: dict, skeptic: bool,
     rec["refusals"] += refs
     today = date.today().isoformat()
     rec["corrections"] = reconcile(view, future, today=today) if view else []
+    if view:
+        rec["corrections"] += reconcile_numeric(view, symbol, price=price,
+                                                rec_counts=rec_counts, today=today)
     rec["analyst"] = view
     if skeptic:
         # TRY EVERY OTHER FAMILY, NOT JUST THE PREFERRED ONE.
@@ -562,6 +601,55 @@ def screen(*, within_days: int = 45) -> list[dict]:
     return sorted(out, key=lambda r: (-r["rule_passes"], -r["n_catalysts_soon"], -r["n_past"]))
 
 
+def _last_prices(symbols: list[str]) -> dict[str, float]:
+    """Last trade per symbol, in ONE call. {} on any failure -- a price we could
+    not read leaves condition (a) `unknown`, which is a state the sheet already
+    knows how to print."""
+    try:
+        from alpha import config
+        from alpha.broker.alpaca import AlpacaPaper
+
+        client = AlpacaPaper(config.credentials())
+        blob = client.latest_trade(list(symbols)) or {}
+        out = {}
+        for sym, row in (blob.get("trades") or {}).items():
+            px = float((row or {}).get("p") or 0.0)
+            if px > 0:
+                out[str(sym).upper()] = px
+        return out
+    except Exception as exc:                                            # noqa: BLE001
+        print(f"  prices unavailable ({type(exc).__name__}: {exc}); "
+              "condition (a) stays unknown for every name")
+        return {}
+
+
+def _recommendation_counts() -> dict[str, dict]:
+    """The newest analyst-panel slice, symbol -> latest recommendation counts.
+
+    Read from `state/research/analyst_panel/<date>.jsonl`, which carries a
+    `captured_utc` stamp per row. Reading the panel rather than calling Finnhub
+    keeps the digest to zero extra vendor calls and keeps the value POINT-IN-
+    TIME: the number used is the one that was recorded, with the moment it was
+    recorded attached.
+    """
+    root = Path(__file__).resolve().parent.parent / "state" / "research" / "analyst_panel"
+    files = sorted(root.glob("*.jsonl")) if root.exists() else []
+    if not files:
+        return {}
+    out: dict[str, dict] = {}
+    for line in files[-1].read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        periods = row.get("rec_periods") or []
+        if periods:
+            out[str(row.get("symbol") or "").upper()] = periods[0]
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbols", nargs="*", default=None)
@@ -625,10 +713,20 @@ def main() -> int:
     print("providers " + str({k: v.get("state") for k, v in live.items()}))
     DIGESTS.mkdir(parents=True, exist_ok=True)
 
+    # (a) and (b) are arithmetic and are measured, not asked (reconcile_numeric).
+    # Both inputs are fetched ONCE for the whole run: one batched trade call and
+    # one read of the morning panel. A missing input leaves the condition
+    # `unknown`, which is what it has always been -- never a guess.
+    prices = _last_prices(syms)
+    rec_counts = _recommendation_counts()
+    print(f"measured inputs: prices for {len(prices)}/{len(syms)}, "
+          f"recommendation counts for {sum(1 for s in syms if s in rec_counts)}/{len(syms)}")
+
     table = []
     for sym in syms:
         rec = digest_one(sym, months=args.months, live=live, skeptic=args.skeptic,
-                         max_headlines=args.max_headlines, budget=paid_budget)
+                         max_headlines=args.max_headlines, budget=paid_budget,
+                         price=prices.get(sym), rec_counts=rec_counts.get(sym))
         target = DIGESTS / f"{sym}.json"
         if not rec.get("analyst") and target.exists():
             # A provider outage must not erase yesterday's good digest: the

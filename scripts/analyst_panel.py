@@ -72,6 +72,8 @@ BASE = "https://finnhub.io/api/v1"
 SLEEP_S = 0.4
 
 
+from alpha import analyst_targets
+
 def _get(path: str, key: str, **kw):
     kw["token"] = key
     url = f"{BASE}/{path}?" + urllib.parse.urlencode(kw)
@@ -211,9 +213,38 @@ def main() -> int:
             "coverage": (sum(int(periods[0].get(k) or 0) for k in
                              ("strongBuy", "buy", "hold", "sell", "strongSell"))
                          if periods else 0),
-            "price_target": None,   # HTTP 403 on this tier -- recorded as ABSENT, never guessed
+            # The VENDOR consensus is still 403 on this tier and is still never
+            # guessed. What changed on 2026-08-29 is that a second, independent
+            # source exists: the corpus carries 2,368 broker notes in Benzinga's
+            # regular form, each with the firm, the figure and the timestamp it
+            # became knowable. `alpha/analyst_targets.py` reads them; this column
+            # records the reconstruction, labelled by source so the two are never
+            # confused. A THIN panel (fewer than MIN_FIRMS) stays absent.
+            "price_target": None,
             "price_target_status": "UNAVAILABLE_FREE_TIER",
         }
+        try:
+            _pan = analyst_targets.panel(m.symbol, as_of=row["captured_utc"])
+            if _pan.n_firms >= analyst_targets.MIN_FIRMS:
+                row["price_target"] = _pan.median_target
+                row["price_target_status"] = "CORPUS_BROKER_NOTES"
+                row["price_target_n_firms"] = _pan.n_firms
+                row["price_target_firms"] = _pan.firms[:12]
+                row["price_target_newest_age_days"] = (
+                    round(_pan.newest_age_days, 1) if _pan.newest_age_days is not None else None)
+                row["price_target_dispersion"] = (
+                    round(_pan.dispersion, 3) if _pan.dispersion is not None else None)
+                row["price_target_split_suspect"] = _pan.split_suspect
+            elif _pan.targets:
+                row["price_target_status"] = f"THIN_{_pan.n_firms}_FIRMS"
+        except Exception as exc:                                        # noqa: BLE001
+            # A corpus read must never take the panel down: the panel's whole
+            # value is that TODAY's slice gets recorded, and a missing column is
+            # recoverable where a missing day is not.
+            row["price_target_status"] = f"CORPUS_ERROR: {type(exc).__name__}"
+        _rating = analyst_targets.consensus_rating(periods[0]) if periods else None
+        row["consensus_rating"] = round(_rating[0], 3) if _rating else None
+        row["consensus_rating_scale"] = "1-5, FIVE IS BEST (Murat's bar: >= 4.1)"
         row.update(price_features(bars.get(m.symbol, [])))
         rows.append(row)
         fh.write(json.dumps(row) + "\n")
@@ -227,9 +258,16 @@ def main() -> int:
     print(f"\n{len(rows)} rows -> {path}")
     print(f"  with analyst coverage: {covered} ({100*covered/max(1,len(rows)):.0f}%)")
     print(f"  price-target forbidden: {forbidden}, errors: {errors}")
-    print("  NOTE: price targets are UNAVAILABLE on this tier and are recorded as absent,")
-    print("        never approximated. The target-gap leg of the funnel cannot be built")
-    print("        from this source; the revision-direction leg can.")
+    _from_corpus = sum(1 for r in rows if r.get("price_target_status") == "CORPUS_BROKER_NOTES")
+    _rated = sum(1 for r in rows if r.get("consensus_rating") is not None)
+    print(f"  price target reconstructed from broker notes: {_from_corpus} "
+          f"({100*_from_corpus/max(1,len(rows)):.0f}%)")
+    print(f"  consensus rating from recommendation counts: {_rated} "
+          f"({100*_rated/max(1,len(rows)):.0f}%)")
+    print("  NOTE: the VENDOR consensus target is still 403 on this tier and is still never")
+    print("        approximated. `price_target` is reconstructed from dated broker notes in")
+    print("        the corpus and is labelled CORPUS_BROKER_NOTES -- a different source with")
+    print("        a different bias, recorded as such rather than merged into one column.")
     return 0
 
 
