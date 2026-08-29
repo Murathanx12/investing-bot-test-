@@ -315,6 +315,36 @@ def credentials(for_role: str | None = None) -> Credentials:
     return Credentials(key_id=key_id, secret_key=secret, role=resolved)
 
 
+def peer_credentials(role: str) -> Credentials:
+    """Credentials for ANOTHER role, for READING that account and nothing else.
+
+    `credentials()` refuses when `AAT_ACCOUNT_ROLE` disagrees with the role asked
+    for, and that refusal is one of the good ones: it is what stops orders going
+    to one account while their ledger rows are written under another's name
+    (audit defect 6). A cross-book READ is the single legitimate disagreement --
+    the convexity loop asking what the basket book already holds -- so it gets a
+    door of its own instead of widening that one.
+
+    The only caller is `alpha/crossbook.py`, which wraps the result in a handle
+    exposing `positions()` and nothing else. Do not use this to build a client
+    that can send an order: nothing here checks, and the guard that would have
+    is the one this function deliberately steps around.
+    """
+    resolved = str(role or "").strip().lower()
+    if not _valid_role(resolved):
+        raise CredentialRefusal(f"not a role name: {role!r}")
+    prefix = f"AAT_{resolved.upper()}"
+    key_id = os.getenv(f"{prefix}_KEY_ID", "").strip()
+    secret = os.getenv(f"{prefix}_SECRET_KEY", "").strip()
+    if not key_id or not secret:
+        raise CredentialRefusal(
+            f"no key pair for peer role {resolved!r} in this process "
+            f"({prefix}_KEY_ID / {prefix}_SECRET_KEY). On Railway this is EXPECTED: "
+            "each service carries only its own keys so one loop cannot reach another's "
+            "account. The caller must record CANNOT DETERMINE, not assume a flat peer.")
+    return Credentials(key_id=key_id, secret_key=secret, role=resolved)
+
+
 def base_url() -> str:
     """The paper trading host. Allowlisted, not defaulted."""
     url = os.getenv("AAT_TRADING_BASE", "https://paper-api.alpaca.markets").rstrip("/")

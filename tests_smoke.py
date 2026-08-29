@@ -246,6 +246,8 @@ import tests_smoke_pead
 fails += tests_smoke_pead.fails
 import tests_smoke_equity
 fails += tests_smoke_equity.fails
+import tests_smoke_crossbook
+fails += tests_smoke_crossbook.fails
 import tests_smoke_analyst_targets
 fails += tests_smoke_analyst_targets.fails
 import tests_smoke_stop_reconcile

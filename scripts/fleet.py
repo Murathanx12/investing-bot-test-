@@ -110,6 +110,69 @@ def deploy(role: str, *, up: bool) -> None:
         run("up", "--service", svc, "-d")
 
 
+def overlap() -> None:
+    """Which names is the fleet holding in more than one account, and how?
+
+    28 Aug the basket book held twelve theme names in shares while the convex
+    book held 5-DTE calls on the same names, and both were reported as
+    independent selectors. `alpha/crossbook.py` refuses that going forward, but
+    only from a process that can read the peers -- which on Railway is none of
+    them. This is where the number lives, and it is a MEASUREMENT, not a gate:
+    it changes nothing and refuses nothing.
+    """
+    from alpha import concentration, crossbook
+
+    config.load_env()
+    books: dict[str, dict[str, str]] = {}
+    blind: list[str] = []
+    for role in sorted(fleet.FLEET):
+        peer = crossbook.open_peer(role)
+        if peer is None:
+            blind.append(role)
+            continue
+        try:
+            rows = peer.positions()
+        except Exception as exc:                                        # noqa: BLE001
+            blind.append(f"{role} ({type(exc).__name__})")
+            continue
+        held: dict[str, str] = {}
+        for pos in rows:
+            sym = str(pos.get("symbol") or "").upper()
+            under = concentration.underlying_of(sym)
+            if not under:
+                continue
+            kind = "option" if (pos.get("asset_class") == "us_option" or sym != under) else "shares"
+            held[under] = "both" if held.get(under, kind) != kind else kind
+        books[role] = held
+
+    by_name: dict[str, dict[str, str]] = {}
+    for role, held in books.items():
+        for sym, kind in held.items():
+            by_name.setdefault(sym, {})[role] = kind
+
+    shared = {s: v for s, v in by_name.items() if len(v) > 1}
+    print("")
+    print(f"FLEET CROSS-BOOK OVERLAP -- {len(books)} book(s) read"
+          + (f", BLIND to {len(blind)}: {', '.join(blind)}" if blind else ""))
+    print(f"{len(by_name)} distinct name(s) held; {len(shared)} held by more than one book")
+    print("")
+    if not by_name:
+        print("  every readable book is flat.")
+    for sym, who in sorted(shared.items(), key=lambda kv: -len(kv[1])):
+        instruments = sorted(set(who.values()))
+        flag = "  <-- ONE BET, TWO INSTRUMENTS" if len(instruments) > 1 else ""
+        print(f"  {sym:<6} {len(who)} book(s): "
+              + ", ".join(f"{r}={k}" for r, k in sorted(who.items())) + flag)
+    solo = {s: v for s, v in by_name.items() if len(v) == 1}
+    if solo:
+        print("")
+        print(f"  held by exactly one book ({len(solo)}): " + ", ".join(sorted(solo))[:200])
+    if blind:
+        print("")
+        print("  NOTE: a blind book is not a flat book. The names above are the overlap")
+        print("        among the books this process could read, and are a LOWER BOUND.")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--plan", action="store_true")
@@ -120,7 +183,13 @@ def main() -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--deploy", default=None, help="role or 'all': create the Railway service, volume and variables (keys read from .env)")
     ap.add_argument("--up", action="store_true", help="with --deploy: also `railway up -d` (starts the LIVE loop)")
+    ap.add_argument("--overlap", action="store_true",
+                    help="the FLEET's real cross-book overlap: which names more than one account holds, "
+                         "and in which instruments. Runs where the keys are (locally); the loops on "
+                         "Railway carry only their own pair and record CANNOT DETERMINE instead.")
     args = ap.parse_args()
+    if args.overlap:
+        overlap()
     if args.plan:
         plan()
     if args.env_template:
@@ -158,7 +227,8 @@ def main() -> int:
         for r in bad:
             print(f"FAIL {r['role']}: {r.get('why') or r}", file=sys.stderr)
         return 1 if bad else 0
-    if not any([args.plan, args.env_template, args.railway, args.check, args.check_all, args.deploy]):
+    if not any([args.plan, args.env_template, args.railway, args.check, args.check_all,
+                args.deploy, args.overlap]):
         ap.print_help()
     return 0
 

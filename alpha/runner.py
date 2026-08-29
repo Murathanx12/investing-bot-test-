@@ -57,7 +57,7 @@ from datetime import datetime, timedelta, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import claims, concentration, config, daybreak, drivers, ledger, recovery, refuted
+from alpha import claims, concentration, config, crossbook, daybreak, drivers, ledger, recovery, refuted
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -973,6 +973,14 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                           else drivers.notional_by_driver(gross_by_sym, _driver_of))
     logger.info("drivers this pass: %d name(s) -> %d driver(s) (%s)",
                 len(_driver_syms), len(set(_driver_of.values())), _driver_note)
+    # CROSS-BOOK (P0.2 remainder). Only the convex book asks, because only it is
+    # forbidden from expressing a thesis another book already holds outright.
+    # ONCE per pass: these are network reads of other accounts.
+    cross: dict = {"held": set(), "notes": [], "status": "not applicable (not a convex book)"}
+    if (risk_profile or "").strip().lower() == "convex":
+        _h, _n = crossbook.held_by_peers(os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower())
+        cross = {"held": _h, "notes": _n, "status": crossbook.status(_h, _n)}
+        logger.info("cross-book: %s", cross["status"])
     in_flight = open_order_underlyings(client)
     for sym, n in in_flight.items():
         held[sym] = held.get(sym, 0) + n
@@ -1128,7 +1136,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
                              reserved=reserve_for, n_risk=book_n_risk, printing=printing,
-                             gross=gross, now_et=now_et)
+                             gross=gross, now_et=now_et, cross=cross)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -1142,7 +1150,7 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              n_risk: float | None = None,
              printing: set | None = None,
              gross: dict | None = None,
-             now_et=None) -> float:
+             now_et=None, cross: dict | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
@@ -1200,6 +1208,21 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             _record(decision_id, forecast, structure, verdict, snapshot, state,
                     action="refused", contracts=n, reason="CONVEX RULE: " + why)
             return committed
+        # ONE BET, ONE INSTRUMENT: the convex book may not buy premium on a name
+        # another fleet book already holds outright (28 Aug: the basket book's
+        # twelve theme names and the convex book's five calls on the same names
+        # were reported as independent selectors and lost together).
+        _cross = cross or {}
+        _line = crossbook.overlap_refusal(forecast.symbol, _cross.get("held") or set(),
+                                          _cross.get("notes") or [])
+        if _line:
+            result.refuse("cross_book")
+            _record(decision_id, forecast, structure, verdict, snapshot, state,
+                    action="refused", contracts=n, reason=_line)
+            logger.info("CROSS-BOOK refused %s: held by a peer book", forecast.symbol)
+            return committed
+        verdict = replace(verdict, economics={**(verdict.economics or {}),
+                                              "cross_book": _cross.get("status", "not checked")})
     add_notional = structure_notional_usd(structure, n) if n >= 1 else 0.0
     if n >= 1 and book is not None:
         d_new, t_new = admission.structure_greeks(structure, n, snapshot)
