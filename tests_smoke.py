@@ -246,6 +246,10 @@ import tests_smoke_pead
 fails += tests_smoke_pead.fails
 import tests_smoke_equity
 fails += tests_smoke_equity.fails
+import tests_smoke_stop_reconcile
+fails += tests_smoke_stop_reconcile.fails
+import tests_smoke_drivers
+fails += tests_smoke_drivers.fails
 import tests_smoke_admission
 fails += tests_smoke_admission.fails
 import tests_smoke_psychohistory

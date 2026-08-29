@@ -177,12 +177,28 @@ check("one-sided quote -> synthetic quote around the last trade, labelled",
 st_far, _, _, _ = runner.evaluate(FakeClient(bid=185.0, ask=185.1), f_up, state=state, expiry=EXPIRY, open_risk=0.0)
 check("two-sided but 2.8% off the trade -> also synthetic", st_far is not None and st_far.quote["synthetic"] is not None)
 
+# A DERIVED weekday mid-session clock, never a literal date. `run_pass` refuses
+# share entries inside the opening range (09:30-09:45 ET); before this was
+# injectable these suites went red for fifteen minutes every day and green again
+# at 09:45 with nothing changed but the wall clock. Derive from `today` so the
+# fixture cannot rot -- the rule CLAUDE.md states after three literal expiries.
+def _mid_session_et():
+    from datetime import datetime, time as _time, timedelta
+    d = datetime.now().date()
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return datetime.combine(d, _time(10, 30))
+
+
+NOW_ET = _mid_session_et()
+
+
 print("\n-- run_pass end to end (dry), and the book that results")
 tmp = tempfile.mkdtemp(); ledger.LEDGER_DIR = __import__("pathlib").Path(tmp)
 real_read = book.read
 book.read = lambda client, **k: book.reconstruct(client.positions(), equity=100_000, account_role=None, rows=[])
 runner.book_mod = book
-res = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=False)
+res = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=False, now_et=NOW_ET)
 rows = ledger.read_all()
 sub = [r for r in rows if r["action"] == "submitted"]
 check("one share order submitted", res.submitted == 1 and len(sub) == 1 and sub[0]["instrument"] == "long_shares", str(res))
@@ -207,7 +223,7 @@ mlpu = float(sub[0]["max_loss_per_unit"])
 check("book charges shares at the row's stress charge", abs(b.max_loss_usd - qty * mlpu) < 1e-6 and abs(mlpu - 10.8) < 1e-9, f"{b.max_loss_usd:.0f} vs {qty * mlpu:.0f}")
 check("node exposure carries the share risk", abs(b.by_node.get(f"print:{EVENT_DATE}", 0) - qty * mlpu) < 1e-6)
 check("premium-paid view excludes shares", b.premium_paid_usd == 0.0)
-res2 = runner.run_pass(FakeClient(pos), [f_up], expiry=EXPIRY, dry_run=False)
+res2 = runner.run_pass(FakeClient(pos), [f_up], expiry=EXPIRY, dry_run=False, now_et=NOW_ET)
 check("already positioned -> the next pass refuses", res2.submitted == 0 and res2.refused == 1)
 
 # REFUSAL DECOMPOSITION. "48 forecasts, 48 refused, errors=0" is operationally
@@ -229,7 +245,7 @@ except ValueError as exc:
 # BUILT every order and simply did not send it was indistinguishable from one
 # where risk blocked all of it -- the smoke run on 26 Aug reported "refused=48"
 # for a pass that had built 48 orders, and that reading went into a handoff.
-res_dry = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=True)
+res_dry = runner.run_pass(FakeClient(), [f_up], expiry=EXPIRY, dry_run=True, now_et=NOW_ET)
 check("a dry pass BUILDS and does not refuse",
       res_dry.dry_run == 1 and res_dry.refused == 0 and res_dry.submitted == 0, str(res_dry))
 b_orphan = book.reconstruct([{**pos[0], "qty": "-5"}], equity=100_000, account_role=None, rows=[])

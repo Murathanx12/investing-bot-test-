@@ -34,6 +34,22 @@ EXPIRY = (_TODAY + timedelta(days=1)).isoformat()
 EVENT_DATE = (_TODAY - timedelta(days=1)).isoformat()
 
 # ------------------------------------------------------------------ builder
+# A DERIVED weekday mid-session clock, never a literal date. `run_pass` refuses
+# share entries inside the opening range (09:30-09:45 ET); before this was
+# injectable these suites went red for fifteen minutes every day and green again
+# at 09:45 with nothing changed but the wall clock. Derive from `today` so the
+# fixture cannot rot -- the rule CLAUDE.md states after three literal expiries.
+def _mid_session_et():
+    from datetime import datetime, time as _time, timedelta
+    d = datetime.now().date()
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return datetime.combine(d, _time(10, 30))
+
+
+NOW_ET = _mid_session_et()
+
+
 print("\n-- equity.pair_short_vs_hedge: dollar-neutral, charged on the spread")
 bars = [{"o": 100.0, "c": 100.0}] * 5          # no gaps -> floor 2%
 st = equity.pair_short_vs_hedge("LOSER", spot=20.0, bid=19.98, ask=20.02,
@@ -145,7 +161,7 @@ def _approve(structure, centre, sd, st_, **kw):
 runner.sizing.size = _approve
 try:
     cl = FakeClient()
-    res = runner.run_pass(cl, [f_pair], expiry=EXPIRY, dry_run=False)
+    res = runner.run_pass(cl, [f_pair], expiry=EXPIRY, dry_run=False, now_et=NOW_ET)
     rows = ledger.read_all()
     sub = [r for r in rows if r["action"] == "submitted"]
     check("one pair submitted as two venue orders", res.submitted == 1 and len(cl.submitted) == 2, f"{res} / {len(cl.submitted)}")
@@ -166,7 +182,7 @@ try:
     print("\n-- leg 2 refused at the venue: leg 1 is cancelled and bought back")
     ledger.LEDGER_DIR = __import__("pathlib").Path(tempfile.mkdtemp())
     cl2 = FakeClient(fail_leg2=True)
-    res2 = runner.run_pass(cl2, [f_pair], expiry=EXPIRY, dry_run=False)
+    res2 = runner.run_pass(cl2, [f_pair], expiry=EXPIRY, dry_run=False, now_et=NOW_ET)
     rows2 = ledger.read_all()
     flat = [r for r in rows2 if r["action"] == "pair_leg_failed_flattened"]
     check("nothing counted as submitted; one error", res2.submitted == 0 and res2.errors == 1, str(res2))

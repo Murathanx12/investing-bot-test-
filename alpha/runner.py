@@ -57,7 +57,7 @@ from datetime import datetime, timedelta, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import claims, config, daybreak, ledger, recovery, refuted
+from alpha import claims, concentration, config, daybreak, drivers, ledger, recovery, refuted
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -237,14 +237,15 @@ def tournament_state(client: AlpacaPaper, *, starting_equity: float | None = Non
     )
 
 
-def gross_notional_usd(client: AlpacaPaper) -> float | None:
-    """Σ|market_value| across every open position, or None when it cannot be read.
+def gross_notional_by_symbol(client: AlpacaPaper) -> dict[str, float] | None:
+    """|market_value| per UNDERLYING across every open position, or None.
 
-    The number the gross cap binds on. None is a STATE the admission controller
-    refuses against; it is never coerced to zero, because an unreadable book is
-    not a flat book (2026-08-29)."""
+    Options are folded onto their underlying: a call on QUBT and QUBT shares
+    are the same driver and the same name, and splitting them would let a book
+    carry a full name twice under one cap.
+    """
     try:
-        total = 0.0
+        out: dict[str, float] = {}
         for pos in client.positions():
             mv = pos.get("market_value")
             if mv is None:
@@ -252,11 +253,23 @@ def gross_notional_usd(client: AlpacaPaper) -> float | None:
                 px = float(pos.get("current_price") or pos.get("avg_entry_price") or 0.0)
                 mult = 100.0 if (pos.get("asset_class") == "us_option") else 1.0
                 mv = qty * px * mult
-            total += abs(float(mv))
-        return total
+            sym = concentration.underlying_of(str(pos.get("symbol") or "").upper())
+            if sym:
+                out[sym] = out.get(sym, 0.0) + abs(float(mv))
+        return out
     except Exception as exc:                                            # noqa: BLE001
         logger.warning("gross notional unreadable (%s); admission will refuse on GROSS", exc)
         return None
+
+
+def gross_notional_usd(client: AlpacaPaper) -> float | None:
+    """Σ|market_value| across every open position, or None when it cannot be read.
+
+    The number the gross cap binds on. None is a STATE the admission controller
+    refuses against; it is never coerced to zero, because an unreadable book is
+    not a flat book (2026-08-29)."""
+    by_sym = gross_notional_by_symbol(client)
+    return None if by_sym is None else sum(by_sym.values())
 
 
 def in_opening_range(now_et=None) -> bool:
@@ -264,10 +277,44 @@ def in_opening_range(now_et=None) -> bool:
 
     28 Aug: every share entry filled 09:30-09:33 and every 3% stop fired by
     09:48 while the index moved 0.1%. The opening print is the most expensive
-    fill of the day and its range is wider than any stop we run."""
+    fill of the day and its range is wider than any stop we run.
+
+    `now_et` IS THE POINT, not a convenience. The first cut of this guard read
+    the wall clock with no seam and was called from inside `_execute`, so
+    between 09:30 and 09:45 ET -- on ANY day, including a Saturday -- three
+    suites went red and went green again at 09:45 with nothing changed but the
+    time. A guard whose value cannot be supplied is a guard that cannot be
+    tested, and this project has now paid for that class four times (three
+    literal option expiries, then this). Every caller may pass a clock; the
+    same shape as `exits.deadline_liquidation_due(now=...)`.
+
+    Weekends are NOT a session. Saturday 09:34 ET is not the opening range of
+    anything, and treating it as one is how the guard reached the test suite."""
     from alpha import exits as _exits
-    t = (now_et or _exits.now_et()).time()
+    t_et = now_et or _exits.now_et()
+    if t_et.weekday() >= 5:
+        return False
+    t = t_et.time()
     return (t.hour == 9 and 30 <= t.minute < 45)
+
+
+def _driver_args(gross: dict | None, symbol: str, risk_profile: str | None) -> dict:
+    """The driver kwargs for `admission.admit`, or {} when drivers are unknown.
+
+    `by_driver` is None exactly when the book's notional could not be read --
+    and in that state the GROSS check already refuses the order with a named
+    reason, so returning {} here does not open a hole: it avoids stacking a
+    second, vaguer refusal on top of the specific one.
+    """
+    if not isinstance(gross, dict) or not isinstance(gross.get("by_driver"), dict):
+        return {}
+    d = (gross.get("driver_of") or {}).get(symbol.upper()) or drivers.declared_driver(symbol)
+    return {
+        "driver": d,
+        "driver_cap": drivers.cap_fraction(sizing.gross_cap(risk_profile)),
+        "driver_gross_usd": float(gross["by_driver"].get(d, 0.0)),
+        "driver_note": str(gross.get("driver_note") or ""),
+    }
 
 
 def structure_notional_usd(structure: sizing.Structure, n: int) -> float:
@@ -827,7 +874,8 @@ def _compact(evidence: dict) -> dict:
 def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
              risk_profile: str | None = None, dry_run: bool = True,
              field_leader_estimate: float | None = None,
-             shadow_brains: tuple[str, ...] = ()) -> PassResult:
+             shadow_brains: tuple[str, ...] = (),
+             now_et=None) -> PassResult:
     """One full decision pass over forecasts from one or several brains.
 
     `shadow_brains` never execute regardless of ranking -- a brain earns its
@@ -902,7 +950,29 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         {node: usd / state.equity for node, usd in book.by_node.items()} if state.equity else {})
     held = held_underlyings(client)
     # Gross notional is measured ONCE per pass and accumulated as orders go out.
-    gross = {"usd": gross_notional_usd(client), "committed": 0.0}
+    gross_by_sym = gross_notional_by_symbol(client)
+    gross = {"usd": None if gross_by_sym is None else sum(gross_by_sym.values()),
+             "committed": 0.0}
+    # DRIVER taxonomy for this pass (P0.4). One batched bars call, made HERE and
+    # never inside the per-order path -- the same discipline `book_n_risk` keeps,
+    # for the same reason: the order path must not grow a network failure mode.
+    _driver_syms = sorted(set(by_symbol) | set(gross_by_sym or {}))
+    _returns: dict[str, list[float]] = {}
+    if len(_driver_syms) > 1:
+        try:
+            _start = (datetime.now(timezone.utc) - timedelta(days=90)).date().isoformat()
+            _returns = drivers.returns_from_bars(
+                client.stock_bars_multi(_driver_syms, start=_start, timeframe="1Day"))
+        except Exception as exc:                                        # noqa: BLE001
+            logger.warning("driver correlations unmeasured (%s); the DECLARED taxonomy alone "
+                           "decides drivers this pass, and it can only UNDER-count them", exc)
+    _driver_of, _driver_note = drivers.resolve(_driver_syms, _returns)
+    gross["driver_of"] = _driver_of
+    gross["driver_note"] = _driver_note
+    gross["by_driver"] = (None if gross_by_sym is None
+                          else drivers.notional_by_driver(gross_by_sym, _driver_of))
+    logger.info("drivers this pass: %d name(s) -> %d driver(s) (%s)",
+                len(_driver_syms), len(set(_driver_of.values())), _driver_note)
     in_flight = open_order_underlyings(client)
     for sym, n in in_flight.items():
         held[sym] = held.get(sym, 0) + n
@@ -1058,7 +1128,7 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
                              reserved=reserve_for, n_risk=book_n_risk, printing=printing,
-                             gross=gross)
+                             gross=gross, now_et=now_et)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -1071,7 +1141,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              reserved: dict[str, float] | None = None,
              n_risk: float | None = None,
              printing: set | None = None,
-             gross: dict | None = None) -> float:
+             gross: dict | None = None,
+             now_et=None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
@@ -1104,7 +1175,7 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     n = contracts_for(structure, verdict.risk_fraction, state.equity)
     profile_key = (risk_profile or "").strip().lower()
     # -- OPENING RANGE (2026-08-29): no share entry 09:30-09:45 ET ------------
-    if structure.kind in equity_mod.KINDS and in_opening_range():
+    if structure.kind in equity_mod.KINDS and in_opening_range(now_et):
         result.refuse("opening_range")
         _record(decision_id, forecast, structure, verdict, snapshot, state,
                 action="refused", contracts=n,
@@ -1145,7 +1216,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             gross_cap=sizing.gross_cap(risk_profile),
             gross_usd=(gross or {}).get("usd"),
             add_notional_usd=add_notional,
-            committed_notional_usd=float((gross or {}).get("committed") or 0.0))
+            committed_notional_usd=float((gross or {}).get("committed") or 0.0),
+            **_driver_args(gross, forecast.symbol, risk_profile))
         verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
         if not adm.ok:
             result.refuse("risk")
@@ -1170,6 +1242,10 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     add = (structure.max_loss * n) / state.equity if state.equity else 0.0
     if gross is not None:
         gross["committed"] = float(gross.get("committed") or 0.0) + add_notional
+        _by_driver = gross.get("by_driver")
+        if isinstance(_by_driver, dict):
+            _d = (gross.get("driver_of") or {}).get(forecast.symbol.upper())                 or drivers.declared_driver(forecast.symbol)
+            _by_driver[_d] = _by_driver.get(_d, 0.0) + add_notional
     if dry_run:
         result.dry_run += 1
         _record(decision_id, forecast, structure, verdict, snapshot, state,

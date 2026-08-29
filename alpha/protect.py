@@ -232,20 +232,56 @@ def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
             continue
         symbol = order["symbol"]
         want_qty = int(order["qty"])
+        want_side = str(order["side"]).lower()
+        want_price = float(order["stop_price"])
         live = existing.get(symbol, [])
+        # -- RECONCILIATION (2026-08-29, P0.5) --------------------------------
+        # The first cut asked `covered >= want_qty`, where `covered` summed the
+        # quantities of every resting stop on the symbol. That inequality is
+        # true in three states this module exists to prevent, and it called all
+        # three "kept":
+        #
+        #   SIDE FLIP  a sell-stop resting under a position that is now SHORT.
+        #              Firing it SELLS shares nobody holds and doubles the short.
+        #   SHRINK     a x120 stop over a position reduced to 40. Firing it
+        #              sells 120 where 40 exist -- an 80-share phantom short.
+        #   STACKED    two x60 stops on 120 shares. Either is right; both firing
+        #              sells 240.
+        #
+        # Every one of those turns a protective order into an unbounded one,
+        # which is precisely rule 2 of this module's docstring read in the other
+        # direction. So the test is now EXACT and singular: one resting stop, on
+        # the side that closes this position, for exactly the quantity held.
+        # Anything else is cancelled and re-placed.
         covered = sum(int(float(o.get("qty") or 0.0)) for o in live)
-        if covered >= want_qty and live:
-            summary["kept"].append(f"{symbol} x{covered}")
+        matching = [o for o in live
+                    if str(o.get("side") or "").lower() == want_side
+                    and int(float(o.get("qty") or 0.0)) == want_qty]
+        if len(live) == 1 and len(matching) == 1:
+            # The price is NOT part of the match. A stale stop price (the avg
+            # entry moved under an add) leaves protection that is merely in the
+            # wrong PLACE, while cancelling to correct it opens a window with no
+            # protection at all -- and a re-place can be refused by the venue.
+            # So a drift is REPORTED and left standing; changing that is an
+            # attended decision, not one this pass makes silently.
+            drift = abs(float(matching[0].get("stop_price") or 0.0) - want_price)
+            summary["kept"].append(f"{symbol} x{want_qty}" + (
+                f" (stop rests at {matching[0].get('stop_price')}, the position now implies "
+                f"{want_price:.2f}; left standing)" if drift > 0.011 else ""))
             continue
         if live:
-            # A partial fill that later completed: the resting stop covers less
-            # than the position. Cancel and re-place at the full size rather
-            # than stacking, so the venue holds exactly one stop per symbol.
+            why = ("side" if not matching and any(str(o.get("side") or "").lower() != want_side for o in live)
+                   else "stacked" if len(live) > 1 else "size")
             for o in live:
                 oid = str(o.get("id") or "")
                 if oid and not dry_run:
                     client.cancel_order(oid)
-            summary["resized"].append(f"{symbol} {covered}->{want_qty}")
+            summary["resized"].append(
+                f"{symbol} {len(live)} stop(s) x{covered} -> 1 x{want_qty} {want_side} ({why})")
+            if why != "size":
+                logger.warning("RECONCILE %s: %d resting stop(s) covering %d did not describe a "
+                               "%s of %d (%s) -- cancelled and re-placed", symbol, len(live),
+                               covered, want_side, want_qty, why)
 
         if dry_run:
             summary["placed"].append(f"DRY {symbol} {order['side']} x{want_qty} @ {order['stop_price']}")

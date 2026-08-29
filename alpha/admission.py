@@ -19,7 +19,10 @@ post-trade book, and REFUSES the order if the answer is "less than it must":
      aggregate ceiling for a better signal tomorrow. The order that spends the
      last of the budget is the one refused, whatever its edge, unless the order
      IS the reserved event's own expression.
-  2. CONCENTRATION -- post-trade max loss on one underlying <= `PER_UNDERLYING_CAP`.
+  2. CONCENTRATION -- post-trade max loss on one underlying <= `PER_UNDERLYING_CAP`,
+     and post-trade NOTIONAL on one DRIVER <= its share of the gross authority
+     (`alpha/drivers.py`). One name is not a book, and twelve tickers on one
+     driver are not twelve bets -- 28 Aug proved the second the expensive way.
   3. THETA BURN -- post-trade book theta per calendar day >= -`THETA_BURN_CAP`
      of equity. Long premium is allowed; a book that pays 0.75% of equity a day
      to wait is not.
@@ -192,7 +195,9 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
           per_underlying_cap: float = PER_UNDERLYING_CAP,
           n_risk: float | None = None,
           gross_cap: float | None = None, gross_usd: float | None = None,
-          add_notional_usd: float = 0.0, committed_notional_usd: float = 0.0) -> Admission:
+          add_notional_usd: float = 0.0, committed_notional_usd: float = 0.0,
+          driver: str | None = None, driver_cap: float | None = None,
+          driver_gross_usd: float = 0.0, driver_note: str = "") -> Admission:
     """Admit or refuse `contracts` units of `structure` on the POST-trade book.
 
     `per_underlying_cap` defaults to 15% and the runner raises it to the
@@ -235,6 +240,26 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
                 f"GROSS: after this order the book would carry {post_gross / equity:.0%} of equity "
                 f"in notional (cap {gross_cap:.0%}). Twelve names at 25% each is 300% gross, and a "
                 "3% stop on 300% gross is -9% -- the 28 Aug number."), m)
+    # -- DRIVER CONCENTRATION (2026-08-29, P0.4) -------------------------------
+    # The gross cap bounds HOW MUCH; this bounds HOW MANY DIFFERENT THINGS can
+    # go wrong. 28 Aug: twelve names, eleven stopped inside twelve minutes -- a
+    # 100% gross book that is 100% one driver still loses the whole stop width
+    # at once. `alpha/drivers.py` names the driver; declared taxonomy first,
+    # measurement allowed only to MERGE two drivers into one.
+    if driver_cap is not None and driver:
+        post_driver = driver_gross_usd + max(0.0, add_notional_usd)
+        m["driver"] = driver
+        m["post_driver_frac"] = round(post_driver / equity, 4)
+        m["driver_cap"] = driver_cap
+        if driver_note:
+            m["driver_taxonomy"] = driver_note
+        if post_driver > driver_cap * equity + 1e-9:
+            return Admission(False, (
+                f"DRIVER: after this order the book would carry {post_driver / equity:.0%} of equity "
+                f"in notional on the single driver {driver!r} (cap {driver_cap:.0%}). On 28 Aug "
+                "twelve basket names were three drivers and eleven of them stopped inside twelve "
+                "minutes -- twelve tickers, one bet. Breadth is measured in drivers, not tickers."
+                + (f" [{driver_note}]" if driver_note else "")), m)
     if post_sym > per_underlying_cap * equity + 1e-9:
         return Admission(False, (
             f"CONCENTRATION: {sym} would carry {post_sym / equity:.1%} of equity in true max loss "
