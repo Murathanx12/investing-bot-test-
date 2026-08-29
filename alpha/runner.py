@@ -1549,5 +1549,19 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             # the book matcher and the exit pass read it from here.
             **({"hedge_symbol": order.get("hedge_symbol"), "hedge_shares": int(order.get("hedge_qty") or 0)}
                if isinstance(order, dict) and order.get("pair") else {}),
+            # THE PAIR'S OWN SHAPE, recorded whether or not an order was built.
+            # The two fields above exist only on a row that reached an order, so
+            # a REFUSED pair carried no hedge quantity at all -- and the legs say
+            # (1, 1), which `book.py:249` already notes does not describe the
+            # hedge. `entry_cost_per_unit` is the SHORT LEG ALONE by design
+            # (`equity.pair_short_vs_hedge`: "the hedge leg's notional rides in
+            # the quote"), and the quote is not persisted. So the counterfactual
+            # priced a two-leg exit against a one-leg entry at a ratio nobody
+            # recorded, and published +$62m on a $99k book. These three fields
+            # are what make a pair world markable at all.
+            **({"hedge_ratio": (structure.quote or {}).get("hedge_ratio"),
+                "hedge_entry_ask": (structure.quote or {}).get("hedge_ask"),
+                "hedge_leg": (structure.quote or {}).get("hedge_symbol")}
+               if structure is not None and structure.kind == equity_mod.PAIR_KIND else {}),
         },
     ))

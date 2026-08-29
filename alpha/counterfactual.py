@@ -70,9 +70,27 @@ from datetime import datetime, timezone
 from typing import Any, Iterable
 
 from alpha import ledger
+from alpha.engine.equity import PAIR_KIND
 
 #: Contract multiplier. One option covers 100 shares.
 MULT = 100.0
+
+#: A world whose gain exceeds this multiple of the structure's OWN stated max
+#: loss is recorded UNMARKABLE, not banked.
+#:
+#: `mark()` already refused a mark BELOW -1.05x max loss ("a defined-risk
+#: structure cannot lose more than its stated max loss"), added after a refused
+#: bear-call spread showed -292% of risk. There was no ceiling, so the mirror
+#: error -- +1,226,583% of risk on a units bug -- went straight into
+#: `refusal_edge_on_risk` and produced an instruction to LOOSEN the risk gates.
+#: A guard built on one side of a symmetric error catches half of it.
+#:
+#: 20x is deliberately generous: it does not question a good trade, it questions
+#: arithmetic. Nothing this fleet trades returns twenty times its own max loss
+#: inside a counterfactual window of hours, and a world that appears to has not
+#: been measured, it has been mis-multiplied. The raw figure is kept on the mark
+#: and counted in the report, so a real one would be visible rather than erased.
+IMPLAUSIBLE_GAIN_ON_RISK = 20.0
 
 #: The null every comparison needs.
 NO_TRADE = "no_trade"
@@ -116,6 +134,13 @@ class Unmarkable(RuntimeError):
     """A world that cannot be priced. Recorded as unmarkable, never as zero."""
 
 
+def leg_multiplier(symbol: str) -> float:
+    """100 for an option contract, 1 for a share. Shares are not contracts."""
+    from alpha.engine import equity as _equity
+
+    return 1.0 if _equity.is_equity_symbol(str(symbol or "")) else MULT
+
+
 def exit_value_per_unit(legs: Iterable[tuple[str, str, int]], quotes: dict[str, dict]) -> float:
     """What one unit of this structure could be CLOSED for, in dollars.
 
@@ -133,11 +158,24 @@ def exit_value_per_unit(legs: Iterable[tuple[str, str, int]], quotes: dict[str, 
         bid, ask = float(q.get("bid") or 0.0), float(q.get("ask") or 0.0)
         if bid <= 0 and ask <= 0:
             raise Unmarkable(f"leg {symbol} has no two-sided quote")
+        # PER LEG. This function used to end `return total * MULT`, applying the
+        # OPTIONS contract multiplier to every leg including shares. On 28 Aug
+        # that priced the BBW/IWM share pair at (320.40 - 24.10) x 100 = 29,640
+        # per unit against an entry cost recorded at multiplier 1 -- the two
+        # sides of one subtraction on scales a hundred apart -- and published
+        # +$62,687,334 on a $99,250 book, from which `refusal_verdict` concluded
+        # "the gate is discarding edge -- loosen it or explain it".
+        #
+        # It is the same defect as 02a3047 ("a SHARES leg is marked from the
+        # stock quote at multiplier 1"), one layer down: P0.1 fixed which
+        # ENDPOINT a share leg is quoted from and never touched the multiplier
+        # applied to the answer, so the fix written for this failure missed it.
+        mult = leg_multiplier(symbol)
         if side == "buy":
-            total += bid * ratio          # we sell it back at the bid
+            total += bid * ratio * mult   # we sell it back at the bid
         else:
-            total -= ask * ratio          # we buy it back at the ask
-    return total * MULT
+            total -= ask * ratio * mult   # we buy it back at the ask
+    return total
 
 
 def mark(decision: dict, quotes: dict[str, dict], *,
@@ -175,6 +213,47 @@ def mark(decision: dict, quotes: dict[str, dict], *,
                     mark_source="unmarkable",
                     detail={"why": "no legs or no stated max loss"}, **common)
 
+    # A PAIR IS NOT ITS RECORDED LEGS (2026-08-29). `alpha/book.py:249` already
+    # says it -- "the row's leg ratios (1, 1) do not describe the hedge quantity;
+    # `hedge_shares` in the outcome does" -- and that fact never reached here.
+    # Worse, on a REFUSED row there is no `hedge_shares` at all (nothing was
+    # built), and `entry_cost_per_unit` is the SHORT LEG'S PROCEEDS ALONE: BURL
+    # records -289.745 against a BURL share price of ~290, with the IWM hedge
+    # nowhere in it. Pricing the exit off both legs against an entry off one leg
+    # compares two different structures and yields the short's whole notional as
+    # profit -- which is how a refused pair reported +$62m.
+    #
+    # There is no honest number here, so none is produced. This is the same
+    # judgement `book.reconstruct` makes when a structure does not fit its row:
+    # say CANNOT DETERMINE rather than price something nobody recorded.
+    if kind == PAIR_KIND:
+        _out = decision.get("outcome") or {}
+        ratio = _out.get("hedge_ratio")
+        hedge_ask = _out.get("hedge_entry_ask")
+        if ratio and hedge_ask:
+            # The entry cost recorded for a pair is the SHORT LEG'S CREDIT ALONE
+            # (equity.pair_short_vs_hedge). The hedge was bought at the ask, so
+            # the unit's true entry is the credit plus what the hedge cost.
+            # Without this the exit prices two legs against an entry for one and
+            # the short's whole notional reads as profit.
+            legs = (tuple(legs[0]), (legs[1][0], legs[1][1], float(ratio)))
+            per_unit_cost = per_unit_cost + float(ratio) * float(hedge_ask)
+        else:
+            hedge_n = _out.get("hedge_shares")
+            taken_n = decision.get("contracts")
+            if hedge_n and taken_n:
+                legs = (tuple(legs[0]), (legs[1][0], legs[1][1], float(hedge_n) / float(taken_n)))
+        if not ((ratio and hedge_ask) or ((_out.get("hedge_shares")) and decision.get("contracts"))):
+            return Mark(units=0.0, entry_cost_usd=0.0, exit_value_usd=0.0, pnl_usd=0.0,
+                        mark_source="unmarkable",
+                        detail={"why": ("pair_incoherent: the row records neither `hedge_ratio` + "
+                                        "`hedge_entry_ask` nor `hedge_shares`, its leg ratios do not "
+                                        "describe the hedge (book.py:249), and entry_cost_per_unit is "
+                                        "the SHORT leg alone. Entry and exit would describe different "
+                                        "structures. Rows written after 2026-08-29 carry the fields."),
+                                "legs": list(legs), "entry_cost_per_unit": per_unit_cost},
+                        **common)
+
     # Equal risk, not equal size. This is the whole comparison.
     units = risk_budget_usd / per_unit_loss
     try:
@@ -198,6 +277,17 @@ def mark(decision: dict, quotes: dict[str, dict], *,
                     detail={"why": "quote_inconsistent: mark below the structure's own max loss",
                             "raw_pnl_per_unit": pnl_pu, "max_loss_per_unit": per_unit_loss},
                     **common)
+    if pnl_pu > per_unit_loss * IMPLAUSIBLE_GAIN_ON_RISK:
+        return Mark(units=units, entry_cost_usd=entry, exit_value_usd=exit_usd,
+                    pnl_usd=0.0, mark_source="unmarkable",
+                    detail={"why": (f"implausible_gain: {pnl_pu / per_unit_loss:,.0f}x the "
+                                    "structure's own max loss. That is an arithmetic fault, not "
+                                    "an opportunity -- on 28 Aug a share pair marked at the "
+                                    "options multiplier reported +1,226,583% of risk and the "
+                                    "refusal verdict read 'loosen the gate'."),
+                            "raw_pnl_per_unit": pnl_pu, "max_loss_per_unit": per_unit_loss,
+                            "gain_on_risk": pnl_pu / per_unit_loss},
+                    **common)
     return Mark(units=units, entry_cost_usd=entry, exit_value_usd=exit_usd,
                 pnl_usd=exit_usd - entry, mark_source="chain",
                 detail={"exit_per_unit": exit_pu, "legs": len(legs)}, **common)
@@ -220,15 +310,26 @@ def report(marks: list[Mark]) -> dict[str, Any]:
     if not usable:
         return {"status": "nothing markable",
                 "unmarkable": len(unmarkable),
+                "implausible": sum(1 for m in unmarkable if str(
+                    (m.detail or {}).get("why", "")).startswith("implausible_gain")),
                 "note": "a report with no marked world is an absence, not a zero"}
 
     best = max(usable, key=lambda m: m.pnl_usd)
     worst = min(usable, key=lambda m: m.pnl_usd)
     taken_pnl = sum(m.pnl_usd for m in taken)
 
+    # Counted SEPARATELY from a missing quote. An arithmetic fault and an absent
+    # feed are different problems with different fixes, and a big count here is
+    # data about our own code, not plumbing to skim past.
+    implausible = [m for m in unmarkable
+                   if str((m.detail or {}).get("why", "")).startswith("implausible_gain")]
+    incoherent = [m for m in unmarkable
+                  if str((m.detail or {}).get("why", "")).startswith("pair_incoherent")]
     out: dict[str, Any] = {
         "worlds_marked": len(usable),
         "unmarkable": len(unmarkable),
+        "implausible": len(implausible),
+        "pair_incoherent": len(incoherent),
         "taken": len(taken),
         "refused": len(refused),
         "taken_pnl_usd": round(taken_pnl, 2),

@@ -114,14 +114,21 @@ ok2, msg2 = ledger.verify_chain(); check("tamper detected", not ok2, msg2[:80])
 
 print("\n-- counterfactual marking (grading the roads not taken)")
 from alpha import counterfactual as cf
-Q = {"L": {"bid": 3.0, "ask": 3.4}, "S": {"bid": 1.0, "ask": 1.4}}
+# REAL OCC SYMBOLS. These legs are option contracts and every assertion below
+# is at x100 ("structures.py multiplies by 100 at construction"). Since
+# 2026-08-29 the multiplier is applied PER LEG, matching the endpoint each
+# leg was quoted from, so the placeholders "L"/"S" would now correctly price
+# as SHARES. The fixture was the thing that named them wrongly.
+L = "TSLA260918C00400000"
+S = "TSLA260918C00410000"
+Q = {L: {"bid": 3.0, "ask": 3.4}, S: {"bid": 1.0, "ask": 1.4}}
 # A long leg leaves at the BID, a short leg is bought back at the ASK. Marking
 # both at the mid would gift half a spread per leg, and gift it hardest to the
 # four-leg structures -- which is how a condor beats a call on arithmetic alone.
-check("long leg exits at the bid", cf.exit_value_per_unit([("L","buy",1)], Q) == 300.0)
-check("short leg exits at the ask", cf.exit_value_per_unit([("S","sell",1)], Q) == -140.0)
+check("long leg exits at the bid", cf.exit_value_per_unit([(L,"buy",1)], Q) == 300.0)
+check("short leg exits at the ask", cf.exit_value_per_unit([(S,"sell",1)], Q) == -140.0)
 check("spread exits at both crossed sides",
-      cf.exit_value_per_unit([("L","buy",1),("S","sell",1)], Q) == 160.0)
+      cf.exit_value_per_unit([(L,"buy",1),(S,"sell",1)], Q) == 160.0)
 try:
     cf.exit_value_per_unit([("MISSING","buy",1)], Q); check("missing quote refuses", False)
 except cf.Unmarkable: check("missing quote refuses", True)
@@ -137,10 +144,10 @@ def _w(ident, kind, action, cost, loss, legs, reason=None):
 # Same $1,000 of risk, two structures with different per-unit risk: the cheaper
 # one buys more units. Equal RISK, not equal size -- otherwise the comparison is
 # between two different bets rather than between two shapes.
-taken = cf.mark(_w("d1","long_call","submitted",200.0,200.0,[("L","buy",1)]),
+taken = cf.mark(_w("d1","long_call","submitted",200.0,200.0,[(L,"buy",1)]),
                 Q, risk_budget_usd=1000)          # 5 units, exit 300 -> +500
 alt   = cf.mark(_w("d1:alt0","debit_spread","refused",100.0,100.0,
-                   [("L","buy",1),("S","sell",1)], "edge below 5pp"),
+                   [(L,"buy",1),(S,"sell",1)], "edge below 5pp"),
                 Q, risk_budget_usd=1000)          # 10 units, exit 160 -> +600
 check("equal risk, not equal size", taken.units == 5.0 and alt.units == 10.0)
 check("marked from the chain", taken.mark_source == "chain")
@@ -162,10 +169,10 @@ check("negative refusal edge is reported as such",
 
 # Every world under water: a capture ratio against a non-positive denominator
 # reads well and means nothing, so it is refused and the null is named instead.
-loser = cf.mark(_w("d2","long_call","submitted",400.0,400.0,[("L","buy",1)]),
+loser = cf.mark(_w("d2","long_call","submitted",400.0,400.0,[(L,"buy",1)]),
                 Q, risk_budget_usd=1000)          # 2.5 units, exit 300 -> -250
 sunk  = cf.mark(_w("d2:alt0","debit_spread","refused",400.0,400.0,
-                   [("L","buy",1),("S","sell",1)], "spread too wide"),
+                   [(L,"buy",1),(S,"sell",1)], "spread too wide"),
                 Q, risk_budget_usd=1000)          # 2.5 units, exit 160 -> -600
 rep2 = cf.report([loser, sunk, cf.mark(cf.null_world("d2","TSLA"), Q, risk_budget_usd=1000)])
 check("no capture ratio against a loss", rep2["opportunity_capture"] is None)
@@ -246,6 +253,8 @@ import tests_smoke_pead
 fails += tests_smoke_pead.fails
 import tests_smoke_equity
 fails += tests_smoke_equity.fails
+import tests_smoke_counterfactual_units
+fails += tests_smoke_counterfactual_units.fails
 import tests_smoke_crossbook
 fails += tests_smoke_crossbook.fails
 import tests_smoke_analyst_targets

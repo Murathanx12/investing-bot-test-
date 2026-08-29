@@ -222,12 +222,20 @@ check("mark exits at the bid", abs(a.mark["exit_per_unit_at_bid"] - 12.0) < 1e-9
 print("\n-- counterfactual: a defined-risk mark cannot exceed its max loss")
 from alpha import counterfactual as cf
 dec = {"decision_id": "z", "symbol": "PANW", "instrument": "bear_call_spread", "action": "refused",
-       "legs": [["S", "sell", 1], ["L", "buy", 1]], "entry_cost_per_unit": -100.0, "max_loss_per_unit": 400.0,
+       # REAL OCC symbols. A bear call spread's legs are option contracts, and
+       # since 2026-08-29 the mark applies the x100 multiplier PER LEG, matching
+       # the endpoint each leg's quote came from (`counterfactual.leg_multiplier`).
+       # The old placeholders "S"/"L" are not OCC symbols, so they now correctly
+       # price as shares -- the fixture, not the guard, was what changed.
+       "legs": [["PANW260918C00400000", "sell", 1], ["PANW260918C00410000", "buy", 1]],
+       "entry_cost_per_unit": -100.0, "max_loss_per_unit": 400.0,
        "ts_utc": "2026-08-25T00:00:00Z"}
-bad = cf.mark(dec, {"S": {"bid": 30, "ask": 60}, "L": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
+bad = cf.mark(dec, {"PANW260918C00400000": {"bid": 30, "ask": 60},
+                    "PANW260918C00410000": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
 check("mark below max loss is UNMARKABLE, not a saved loss", bad.mark_source == "unmarkable" and bad.pnl_usd == 0.0,
       bad.detail.get("why", ""))
-ok_ = cf.mark(dec, {"S": {"bid": 1.0, "ask": 1.2}, "L": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
+ok_ = cf.mark(dec, {"PANW260918C00400000": {"bid": 1.0, "ask": 1.2},
+                    "PANW260918C00410000": {"bid": 0.05, "ask": 0.10}}, risk_budget_usd=5000)
 check("ordinary mark still prices", ok_.mark_source == "chain")
 
 # --------------------------------------------- one position per symbol per BOOK
