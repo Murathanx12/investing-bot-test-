@@ -1,3 +1,37 @@
+> ## SESSION 20 (2026-08-29, Sat) -- MONDAY SAFETY SHIPPED; FRIDAY WAS LEVERAGE
+>
+> **RESULT IMPROVEMENT: NONE in P&L (market closed). Monday's worst case cut
+> from -24% to -8% on the basket books; four learning loops un-crashed.**
+>
+> Read `../aegis-finance/docs/ROADMAP_2026-08-29_WEEKEND_TO_MONDAY.md` §1 for the
+> arithmetic: twelve names x 25% notional = **300% gross**, x 3% stop = Friday's
+> -9%. Nothing capped Σ|notional|. Shipped and DEPLOYED to all six loops
+> (commit 9e47576+): `sizing.GROSS_NOTIONAL_CAP` (basket 100%) enforced in
+> `admission.admit` (refuses when the book cannot be read); basket per-name
+> notional 10% (`equity.MAX_NOTIONAL_BY_PROFILE`); convex premium at risk 15%
+> aggregate, >= 10 DTE, break-even <= the market's own width; **no share entry
+> 09:30-09:45 ET**; `scripts.counterfactual` routes share legs to the stock
+> quote (hack1/2/3/6 had exited non-zero 17x in a row and marked nothing).
+> NOT done: P0.4 concentration by DRIVER, P0.5 order/stop reconciliation tests,
+> and the convex book can still buy a name the basket book holds (cross-account).
+>
+> **Opus's corpus (reviewed, fixed, committed):** `alpha/sources/corpus.py`,
+> `scripts/{news_backfill,catalyst_horizon,corpus_digest}.py`, 30,865 PIT
+> observations 2025-06 -> 2027-02 in `state/corpus/` (gitignored, regenerable).
+> Review fixes applied: a catalyst claim is bounded to [today, +12m] and only a
+> corpus row sustains condition (d); no invented timestamps; a provider outage
+> writes `<sym>.failed.json` instead of erasing a good digest; synthesis refuses
+> when more than half the chunks failed. `python -m scripts.corpus_digest --screen`
+> is the 20-name table. Suite 43/1673 green via `python run_tests.py` only.
+>
+> **Optimus repaired** (`../optimus` 84108c4): ingest no longer re-prefixes its
+> own output, 33 phantom rows removed (index.db backed up), and BOTH repos'
+> `docs/` trees are now ingest sources -- they never were, which is why
+> `brain_query("portfolio farm breadth")` returned a Next.js README.
+>
+> **Monday 21:30 SGT / 09:30 ET:** nothing else touches an order. Judged-account
+> call and any fresh keys are Murat's; `scripts.genesis --freeze` before any order.
+
 > **2026-08-28, session 19b (08:00 ET): THE FLEET.** Six new paper accounts,
 > six mandates — read **`docs/FLEET_2026-08-28.md`** and `python -m scripts.fleet
 > --plan`. Two SAFE (`anchor`, `drift`), four RISKY (`thesis` = Murat's

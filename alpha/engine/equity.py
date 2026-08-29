@@ -133,6 +133,19 @@ def stress_charge(bars: list[dict] | None, *, implied_move: float = 0.0,
 PROFIT_TARGET = 0.025
 #: Hard cap on share notional per name, as a fraction of equity.
 MAX_NOTIONAL_FRACTION = 0.25
+#: Per-profile override (2026-08-29). A BASKET is a human prior spread over
+#: many names; at 25% per name the 100% gross cap admits four of them, which is
+#: concentration wearing a basket's name. 10% per name = ten names inside the
+#: gross cap, worst case at the 8% basket stop = 10 x 10% x 8% = -8%.
+MAX_NOTIONAL_BY_PROFILE = {"conservative": 0.25, "aggressive": 0.25, "maximum": 0.25,
+                           "basket": 0.10, "convex": 0.10}
+
+
+def notional_cap(profile: str | None = None) -> float:
+    """Per-name notional cap for the active profile (`AAT_RISK_PROFILE` when unset)."""
+    import os
+    key = (profile if profile is not None else os.getenv("AAT_RISK_PROFILE", "")).strip().lower()
+    return MAX_NOTIONAL_BY_PROFILE.get(key, MAX_NOTIONAL_FRACTION)
 
 KINDS = frozenset({"long_shares", "short_shares", "pair_short_vs_iwm"})
 #: The hedged expression of a wide-universe DOWN print. See `pair_short_vs_hedge`.
@@ -208,11 +221,11 @@ def shares(symbol: str, *, spot: float, bid: float, ask: float, direction: str,
     )
 
 
-def units_cap(spot: float, equity: float) -> int:
-    """Most shares of a name the notional cap allows."""
+def units_cap(spot: float, equity: float, profile: str | None = None) -> int:
+    """Most shares of a name the notional cap allows (per profile since 2026-08-29)."""
     if spot <= 0 or equity <= 0:
         return 0
-    return int((MAX_NOTIONAL_FRACTION * equity) // spot)
+    return int((notional_cap(profile) * equity) // spot)
 
 
 def stop_hit(unrealized_plpc: float) -> bool:
