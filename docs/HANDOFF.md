@@ -1,3 +1,32 @@
+> ## SESSION 20d (2026-08-29 night, Fable) -- NEWS IS NUMBERS NOW; THE BLIND LLM READ HAS NO DIRECTION
+>
+> **RESULT IMPROVEMENT: NONE in P&L. Two measured verdicts that decide what the
+> sealed book is built from, and 2.6x more sensors.** Suite 51 / 2,105 green.
+>
+> - `python -m scripts.corpus_features --ic`: event-type COUNTS carry 21-day
+>   information (insider/stake +0.14, earnings +0.13, contract/analyst-rating
+>   +0.09-0.10, n=4,451); attention, lexicon sentiment, novelty do not.
+> - `python -m scripts.blind_tournament`: Murat's name-swapped protocol,
+>   120 sealed cells, blinding holds (0/120 identified) -- hit 45% vs 47% null,
+>   IC -0.18: **NO INFORMATION**, and worse when confident.
+>   `docs/FINDING_2026-08-29_BLINDED_NEWS_HAS_NO_DIRECTION_EVENT_COUNTS_DO.md`.
+> - Corpus 30,865 -> **80,212**: `scripts/edgar_backfill.py` (149 names with
+>   filings; Form 4 uid collision found and purged with receipt; SLNO needs a
+>   CIK override and carries 7 SC TO tender filings), `scripts/ir_backfill.py`
+>   (6/20 feeds, live tap only), `news_backfill --universe fleet` (156 names,
+>   13 months). Reviewer notes: `numpy` used but not in requirements.txt; bars
+>   need a role (`--role hack1`) and SIP refuses the last 15 minutes.
+> - Roadmap §10 in Aegis (`ROADMAP_2026-08-29_WEEKEND_TO_MONDAY.md`) lists the
+>   ten tests T1-T10 for the week; T1 done (negative), features panel done,
+>   sensors done. **Next for Opus: T6 rule cells + T3 sector-lead on the panel;
+>   the sealed 09:15 book fed by the five event features; T2 refusal-ledger NAV
+>   nightly; re-run T1 on hf_glm with a SPY control once SPY rows exist.**
+> - Open for Murat: BE is held by hack3 (shares) AND hack5 (calls, 6 DTE,
+>   -$960). Recommendation: close the hack5 calls at Monday's open -- theta and
+>   the T1/T8 evidence both say long premium on the same name is the losing
+>   instrument. Shortlist by Murat's own rule (a): MU 1.61 pass; BHVN 1.23 and
+>   SRRK 1.06 FAIL. Judged account: hack1 unless hack6 recovers by Wednesday.
+
 > ## SESSION 20 (2026-08-29, Sat) -- MONDAY SAFETY SHIPPED; FRIDAY WAS LEVERAGE
 >
 > **RESULT IMPROVEMENT: NONE in P&L (market closed). Monday's worst case cut
