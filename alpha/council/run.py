@@ -270,7 +270,9 @@ def council(client, symbol: str, *, live: dict[str, dict[str, Any]] | None = Non
 
 
 def write(packet: dict[str, Any]) -> Path:
-    day = (datetime.now(timezone.utc) - timedelta(hours=4)).date().isoformat()
+    from alpha.exits import session_day
+
+    day = session_day()          # ET trading day; see exits.session_day
     outdir = STATE / "council" / day
     outdir.mkdir(parents=True, exist_ok=True)
     p = outdir / f"{packet['symbol']}.json"

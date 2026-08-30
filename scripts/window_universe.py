@@ -221,7 +221,46 @@ def main() -> int:
               "reaches it.")
 
     syms = sorted({r["symbol"] for r in tradeable})
+
+    # THE VENUE DECIDES WHAT IS TRADEABLE, not the earnings calendar (2026-08-30).
+    # `tradeable` above means "has a sized print whose drift reaches the window".
+    # It never asked whether the name is still a listed equity, and on 2026-08-30
+    # four of 98 were not: GES and GMS are `inactive, tradable=False` at Alpaca
+    # (taken private / acquired), and SNBR and TPIC return HTTP 404 -- they are
+    # not assets at all. Their SEC tickers are SNBRQ and TPICQ, and the Q is the
+    # bankruptcy suffix; TPIC's newest filing is a 15-12G, which IS
+    # deregistration. Nothing could ever have filled, so this cost no money.
+    # What it cost was a universe count that did not mean what it said, and
+    # quote calls spent enumerating structures on shells.
+    #
+    # ONE call, not one per name. A failure to reach the venue leaves the list
+    # UNFILTERED and says so: refusing a whole universe because an asset lookup
+    # timed out would turn a cosmetic check into an outage.
+    dropped: list[str] = []
+    try:
+        from alpha import config as _cfg
+        from alpha.broker.alpaca import AlpacaPaper
+
+        _cfg.load_env()
+        active = {str(a.get("symbol") or "").upper()
+                  for a in (AlpacaPaper()._request(
+                      "GET", "/v2/assets",
+                      params={"status": "active", "asset_class": "us_equity"}) or [])
+                  if a.get("tradable")}
+        if active:
+            dropped = [s for s in syms if s not in active]
+            syms = [s for s in syms if s in active]
+            for day, names in list(by_day.items()):
+                by_day[day] = [n for n in names if n not in set(dropped)]
+    except Exception as exc:                                            # noqa: BLE001
+        print(f"\n  TRADABILITY UNCHECKED ({type(exc).__name__}: {str(exc)[:70]}). "
+              "The list below is the calendar's answer, not the venue's.")
+
     print(f"\n  ALL {len(syms)}: {' '.join(syms)}")
+    if dropped:
+        print(f"  DROPPED {len(dropped)} not tradable at the venue: {' '.join(dropped)}")
+        print("    (delisted, acquired or in bankruptcy -- a name the calendar knows and the "
+              "venue does not is a fact about the company, not a feed gap)")
 
     if args.check_chains and syms:
         exp = args.expiry or (deadline.isoformat())
@@ -239,7 +278,10 @@ def main() -> int:
              "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
              "drift_sessions": list(DRIFT_SESSIONS),
              "min_revenue_estimate": MIN_REVENUE_ESTIMATE,
-             "by_session": by_day, "universe": syms, "rows": rows}, indent=2) + "\n")
+             "by_session": by_day, "universe": syms, "rows": rows,
+             # Named, not silently absent: a reader comparing this count against
+             # the calendar's must be able to see where the difference went.
+             "dropped_not_tradable": dropped}, indent=2) + "\n")
         print(f"\n  receipt: {dest}")
     return 0
 

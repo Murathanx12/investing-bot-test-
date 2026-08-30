@@ -4,3 +4,11 @@
 #
 # alpaca-py is used by the MCP/CLI surfaces and by anything streaming.
 alpaca-py>=0.33.0
+
+# numpy: used by alpha/{lab,nodes,optlab,tournament}.py, alpha/sources/features.py
+# and scripts/{beta_explains,blind_tournament,book_expectation,competition_book,
+# corpus_features}.py -- ten modules, undeclared until 2026-08-30. It was present
+# on the dev machine and in the Railway image by accident of another dependency,
+# which is the way an undeclared import stays invisible until the one build that
+# does not have it.
+numpy>=1.26

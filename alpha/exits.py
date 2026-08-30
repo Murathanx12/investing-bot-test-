@@ -91,6 +91,26 @@ def now_et() -> datetime:
     return datetime.now(timezone.utc) + ET_OFFSET
 
 
+def session_day(now: datetime | None = None) -> str:
+    """The TRADING day (ET) an artefact belongs to, as YYYY-MM-DD.
+
+    Anything keyed by day -- council packets, autopsies, the sealed pre-open
+    book -- must agree on this or a writer and a reader will disagree for the
+    four hours a day when the UTC date is already tomorrow and the ET date is
+    not. `alpha/council/run.write` and `council_vector.latest_packet` derived it
+    separately and agreed; `tests_smoke_fleet` derived it a third time from the
+    raw UTC date and did not, so the suite passed for twenty hours a day and
+    failed for four. One definition, next to the offset it depends on.
+
+    (`ET_OFFSET` is a fixed -4h and is therefore EDT. It is wrong by an hour
+    from the first Sunday in November; that is a live issue for anything dated
+    near midnight ET after that date, and it is recorded rather than fixed here
+    because changing the repo's clock convention is not a change to make the
+    night before an open.)
+    """
+    return ((now or datetime.now(timezone.utc)) + ET_OFFSET).date().isoformat()
+
+
 def deadline_liquidation_due(deadline_utc: str, *, now: datetime | None = None) -> bool:
     """True once we are inside the final session and past `LIQUIDATE_BY_ET`."""
     deadline = datetime.fromisoformat(deadline_utc.replace("Z", "+00:00"))

@@ -8,7 +8,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from alpha import fleet
+from alpha import exits, fleet
 from alpha.brains import BRAINS, council_vector, theme_basket
 from alpha.engine import sizing
 
@@ -126,7 +126,11 @@ for label, syn in [("direction none", {"direction": "none", "forced_none": "cube
         check(f"refuses {label}", True, str(exc))
 with tempfile.TemporaryDirectory() as td:
     root = Path(td)
-    day = datetime.now(timezone.utc).date().isoformat()
+    # The ET TRADING day, not the UTC date. Writing the packet under the UTC
+    # date made this suite pass for twenty hours a day and fail for the four
+    # when UTC is already tomorrow and ET is not -- which is when it failed,
+    # on 2026-08-30 at 00:5x UTC. Same definition as the writer and reader.
+    day = exits.session_day()
     (root / "council" / day).mkdir(parents=True)
     (root / "council" / day / "S.json").write_text(json.dumps(ok_packet), encoding="utf-8")
     pk = council_vector.latest_packet("S", state=root)

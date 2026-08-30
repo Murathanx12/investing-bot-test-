@@ -40,6 +40,9 @@ MAX_PRICED = 0.7
 STATE = Path(os.getenv("AAT_LEDGER_DIR") or "state")
 
 
+from alpha.exits import session_day
+
+
 class NoCouncil(RuntimeError):
     pass
 
@@ -48,7 +51,7 @@ def latest_packet(symbol: str, *, now: datetime | None = None, state: Path | Non
     root = (state or STATE) / "council"
     now = now or datetime.now(timezone.utc)
     for back in range(MAX_AGE_DAYS + 1):
-        day = (now - timedelta(hours=4) - timedelta(days=back)).date().isoformat()
+        day = session_day(now - timedelta(days=back))
         p = root / day / f"{symbol}.json"
         if p.exists():
             d = json.loads(p.read_text(encoding="utf-8"))

@@ -95,8 +95,31 @@ FORM_PREFIXES: tuple[tuple[str, str], ...] = (
 #: FETCH TIME: the submissions JSON's `name` must contain the expected word or
 #: the override is refused -- a wrong CIK would file another company's 8-Ks
 #: under this symbol and nothing downstream could tell.
+#:
+#: ALL FIVE ENTRIES ARE NAMES THAT STOPPED BEING LISTED EQUITIES, and that is
+#: why the ticker file does not carry them -- the file is a map of CURRENT
+#: registrants, so an absent symbol is a fact about the company, not a gap in
+#: the feed. Verified against data.sec.gov/submissions on 2026-08-30, and
+#: against the venue the same day:
+#:
+#:   GES   GUESS INC            no tickers/exchanges (taken private)  Alpaca: inactive, tradable=False
+#:   GMS   GMS Inc.             no tickers/exchanges (acquired)       Alpaca: inactive, tradable=False
+#:   SNBR  Sleep Number Corp    ticker SNBRQ on OTC -- the Q is the   Alpaca: HTTP 404, no asset
+#:                              bankruptcy suffix
+#:   TPIC  TPI COMPOSITES, INC  ticker TPICQ on OTC; newest filing    Alpaca: HTTP 404, no asset
+#:                              is a 15-12G, which IS deregistration
+#:   SLNO  Soleno Therapeutics  acquired by Neurocrine, Apr 2026
+#:
+#: They are kept here because their HISTORICAL filings are legitimate corpus
+#: rows -- a 13D from before the delisting is still evidence about what happened
+#: -- but nothing may TRADE them. `window_universe` now drops non-tradable names
+#: and says how many it dropped; see the note there.
 CIK_OVERRIDES: dict[str, tuple[str, str]] = {
     "SLNO": ("0001484565", "SOLENO"),
+    "GES": ("0000912463", "GUESS"),
+    "GMS": ("0001600438", "GMS"),
+    "SNBR": ("0000827187", "SLEEP NUMBER"),
+    "TPIC": ("0001455684", "TPI COMPOSITES"),
 }
 
 ET = ZoneInfo("America/New_York")
