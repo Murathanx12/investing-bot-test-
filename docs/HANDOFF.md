@@ -311,6 +311,8 @@
 > 40% -> 35%), intent-before-POST plus `scripts/reconcile`, 0 lost rows.
 
 # HANDOFF — read this first
+> **30 Aug (e), Fable:** session 27 validated (tracker 3,059 names; IBES 2013-24: cap at 4x turns -5.5%/yr into +3.9%/yr; thin coverage CONFIRMED; past-winner exclusion REFUTED). Decisions: EXCLUDE_PAST_WINNERS OFF on hack4/hack6, ON on hack3; hack3 ranks on the ratio; PUSHED. Orders: `docs/NEXT_SESSION_2026-08-30e_OPUS.md`.
+
 > **30 Aug (d), Fable:** Opus session 26 validated (book claims MU only -- Murat: one past winner is not a portfolio). Orders in `docs/NEXT_SESSION_2026-08-30d_OPUS.md`: whole-market TRACKER (Finnhub rec counts + yfinance targets, every name with >=1 analyst, append-only daily snapshots, STRONG_BUY/BUY/HOLD/SELL/DROP), book selects from it, three portfolio personalities on hack3/4/6, IBES whole-market backtest of the same rules. Recommendation: push 30180dd.
 
 > **30 Aug (b), Fable:** orders for Opus session 5 are in `docs/NEXT_SESSION_2026-08-30b_OPUS.md` -- make the books decide (second generator `murat_rule_v1`, hack3 routing, catalyst calendar), close T12, then build T13 ERA REPLAY (`../aegis-finance/docs/AEGIS_VISION_2026-08-30_LOG_REVISION_ERA_REPLAY.md`). Fleet $570.8k (-4.87%); sealed book 0 claims of 151.
