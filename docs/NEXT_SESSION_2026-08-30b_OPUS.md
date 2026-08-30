@@ -177,3 +177,35 @@ loops can fall through to it.
 → 3. hack2 refusal histogram (§2c) → 4. T12 report (§3) → 5. anonymiser
 (§4.1) → 6. era replay on 2025-26 (§4.2-4, 4.6) → 7. funnel block (§5) →
 8. 2016 backfill (§4.5). Handoff opens with the scoreboard in §0, updated.
+
+---
+
+## 9. REVISION (Murat, 30 Aug 16:00 SGT) — T13 BECOMES THE FANTASY TRANSPOSITION; §4 AMENDED
+
+Read `AEGIS_VISION_2026-08-30_LOG_REVISION_ERA_REPLAY.md` §5. Changes to §4:
+
+- **§4.1 anonymiser gains a `--transpose` mode.** LLM-A rewrites each
+  window into a frozen fantasy world (made-up year, made-up industry names,
+  made-up entities, same causal shape, **numbers preserved verbatim**). The
+  entity map is one file per era, hashed, grader-only. The rewriter sees only
+  the window's items (PIT). Output both arms: `real_anon` and `fantasy`.
+- **§4.3 decider output schema changes** to `{p_up_21d, exp_return,
+  downside_5pct, confidence, horizon, reason}` per company. No refusal field.
+  `tests_smoke_*` pins that the prompt asks for probabilities and that the
+  schema has no "abstain" value.
+- **§4.4 grade adds calibration**: Brier score + a reliability table (deciles
+  of `p_up` vs realised hit rate) beside terminal wealth. Ranking rule is
+  code: `exp_return − λ·|downside_5pct|` (λ=1 balanced; λ=0.25 aggressive),
+  top k=5 and k=10. Same three nulls. Report the fantasy-vs-real_anon gap.
+- **Rewriter-parity check** (§5b) runs on 30 windows before the full grid;
+  if the decider's `p_up` disagrees more across rewrites than across
+  windows, stop and report `REWRITER_LEAK`.
+- **Cost:** rewriting ~1,000 windows (monthly bundles × names × eras) with
+  gpt-5-mini ≈ $5; decisions with a second provider ≈ $5. Stays inside the
+  $15 budget for the 2025-26 era.
+
+**§2 (Monday) also changes:** the sealed book publishes `p_up / exp_return /
+downside / confidence` for **every** considered name, from the panel where it
+has numbers and from `murat_rule_v1` where the rule fires (p_up 0.6,
+exp_return = size claim, downside = −stop). "CLAIMING=False" is replaced by
+`confidence` — the selectors rank; a row is never silent.
