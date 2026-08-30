@@ -369,6 +369,34 @@ def test_the_two_clause_f_arms_see_different_pools_from_the_same_universe():
     assert not any(h["past_winner"] for h in on["holdings"])
 
 
+def test_a_ranking_where_every_name_ties_is_reported_as_degenerate():
+    """MEASURED 2026-08-30, on the live book. hack6 sorts on `confidence`, the
+    rule publishes the same confidence for every non-claiming name, and all 607
+    eligible names scored +0.9170 -- so "the top 15 by confidence" was the first
+    15 in dict order and came out as 13 biotechs.
+
+    Same class as hack3's subtraction sorting on volatility, and invisible
+    unless something counts the distinct values. Reported, never repaired:
+    which column a book ranks on is a selection decision, not a bug fix.
+    """
+    rows = [dict(symbol=f"T{i}", status="BUY", sector="BIO", upside=0.4, consensus=4.2,
+                 coverage=12, coverage_bucket="11-25",
+                 coverage_source=T.COVERAGE_SOURCE_CALIBRATED, past_winner=False,
+                 exp_return=0.01, downside_5pct=-0.10, confidence=0.9170,
+                 days_to_catalyst=5) for i in range(20)]
+    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    port = T.build_portfolio(rows, p6)
+    assert port["n_selected"] == p6.k
+    assert port["rank_distinct_values"] == 1
+    assert port["ranking_is_degenerate"] is True
+
+    for i, r in enumerate(rows):
+        r["confidence"] = 0.5 + 0.01 * i
+    port2 = T.build_portfolio(rows, p6)
+    assert port2["ranking_is_degenerate"] is False
+    assert port2["rank_distinct_values"] == len(rows)
+
+
 def test_the_balanced_book_respects_its_sector_cap():
     """One sector cannot take the whole book -- a one-sector portfolio
     CONCENTRATES that sector's factor rather than diversifying it."""

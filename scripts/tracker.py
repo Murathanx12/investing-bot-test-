@@ -809,6 +809,14 @@ def portfolios(day: str | None = None) -> int:
         print(f"{p.book}  {p.name.upper():13s} rank={p.rank}  profile={profile}")
         print(f"  pool {port['candidate_pool']} -> eligible {port['eligible']} -> "
               f"selected {port['n_selected']}/{p.k}")
+        if port.get("ranking_is_degenerate"):
+            print(f"  RANKING IS DEGENERATE: all {port['eligible']} eligible names share "
+                  f"one `{p.rank}` value, so these {port['n_selected']} are the first "
+                  f"{p.k} in dict order, not the best {p.k}. The book is holding an "
+                  f"arbitrary slice of its pool.")
+        elif port["eligible"] and port.get("rank_distinct_values", 99) < max(3, p.k):
+            print(f"  NOTE: only {port['rank_distinct_values']} distinct `{p.rank}` "
+                  f"values across {port['eligible']} names -- ties are deciding this book.")
         for h in port["holdings"]:
             src = h.get("numbers_source") or "rule"
             adj = h.get("brain_adjustment")

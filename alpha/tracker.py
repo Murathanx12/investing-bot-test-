@@ -882,6 +882,15 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
             continue
         eligible.append(r)
 
+    # A RANKING THAT DOES NOT RANK. Measured 2026-08-30: hack6 sorts on
+    # `confidence`, and the rule publishes the SAME confidence for every
+    # non-claiming name -- so all 607 eligible names scored +0.9170 and "the
+    # top 15 by confidence" was the first 15 in dict order, which came out as
+    # 13 biotechs. That is the same class of failure as hack3's subtraction
+    # sorting on volatility, and it is invisible unless something counts the
+    # distinct values. It is reported rather than repaired: which column a book
+    # ranks on is a selection decision, not a bug fix.
+    distinct = len({round(rank_value(r, p.rank), 9) for r in eligible})
     eligible.sort(key=lambda r: -rank_value(r, p.rank))
 
     picked: list[dict] = []
@@ -912,6 +921,8 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
 
     return {
         "book": p.book, "personality": p.name, "ranking": p.rank,
+        "rank_distinct_values": distinct,
+        "ranking_is_degenerate": bool(eligible and distinct < 2),
         "k_target": p.k, "n_selected": len(picked),
         "max_notional_each": p.max_notional,
         "requires_catalyst": p.requires_catalyst,
