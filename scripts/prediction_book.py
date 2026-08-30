@@ -765,6 +765,60 @@ def grade(day: str, *, horizon: int = HORIZON_SESSIONS) -> dict:
 # ------------------------------------------------------------------------- CLI
 
 
+#: A seal with fewer claims than this is not an error -- markets are quiet and
+#: a generator that fires on nothing has said something. It IS a thing that has
+#: to be explained out loud rather than noticed a week later.
+MIN_CLAIMS_PER_GENERATOR = 10
+
+
+def _report_claims_bar(book: dict) -> None:
+    """Print claims per generator against the bar, and DIAGNOSE a shortfall.
+
+    On 2026-08-30 a book sealed ONE claim out of 151 names and the number sat
+    in a line of output nobody read as a problem. A low count has three very
+    different causes -- a quiet market, a universe too small to contain
+    candidates, or a clause that is silently unreadable -- and they need
+    different fixes. So the shortfall is named, and the two diagnostics that
+    separate those causes are printed beside it.
+    """
+    by_gen = book.get("claims_by_generator") or {}
+    if not by_gen:
+        print("  CANNOT DETERMINE claims per generator: the book carries no "
+              "`claims_by_generator`.")
+        return
+    considered = book.get("universe_considered") or 0
+    low = {g: n for g, n in by_gen.items() if (n or 0) < MIN_CLAIMS_PER_GENERATOR}
+    for g, n in sorted(by_gen.items()):
+        mark = "ok " if (n or 0) >= MIN_CLAIMS_PER_GENERATOR else "LOW"
+        print(f"  claims {mark} {g}: {n} of {considered} considered "
+              f"(bar {MIN_CLAIMS_PER_GENERATOR})")
+    if not low:
+        return
+    print(f"  WHY THE COUNT IS LOW -- {len(low)} generator(s) under the bar. The three "
+          f"causes need different fixes and these two numbers separate them:")
+    preds = book.get("predictions") or []
+    unread: dict[str, int] = {}
+    failed: dict[str, int] = {}
+    for pr in preds:
+        for c in pr.get("unreadable_clauses") or []:
+            unread[c] = unread.get(c, 0) + 1
+        for c in pr.get("failed_clauses") or []:
+            failed[c] = failed.get(c, 0) + 1
+    if unread:
+        top = sorted(unread.items(), key=lambda kv: -kv[1])[:4]
+        print("    UNREADABLE clauses (a data gap, not a market): "
+              + ", ".join(f"{c} x{n}" for c, n in top))
+    else:
+        print("    no clause was unreadable -- this is not a data gap.")
+    if failed:
+        top = sorted(failed.items(), key=lambda kv: -kv[1])[:4]
+        print("    FAILED clauses (the market did not offer it): "
+              + ", ".join(f"{c} x{n}" for c, n in top))
+    if considered and considered < 200:
+        print(f"    and the universe is only {considered} names -- with a strict "
+              f"conjunction that is often the binding constraint, not the rule.")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seal", action="store_true", help="build and seal today's book")
@@ -821,6 +875,7 @@ def main(argv: list[str] | None = None) -> int:
               + (f", skipped {book['skipped']}" if book["skipped"] else ""))
         if book["universe_note"]:
             print(f"  {book['universe_note']}")
+        _report_claims_bar(book)
         args.show = True
 
     if args.show:

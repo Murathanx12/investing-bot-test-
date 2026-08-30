@@ -8,6 +8,9 @@ hash, the reseal path and the derived `CLAIMING` switch are pinned here.
 """
 from __future__ import annotations
 
+import contextlib
+import io
+
 import json
 import os
 import tempfile
@@ -101,6 +104,37 @@ with tempfile.TemporaryDirectory() as td:
     blob["claims_made"] = 99
     p1.write_text(json.dumps(blob), encoding="utf-8")
     check("verify() catches a book edited after sealing", pb.verify() >= 1)
+
+print("\n-- a low claim count is explained out loud, not noticed a week later")
+def _bar_output(claims, considered, preds):
+    """`claims=None` means the book carries NO generator map at all -- which is
+    a different thing from a generator that claimed zero, and must print
+    CANNOT DETERMINE rather than a number."""
+    buf = io.StringIO()
+    by_gen = {} if claims is None else {"g1": claims}
+    with contextlib.redirect_stdout(buf):
+        pb._report_claims_bar({"claims_by_generator": by_gen,
+                               "universe_considered": considered,
+                               "predictions": preds})
+    return buf.getvalue()
+
+
+_ok = _bar_output(pb.MIN_CLAIMS_PER_GENERATOR, 749, [])
+check("a book at the bar reports ok and diagnoses nothing",
+      "ok " in _ok and "WHY THE COUNT IS LOW" not in _ok, _ok)
+
+_low = _bar_output(1, 151, [{"unreadable_clauses": ["d_catalyst"], "failed_clauses": []},
+                            {"unreadable_clauses": ["d_catalyst"], "failed_clauses": ["a"]}])
+check("a book under the bar says so", "LOW" in _low and "WHY THE COUNT IS LOW" in _low, _low)
+check("...and names the UNREADABLE clause, which is a data gap and not a quiet market",
+      "d_catalyst" in _low and "UNREADABLE" in _low, _low)
+check("...and flags a universe too small to contain candidates",
+      "universe is only 151" in _low, _low)
+
+_nogen = _bar_output(None, 0, [])
+check("a book with no generator map says CANNOT DETERMINE rather than 0/0",
+      "CANNOT DETERMINE" in _nogen, _nogen)
+check("the bar is a real number, not a placeholder", pb.MIN_CLAIMS_PER_GENERATOR >= 1)
 
 print("\n-- the authority line is not decorative")
 check("HORIZON is the 21 sessions the features were measured over",
