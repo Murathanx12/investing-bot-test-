@@ -87,9 +87,9 @@ CHECKPOINT_SESSIONS = 5
 #:
 #:     feature                 23 symbols    152 symbols   95% CI (wide)
 #:     ev_insider_20d              +0.148         +0.023   [-0.004, +0.046]
-#:     ev_earnings_20d             +0.155         +0.008   [-0.030, +0.043]
+#:     ev_earnings_20d             +0.155         +0.005   [-0.052, +0.059]
 #:     ev_analyst_rating_20d       +0.098         +0.020   [-0.032, +0.072]
-#:     ev_contract_20d             +0.103         +0.005   [-0.031, +0.041]
+#:     ev_contract_20d             +0.103         -0.000   [-0.041, +0.036]
 #:     ev_macro_20d                +0.118         +0.040   [-0.011, +0.085]
 #:
 #: **ZERO of 29 features have a 95% CI excluding zero on the wide panel.** The
@@ -105,8 +105,8 @@ CHECKPOINT_SESSIONS = 5
 #: it accrues the vintages that make the next measurement possible.
 SIGNALS: dict[str, tuple[float, tuple[float, float]]] = {
     "ev_insider_20d": (0.023, (-0.004, 0.046)),
-    "ev_earnings_20d": (0.008, (-0.030, 0.043)),
-    "ev_contract_20d": (0.005, (-0.031, 0.041)),
+    "ev_earnings_20d": (0.005, (-0.052, 0.059)),
+    "ev_contract_20d": (0.000, (-0.041, 0.036)),
     "ev_analyst_rating_20d": (0.020, (-0.032, 0.072)),
 }
 IC_RECEIPT = "state/corpus/features/ic_2026-08-30_wide152.json"

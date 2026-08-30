@@ -79,6 +79,9 @@ TOURNAMENT = corpus.STATE / "tournament"
 PROVIDER_ORDER = ("featherless", "nvidia_kimi", "hf_glm")
 
 CONTROL = "SPY"
+#: Instruments whose "identity" is the market itself. Derived aliases are
+#: skipped for these -- see `derive_aliases`.
+INDEX_SYMBOLS = frozenset({"SPY", "QQQ", "IWM", "DIA", "XBI", "SMH", "XLE"})
 MONTHS_DEFAULT = ("2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02",
                   "2026-03", "2026-04", "2026-05", "2026-06", "2026-07")
 WINDOW_DAYS = 30
@@ -211,6 +214,21 @@ def derive_aliases(symbol: str, all_rows: list[dict], *, min_count: int = 3,
     list of 40 macro words is not a company alias list, and the receipt should
     say what was actually removed and why.
     """
+    # AN INDEX HAS NO COMPANY TO BLIND (2026-08-30). The derivation looks for
+    # capitalised tokens SPECIFIC to the symbol's own titles, which for a company
+    # is its name and its products. For SPY the specific tokens are the macro
+    # story -- measured on this corpus: U.S, Iran, Bessent, Hormuz, Warsh,
+    # Trump's -- so the blinder deleted the news and left "the company.-Israel
+    # Agreement On Trade" and "the company. stock futures swung". The control
+    # would have measured whether a model can read shredded text.
+    #
+    # Declared aliases still apply ("SPDR S&P 500", "S&P 500 ETF"): those really
+    # are the instrument's identity. The asymmetry is deliberate and it is
+    # recorded on the receipt, because the index cells are then blinded less
+    # than the single-name cells and a reader must be able to see that.
+    if symbol.upper() in INDEX_SYMBOLS:
+        return []
+
     tick = re.compile(rf"\b{re.escape(symbol)}\b", re.I)
     mine, everywhere = Counter(), Counter()
     lowercase_words = _lowercase_vocab(all_rows)
@@ -579,6 +597,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-tokens", type=int, default=600)
     ap.add_argument("--symbols", nargs="*", default=None)
     ap.add_argument("--months", nargs="*", default=list(MONTHS_DEFAULT))
+    ap.add_argument("--provider", default=None,
+                    help="pin the model family (featherless | nvidia_kimi | hf_glm). "
+                         "Without it the run takes whichever probed live first, so the "
+                         "second-family CONTROL could never be requested.")
     ap.add_argument("--run-id", default=None)
     ap.add_argument("--grade-only", default=None, metavar="RUN_ID")
     ap.add_argument("--no-grade", action="store_true", help="seal only; grade later with --grade-only")
@@ -625,11 +647,26 @@ def main(argv: list[str] | None = None) -> int:
         print("DRY RUN: no LLM call made, nothing sealed.")
         return 0
 
-    live = providers.probe(list(PROVIDER_ORDER))
-    live_order = [p for p in PROVIDER_ORDER if live.get(p, {}).get("state") == "live"]
-    print("providers: " + "  ".join(f"{p}={live.get(p, {}).get('state')}" for p in PROVIDER_ORDER))
+    # --provider PINS the family (roadmap section 6 asked for this flag). A
+    # negative result on ONE model is ambiguous between "the news carries no
+    # direction" and "this model cannot read it", and the only way to tell them
+    # apart is to run the same sealed cells through a different family. Without
+    # the flag the run silently takes whichever provider probed live first, so
+    # the second family could never be requested -- and a control you cannot
+    # request is a control that never happens.
+    order = list(PROVIDER_ORDER)
+    if args.provider:
+        if args.provider not in PROVIDER_ORDER:
+            print(f"REFUSED: --provider {args.provider!r} is not one of {PROVIDER_ORDER}")
+            return 2
+        order = [args.provider]
+    live = providers.probe(order)
+    live_order = [p for p in order if live.get(p, {}).get("state") == "live"]
+    print("providers: " + "  ".join(f"{p}={live.get(p, {}).get('state')}" for p in order))
     if not live_order:
-        print("REFUSED: no live provider in " + ", ".join(PROVIDER_ORDER))
+        print("REFUSED: no live provider in " + ", ".join(order)
+              + (" (pinned by --provider; NOT falling back to another family, because a run "
+                 "that silently changes model answers a different question)" if args.provider else ""))
         return 2
 
     n_calls, n_refused, n_sealed, t0 = 0, 0, 0, time.time()
