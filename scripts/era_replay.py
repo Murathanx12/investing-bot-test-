@@ -170,11 +170,28 @@ def build_windows(era_start: str, era_end: str, limit: int | None) -> int:
             continue
         by.setdefault((sym, eff[:7]), []).append(r)
 
+    def month_end(month: str) -> str:
+        y, m = int(month[:4]), int(month[5:7])
+        y2, m2 = (y + 1, 1) if m == 12 else (y, m + 1)
+        return f"{y2:04d}-{m2:02d}-01"
+
     out, skipped = [], {"no_outcome": 0, "no_body": 0}
     for (sym, month), rows in sorted(by.items()):
         rows.sort(key=lambda r: str(r.get("effective_at")))
         last = str(rows[-1]["effective_at"])[:10]
-        d0, ret = fwd(sym, last)
+        # ENTER ON A SHARED REBALANCE DATE, not on each name's own last-news day.
+        #
+        # The first version entered at the first session after that name's last
+        # fact, which gave 1.1 names per decision date -- so "the top 5" was
+        # every name, the ranking was never exercised, and the shuffled null
+        # could not fail because shuffling outcomes inside a one-name basket
+        # returns the same product. A null that cannot go red is worth as much
+        # as a gate that cannot go green.
+        #
+        # Every name in a month now enters at the same month boundary. That is
+        # also what makes the arms comparable: they hold the same names on the
+        # same dates and differ only in how the news was written.
+        d0, ret = fwd(sym, month_end(month))
         if d0 is None:
             skipped["no_outcome"] += 1
             continue
@@ -192,7 +209,7 @@ def build_windows(era_start: str, era_end: str, limit: int | None) -> int:
             skipped["no_body"] += 1
             continue
         out.append({"key": f"{sym}|{month}", "symbol": sym, "month": month,
-                    "decision_date": d0, "last_fact": last,
+                    "decision_date": d0, "rebalance": month, "last_fact": last,
                     "horizon_sessions": HORIZON_SESSIONS,
                     "fwd_rel_21d": round(ret, 6), "n_items": len(items),
                     "items": items})
@@ -204,8 +221,15 @@ def build_windows(era_start: str, era_end: str, limit: int | None) -> int:
         for w in out:
             fh.write(json.dumps(w) + "\n")
     syms = sorted({w["symbol"] for w in out})
-    print(f"windows: {len(out)} over {len(syms)} names, "
-          f"{len({w['month'] for w in out})} months")
+    per_reb: dict[str, int] = {}
+    for w in out:
+        per_reb[w["rebalance"]] = per_reb.get(w["rebalance"], 0) + 1
+    mean_per = sum(per_reb.values()) / len(per_reb) if per_reb else 0
+    print(f"windows: {len(out)} over {len(syms)} names, {len(per_reb)} rebalances, "
+          f"{mean_per:.0f} names per rebalance")
+    if mean_per <= 5:
+        print("  WARNING: fewer than 6 names per rebalance means a top-5 basket is "
+              "every name and the ranking is never exercised.")
     print(f"  skipped: {skipped}")
     print(f"  -> {path}")
     print("  OUTCOMES ARE ALREADY ON THE WINDOWS and no arm ever sees them: they are "
@@ -513,7 +537,7 @@ def grade(k: int, personality: str) -> int:
     # name in the era, equally, on every date. "Better than WHAT."
     by_date: dict[str, list[str]] = {}
     for key, w in ws.items():
-        by_date.setdefault(w["decision_date"], []).append(key)
+        by_date.setdefault(w.get("rebalance") or w["decision_date"], []).append(key)
     basket = TP.wealth({d: [{"key": key} for key in keys] for d, keys in by_date.items()},
                        outcomes)
     report["null_basket"] = basket
@@ -531,16 +555,34 @@ def grade(k: int, personality: str) -> int:
         for d in ds:
             w = ws.get(d["key"])
             if w:
-                picks.setdefault(w["decision_date"], []).append(d)
+                picks.setdefault(w.get("rebalance") or w["decision_date"], []).append(d)
         top = {dt: TP.rank(v, personality=personality, k=k) for dt, v in picks.items()}
         w_real = TP.wealth(top, outcomes)
         cal = TP.calibration(ds, outcomes)
         # NULL 1: the same picks against somebody else's outcome.
         shuffled = TP.shuffled_null(ds, outcomes)
         w_null = TP.wealth(top, shuffled)
+        # ...AND WHETHER THAT NULL COULD HAVE FAILED AT ALL.
+        #
+        # The shuffled null tests SELECTION: it asks whether the ranking knew
+        # something about THIS name rather than about that month. If a date
+        # offers k names or fewer, the top-k IS every name, there is no
+        # selection to break, and shuffling outcomes within the same set
+        # returns the identical product -- the null then reports the arm's own
+        # number back to it and reads as a pass. That happened on the first
+        # partial run and it is the reverse of a gate that cannot go green: a
+        # null that cannot go red.
+        per_date = [len(v) for v in picks.values()]
+        mean_per_date = sum(per_date) / len(per_date) if per_date else 0.0
+        dates_with_choice = sum(1 for n in per_date if n > k)
+        null_informative = dates_with_choice > 0
         report["arms"][arm] = {
             "n_decisions": len(ds), "wealth": w_real, "calibration": cal,
             "null_shuffled_wealth": w_null,
+            "null_shuffled_informative": null_informative,
+            "mean_candidates_per_date": round(mean_per_date, 2),
+            "dates_where_top_k_was_a_choice": dates_with_choice,
+            "n_dates": len(per_date),
             "mean_p_up": round(sum(d["p_up_21d"] for d in ds) / len(ds), 4),
             "mean_confidence": round(
                 sum(d["confidence"] for d in ds if d.get("confidence") is not None)
@@ -549,8 +591,19 @@ def grade(k: int, personality: str) -> int:
         print(f"\n  {arm.upper():14s} n={len(ds)}")
         print(f"    wealth {w_real.get('terminal_wealth')}  t {w_real.get('t_stat')}  "
               f"hit {w_real.get('hit_rate')}")
-        print(f"    NULL shuffled outcomes: wealth {w_null.get('terminal_wealth')}  "
-              f"t {w_null.get('t_stat')}")
+        if null_informative:
+            wn, wr = w_null.get("terminal_wealth"), w_real.get("terminal_wealth")
+            # SAY IT OUT LOUD. 1.73 beside 1.47 is two numbers a reader compares
+            # the wrong way round at 2am; "the null BEAT the arm" is not.
+            verdict = ("  <-- the NULL BEAT the arm: this ranking is not selecting"
+                       if wn is not None and wr is not None and wn > wr else "")
+            print(f"    NULL shuffled outcomes: wealth {wn}  t {w_null.get('t_stat')}  "
+                  f"({dates_with_choice} of {len(per_date)} dates offered a choice)"
+                  f"{verdict}")
+        else:
+            print(f"    NULL shuffled outcomes: UNINFORMATIVE -- {mean_per_date:.1f} "
+                  f"names per date against k={k}, so the top-k is every name and there "
+                  f"is no selection for a shuffle to break.")
         print(f"    Brier {cal.get('brier')} vs climatology {cal.get('brier_climatology')}"
               f"  skill {cal.get('skill_vs_climatology')}")
         print(f"    mean p_up {report['arms'][arm]['mean_p_up']}  "
@@ -571,6 +624,14 @@ def grade(k: int, personality: str) -> int:
               f"added nothing and the numbers were the whole signal.")
     if not have:
         print("\n  no arm has decisions yet.")
+    # ARM SIZES SIDE BY SIDE. Two terminal wealths computed on different numbers
+    # of windows are not comparable, and `real - fantasy` printed above is
+    # meaningless while the arms are still filling at different rates.
+    sizes = {a: report["arms"][a]["n_decisions"] for a in have}
+    if len(set(sizes.values())) > 1:
+        print(f"\n  ARMS ARE NOT THE SAME SIZE: {sizes}. Every gap printed above is "
+              f"between baskets built from different numbers of windows and is NOT a "
+              f"result. Finish the grid before reading it.")
 
     out = _p("grade.json")
     out.write_text(json.dumps(report, indent=1), encoding="utf-8")
