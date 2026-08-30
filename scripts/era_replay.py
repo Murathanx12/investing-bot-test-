@@ -523,7 +523,7 @@ def parity_check(limit: int) -> int:
     return 0
 
 
-def grade(k: int, personality: str) -> int:
+def grade(k: int, personality: str, common_off: bool = False) -> int:
     ws = {w["key"]: w for w in load_jsonl(_p("windows.jsonl"))}
     if not ws:
         print("REFUSED: no windows.")
@@ -542,13 +542,47 @@ def grade(k: int, personality: str) -> int:
                        outcomes)
     report["null_basket"] = basket
 
-    print(f"T13 ERA REPLAY -- {len(ws)} windows, top {k}, {personality}\n")
+    # GRADE EVERY ARM ON THE SAME WINDOWS, or grade nothing.
+    #
+    # The arms fill at different rates -- a rewrite that changes a number is
+    # dropped, so `fantasy` ends with fewer windows than `real`, and the two
+    # baskets then hold different companies in different months. Every
+    # difference between them is that, before it is anything about memory or
+    # prose. The first full grid produced real=400, fantasy=178, real_anon=166
+    # and a headline `real - fantasy` that meant nothing at all.
+    #
+    # So the default is the INTERSECTION. The per-arm totals are still reported,
+    # because how many windows an arm LOST is itself a result about the rewriter.
+    by_arm = {a: [d for d in load_jsonl(_p(f"decisions_{a}.jsonl")) if d.get("complete")]
+              for a in TP.ARMS}
+    by_arm = {a: ds for a, ds in by_arm.items() if ds}
+    full_counts = {a: len(ds) for a, ds in by_arm.items()}
+    common: set[str] | None = None
+    for ds in by_arm.values():
+        keys = {d["key"] for d in ds if d["key"] in ws}
+        common = keys if common is None else (common & keys)
+    common = common or set()
+    report["arm_windows_before_intersection"] = full_counts
+    report["n_common_windows"] = len(common)
+    report["graded_on"] = "intersection" if not common_off else "each arm's own windows"
+
+    print(f"T13 ERA REPLAY -- {len(ws)} windows, top {k}, {personality}")
+    print(f"  arms hold {full_counts}")
+    if not common_off:
+        print(f"  GRADED ON THE {len(common)} WINDOWS EVERY ARM HAS. The rest are "
+              f"dropped, because a basket of different companies in different months "
+              f"is a different portfolio, not a different reading of the news.\n")
+    else:
+        print("  --no-common: each arm on its own windows. The gaps below are NOT "
+              "comparable.\n")
     print(f"  NULL basket (every name, equally weighted): wealth "
           f"{basket.get('terminal_wealth')}  t {basket.get('t_stat')}  "
           f"{basket.get('n_dates')} dates")
 
     for arm in TP.ARMS:
-        ds = [d for d in load_jsonl(_p(f"decisions_{arm}.jsonl")) if d.get("complete")]
+        ds = by_arm.get(arm) or []
+        if not common_off:
+            ds = [d for d in ds if d["key"] in common]
         if not ds:
             continue
         picks: dict[str, list[dict]] = {}
@@ -624,18 +658,63 @@ def grade(k: int, personality: str) -> int:
               f"added nothing and the numbers were the whole signal.")
     if not have:
         print("\n  no arm has decisions yet.")
-    # ARM SIZES SIDE BY SIDE. Two terminal wealths computed on different numbers
-    # of windows are not comparable, and `real - fantasy` printed above is
-    # meaningless while the arms are still filling at different rates.
     sizes = {a: report["arms"][a]["n_decisions"] for a in have}
     if len(set(sizes.values())) > 1:
         print(f"\n  ARMS ARE NOT THE SAME SIZE: {sizes}. Every gap printed above is "
-              f"between baskets built from different numbers of windows and is NOT a "
-              f"result. Finish the grid before reading it.")
+              f"between baskets built from different windows and is NOT a result.")
+    elif not common_off and len(have) > 1:
+        lost = {a: full_counts[a] - len(common) for a in have}
+        print(f"\n  All arms graded on the same {len(common)} windows. Dropped to reach "
+              f"it: {lost} -- `fantasy` and `real_anon` lose windows where the rewriter "
+              f"changed a number or leaked a name, and that count is itself a result "
+              f"about the rewriter rather than bookkeeping.")
+
+    # THE SENSITIVITY, PRINTED WHETHER OR NOT ANYONE ASKS.
+    #
+    # A headline that exists at one (k, ranking) pair and nowhere else is a
+    # fitted parameter wearing a rule's clothes. The upside cap in the IBES
+    # study was defended by a PLATEAU -- every value from 1.5x to 10x gave the
+    # same answer -- and the same standard has to apply here or the standard was
+    # about the conclusion rather than about evidence.
+    report["sensitivity"] = {}
+    print("\n  SENSITIVITY -- terminal wealth (t) at each k and ranking, same windows")
+    ks = [3, 5, 10, 25]
+    header = "  " + "arm".ljust(14) + "".join(f"k={kk}".rjust(16) for kk in ks)
+    for pers in sorted(TP.PERSONALITY_LAMBDA):
+        print(f"\n  ranking: {pers}")
+        print(header)
+        for arm in TP.ARMS:
+            ds = by_arm.get(arm) or []
+            if not common_off:
+                ds = [d for d in ds if d["key"] in common]
+            if not ds:
+                continue
+            cells, row = [], {}
+            for kk in ks:
+                picks: dict[str, list[dict]] = {}
+                for d in ds:
+                    w = ws.get(d["key"])
+                    if w:
+                        picks.setdefault(w.get("rebalance") or w["decision_date"],
+                                         []).append(d)
+                topk = {dt: TP.rank(v, personality=pers, k=kk)
+                        for dt, v in picks.items()}
+                wl = TP.wealth(topk, outcomes)
+                row[f"k{kk}"] = {"wealth": wl.get("terminal_wealth"),
+                                 "t": wl.get("t_stat")}
+                cells.append(f"{wl.get('terminal_wealth')} ({wl.get('t_stat')})".rjust(16))
+            report["sensitivity"][f"{arm}|{pers}"] = row
+            print("  " + arm.ljust(14) + "".join(cells))
+    print(f"\n  The market-basket benchmark over the same dates is "
+          f"{basket.get('terminal_wealth')} (t {basket.get('t_stat')}). A row that "
+          f"beats it at ONE k and not the others has not been shown to select.")
 
     out = _p("grade.json")
     out.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"\nreceipt -> {out}")
+    print(f"\n  n_effective is {basket.get('n_dates')} REBALANCE DATES, not "
+          f"{len(common) if not common_off else 'the window count'} windows -- names "
+          f"inside one month share that month's market and are not independent draws.")
     return 0
 
 
@@ -657,6 +736,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--era-end", default="2026-07-31")
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--k", type=int, default=5)
+    p.add_argument("--no-common", action="store_true",
+                   help="grade each arm on its own windows instead of the "
+                        "intersection. The arms then hold different companies and "
+                        "the gaps between them are not comparable.")
     p.add_argument("--personality", default="balanced",
                    choices=sorted(TP.PERSONALITY_LAMBDA))
     p.add_argument("--max-usd", type=float, default=5.00)
@@ -677,7 +760,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.parity:
         return parity_check(a.limit or 30)
     if a.grade:
-        return grade(a.k, a.personality)
+        return grade(a.k, a.personality, a.no_common)
     p.print_help()
     return 0
 
