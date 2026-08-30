@@ -327,7 +327,13 @@ def ic_table(symbols: list[str], *, since: str) -> dict:
                "entry": "open of session t+1", "exit": "close of session t+h", "benchmark": BENCH,
                "bootstrap": "500 resamples of calendar months with replacement, 5th/95th pct",
                "table": table, "runtime_s": round(time.time() - t0, 1)}
-    out_p = OUT / f"ic_{date.today().isoformat()}.json"
+    # TAGGED, because two IC runs on the SAME DAY over DIFFERENT UNIVERSES are
+    # the whole comparison and a shared filename destroys one of them. That
+    # happened on 2026-08-30: the 152-symbol receipt was overwritten by a
+    # 23-symbol re-run twenty minutes later, and the number that mattered had to
+    # be regenerated.
+    tag = os.getenv("AAT_IC_TAG", "").strip()
+    out_p = OUT / (f"ic_{date.today().isoformat()}{'_' + tag if tag else ''}.json")
     out_p.write_text(json.dumps(receipt, indent=1), encoding="utf-8")
     print(f"\n  {len(panel)} symbol-days, {receipt['n_months']} months -> {out_p}")
     return receipt

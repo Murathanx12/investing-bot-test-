@@ -24,28 +24,21 @@ WHAT IT PREDICTS FROM, AND WHY NOT THE NARRATIVE
 shuffled null, IC -0.18**. No information, and worse when confident. So the
 model's prose does not enter this book.
 
-`scripts/corpus_features --ic` asked the same question of the COUNTS, with a
-block bootstrap over 11-12 date blocks. Rank IC against the 21-session
-SPY-relative return, CI at 95%:
+`scripts/corpus_features --ic` asked the same question of the COUNTS. On a
+23-symbol panel the answer looked like yes (insider +0.148, earnings +0.155).
+**On 152 symbols, over the same period and through the same harness, ZERO of
+29 features have a 95% CI excluding zero.** The details and the reproduction
+check are in the `SIGNALS` block below; the short version is that the 23 were
+Murat's own names and a curated list is not a cross-section.
 
-    ev_insider_20d          +0.148   [ 0.092,  0.213]   <- insider / stake / activist
-    ev_earnings_20d         +0.155   [ 0.035,  0.274]
-    ev_analyst_rating_20d   +0.098   [ 0.018,  0.205]
-    ev_contract_20d         +0.103   [ 0.002,  0.189]   <- marginal, kept and flagged
-    ev_macro_20d            +0.118   [ 0.002,  0.222]   <- EXCLUDED, see below
-    attention / sentiment / novelty        ~0 or negative
+So this book currently CLAIMS NOTHING. It still ranks, still seals, and is
+still worth running: it is T7's control beside the named digest, and every
+sealed day is a vintage the next measurement can use. `CLAIMING` is derived
+from the CIs, so it turns itself on when a signal earns it.
 
-`ev_macro_20d` is excluded despite clearing zero: macro news is market-wide, so
-as a CROSS-SECTIONAL score it mostly ranks how much macro coverage a name
-attracts, which is a size proxy wearing an event's name. A feature that cannot
-state a per-name mechanism does not enter a per-name book.
-
-**The honest n is 11 DATE BLOCKS, not 4,451 symbol-days**, and 29 features were
-screened, so these are SCREENING results and the marginal ones would not survive
-a multiplicity correction. That is why this book carries ZERO SIZE: it is T7 in
-the roadmap, a prediction book beside the named digest, and the difference
-between them is what the NAME adds. It gets order authority when it beats its
-own null out of sample, and not before.
+**The honest n is 11 DATE BLOCKS, not 36,841 symbol-days**, and 29 features
+were screened. It gets order authority when it beats its own null out of
+sample, and not before.
 
 POINT IN TIME, TWICE OVER
 =========================
@@ -82,16 +75,47 @@ BENCH = "SPY"
 HORIZON_SESSIONS = 21
 CHECKPOINT_SESSIONS = 5
 
-#: feature -> (weight, measured 21d SPY-relative rank IC, 95% CI). The weights
-#: ARE the ICs, normalised: a reader can check the weighting against the receipt
-#: rather than take a hand-tuned number on trust.
+#: feature -> (weight, 95% CI) at the WIDE measurement. The weights ARE the ICs,
+#: so a reader checks them against the receipt instead of trusting a hand-tuned
+#: number.
+#:
+#: THE NUMBERS BELOW ARE NOT THE ONES THIS BOOK WAS FIRST BUILT ON.
+#: On 2026-08-29 the panel covered 23 symbols -- Murat's own names plus the
+#: benchmarks, a list curated because those names were interesting -- and the
+#: event counts looked strong. Rebuilt on 152 symbols over the SAME period with
+#: the SAME harness (`ic_2026-08-30_wide152.json`), every one of them collapses:
+#:
+#:     feature                 23 symbols    152 symbols   95% CI (wide)
+#:     ev_insider_20d              +0.148         +0.023   [-0.004, +0.046]
+#:     ev_earnings_20d             +0.155         +0.008   [-0.030, +0.043]
+#:     ev_analyst_rating_20d       +0.098         +0.020   [-0.032, +0.072]
+#:     ev_contract_20d             +0.103         +0.005   [-0.031, +0.041]
+#:     ev_macro_20d                +0.118         +0.040   [-0.011, +0.085]
+#:
+#: **ZERO of 29 features have a 95% CI excluding zero on the wide panel.** The
+#: harness is not the difference: re-running the SAME 23 symbols from the wide
+#: build reproduces +0.139 / +0.145 / +0.086, so the collapse is the universe.
+#: That is the `feedback-a-hand-picked-universe-is-survivorship-bias` lesson at
+#: full strength -- when a curated list and a broad screen disagree, the screen
+#: is right.
+#:
+#: So the book keeps the ranking, keeps sealing, and CLAIMS NOTHING: `CLAIMING`
+#: is False until a feature clears zero on a universe nobody chose. A sealed
+#: book of no claims is still worth writing -- it is the control T7 needs, and
+#: it accrues the vintages that make the next measurement possible.
 SIGNALS: dict[str, tuple[float, tuple[float, float]]] = {
-    "ev_insider_20d": (0.148, (0.092, 0.213)),
-    "ev_earnings_20d": (0.155, (0.035, 0.274)),
-    "ev_contract_20d": (0.103, (0.002, 0.189)),
-    "ev_analyst_rating_20d": (0.098, (0.018, 0.205)),
+    "ev_insider_20d": (0.023, (-0.004, 0.046)),
+    "ev_earnings_20d": (0.008, (-0.030, 0.043)),
+    "ev_contract_20d": (0.005, (-0.031, 0.041)),
+    "ev_analyst_rating_20d": (0.020, (-0.032, 0.072)),
 }
-IC_RECEIPT = "state/corpus/features/ic_2026-08-29.json"
+IC_RECEIPT = "state/corpus/features/ic_2026-08-30_wide152.json"
+
+#: Does any signal's 95% CI exclude zero on the universe we did not choose?
+#: Derived, not asserted, so it flips on its own when a future measurement
+#: earns it -- a constant set by hand would still say False after the evidence
+#: changed, and would still say True after it went away.
+CLAIMING = any(lo > 0 or hi < 0 for _, (lo, hi) in SIGNALS.values())
 
 #: Fraction of the ranked universe that gets a directional claim. The rest are
 #: recorded as CONSIDERED with no claim -- an empty book and a book that looked
@@ -206,7 +230,13 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
             r["score"] = None
 
     rows.sort(key=lambda r: (-(r["score"] or -1), r["symbol"]))
-    n_claim = int(len(rows) * CLAIM_FRACTION) if not universe_note else 0
+    if not CLAIMING:
+        universe_note = (universe_note + " " if universe_note else "") + (
+            "NO CLAIMS: on the 152-symbol panel not one of the 29 features has a 95% CI "
+            "excluding zero (ic_2026-08-30_wide152.json). The ranking is still computed and "
+            "still sealed -- it is the control, and it accrues the vintages -- but the book "
+            "asserts nothing until a signal clears zero on a universe nobody curated.")
+    n_claim = int(len(rows) * CLAIM_FRACTION) if (not universe_note and CLAIMING) else 0
     driver_of, driver_note = drivers.resolve([r["symbol"] for r in rows])
 
     predictions = []
@@ -262,11 +292,14 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
         "skipped": skipped,
         "driver_taxonomy": driver_note,
         "authority": "ZERO SIZE. Nothing in this file may size, order or influence an order.",
+        "claiming": CLAIMING,
         "evidence_caveat": (
-            "The weights are SCREENING ICs over 11 date blocks with 29 features screened; the "
-            "marginal ones would not survive a multiplicity correction. The blinded-narrative "
-            "tournament was NEGATIVE (hit 45% vs a 47% null, IC -0.18), which is why no model "
-            "prose enters this book."),
+            "Measured on 152 symbols over 11 date blocks: ZERO of 29 features have a 95% CI "
+            "excluding zero. The stronger numbers this book was first built on came from a "
+            "23-symbol panel of hand-picked names; re-running those 23 from the wide build "
+            "reproduces them, so the collapse is the universe, not the harness. The "
+            "blinded-narrative tournament was separately NEGATIVE (hit 45% vs a 47% null, "
+            "IC -0.18), which is why no model prose enters this book either."),
         "universe_note": universe_note,
         "predictions": predictions,
     }
