@@ -594,6 +594,8 @@ def refetch_coverage(day: str | None = None, limit: int | None = None) -> int:
 
     import yfinance as yf
     got = miss = err = 0
+    t_start = time.time()
+    print(f"  starting: {len(todo)} names to fetch", flush=True)
     for i, r in enumerate(todo, 1):
         try:
             info = yf.Ticker(r["symbol"]).info or {}
@@ -612,8 +614,16 @@ def refetch_coverage(day: str | None = None, limit: int | None = None) -> int:
                 r["n_analysts_status"] = "empty"
                 miss += 1
         time.sleep(YF_SLEEP_S)
-        if i % 100 == 0:
-            print(f"  {i}/{len(todo)}  got {got}  empty {miss}  error {err}")
+        # flush=True, and often. A long job whose output is buffered is a job
+        # that cannot be distinguished from a job that never started: on
+        # 2026-08-30 this command exited 127 immediately, left a stale entry in
+        # the process table, and was read as "still running" for two hours
+        # because its log was empty and an empty log looked like buffering.
+        if i % 25 == 0 or i == len(todo):
+            rate = i / max(time.time() - t_start, 1e-9)
+            left = (len(todo) - i) / max(rate, 1e-9)
+            print(f"  {i}/{len(todo)}  got {got}  empty {miss}  error {err}  "
+                  f"{rate:.2f}/s  ~{left / 60:.0f} min left", flush=True)
 
     after = sum(1 for _ in path.open(encoding="utf-8"))
     if after != before:
