@@ -253,6 +253,8 @@ import tests_smoke_pead
 fails += tests_smoke_pead.fails
 import tests_smoke_equity
 fails += tests_smoke_equity.fails
+import tests_smoke_refusal_nav
+fails += tests_smoke_refusal_nav.fails
 import tests_smoke_counterfactual_units
 fails += tests_smoke_counterfactual_units.fails
 import tests_smoke_crossbook

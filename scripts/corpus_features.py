@@ -47,6 +47,7 @@ from pathlib import Path
 import numpy as np
 
 from alpha import config
+from alpha import exits as _exits
 from alpha.sources import corpus, features
 from scripts.news_backfill import MURAT_NAMES
 
@@ -59,6 +60,29 @@ HISTORY_DAYS = 200          # corpus/bars history loaded BEFORE --since, for bas
 
 def default_symbols() -> list[str]:
     return sorted(set(MURAT_NAMES) | {"SPY", "QQQ", "IWM"})
+
+
+def corpus_symbols(min_rows: int = 20) -> list[str]:
+    """Every symbol the corpus actually has news for, plus the benchmarks.
+
+    WHY THIS EXISTS (2026-08-30). The panel was built on 23 symbols while the
+    corpus carried news for 156, and the gap decided what could be asked:
+
+      * T6 (Murat's rule cells) had 1,226 symbol-days passing target-ratio AND
+        drawdown -- across seventeen names, which is not a cross-section.
+      * T3 (sector lead/laggard) needs THREE names in one declared driver in the
+        same week. On 23 symbols the only groups that big were `murat_book`
+        (a bag of picks, not a mechanism), `UNCLASSIFIED` (by definition not a
+        driver) and `index_beta` (the market). Every real theme had ONE name, so
+        the question could not be asked at all.
+
+    `min_rows` keeps out names with a handful of stray headlines, whose
+    `coverage_baseline_90d` would be noise and whose attention_z would then be
+    an artefact of the denominator.
+    """
+    counts = corpus.symbols_covered(kinds=["news"])
+    syms = {s.upper() for s, n in counts.items() if n >= min_rows}
+    return sorted(syms | {"SPY", "QQQ", "IWM"})
 
 
 # ----------------------------------------------------------------------- bars
@@ -312,9 +336,21 @@ def ic_table(symbols: list[str], *, since: str) -> dict:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbols", nargs="*", default=None)
+    ap.add_argument("--universe", choices=("default", "corpus"), default="default",
+                    help="'corpus' = every symbol with >= 20 news rows, so the panel covers "
+                         "what the sensors cover (23 -> ~156). T3 cannot be asked below that.")
     ap.add_argument("--since", default="2025-09-01")
-    ap.add_argument("--until", default=(date.today() - timedelta(days=1)).isoformat(),
-                    help="last bar date; default yesterday (free SIP plan refuses recent data)")
+    # THE DAY BEFORE THE LAST ET SESSION, not the day before the machine's date.
+    # `date.today()` is local, and this machine runs UTC+8, so from 08:00 SGT the
+    # local date is already tomorrow in ET and `today - 1` asks SIP for a session
+    # that has not closed -- HTTP 403, "subscription does not permit querying
+    # recent SIP data", which reads like a plan problem and is a clock problem.
+    # Third instance of the two-clocks trap in this repo; `exits.session_day` is
+    # the one definition (see its docstring).
+    ap.add_argument("--until",
+                    default=(date.fromisoformat(_exits.session_day()) - timedelta(days=1)).isoformat(),
+                    help="last bar date; default the session before the current ET trading day "
+                         "(the free SIP plan refuses data inside the last 15 minutes)")
     ap.add_argument("--ic", action="store_true", help="compute the rank-IC table from the built files")
     ap.add_argument("--no-build", action="store_true", help="with --ic: skip the build")
     ap.add_argument("--no-embed", action="store_true", help="TF-IDF novelty; never call NVIDIA")
@@ -325,7 +361,12 @@ def main(argv: list[str] | None = None) -> int:
     config.load_env()
     if args.role and not os.getenv("AAT_ACCOUNT_ROLE"):
         os.environ["AAT_ACCOUNT_ROLE"] = args.role
-    symbols = sorted({s.upper() for s in args.symbols}) if args.symbols else default_symbols()
+    if args.symbols:
+        symbols = sorted({s.upper() for s in args.symbols})
+    elif args.universe == "corpus":
+        symbols = corpus_symbols()
+    else:
+        symbols = default_symbols()
     print(f"corpus_features: {len(symbols)} symbols, {args.since} -> {args.until}")
     if not args.no_build:
         build(symbols, since=args.since, until=args.until, no_embed=args.no_embed,
