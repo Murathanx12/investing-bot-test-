@@ -16,7 +16,7 @@ For Murat and Fable. Plain language on purpose.
 | a bug found in our own data | **the analyst count was the wrong variable** — see §3. It is the biggest thing in this report. |
 | the daily diff | built (`tracker --diff`); needs a second day of data, and says so rather than printing an empty table |
 | the logic brain | **running**, $0.004 a night at today's scale, and it produced a finding about itself in §5 |
-| your fantasy transposition (T13) | **built and gated** — the rewriter-parity check passed at 0.12 against a 1.0 stop. §5b. |
+| your fantasy transposition (T13) | **built, gated and run** — $0.30, 150 windows, 11 months. Prose beats numbers-only; everything else is a ridge, not a plateau. §5b. |
 | fleet | $570,801 of $600,000 (−4.87%), unchanged — no new orders |
 
 ---
@@ -254,6 +254,58 @@ in the windows with the most dated items — the ones carrying the most
 information. The fix then broke differently: "Mar" matched inside "Margin", so
 "Margin 31%" was stripped as a date and a real number vanished. Both are pinned
 by tests now.
+
+### It ran. Here is what it says, and what it does not.
+
+1,001 windows over 152 names and 11 monthly rebalances (2025-06 → 2026-07),
+graded on the **150 windows every arm has** — the arms lose different windows
+when a rewrite fails, and comparing baskets of different companies would be a
+difference of portfolios before it was anything about memory. Total cost: **$0.30.**
+
+At a top-5 basket under the balanced ranking:
+
+| arm | terminal wealth | t | vs its own shuffled null |
+|---|---|---|---|
+| the market basket (every name, equal weight) | 1.149 | 0.97 | — |
+| **real** (names and year intact) | 1.670 | 2.33 | beats it |
+| **real_anon** | 1.756 | 2.07 | beats it |
+| **fantasy** | 1.567 | 2.12 | beats it |
+| **numbers_only** (prose deleted) | 0.924 | −0.16 | **loses to it** |
+
+Read alone, that is a result: the model beats the market on a story it has never
+seen, and fails when you take the story away. **I do not think you should read
+it alone.** Here is the same thing at four basket sizes:
+
+| balanced | k=3 | k=5 | k=10 | k=25 |
+|---|---|---|---|---|
+| real | 1.667 | 1.670 | **1.076** | 1.237 |
+| real_anon | 2.329 | 1.756 | **1.198** | 1.237 |
+| fantasy | 1.371 | 1.567 | **1.097** | 1.237 |
+| numbers_only | 1.087 | 0.924 | 1.027 | 1.237 |
+
+Everything collapses at ten names. And under the *other* ranking rule — the
+aggressive one, `p_up × expected return` — the arm that should be **worst**,
+the one that sees no prose at all, is the **best** at k=3 (1.925, t 2.25).
+That is noise winning, and it is what a narrow ridge looks like from the side.
+
+I held the upside cap in the eleven-year study to a **plateau** — it had to work
+from 1.5× to 10× or I would not have believed it. The same standard has to apply
+here, or the standard was about the conclusion rather than about evidence. So:
+
+- **What survives every basket size:** prose beats numbers-only under the
+  balanced ranking. That contrast is stable and it is the one thing I would
+  carry forward.
+- **What does not survive:** the size of the outperformance, and the
+  `real ≈ fantasy` reading. The gap between them is inside the noise of the
+  sweep, so I cannot yet tell you whether the model is remembering or reading.
+- **And the number that bounds all of it:** this is **11 monthly observations**,
+  not 150. Names inside one month share that month's market. Eleven is not
+  enough for any of this, and the grade prints that line every time.
+
+**One thing is clean, though, and it is the split the harness was built to
+find.** Calibration is negative in all four arms (Brier skill −0.001 to −0.011):
+worse than always predicting the base rate. The model **orders better than it
+prices**. If we ever use it, use the ranking and throw the probability away.
 
 ## 6. A near-miss worth recording
 
