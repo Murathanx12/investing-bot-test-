@@ -1,7 +1,7 @@
 # Session 28 — the three decisions are live, the brain is running, and the analyst count was the wrong number
 
 For Murat and Fable. Plain language on purpose.
-58 suites, **2,490 checks, all pass**. `fleet --check-all` green on all six accounts.
+59 suites, **2,516 checks, all pass**. `fleet --check-all` green on all six accounts.
 **No cap, stop, notional limit or opening-range rule was touched.**
 
 ---
@@ -43,6 +43,15 @@ ratio opens, which is that +0.4% against −1% outranks +8% against −25%.
 **The sealed book now runs on the whole tracker.** Last night: 151 considered,
 **1 claim**. Tonight's dry run: **749 considered, 10 claims.** That is the "many
 names, not one" you asked for.
+
+And the seal now checks that out loud, as your brief asked. It prints claims per
+generator against the bar of ten, and when a generator is under it, it names the
+*reason* — because a low count has three causes that need completely different
+fixes and the number alone cannot tell them apart: a quiet market, a universe too
+small to contain candidates, or a clause that is silently unreadable. The last of
+those is a data gap wearing a market's clothes, and it is what happened last week
+with the catalyst clause. Tonight it reads `claims ok murat_rule_v1: 10 of 749
+considered (bar 10)`.
 
 ## 2. The cost question, answered — and a better question underneath it
 
