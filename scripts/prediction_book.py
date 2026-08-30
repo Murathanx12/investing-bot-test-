@@ -57,10 +57,11 @@ import json
 import math
 import os
 import sys
-from datetime import date, datetime, timedelta, timezone
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
-from alpha import config, drivers
+from alpha import config, drivers, murat_rule
 from alpha import exits as _exits
 from alpha.sources import corpus, features
 
@@ -116,6 +117,24 @@ IC_RECEIPT = "state/corpus/features/ic_2026-08-30_wide152.json"
 #: earns it -- a constant set by hand would still say False after the evidence
 #: changed, and would still say True after it went away.
 CLAIMING = any(lo > 0 or hi < 0 for _, (lo, hi) in SIGNALS.values())
+
+#: THE SECOND GENERATOR, and why the book stopped being unable to claim.
+#:
+#: `CLAIMING` above is derived from `SIGNALS`, and on a universe nobody curated
+#: no signal clears zero -- so `event_counts_v1` can never claim, whatever it
+#: reads. On 2026-08-30 it looked at 151 names and claimed 0, which Murat
+#: correctly read as a design fact rather than as a verdict on the names.
+#:
+#: `murat_rule_v1` is a SEPARATE generator with its own frozen contract, not a
+#: loosened gate on this one. Both write rows into the same sealed book, each
+#: row stamped with its `generator`, so Friday's autopsy compares a rule that
+#: claims against a panel that does not. Widening the CI test until something
+#: passed would have converted a measurement into a wish.
+RULE_GENERATOR = murat_rule.CONTRACT["generator"]
+
+#: Where the measured base rate is cached. Recomputing it walks the whole panel
+#: (~37k symbol-days), which is too slow for a 09:15 seal.
+PRIOR_CACHE = PANEL / "murat_rule_prior.json"
 
 #: Fraction of the ranked universe that gets a directional claim. The rest are
 #: recorded as CONSIDERED with no claim -- an empty book and a book that looked
@@ -175,6 +194,147 @@ def _rank_pct(values: list[float]) -> list[float]:
     return out
 
 
+# ------------------------------------------------- generator 2: the rule's prior
+
+
+def _spy_relative_forward(bars: dict[str, list[dict]], h: int) -> dict[str, dict[str, float]]:
+    """{symbol: {day: SPY-relative return, next open -> close h sessions on}}.
+
+    Entry at the NEXT open, never today's close: a feature computed from today's
+    bar cannot trade today's close, because Alpaca refuses `cls` after 15:50 ET.
+    """
+    def fwd(bs: list[dict]) -> dict[str, float]:
+        out: dict[str, float] = {}
+        for i, b in enumerate(bs):
+            if i + h >= len(bs):
+                break
+            o = float(bs[i + 1].get("o") or 0.0)
+            c = float(bs[i + h].get("c") or 0.0)
+            if o > 0 and c > 0:
+                out[str(b.get("t") or "")[:10]] = c / o - 1.0
+        return out
+
+    bench = fwd(bars.get(BENCH) or [])
+    out: dict[str, dict[str, float]] = {}
+    for sym, bs in bars.items():
+        if sym == BENCH or not bs:
+            continue
+        out[sym] = {d: r - bench[d] for d, r in fwd(bs).items() if d in bench}
+    return out
+
+
+def rule_prior(*, refresh: bool = False) -> dict:
+    """The measured base rate behind every `p_up_21d` this generator publishes.
+
+    Cached: walking 152 panel files is far too slow for a 09:15 seal, and the
+    number only moves when the panel is rebuilt. `--refresh-prior` recomputes.
+    """
+    if PRIOR_CACHE.exists() and not refresh:
+        try:
+            return json.loads(PRIOR_CACHE.read_text(encoding="utf-8"))
+        except ValueError:
+            pass
+    rows: dict[str, list[dict]] = {}
+    for p in sorted(PANEL.glob("*.jsonl")):
+        if p.stem.startswith("bars_"):
+            continue
+        rows[p.stem] = [json.loads(x) for x in p.read_text(encoding="utf-8").splitlines() if x.strip()]
+    bars = {}
+    for p in sorted(PANEL.glob("bars_*.json")):
+        try:
+            blob = json.loads(p.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        bars[blob.get("symbol") or p.stem[5:]] = blob.get("bars") or []
+    prior = murat_rule.prior_from_panel(rows, _spy_relative_forward(bars, HORIZON_SESSIONS))
+    prior["computed_utc"] = datetime.now(timezone.utc).isoformat()
+    prior["panel_symbols"] = len(rows)
+    PRIOR_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    PRIOR_CACHE.write_text(json.dumps(prior, indent=1), encoding="utf-8")
+    return prior
+
+
+def _ratings_for(symbols: list[str]) -> dict[str, dict]:
+    """Same-day consensus ratings, fetched ONLY for names that already pass the
+    price clauses.
+
+    Finnhub allows 60 calls a minute and the panel is 152 names; asking for all
+    of them would spend the budget to learn the rating of names the rule has
+    already rejected on (a) or (e). A name whose rating cannot be read is not
+    rejected -- it runs as `rule_variant: a_d_e` and says so.
+    """
+    out: dict[str, dict] = {}
+    if config.test_mode() or not symbols:
+        return out
+    from alpha.sources import finnhub
+    from alpha.sources.http import SourceRefusal
+    for i, s in enumerate(symbols):
+        if i:
+            time.sleep(1.1)
+        try:
+            recs = finnhub.recommendation_trends(s)
+        except SourceRefusal:
+            continue
+        if recs:
+            out[s] = recs[0]
+    return out
+
+
+def rule_predictions(rows: list[dict], prior: dict, driver_of: dict[str, str]) -> list[dict]:
+    """One row per name, ALWAYS with numbers. See `alpha/murat_rule.py`."""
+    # Price clauses first, so ratings are fetched for a handful of names rather
+    # than for the whole panel.
+    pre = {r["symbol"]: murat_rule.evaluate(r) for r in rows}
+    need_rating = [r["symbol"] for r in rows
+                   if pre[r["symbol"]]["clauses"]["a_target_ratio"] is True
+                   and pre[r["symbol"]]["clauses"]["e_drawdown"] is True
+                   and r.get("rating_counts_mean") is None]
+    ratings = _ratings_for(need_rating)
+
+    out: list[dict] = []
+    for r in rows:
+        if r["symbol"] in ratings:
+            got, _cov = features.rating_from_panel(ratings[r["symbol"]])
+            r = {**r, "rating_counts_mean": got}
+        v = murat_rule.evaluate(r)
+        s = murat_rule.score(r, v, prior)
+        out.append({
+            "symbol": r["symbol"],
+            "generator": RULE_GENERATOR,
+            "claims": v["fires"],
+            "direction": "up" if v["fires"] else None,
+            "horizon_sessions": HORIZON_SESSIONS,
+            "checkpoint_sessions": CHECKPOINT_SESSIONS,
+            "driver": driver_of.get(r["symbol"]),
+            "rule_variant": v["rule_variant"],
+            "clauses": v["clauses"],
+            "clause_inputs": v["inputs"],
+            "failed_clauses": v["failed_clauses"],
+            "unreadable_clauses": v["unreadable_clauses"],
+            **s,
+            "falsifier": (
+                f"{r['symbol']} fails this claim if its SPY-relative return from the next open "
+                f"to the close {HORIZON_SESSIONS} sessions later is <= 0." if v["fires"] else None),
+            "which_book_acts": "hack3 (THESIS) as its own selector -- see scripts/fleet.py",
+        })
+    # Claiming rows first, then everything else by `exp_return - |downside|`.
+    #
+    # The second group's ordering is LEAST-BAD, not second-best, and it is
+    # labelled as such on every row. With p_up below 0.5 for every non-firing
+    # name, `exp_return` is negative for all of them, so the ordering among
+    # them is driven almost entirely by volatility -- the calmest name sorts
+    # highest. Printing that as "rank 2" beside a real claim at rank 1, with
+    # nothing to distinguish them, is how a reader comes away believing the
+    # book had fourteen ideas when it had one.
+    out.sort(key=lambda p: (not p["claims"], -murat_rule.rank_key(p)))
+    for i, p in enumerate(out):
+        p["rank"] = i + 1
+        p["rank_basis"] = ("CLAIMING, ranked by exp_return - |downside_5pct|" if p["claims"]
+                           else "NOT CLAIMING: ranked least-bad by the same expression. This is "
+                                "an ordering of names the rule declined, not a shortlist.")
+    return out
+
+
 # ------------------------------------------------------------------- the build
 
 
@@ -203,7 +363,14 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
         if not bars.get(sym):
             skipped["no_bars"] = skipped.get("no_bars", 0) + 1
             continue
-        f = features.daily_features(sym, as_of_bar or day, crows, bars=bars.get(sym))
+        # `future_known_by=seal_utc` is what makes clause (d) readable at all.
+        # The price context is the last CLOSED session (the free SIP plan
+        # refuses newer bars), but the forward catalyst calendar is pulled
+        # today -- so one shared bound filtered every catalyst out and
+        # `days_to_next_catalyst` was None for every name in the book. See
+        # `features.daily_features` for why two clocks need two bounds.
+        f = features.daily_features(sym, as_of_bar or day, crows, bars=bars.get(sym),
+                                    future_known_by=seal_utc)
         counts = f.get("event_type_counts_20d") or {}
         rows.append({
             "symbol": sym,
@@ -213,6 +380,8 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
             "n_items_20d": f.get("n_items_20d"),
             "drawdown_from_60d_high": f.get("drawdown_from_60d_high"),
             "days_to_next_catalyst": f.get("days_to_next_catalyst"),
+            "target_ratio": f.get("target_ratio"),
+            "rating_counts_mean": f.get("rating_counts_mean"),
         })
 
     # Cross-sectional score. Ranked per feature, then IC-weighted.
@@ -231,11 +400,18 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
 
     rows.sort(key=lambda r: (-(r["score"] or -1), r["symbol"]))
     if not CLAIMING:
+        # SCOPED TO THIS GENERATOR. Before `murat_rule_v1` existed this sentence
+        # described the whole book and was true of it. Left unscoped it now
+        # contradicts the file it is written into -- a book that claims MU while
+        # its own header says it "asserts nothing" teaches a reader to stop
+        # believing the header.
         universe_note = (universe_note + " " if universe_note else "") + (
-            "NO CLAIMS: on the 152-symbol panel not one of the 29 features has a 95% CI "
-            "excluding zero (ic_2026-08-30_wide152.json). The ranking is still computed and "
-            "still sealed -- it is the control, and it accrues the vintages -- but the book "
-            "asserts nothing until a signal clears zero on a universe nobody curated.")
+            "event_counts_v1 CLAIMS NOTHING: on the 152-symbol panel not one of the 29 "
+            "features has a 95% CI excluding zero (ic_2026-08-30_wide152.json). Its ranking "
+            "is still computed and still sealed -- it is the control, and it accrues the "
+            "vintages -- but it asserts nothing until a signal clears zero on a universe "
+            "nobody curated. This says NOTHING about murat_rule_v1, which is a separate "
+            "generator with its own contract and its own claims; see claims_by_generator.")
     n_claim = int(len(rows) * CLAIM_FRACTION) if (not universe_note and CLAIMING) else 0
     driver_of, driver_note = drivers.resolve([r["symbol"] for r in rows])
 
@@ -271,11 +447,25 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
             "which_book_acts": "NONE -- zero size; T7 prediction book only",
         })
 
+    # SECOND GENERATOR. It runs over the same rows and writes into the same
+    # sealed book, each row stamped with its own `generator`, so the two are
+    # graded separately and Friday can compare a rule that claims with a panel
+    # that does not.
+    prior = rule_prior()
+    rule_rows = rule_predictions(rows, prior, driver_of)
+    rule_claims = sum(1 for p in rule_rows if p["claims"])
+    predictions += rule_rows
+
     payload = {
-        "schema": "prediction-book-1",
+        "schema": "prediction-book-2",
         "day": day,
         "sealed_at_utc": seal_utc,
         "generator": "event_counts_v1",
+        "generators": ["event_counts_v1", RULE_GENERATOR],
+        "murat_rule_contract": murat_rule.CONTRACT,
+        "murat_rule_prior": prior,
+        "claims_by_generator": {"event_counts_v1": n_claim, RULE_GENERATOR: rule_claims},
+        "rule_variant_histogram": murat_rule.variant_histogram(rule_rows),
         "signals": {k: {"weight_ic": w, "ci95": list(ci)} for k, (w, ci) in SIGNALS.items()},
         "ic_receipt": IC_RECEIPT,
         "pit": {
@@ -287,7 +477,7 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None) -> 
                      "traded today's open"),
         },
         "universe_considered": len(rows),
-        "claims_made": n_claim,
+        "claims_made": n_claim + rule_claims,
         "claim_fraction": CLAIM_FRACTION,
         "skipped": skipped,
         "driver_taxonomy": driver_note,
@@ -418,6 +608,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--show", action="store_true")
     ap.add_argument("--grade", action="store_true")
     ap.add_argument("--verify", action="store_true", help="re-hash every sealed book")
+    ap.add_argument("--publish", action="store_true",
+                    help="copy today's sealed book to docs/seed/predictions/ so the Railway "
+                         "loops can read it (the /app/state volume shadows the repo's state/)")
+    ap.add_argument("--refresh-prior", action="store_true",
+                    help="recompute the measured base rate by walking the whole panel")
     ap.add_argument("--day", default=None, help="ET trading day (default: today)")
     ap.add_argument("--horizon", type=int, default=HORIZON_SESSIONS)
     args = ap.parse_args(argv)
@@ -426,6 +621,30 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.verify:
         return 1 if verify() else 0
+
+    if args.refresh_prior:
+        p = rule_prior(refresh=True)
+        print(json.dumps(p, indent=1))
+        if not args.seal:
+            return 0
+
+    if args.publish:
+        # The Railway loops mount a volume over /app/state, so a book sealed
+        # here and committed under state/ is INVISIBLE to them. docs/seed/ is
+        # how the theme universe already reaches the container.
+        from alpha.brains.murat_rule import SEED_BOOKS
+        src = sorted(BOOKS.glob(f"{day}.json")) + sorted(BOOKS.glob(f"{day}.resealed_*.json"))
+        if not src:
+            print(f"nothing to publish: no sealed book for {day}")
+            return 1
+        SEED_BOOKS.mkdir(parents=True, exist_ok=True)
+        dst = SEED_BOOKS / f"{day}.json"
+        dst.write_text(src[-1].read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"published {src[-1].name} -> {dst}")
+        print("  now: git add docs/seed/predictions && git commit && git push, then redeploy.")
+        print("  Until that push lands, the loops decline every symbol with 'no sealed book',")
+        print("  which is the SAFE failure and is recorded as a refusal, not as silence.")
+        return 0
 
     if args.seal:
         book = build()
@@ -439,22 +658,48 @@ def main(argv: list[str] | None = None) -> int:
         args.show = True
 
     if args.show:
-        path = BOOKS / f"{day}.json"
-        if not path.exists():
+        # NEWEST FIRST. A reseal writes a NEW file beside the original rather
+        # than overwriting it (that is the tamper-evidence), so reading
+        # `<day>.json` unconditionally showed the SUPERSEDED book -- it printed
+        # "0 claims" minutes after a reseal that made one.
+        cands = sorted(BOOKS.glob(f"{day}.json")) + sorted(BOOKS.glob(f"{day}.resealed_*.json"))
+        if not cands:
             print(f"no sealed book for {day}")
             return 1
+        path = cands[-1]
         book = json.loads(path.read_text(encoding="utf-8"))
-        print(f"\nSEALED BOOK {book['day']}  (sealed {book['sealed_at_utc']}, "
+        print(f"\nSEALED BOOK {book['day']}  ({path.name}, sealed {book['sealed_at_utc']}, "
               f"sha {book['content_sha256'][:16]})")
+        if len(cands) > 1:
+            print(f"  {len(cands)} sealed files for this day; showing the NEWEST. "
+                  f"The earlier ones are kept, not replaced.")
         print(f"  price context through {book['pit']['price_context_through']}; "
-              f"{book['universe_considered']} considered, {book['claims_made']} claims")
+              f"{book['universe_considered']} considered, {book['claims_made']} claims "
+              f"{book.get('claims_by_generator') or ''}")
         print(f"  {book['authority']}")
-        print(f"\n  {'rank':>4} {'sym':<6} {'score':>7} {'move':>7}  driver")
-        for p in book["predictions"]:
+
+        ev = [p for p in book["predictions"] if p.get("generator") == "event_counts_v1"]
+        print(f"\n  -- event_counts_v1 ({sum(1 for p in ev if p['claims'])} claims) --")
+        for p in ev:
             if not p["claims"]:
                 continue
             print(f"  {p['rank']:>4} {p['symbol']:<6} {p['score']:>7.4f} "
                   f"{(p['expected_abs_move_21d'] or 0) * 100:>6.1f}%  {p['driver']}")
+
+        rr = [p for p in book["predictions"] if p.get("generator") == RULE_GENERATOR]
+        if rr:
+            claims = [p for p in rr if p["claims"]]
+            print(f"\n  -- {RULE_GENERATOR} ({len(claims)} claims of {len(rr)} scored) --")
+            print(f"  {'rank':>4} {'sym':<6} {'p_up':>6} {'expR':>8} {'down':>8} {'conf':>5}  "
+                  f"{'variant':<8} blocking clause(s)")
+            # Claims, then the best few declines -- so a book that claims nothing
+            # still SHOWS the numbers it declined on. Murat, 2026-08-30: the
+            # engine may not answer "I don't know"; it must publish the number.
+            for p in (claims + [p for p in rr if not p["claims"]][:8]):
+                print(f"  {p['rank']:>4} {p['symbol']:<6} {p['p_up_21d']:>6.3f} "
+                      f"{(p['exp_return'] or 0):>8.4f} {(p['downside_5pct'] or 0):>8.4f} "
+                      f"{p['confidence']:>5.2f}  {p['rule_variant']:<8} "
+                      f"{', '.join(p['failed_clauses']) or '(none -- CLAIMS)'}")
 
     if args.grade:
         rep = grade(day, horizon=args.horizon)

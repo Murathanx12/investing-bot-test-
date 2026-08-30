@@ -126,15 +126,24 @@ def day_end(day: str) -> datetime:
     return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=timezone.utc)
 
 
+def knowable_by(rows: Iterable[dict], bound: str) -> list[dict]:
+    """Rows knowable by `bound`.
+
+    `bound` is a DAY (`YYYY-MM-DD`, taken as its last instant) or a full
+    timestamp (taken literally). The second form exists so a caller that knows
+    the exact moment of its decision can say so instead of rounding up to
+    midnight -- a 09:15 seal must not admit a 14:00 headline.
+    """
+    b = day_end(bound) if len(str(bound)) == 10 else _parse_ts(bound)
+    if b is None:
+        return list(rows)
+    return [r for r in rows
+            if (ts := _parse_ts(r.get("observed_at"))) is not None and ts <= b]
+
+
 def observed_by(rows: Iterable[dict], day: str) -> list[dict]:
     """Only rows KNOWABLE by the end of `day`. The filter every count runs through."""
-    bound = day_end(day)
-    out = []
-    for r in rows:
-        ts = _parse_ts(r.get("observed_at"))
-        if ts is not None and ts <= bound:
-            out.append(r)
-    return out
+    return knowable_by(rows, str(day)[:10])
 
 
 def _in_window(rows: Iterable[dict], day: str, n_days: int, *, end_offset: int = 0) -> list[dict]:
@@ -542,7 +551,8 @@ def daily_features(symbol: str, day: str, corpus_rows: Sequence[dict],
                    baseline_rows: Sequence[dict] | None = None, *,
                    bars: Sequence[dict] | None = None, rating_rec: dict | None = None,
                    novelty: NoveltyIndex | Callable[[str], float | None] | None = None,
-                   close_source: str = "alpaca_daily_bar_close_sip_adj_all") -> dict[str, Any]:
+                   close_source: str = "alpaca_daily_bar_close_sip_adj_all",
+                   future_known_by: str | None = None) -> dict[str, Any]:
     """One numeric row for (symbol, day). See the module docstring for each field.
 
     `corpus_rows`   rows about `symbol` (any tense, any observed_at -- filtered here).
@@ -552,13 +562,40 @@ def daily_features(symbol: str, day: str, corpus_rows: Sequence[dict],
     `bars`          Alpaca daily bars (dicts with t/o/h/l/c/v), any span.
     `rating_rec`    Finnhub recommendation counts captured ON OR BEFORE `day`.
     `novelty`       a `NoveltyIndex` or callable(day) -> float|None.
+    `future_known_by`
+                    Separate knowledge bound for FORWARD-DATED rows (the
+                    catalyst diary). Defaults to `day`, which is what a
+                    historical panel must use.
+
+    WHY FORWARD ROWS NEED THEIR OWN BOUND (found 2026-08-30, and it had made
+    clause (d) of the selection rule permanently inert)
+    ---------------------------------------------------------------------
+    `day` here is the last CLOSED session, because the free SIP plan refuses
+    recent bars -- on 2026-08-30 that was 2026-08-28. The forward catalyst
+    calendar, however, is pulled TODAY, so its rows carry `observed_at`
+    2026-08-29/30. One shared bound therefore filtered out every catalyst:
+    `days_to_next_catalyst` was None for MU even though the corpus held its
+    2026-09-21 earnings date, and every rule reading "a dated catalyst inside
+    N sessions" silently evaluated against nothing.
+
+    Two clocks, two bounds. For BACKWARD news the bound must be `day` -- a
+    headline published after the decision cannot enter it, and that is the
+    whole of PIT discipline. For a FORWARD-dated row the question is different:
+    not "had it happened?" but "did we KNOW the date?", and at a 09:15 seal we
+    demonstrably do. Passing the seal instant is therefore not lookahead; it is
+    the honest bound for a diary entry.
+
+    The default stays `day` precisely so the historical panel is unchanged: a
+    backtest that let today's calendar into a 2025 row WOULD be lookahead, and
+    a caller has to ask for the other behaviour by name.
     """
     sym = str(symbol).upper()
     day = str(day)[:10]
     pit = observed_by(corpus_rows, day)
     base_pit = observed_by(baseline_rows, day) if baseline_rows is not None else pit
     past = [r for r in pit if r.get("tense") != "future"]
-    future = [r for r in pit if r.get("tense") == "future"]
+    fut_src = pit if future_known_by is None else knowable_by(corpus_rows, future_known_by)
+    future = [r for r in fut_src if r.get("tense") == "future"]
     base_past = [r for r in base_pit if r.get("tense") != "future"]
 
     f: dict[str, Any] = {k: None for k in FEATURE_FIELDS}

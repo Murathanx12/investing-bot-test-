@@ -17,8 +17,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-from alpha.brains import (council_vector, event_move, narrative_dispersion, options_attention,
-                          post_event_drift, relay, theme_basket, vol_gap)
+from alpha.brains import (council_vector, event_move, murat_rule, narrative_dispersion,
+                          options_attention, post_event_drift, relay, theme_basket, vol_gap)
 from alpha.brains.base import Forecast
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,11 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
     # labelled as one; `council_vector` reads the research council's synthesis.
     "theme_basket": lambda client, sym, h, **kw: theme_basket.forecast(client, sym, h),
     "council_vector": lambda client, sym, h, **kw: council_vector.forecast(client, sym, h),
+    # `murat_rule` is a SEPARATE SELECTOR, never a weight in another brain's
+    # composite (CLAUDE.md's bottleneck rule). It reads the pre-open sealed book
+    # and trades only what was written down before the open; if the book claimed
+    # nothing, it declines every symbol and the account holds cash.
+    "murat_rule": lambda client, sym, h, **kw: murat_rule.forecast(client, sym, h),
 }
 
 

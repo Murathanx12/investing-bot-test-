@@ -75,7 +75,8 @@ FLEET: dict[str, Mandate] = {
     "hack3": Mandate(
         role="hack3", tier="RISKY", label="THESIS: Murat's future-state basket",
         question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought NEAR THEIR 20-SESSION HIGH (half tilt)? The original dip-buy (20-50% drawdown) was adjudicated against on CRSP 2013-2024 (-0.31%/5d, t -2.35) and is REFUSED by the brain; any dip entry is a typed human thesis (scripts.thesis).",
-        brains=("theme_basket",), profile="basket", universe="themes", allow_maximum=True,
+        brains=("theme_basket", "murat_rule"), profile="basket", universe="themes_plus_rule",
+        allow_maximum=True,
         rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
         caveat="ADJUDICATED 28 Aug (Aegis knife_basket_backtest, CRSP 2013-2024): the -50..-20% drawdown cell LOSES -0.31%/5d (t -2.35); only >50%-down at >100% vol pays (+2.32%, t 2.60, n=88). theme_basket now buys only that cell and near-high names; the middle is declined with the number. Graded vs IWM and vs `hack2`."),
     "hack4": Mandate(
@@ -118,12 +119,42 @@ def theme_symbols(*, with_options_only: bool = False) -> list[str]:
     return list(d["with_options"] if with_options_only else d["tradable"])
 
 
+def rule_claimed_symbols(day: str | None = None) -> list[str]:
+    """Names TODAY'S SEALED BOOK claimed under `murat_rule_v1`, in rank order.
+
+    Read from the seal, never re-derived. If there is no sealed book, or it
+    claimed nothing, this returns `[]` and the account trades its theme names
+    alone -- which is the correct behaviour and is visible in the receipt as an
+    empty list rather than as an absent one.
+    """
+    from alpha.brains import murat_rule as _mr
+    from alpha import exits as _ex
+    book = _mr._book_for(day or _ex.session_day())
+    if not book:
+        return []
+    return [r["symbol"] for r in (book.get("predictions") or [])
+            if r.get("generator") == "murat_rule_v1" and r.get("claims")]
+
+
 def universe_for(m: Mandate) -> list[str] | None:
     """Explicit symbol list, or None when the loop builds it (`--window-universe`)."""
     if m.universe == "window":
         return None
     if m.universe == "themes":
         return theme_symbols()
+    if m.universe == "themes_plus_rule":
+        # The rule's claims are UNIONED onto the theme list because the two
+        # selectors do not share a universe: `murat_rule_v1` ranks the whole
+        # 152-name panel and its best name on 2026-08-30 (MU) is not a theme
+        # name at all. Without the union the selector would be wired in and
+        # never asked about the only name it claimed -- live, and silent.
+        #
+        # This CANNOT raise the worst case. hack3's bound is
+        # `gross_cap('basket') x stop_fraction('basket')` = 1.00 x 8% = -8.00%
+        # of equity, and that expression has no name-count term in it: more
+        # names divide the same gross, they do not add to it. Only raising the
+        # cap or the stop moves the bound, and neither is touched here.
+        return sorted(set(theme_symbols()) | set(rule_claimed_symbols()))
     if m.universe == "themes_with_options":
         return theme_symbols(with_options_only=True)
     if m.universe == "window_plus_themes":
