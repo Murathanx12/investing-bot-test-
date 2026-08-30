@@ -62,6 +62,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from alpha import config, drivers, murat_rule
+from alpha import tracker as _tracker
 from alpha import exits as _exits
 from alpha.sources import corpus, features
 
@@ -338,11 +339,167 @@ def rule_predictions(rows: list[dict], prior: dict, driver_of: dict[str, str]) -
 # ------------------------------------------------------------------- the build
 
 
-def build(*, now: datetime | None = None, universe: list[str] | None = None) -> dict:
+def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
+    """Book rows built from the TRACKER instead of the corpus. (rows, provenance).
+
+    WHY THE TRACKER AND NOT THE CORPUS
+    ==================================
+    The corpus path needs news to exist for a name before it can score it, and
+    that requirement is itself a mega-cap filter: Benzinga files 1,566 items on
+    NVDA and three or four on AARD. That is how the panel arrived at 151 names,
+    nearly all large, and how the book came to claim one mega-cap that had
+    already risen 700%.
+
+    The tracker needs no news. Every input Murat's rule actually reads --
+    target ratio, consensus rating, drawdown, days to catalyst -- is on the
+    tracker row already, from sources that cover a four-analyst biotech as
+    readily as they cover Apple. So the rule runs on the whole market here.
+
+    EVENT_COUNTS_V1 DOES NOT RUN ON THIS UNIVERSE, deliberately. Its inputs are
+    corpus event counts, which most tracker names do not have; scoring them as
+    zero would silently convert "no coverage" into "no events", which is the
+    exact collapse `net_breadth` was fixed to avoid. A generator with no inputs
+    reports that it did not run. It does not report a zero.
+    """
+    from scripts import tracker as tracker_cli
+
+    day = day or tracker_cli.latest_day()
+    if not day:
+        raise SystemExit("REFUSED: no tracker day on disk. Run `python -m scripts.tracker "
+                         "--refresh` first -- the book cannot select from a list that does "
+                         "not exist.")
+    raw = tracker_cli.load_day(day)
+    if not raw:
+        raise SystemExit(f"REFUSED: tracker file for {day} is empty.")
+    trows = _tracker.build_rows(raw)
+    prev_day = tracker_cli.latest_day(before=day)
+    prev = {r["symbol"]: r for r in tracker_cli.load_day(prev_day)} if prev_day else {}
+    hist = _tracker.apply_status(trows, prev_by_symbol=prev)
+    cands = _tracker.candidates(trows)
+
+    rows = []
+    for t in cands:
+        up = t.get("upside")
+        rows.append({
+            "symbol": t["symbol"],
+            # Present so downstream shapes match, and NEVER scored: see above.
+            "features": {k: 0.0 for k in SIGNALS},
+            "score": None,
+            "realised_vol_20d": t.get("realised_vol_20d"),
+            "n_items_20d": None,
+            "drawdown_from_60d_high": t.get("drawdown_60d"),
+            "days_to_next_catalyst": t.get("days_to_catalyst"),
+            # target_ratio is target/price; the tracker stores it as target/price - 1.
+            "target_ratio": (1.0 + up) if up is not None else None,
+            "rating_counts_mean": t.get("consensus"),
+            "tracker_status": t.get("status"),
+            "coverage": t.get("coverage"),
+            "coverage_bucket": t.get("coverage_bucket"),
+            "past_winner": t.get("past_winner"),
+            "sector": t.get("sector"),
+            "ret_12m": t.get("ret_12m"),
+        })
+    prov = {
+        "source": "tracker", "tracker_day": day, "previous_day": prev_day,
+        "tracker_names_total": len(trows), "tracker_status_histogram": hist,
+        "candidates_ranked": len(rows),
+        "clause_f_not_past_winner": (
+            "APPLIED BY THE UNIVERSE, NOT BY THE RULE. `murat_rule_v1`'s contract is frozen and "
+            "is not amended here -- amending a frozen contract mid-flight is the thing the "
+            "licence exists to forbid. Instead the tracker's own BUY/STRONG_BUY rules already "
+            "require `past_winner is False`, so every name reaching the rule has passed clause "
+            "(f) before the rule sees it. The composition is `tracker_status AND murat_rule_v1`, "
+            "and both halves are recorded on every row."),
+        "event_counts_v1": (
+            "DID NOT RUN on this universe. Its inputs are corpus event counts and most tracker "
+            "names carry no corpus rows; scoring those as zero would read 'not covered' as "
+            "'no events happened'. A generator with no inputs says so."),
+    }
+    return rows, prov
+
+
+def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
+    """The sealed book over the tracker's candidate list. One generator, all numbers."""
+    rows, prov = tracker_rows()
+    prior = rule_prior()
+    driver_of, driver_note = drivers.resolve([r["symbol"] for r in rows])
+    predictions = rule_predictions(rows, prior, driver_of)
+    rule_claims = sum(1 for p in predictions if p["claims"])
+
+    # Carry the tracker's own columns onto every prediction so a reader can see
+    # WHICH universe rule the name passed as well as which clause the rule read.
+    by_sym = {r["symbol"]: r for r in rows}
+    for p in predictions:
+        t = by_sym.get(p["symbol"]) or {}
+        p["tracker"] = {k: t.get(k) for k in
+                        ("tracker_status", "coverage", "coverage_bucket",
+                         "past_winner", "sector", "ret_12m")}
+
+    # Murat's thin-coverage hypothesis, kept as a QUESTION. The book does not
+    # prefer thin names and does not avoid them; it records how the claims fell
+    # across coverage so the answer can be measured forward instead of assumed.
+    claims_by_coverage: dict[str, dict[str, int]] = {}
+    for p in predictions:
+        b = (p.get("tracker") or {}).get("coverage_bucket") or "none"
+        d = claims_by_coverage.setdefault(b, {"ranked": 0, "claimed": 0})
+        d["ranked"] += 1
+        d["claimed"] += 1 if p["claims"] else 0
+
+    payload = {
+        "schema": "prediction-book-2",
+        "day": day,
+        "sealed_at_utc": seal_utc,
+        "generator": RULE_GENERATOR,
+        "generators": [RULE_GENERATOR],
+        "universe_source": prov,
+        "murat_rule_contract": murat_rule.CONTRACT,
+        "murat_rule_prior": prior,
+        "claims_by_generator": {RULE_GENERATOR: rule_claims},
+        "claims_by_coverage_bucket": claims_by_coverage,
+        "rule_variant_histogram": murat_rule.variant_histogram(predictions),
+        "pit": {
+            "tracker_observed_at": prov["tracker_day"],
+            "note": ("every tracker row carries its own `observed_at` capture stamp and is used "
+                     "strictly after it. The analyst target has NO vendor vintage -- we know when "
+                     "WE read it, which is the bound a live decision needs and is NOT a bound a "
+                     "backtest may use. See `alpha/tracker.py`."),
+        },
+        "universe_considered": len(rows),
+        "claims_made": rule_claims,
+        "skipped": {},
+        "driver_taxonomy": driver_note,
+        "authority": "ZERO SIZE. Nothing in this file may size, order or influence an order.",
+        "claiming": True,
+        "evidence_caveat": (
+            "THE BASE RATE IS TRANSFERRED, NOT MEASURED HERE. `p_up` on every row below comes "
+            "from `murat_rule_prior`, measured on the 152-name corpus panel over 11 date blocks. "
+            "It is applied to a universe of several thousand names that panel did not contain, "
+            "and the tracker is one day old so it cannot yet produce a base rate of its own -- a "
+            "forward rate needs forward returns and there are none. Two consequences, both "
+            "stated rather than buried: the ranking here is sound (it is an ordering by the "
+            "rule's own inputs), and the LEVEL of p_up is an extrapolation whose error is "
+            "unmeasured. The honest resolution is the out-of-sample test of these same status "
+            "rules on IBES + CRSP 2013-2024, which measures the rate on the whole market over "
+            "eleven years instead of on 152 names over eleven blocks."),
+        "universe_note": (
+            f"selected from the tracker's {prov['candidates_ranked']} candidates out of "
+            f"{prov['tracker_names_total']} names screened -- not from the 151-name corpus panel. "
+            f"{prov['clause_f_not_past_winner']}"),
+        "predictions": predictions,
+    }
+    payload["content_sha256"] = _sha(payload)
+    return payload
+
+
+def build(*, now: datetime | None = None, universe: list[str] | None = None,
+          source: str = "corpus") -> dict:
     """Today's sealed book, as a dict. Pure over the corpus and the panel."""
     now = now or datetime.now(timezone.utc)
     seal_utc = now.isoformat()
     day = _exits.session_day(now)
+
+    if source == "tracker":
+        return _build_from_tracker(now=now, seal_utc=seal_utc, day=day)
 
     syms = sorted(set(universe or _panel_symbols()))
     bars = {s: _bars(s) for s in syms}
@@ -613,6 +770,9 @@ def main(argv: list[str] | None = None) -> int:
                          "loops can read it (the /app/state volume shadows the repo's state/)")
     ap.add_argument("--refresh-prior", action="store_true",
                     help="recompute the measured base rate by walking the whole panel")
+    ap.add_argument("--universe", default="corpus", choices=("corpus", "tracker"),
+                    help="corpus = the 151-name news panel (the control); tracker = the "
+                         "whole-market analyst watchlist, BUY/STRONG_BUY only")
     ap.add_argument("--day", default=None, help="ET trading day (default: today)")
     ap.add_argument("--horizon", type=int, default=HORIZON_SESSIONS)
     args = ap.parse_args(argv)
@@ -647,7 +807,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.seal:
-        book = build()
+        book = build(source=args.universe)
         path = seal(book)
         print(f"sealed {path}")
         print(f"  day {book['day']}  sha256 {book['content_sha256'][:16]}")
