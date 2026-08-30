@@ -54,7 +54,24 @@ class Provider:
     timeout: float = 90.0
 
     def key(self) -> str:
-        return os.getenv(self.key_env, "").strip()
+        for name in (self.key_env, *KEY_ALIASES.get(self.key_env, ())):
+            v = os.getenv(name, "").strip()
+            if v:
+                return v
+        return ""
+
+
+#: A key that exists under a different name is not a missing key.
+#:
+#: On 2026-08-30 the full 164-character OpenAI key sat in the Aegis `.env` as
+#: `GTP_TOKEN` while a truncated 109-character paste sat here as
+#: `AAT_OPENAI_API_KEY` -- two different pastes. The truncated one returned 401
+#: and the family was reported blocked while a working key was one file over.
+#: Accepting the alias is one line; the hour spent concluding "the key is dead"
+#: was not.
+KEY_ALIASES: dict[str, tuple[str, ...]] = {
+    "AAT_OPENAI_API_KEY": ("GTP_TOKEN", "OPENAI_API_KEY"),
+}
 
 
 PROVIDERS: dict[str, Provider] = {
@@ -68,9 +85,12 @@ PROVIDERS: dict[str, Provider] = {
     "hf_deepseek_v4": Provider("hf_deepseek_v4", "deepseek", "https://router.huggingface.co/v1", "AAT_HF_TOKEN",
                                "deepseek-ai/DeepSeek-V4-Flash", 60.0),
     "hf_glm": Provider("hf_glm", "zhipu", "https://router.huggingface.co/v1", "AAT_HF_TOKEN", "zai-org/GLM-5.3-Flash", 60.0),
-    # A fourth FAMILY, dormant until AAT_OPENAI_API_KEY exists (Murat's $25 credit,
-    # 28 Aug, if that is where it came from). `probe()` reports it as no-key
-    # until then; the skeptic role prefers a family the synthesis did not use.
+    # A fourth FAMILY, LIVE since 2026-08-30 (Murat's $10 test key; 124 models
+    # visible). The skeptic role prefers a family the synthesis did not use, and
+    # with HF off and NVIDIA 429-ing this is the only independent one left --
+    # which makes it T1's second-family control. `gpt-5-mini` is the JUDGEMENT
+    # model; bulk extraction uses `gpt-5-nano` with reasoning_effort="minimal"
+    # via `scripts/news_relevance`, at $0.03 per 1,000 items.
     "openai": Provider("openai", "openai", "https://api.openai.com/v1", "AAT_OPENAI_API_KEY", "gpt-5-mini", 60.0),
     # Featherless.ai (OpenAI-compatible, HF model ids) -- Murat's $25 credit, 28 Aug.
     # A fifth family (alibaba/qwen) the skeptic can use against a deepseek synthesis.
@@ -90,7 +110,8 @@ def _non_latin_share(text: str) -> float:
 
 
 def chat_json(provider: str, system: str, user: str, *, caller: str, why: str,
-              max_tokens: int = 1200, temperature: float = 0.1) -> tuple[dict[str, Any], dict[str, Any]]:
+              max_tokens: int = 1200, temperature: float = 0.1,
+              reasoning_effort: str | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     """One JSON-object completion. Returns (parsed_object, meta).
 
     Refuses (never repairs) a non-Latin reply, a non-JSON reply, and a missing
@@ -100,11 +121,38 @@ def chat_json(provider: str, system: str, user: str, *, caller: str, why: str,
     key = p.key()
     if not key:
         raise ProviderRefusal(f"{provider}: {p.key_env} is not set")
-    body = {"model": p.model, "temperature": temperature, "max_tokens": max_tokens,
+    body = {"model": p.model,
             "messages": [{"role": "system", "content": system + " Answer ONLY with one JSON object, in English."},
                          {"role": "user", "content": user}]}
-    if p.family in ("deepseek",):
+    if p.family == "openai":
+        # THE GPT-5 FAMILY REJECTS TWO FIELDS EVERY OTHER ROW HERE REQUIRES,
+        # and both are hard 400s rather than warnings (measured 2026-08-30):
+        #
+        #   temperature=0.1  ->  400 "does not support 0.1 with this model.
+        #                            Only the default (1) value is supported."
+        #   max_tokens       ->  400; the field is `max_completion_tokens`.
+        #
+        # Sent as they were, EVERY OpenAI call 400s -- which reads exactly like
+        # a dead or wrong key, and is how a live fourth family stays "blocked"
+        # on a problem that is ours.
+        #
+        # `reasoning_effort` is the third correction and it is not cosmetic.
+        # These models REASON by default: on a trivial classification nano spent
+        # its entire 1,200-token budget on thought and returned an EMPTY string
+        # with finish_reason=length -- 2 of 6 items, silently dropped, and the
+        # drop correlates with how hard the item is. At "minimal" it is 6/6,
+        # 1.8s, and 32x cheaper than gpt-5-mini. Judgement work (the council,
+        # the blind tournament) wants the reasoning and leaves this None;
+        # extraction work does not and must not pay for it.
+        body["max_completion_tokens"] = max_tokens
+        if reasoning_effort:
+            body["reasoning_effort"] = reasoning_effort
         body["response_format"] = {"type": "json_object"}
+    else:
+        body["temperature"] = temperature
+        body["max_tokens"] = max_tokens
+        if p.family in ("deepseek",):
+            body["response_format"] = {"type": "json_object"}
     t0 = time.time()
     try:
         data, dt = llm_post(_url(p), body, headers={"Authorization": f"Bearer {key}"},

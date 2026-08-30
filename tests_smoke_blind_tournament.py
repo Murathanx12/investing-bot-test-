@@ -160,7 +160,13 @@ check("sealed file existed with all rows BEFORE bars were fetched", calls["seale
 srows = [json.loads(l) for l in sealed_path.read_text(encoding="utf-8").splitlines()]
 check("every sealed row carries a prompt sha256", all(len(r["prompt_sha256"]) == 64 for r in srows))
 check("sealed sha matches the sealed prompt", all(__import__("hashlib").sha256(r["blinded_prompt"].encode()).hexdigest() == r["prompt_sha256"] for r in srows))
-check("provider recorded on each row", all(r["provider"] == "featherless" for r in srows))
+# The FACT is that the family that answered is recorded on every row, not that
+# it was any particular family. Pinning the name broke this test the moment
+# `openai` went live and took first place in PROVIDER_ORDER -- and a stale
+# fixture that fails on a correct change teaches the reader to edit tests.
+first = bt.PROVIDER_ORDER[0]
+check("provider recorded on each row", all(r["provider"] == first for r in srows),
+      str({r["provider"] for r in srows}))
 check("graded is a separate file", graded_path.exists() and graded_path != sealed_path)
 grows = [json.loads(l) for l in graded_path.read_text(encoding="utf-8").splitlines()]
 check("graded rows carry raw, spy-relative and sector-relative returns",
@@ -170,7 +176,7 @@ rec = json.loads(receipt_path.read_text(encoding="utf-8"))
 check("identification counted (one matching guess)", rec["graded"]["identification"]["n_matched"] == 1, rec["graded"]["identification"])
 check("run FLAGGED LEAKY at 1/10 > 5%", rec["graded"]["identification"]["leaky"] is True)
 check("receipt records blinding rules", len(rec["blinding_rules"]) >= 6)
-check("receipt records provider mix", rec["provider_mix"] == {"featherless": 10}, rec["provider_mix"])
+check("receipt records provider mix", rec["provider_mix"] == {first: 10}, rec["provider_mix"])
 check("re-running the same run id is REFUSED", bt.main(["--run-id", "t1", "--symbols", "Z0", "--months", "2026-01"]) == 2)
 check("re-grading a graded run is REFUSED", bt.grade_run("t1") == 2)
 n_bars_before = calls["bars"]

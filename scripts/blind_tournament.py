@@ -76,7 +76,13 @@ from scripts.news_backfill import MURAT_NAMES
 TOURNAMENT = corpus.STATE / "tournament"
 
 #: Prepaid capacity first; DeepSeek (metered) deliberately absent.
-PROVIDER_ORDER = ("featherless", "nvidia_kimi", "hf_glm")
+# `openai` is FIRST from 2026-08-30: it is the only family independent of the
+# original run that is actually live (HF is off by instruction and NVIDIA
+# 429s), which makes it the second-family control this test has been waiting
+# for. `featherless` is the ORIGINAL run's family (alibaba) and is therefore
+# useless as a control -- it stays in the order only as a fallback for work
+# that is not the control.
+PROVIDER_ORDER = ("openai", "featherless", "nvidia_kimi", "hf_glm")
 
 CONTROL = "SPY"
 #: Instruments whose "identity" is the market itself. Derived aliases are
