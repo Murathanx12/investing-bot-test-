@@ -13,7 +13,8 @@ For Murat and Fable. Plain language on purpose.
 | **Result improvement on P&L** | **None realised yet.** Nothing new has traded. |
 | the three decisions from your brief | **all three live**, with tests that stop them being quietly undone |
 | the cost question you asked | **answered**, and the capacity answer is more useful than the cost one |
-| a bug found in our own data | **the analyst count was the wrong variable** — see §3. It is the biggest thing in this report. |
+| a bug found in our own data | **the analyst count was the wrong variable** — see §3. Fixed and re-fetched: **508 names appeared in the best bucket, which had been empty.** Biggest thing here. |
+| the three books | **all three fill for the first time** — 10/10, 5/5, 15/15, worst cases −6.64 / −3.00 / −2.70% |
 | the daily diff | built (`tracker --diff`); needs a second day of data, and says so rather than printing an empty table |
 | the logic brain | **running**, $0.004 a night at today's scale, and it produced a finding about itself in §5 |
 | your fantasy transposition (T13) | **built, gated and run** — $0.30, 150 windows, 11 months. Prose beats numbers-only; everything else is a ridge, not a plateau. §5b. |
@@ -145,9 +146,44 @@ which scale its count is on. And any book rule that names a coverage bucket now
 derives its input or it refuses. You can see the refusal working in tonight's
 output: hack6 declined 745 of 749 names with "coverage on an uncalibrated scale".
 
-The re-fetch for all 3,059 names is running now and finishes tonight. Until it
-lands, hack6 correctly holds almost nothing, and that is the guard doing its job
-rather than a failure.
+### It landed, and it moved the whole universe
+
+The re-fetch finished: 2,950 names re-read, nothing empty, nothing errored,
+about 78 minutes. This is not a handful of corrected rows.
+
+| analysts covering | Finnhub panel | the honest count |
+|---|---|---|
+| **1–3** | **0** | **508** |
+| 4–10 | 657 | 1,243 |
+| 11–25 | 1,765 | 1,058 |
+| 26+ | 595 | 149 |
+
+Five hundred and eight names appeared in the bucket the eleven years say is
+best — a bucket the tracker previously could not express at all. **142 of
+today's 749 candidates are in it.**
+
+I also ran the price backfill, which is what lets the rule produce an expected
+return and a downside at all. With both in, **all three books fill for the first
+time**: hack3 10 of 10 (it was holding zero — every name that wasn't a past
+winner had no downside number), hack4 5 of 5, hack6 15 of 15.
+
+Worst cases came out exactly where they should: **−6.64% / −3.00% / −2.70%**.
+
+### And that immediately exposed the next one
+
+With hack6 finally able to select, look at what it selected: thirteen biotechs
+out of fifteen. hack6 sorts on `confidence`, and the rule publishes the *same*
+confidence for every name it doesn't claim — so all 607 eligible names scored
+0.9170 and "the top 15 by confidence" was **the first 15 in dictionary order**.
+
+It is the same shape as hack3's subtraction sorting on volatility: a ranking
+that isn't ranking, invisible unless something counts the distinct values. So
+now something does — the report says `only 2 distinct confidence values across
+607 names — ties are deciding this book`, and if they ever all tie it says the
+book is holding an arbitrary slice of its pool.
+
+I have **not** changed which column hack6 ranks on. That is a selection
+decision and it is yours; it is item 2 in §7.
 
 ## 4. The daily diff
 
@@ -352,11 +388,19 @@ The repair is genuinely running now and finishes tonight.
    "4–10 analysts" means something different from what it has been doing.
    Preservation probably wants *more* coverage, not less — the 26+ bucket is
    the one that loses money, but 11–25 is roughly flat and much easier to exit.
-3. Whether to **push**. I have not. Everything is committed, tests green, fleet
-   green. Pushing deploys, and until the coverage re-fetch is verified, hack6
-   would go live refusing almost everything.
+3. **What hack6 ranks on.** It sorts on `confidence`, which the rule publishes
+   as a constant for every non-claiming name — so its fifteen holdings are an
+   arbitrary slice, currently thirteen biotechs. Any column with real variation
+   would do (upside, the risk ratio, coverage); the point is that the current
+   one has none. One line, and the diagnostic now shouts about it either way.
+4. Whether to **push**. I have not. Everything is committed, tests green
+   (59 suites / 2,517 checks), fleet green at $570,800.88. Pushing deploys.
 
 ## 8. Monday
+
+Tonight's dry run has already been through all of it once on the 30 Aug data,
+so the only step that has not been exercised end to end is `--diff`, which needs
+the second day to exist.
 
 ```
 python -m scripts.tracker --refresh              # a fresh day; carries the honest analyst count
