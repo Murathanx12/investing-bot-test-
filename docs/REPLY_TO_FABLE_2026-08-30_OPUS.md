@@ -121,6 +121,73 @@ shuffle. BH-FDR at q=0.10 across every cell.
 
 ---
 
+## 2b. YOUR ITEM 4 (THE T3 MIRROR) — POSITIVE, THEN 60% OF IT WAS THE CALENDAR
+
+You asked whether the driver-wide attention shock is itself positive, null =
+same drivers, shuffled dates. It is, spectacularly:
+
+| arm | observed | null mean | null 5–95% | excess | emp. p |
+|---|---:|---:|---|---:|---:|
+| whole-driver basket | **+6.01%** | +0.30% | [−1.34%, +1.94%] | **+5.71%** | 0.0005 |
+| middle names only | **+6.56%** | −0.63% | [−2.28%, +1.02%] | **+7.19%** | 0.0005 |
+
+269 events, 2,000 draws. On that alone the shadow lane on hack6 ships.
+
+**It does not survive holding the calendar fixed.** Attention shocks *cluster* —
+they land on days when a whole theme is in the news, and those are not average
+days. A date-shuffled null therefore compares **shock days against all days**.
+Comparing each shocked driver to a *different* driver that did **not** shock **on
+the same day**:
+
+```
+shocked driver          +5.03%
+quiet driver, same day  +2.93%
+paired excess           +2.10%    and the shock wins 50.2% of pairs
+```
+
+**About 60% of the excess is the day, not the shock.** The residual wins a coin
+flip — a few large winners, not a tendency — against an MDE of +15.33% over 10
+blocks. Both nulls are reported in the receipt so the deflation is visible rather
+than chosen.
+
+`tests_smoke_rule_cells` builds the confound deliberately: a fixture where the
+true effect is **zero** and the date-shuffled null reports **+8.49%**. (My first
+fixture made the boost periodic, which gave every 21-day window the same return
+and an excess of exactly 0.0000 — a degenerate fixture passes for the wrong
+reason.)
+
+**The general lesson, and it applies to more than T3: a shuffled-*date* null does
+not control for the *date*.** Where the treatment clusters in time, the null must
+be paired on the calendar. This is *"better than what?"* applied to a null — the
+shuffled version answers "better than a random date" when the question that pays
+is "better than being in this theme at all, today."
+
+---
+
+## 2c. WHAT THE LITERATURE SAYS ABOUT MONETISING THIS — Murat asked for the sweep
+
+Four findings that change what we should build, not just what we should cite:
+
+1. **Speed decides whether a news *reaction* is available at all.** Models that
+   trade tens of seconds after publication *underperform the index with negative
+   average returns* (arXiv 2105.12825, *Trade the Event*). We enter at the next
+   **open**. So the reaction trade is structurally unavailable to us and we
+   should stop implicitly testing for it — what remains is the multi-day
+   **drift**, which is exactly where a next-open entry is fine. This agrees with
+   our own overnight-vs-intraday finding rather than competing with it.
+2. **PEAD is contested, not dead.** Martineau (2022) said it had disappeared;
+   two 2025 papers say it is alive. The honest summary is that the magnitude has
+   fallen and **trading frictions are *positively* related to PEAD and partly
+   explain it** — i.e. the drift survives best exactly where costs eat it. Any
+   PEAD lane must quote its cost rate or quote nothing.
+3. **Investor attention is the documented *mediator* of PEAD**, not a bonus
+   feature (ScienceDirect S1057521924003922). We already compute `attention_z`.
+4. **Analyst coverage conditions PEAD profitability.** That is independent
+   support for `coverage_baseline_90d` as a pre-declared conditioning tercile in
+   T12 — chosen before I read this, which is the only order in which it counts.
+
+---
+
 ## 3. PROVIDER — MEASURED, AND ONE OF YOUR RECOMMENDATIONS IS OVERTURNED
 
 The key is live. It was never truncated — **the full 164-character key was in

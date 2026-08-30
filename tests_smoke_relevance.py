@@ -100,6 +100,44 @@ check("a CI straddling zero gives a large p", ric.boot_p(0.01, -0.05, 0.07) > 0.
 check("a CI far from zero gives a small p", ric.boot_p(0.30, 0.25, 0.35) < 0.01)
 check("a missing CI is p=1, never p=0", ric.boot_p(0.5, None, None) == 1.0)
 check("a degenerate CI is p=1, never a divide-by-zero", ric.boot_p(0.5, 0.2, 0.2) == 1.0)
+# THE REGRESSION. On the first run `ev_real_5d x fwd_21d_rel x vol:high` scored
+# IC +0.149 [-0.031, +0.177] -- an interval straddling zero -- and the normal
+# approximation returned p ~ 0.019, promoting it through BH-FDR. With few blocks
+# the resample distribution is skewed and the estimate sits near one edge, so
+# assuming symmetry manufactures significance.
+check("an ASYMMETRIC interval that straddles zero can NEVER be a discovery",
+      ric.boot_p(0.149, -0.031, 0.177) == 1.0, str(ric.boot_p(0.149, -0.031, 0.177)))
+check("...and the same shape on the other side is refused too",
+      ric.boot_p(-0.149, -0.177, 0.031) == 1.0)
+check("an interval that clears zero by a hair is still scored",
+      ric.boot_p(0.149, 0.001, 0.177) < 1.0)
+
+print("\n-- a month is a BLOCK only if it carries data")
+check("MIN_ROWS_PER_BLOCK is declared and non-trivial", ric.MIN_ROWS_PER_BLOCK >= 50)
+check("MIN_BLOCKS is declared", ric.MIN_BLOCKS >= 4)
+# One fat month plus three nine-row months must NOT read as four blocks. That is
+# exactly what happened: the global cells reported 8 blocks, four of which held
+# 9, 11, 15 and 45 rows, and so sailed past MIN_BLOCKS with an honest n of four.
+fat = [{"symbol": f"S{i}", "day": f"2026-0{m}-05", "month": f"2026-0{m}",
+        "f": {"x": float(i)}, "t": {"fwd_5d_rel": 0.01 * i}, "cond": {}}
+       for m in (1, 2) for i in range(150)]
+thin = [{"symbol": f"T{i}", "day": f"2026-0{m}-05", "month": f"2026-0{m}",
+         "f": {"x": float(i)}, "t": {"fwd_5d_rel": 0.01 * i}, "cond": {}}
+        for m in (3, 4, 5) for i in range(9)]
+c = ric.ic_cell(fat + thin, "x", "fwd_5d_rel")
+check("nine-row months are NOT counted as blocks", c["n_blocks"] == 2, str(c["n_blocks"]))
+check("...and the drop is REPORTED, not silent", c.get("thin_blocks_dropped") == 3,
+      str(c.get("thin_blocks_dropped")))
+check("the rows in those months are dropped too, not just the block count",
+      c["n"] == 300, str(c["n"]))
+
+print("\n-- a partial label store REFUSES rather than printing a verdict")
+check("a coverage floor is declared", 0.5 < ric.MIN_LABEL_COVERAGE <= 1.0)
+src_ric = Path(ric.__file__).read_text(encoding="utf-8")
+check("the refusal explains that labels are written in DATE ORDER",
+      "DATE" in src_ric and "ORDER" in src_ric)
+check("--partial exists, so the refusal is a default and not a wall",
+      "--partial" in src_ric)
 
 print("\n-- terciles are cut PER DAY; a full-sample quantile would be lookahead")
 rows = []

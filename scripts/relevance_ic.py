@@ -44,7 +44,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
@@ -54,6 +54,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from alpha.sources import corpus, features  # noqa: E402
+from scripts import news_relevance  # noqa: E402
 from scripts.corpus_features import BENCH, bars_path, forward_returns  # noqa: E402
 
 REL = corpus.CORPUS / "relevance"
@@ -117,14 +118,33 @@ def bh_fdr(pvals: list[float], q: float = 0.10) -> list[bool]:
     return keep
 
 
-def boot_p(ic: float | None, lo: float | None, hi: float | None) -> float:
-    """A two-sided p implied by the bootstrap CI, via a normal approximation.
+#: Below this many month blocks a cell is NOT SCORED. A block bootstrap that
+#: resamples three months with replacement produces a confidence interval in
+#: name only -- CANON §58: n_effective counts DATE BLOCKS, not rows. A cell with
+#: 1,800 rows and 3 blocks has an n of 3.
+MIN_BLOCKS = 6
 
-    The CI is a 90% block bootstrap, so (hi-lo) spans 2 x 1.645 sigma. This is
-    an approximation and it is stated as one: it exists to ORDER hypotheses for
-    BH-FDR, not to be quoted as a p-value.
+
+def boot_p(ic: float | None, lo: float | None, hi: float | None) -> float:
+    """An ORDERING statistic for BH-FDR. Never quote it as a p-value.
+
+    The CI is a 90% block bootstrap, so (hi-lo) spans 2 x 1.645 sigma under a
+    normal approximation.
+
+    THE APPROXIMATION FAILS ON AN ASYMMETRIC BOOTSTRAP, and it failed loudly the
+    first time this ran: `ev_real_5d x fwd_21d_rel x vol:high` scored
+    IC +0.149 [-0.031, +0.177] and came out at p~0.019 -- SURVIVING a screen with
+    a confidence interval that STRADDLES ZERO. With few blocks the resample
+    distribution is skewed, the point estimate sits near one edge, and pretending
+    it is centred manufactures significance.
+
+    So the CI excluding zero is now a HARD PRECONDITION, and the normal
+    approximation is used only to rank the cells that already clear it. A screen
+    that can promote a straddling interval is not a screen.
     """
     if ic is None or lo is None or hi is None or hi <= lo:
+        return 1.0
+    if lo <= 0.0 <= hi:                 # straddles zero: cannot be a discovery
         return 1.0
     sigma = (hi - lo) / (2 * 1.6449)
     if sigma <= 0:
@@ -257,6 +277,23 @@ def build_panel(symbols: list[str] | None) -> list[dict]:
     return panel
 
 
+#: A month holding fewer rows than this is NOT A BLOCK, and its rows are
+#: dropped rather than counted.
+#:
+#: The first run of this file reported the global cells at **8 blocks** and so
+#: sailed past MIN_BLOCKS. Four of those eight held 9, 11, 15 and 45 rows --
+#: stray early labels smeared forward by the 20-session window. The real block
+#: count was four. A block bootstrap that resamples a nine-row month with
+#: replacement does not widen the interval honestly, it randomises it, and
+#: `n_blocks` then reads as evidence when it is an artefact of the calendar.
+MIN_ROWS_PER_BLOCK = 100
+
+#: Below this share of the corpus labelled, the test REFUSES rather than
+#: reporting. Labels are written in date order, so a partial store is the
+#: earliest months, not a sample of them.
+MIN_LABEL_COVERAGE = 0.90
+
+
 def ic_cell(rows: list[dict], feat: str, tgt: str, *, shuffle_null: bool = False,
             seed: int = 7) -> dict:
     xs, ys, bl = [], [], []
@@ -278,9 +315,18 @@ def ic_cell(rows: list[dict], feat: str, tgt: str, *, shuffle_null: bool = False
         xs.append(v)
         ys.append(y)
         bl.append(r["month"])
+    # Drop undersized months BEFORE the bootstrap, so `n_blocks` is a count of
+    # blocks that carry data rather than of calendar months that exist.
+    sizes = Counter(bl)
+    keep = [i for i, b in enumerate(bl) if sizes[b] >= MIN_ROWS_PER_BLOCK]
+    dropped_blocks = sum(1 for b, n in sizes.items() if n < MIN_ROWS_PER_BLOCK)
+    xs = [xs[i] for i in keep]
+    ys = [ys[i] for i in keep]
+    bl = [bl[i] for i in keep]
     if len(xs) < 30:
-        return {"ic": None, "n": len(xs), "n_blocks": len(set(bl)), "ci_lo": None, "ci_hi": None}
-    return features.rank_ic(xs, ys, bl)
+        return {"ic": None, "n": len(xs), "n_blocks": len(set(bl)), "ci_lo": None,
+                "ci_hi": None, "thin_blocks_dropped": dropped_blocks}
+    return {**features.rank_ic(xs, ys, bl), "thin_blocks_dropped": dropped_blocks}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -288,6 +334,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--symbols", nargs="*", default=None)
     ap.add_argument("--q", type=float, default=0.10, help="BH-FDR level")
     ap.add_argument("--verify-prereg", action="store_true")
+    ap.add_argument("--partial", action="store_true",
+                    help="compute on an incomplete label set; the receipt is stamped partial")
     a = ap.parse_args(argv)
 
     print("\n  PRE-REGISTRATION " + PREREG["trial_id"] + f"  ({PREREG['registered']}, {PREREG['licence']})")
@@ -298,6 +346,29 @@ def main(argv: list[str] | None = None) -> int:
         print(f"                   {f}")
     if a.verify_prereg:
         return 0
+
+    # LABEL COVERAGE IS CHECKED BEFORE ANYTHING IS COMPUTED.
+    #
+    # The first run of this file was made against a label store that
+    # `news_relevance` was STILL WRITING TO -- 14% complete -- and it printed
+    # "NOTHING SURVIVES. The relevance filter does not rescue the event count."
+    # as though that were a finding. It was a progress report on a background
+    # job. A partial run that reads like a verdict is worse than no run, because
+    # the verdict is what gets quoted afterwards.
+    labels_seen = news_relevance.load_labels()
+    covered = len(labels_seen)
+    outstanding = len(news_relevance.pending(labels_seen))
+    total = covered + outstanding
+    frac = covered / total if total else 0.0
+    print(f"\n  labels: {covered:,} of {total:,} (obs x symbol) pairs = {frac:.1%}")
+    if frac < MIN_LABEL_COVERAGE and not a.partial:
+        print(f"  REFUSED: {frac:.1%} labelled, below {MIN_LABEL_COVERAGE:.0%}. A partial "
+              f"corpus answers a different question -- the labels are written in DATE "
+              f"ORDER, so a partial run is a run on the EARLIEST months only, not a "
+              f"random sample of them.")
+        print("  Finish `python -m scripts.news_relevance`, or pass --partial to compute "
+              "anyway (the receipt will be stamped partial).")
+        return 2
 
     panel = build_panel(a.symbols)
     if not panel:
@@ -339,13 +410,38 @@ def main(argv: list[str] | None = None) -> int:
                             if c["ci_lo"] is not None else "   --")
                     print(f"  {f:18} {t:12} {short + ':' + tc:10} {c['n']:6,} {c['n_blocks']:4}  {band:26}")
 
-    ps = [boot_p(c["ic"], c["ci_lo"], c["ci_hi"]) for c in cells]
+    # A cell with too few DATE BLOCKS is not scored at all -- it is not a weak
+    # result, it is an unmeasured one, and letting it into the family both
+    # inflates the multiplicity denominator and offers a straddling CI the
+    # chance to be promoted. Reported as CANNOT DETERMINE, never as zero.
+    scorable = [c for c in cells if (c.get("n_blocks") or 0) >= MIN_BLOCKS]
+    unscorable = [c for c in cells if c not in scorable]
+    for c in unscorable:
+        c["p_approx"], c["bh_survives"], c["verdict"] = None, False, "CANNOT DETERMINE: too few blocks"
+    ps = [boot_p(c["ic"], c["ci_lo"], c["ci_hi"]) for c in scorable]
     keep = bh_fdr(ps, a.q)
-    for c, p, k in zip(cells, ps, keep):
+    for c, p, k in zip(scorable, ps, keep):
         c["p_approx"], c["bh_survives"] = round(p, 4), bool(k)
-    winners = [c for c in cells if c["bh_survives"]]
+    winners = [c for c in scorable if c["bh_survives"]]
 
-    print(f"\n  == BH-FDR at q={a.q:.2f} across {len(cells)} cells ==")
+    if unscorable:
+        blocks = sorted({c.get("n_blocks") or 0 for c in unscorable})
+        print(f"\n  {len(unscorable)} of {len(cells)} cells NOT SCORED: fewer than "
+              f"{MIN_BLOCKS} month blocks (saw {blocks}). CANON §58 -- n_effective counts "
+              f"DATE BLOCKS, not rows.")
+        if not scorable:
+            print("  NOTHING IS SCORABLE. This is a CANNOT DETERMINE, not a negative:")
+            print("  label more of the corpus, then re-run. The pipeline is proven end to end.")
+            out = corpus.CORPUS / f"relevance_ic_{date.today().isoformat()}.json"
+            out.write_text(json.dumps({"prereg": PREREG, "computed_utc": corpus.utcnow(),
+                                       "n_symbol_days": len(panel), "n_symbols": len(syms),
+                                       "verdict": "CANNOT DETERMINE: too few month blocks",
+                                       "min_blocks": MIN_BLOCKS, "cells": cells}, indent=1),
+                           encoding="utf-8")
+            print(f"\n  receipt -> {out}")
+            return 0
+
+    print(f"\n  == BH-FDR at q={a.q:.2f} across {len(scorable)} scorable cells ==")
     if not winners:
         print("  NOTHING SURVIVES. The relevance filter does not rescue the event count.")
         print("  That is a second negative on the ENCODING, and it is a real answer:")
