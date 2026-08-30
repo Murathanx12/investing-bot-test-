@@ -311,6 +311,8 @@
 > 40% -> 35%), intent-before-POST plus `scripts/reconcile`, 0 lost rows.
 
 # HANDOFF — read this first
+> **30 Aug (b), Fable:** orders for Opus session 5 are in `docs/NEXT_SESSION_2026-08-30b_OPUS.md` -- make the books decide (second generator `murat_rule_v1`, hack3 routing, catalyst calendar), close T12, then build T13 ERA REPLAY (`../aegis-finance/docs/AEGIS_VISION_2026-08-30_LOG_REVISION_ERA_REPLAY.md`). Fleet $570.8k (-4.87%); sealed book 0 claims of 151.
+
 
 ## SESSION 14 (27 Aug, 01:00-03:00 ET) — THE CHAIN WAS NEVER CHEAP
 
