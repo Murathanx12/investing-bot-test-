@@ -404,12 +404,18 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
         "tracker_names_total": len(trows), "tracker_status_histogram": hist,
         "candidates_ranked": len(rows),
         "clause_f_not_past_winner": (
-            "APPLIED BY THE UNIVERSE, NOT BY THE RULE. `murat_rule_v1`'s contract is frozen and "
-            "is not amended here -- amending a frozen contract mid-flight is the thing the "
-            "licence exists to forbid. Instead the tracker's own BUY/STRONG_BUY rules already "
-            "require `past_winner is False`, so every name reaching the rule has passed clause "
-            "(f) before the rule sees it. The composition is `tracker_status AND murat_rule_v1`, "
-            "and both halves are recorded on every row."),
+            "NOT APPLIED TO THIS BOOK, AND THAT IS DELIBERATE. Until 2026-08-30 (e) the tracker "
+            "status itself required `past_winner is False`, so the sealed book inherited clause "
+            "(f) from its universe. It no longer does: the exclusion measured NEGATIVE on eleven "
+            "years of IBES (-2.9pp/yr; the excluded names were the strongest sub-basket in the "
+            "study at +18.60%/yr, t 3.31) and it is now a PER-BOOK preference -- ON for hack3, "
+            "OFF for hack4 and hack6 -- so that both arms run and the paper books settle it. "
+            "A prediction book PREDICTS; it does not hold. Sealing past winners too costs "
+            "nothing and buys the one thing that decides the question: graded forecasts on the "
+            "names the exclusion would have thrown away. `past_winner` and `past_winner_basis` "
+            "are on every prediction row, so the book can be graded either way after the fact. "
+            "`murat_rule_v1`'s frozen contract is untouched -- this is a change of UNIVERSE, "
+            "never an amendment to the rule."),
         "event_counts_v1": (
             "DID NOT RUN on this universe. Its inputs are corpus event counts and most tracker "
             "names carry no corpus rows; scoring those as zero would read 'not covered' as "
@@ -833,7 +839,16 @@ def main(argv: list[str] | None = None) -> int:
         if len(cands) > 1:
             print(f"  {len(cands)} sealed files for this day; showing the NEWEST. "
                   f"The earlier ones are kept, not replaced.")
-        print(f"  price context through {book['pit']['price_context_through']}; "
+        # The two universes carry DIFFERENT point-in-time bounds and neither is
+        # wrong: the corpus book is bounded by the last closed session it read
+        # prices through, the tracker book by the capture stamp on its rows.
+        # Printing one key for both crashed the display AFTER a successful
+        # seal, which reads exactly like a seal that failed.
+        pit = book.get("pit") or {}
+        bound = (pit.get("price_context_through")
+                 or (f"tracker captured {pit['tracker_observed_at']}"
+                     if pit.get("tracker_observed_at") else "NOT STATED"))
+        print(f"  PIT bound: {bound}; "
               f"{book['universe_considered']} considered, {book['claims_made']} claims "
               f"{book.get('claims_by_generator') or ''}")
         print(f"  {book['authority']}")

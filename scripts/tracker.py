@@ -41,6 +41,7 @@ names, 2,800 rate-limited".
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import sys
@@ -79,6 +80,61 @@ def _day() -> str:
 
 def path_for(day: str) -> Path:
     return STORE / f"{day}.jsonl"
+
+
+class DayLocked(RuntimeError):
+    """Another process is already rewriting this day's file."""
+
+
+def _lock_path(day: str) -> Path:
+    return STORE / f".{day}.rewrite.lock"
+
+
+@contextlib.contextmanager
+def rewriting(day: str, who: str):
+    """Hold the exclusive right to REWRITE one tracker day.
+
+    `--refresh` appends and needs no lock. `--backfill-prices` and
+    `--refetch-coverage` each read the whole file, change a column, and write it
+    back -- so two of them running together means the second one's copy, read
+    before the first one wrote, silently reverts the first one's work. Nothing
+    errors; a column simply comes back empty and reads as "the source had no
+    data".
+
+    A line-count check does not catch this, because neither writer changes the
+    line count. That was the guard `backfill_prices` shipped with, and it would
+    have passed straight through the exact collision it was written to stop.
+
+    The lock records WHO holds it and since when, and a stale one (>2h) is
+    reclaimed with a printed warning rather than blocking a machine forever.
+    """
+    STORE.mkdir(parents=True, exist_ok=True)
+    path = _lock_path(day)
+    if path.exists():
+        try:
+            held = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            held = {}
+        age = time.time() - float(held.get("started", 0) or 0)
+        if age < 2 * 3600:
+            raise DayLocked(
+                f"REFUSED: {held.get('who', 'another process')} (pid "
+                f"{held.get('pid')}) has been rewriting {day} for "
+                f"{age / 60:.0f} minutes.\n"
+                f"  Both commands read the whole file and write it back, so running "
+                f"them together loses one of their changes silently.\n"
+                f"  Wait for it to finish, or delete {path.name} if you are sure it died.")
+        print(f"  WARNING: reclaiming a {age / 3600:.1f}h-old lock held by "
+              f"{held.get('who')} (pid {held.get('pid')}) -- assuming it died.")
+    path.write_text(json.dumps({"who": who, "pid": os.getpid(),
+                                "started": time.time()}), encoding="utf-8")
+    try:
+        yield
+    finally:
+        try:
+            path.unlink()
+        except OSError:
+            pass
 
 
 def load_day(day: str) -> list[dict]:
@@ -164,7 +220,17 @@ def _finnhub(path: str, key: str, **kw) -> tuple[object, str]:
 
 
 def fetch_targets(symbol: str) -> tuple[dict | None, str]:
-    """yfinance consensus target. (payload, status).
+    """yfinance consensus target AND the analyst count. (payload, status).
+
+    ONE CALL, BOTH FIELDS. `Ticker.info` carries `targetMeanPrice` (verified
+    identical to `analyst_price_targets["mean"]`) and `numberOfAnalystOpinions`
+    in the same response, so taking the count costs nothing on top of the
+    target we were already fetching.
+
+    WHY THE COUNT COMES FROM HERE AND NOT FROM FINNHUB: Finnhub's
+    recommendation panel is a different quantity and ran a median 1.80x this
+    field on a 56-name sample. `alpha.tracker.COVERAGE_SOURCE_CALIBRATED` has
+    the measurement and what it cost.
 
     NOTE ON VINTAGE: this value carries no date. It is admissible only because
     we stamp `observed_at` at capture and use it strictly afterwards. See the
@@ -173,12 +239,15 @@ def fetch_targets(symbol: str) -> tuple[dict | None, str]:
     """
     try:
         import yfinance as yf
-        pt = yf.Ticker(symbol).analyst_price_targets
+        info = yf.Ticker(symbol).info or {}
     except Exception as e:                                              # noqa: BLE001
         return None, f"error:{type(e).__name__}"
-    if not isinstance(pt, dict) or not pt.get("mean"):
+    mean = info.get("targetMeanPrice")
+    if not mean:
         return None, "empty"
-    return pt, "ok"
+    return {"mean": mean, "high": info.get("targetHighPrice"),
+            "low": info.get("targetLowPrice"),
+            "n_analysts": info.get("numberOfAnalystOpinions")}, "ok"
 
 
 def catalyst_map(as_of: str) -> dict[str, int]:
@@ -342,6 +411,9 @@ def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) ->
                 "mean_target": (targets or {}).get("mean"),
                 "target_high": (targets or {}).get("high"),
                 "target_low": (targets or {}).get("low"),
+                # The COUNT that the buckets are calibrated on. Finnhub's panel
+                # size is kept too, as `rec_counts`, but it is not this.
+                "n_analysts_yf": (targets or {}).get("n_analysts"),
                 "target_status": tstat,
                 "target_source": "yfinance:analyst_price_targets",
                 "sector": (profiles.get(sym) or {}).get("sector"),
@@ -483,6 +555,87 @@ def _fmt(v, pct=False, nd=2):
     return f"{v:+.1%}" if pct else f"{v:.{nd}f}"
 
 
+def _fmt2(v) -> str:
+    return "--" if v is None else f"{v:,.2f}"
+
+
+def refetch_coverage(day: str | None = None, limit: int | None = None) -> int:
+    """Add `n_analysts_yf` to a day already on disk, without refetching Finnhub.
+
+    WHY THIS EXISTS RATHER THAN A FULL RE-REFRESH: the 2026-08-30 file cost
+    ~5.7 hours of Finnhub and yfinance calls and every column in it except the
+    analyst count is correct. Rebuilding the day to fix one field would throw
+    away a completed capture to repair a part of it.
+
+    It rewrites the day file, so it takes the same precaution `backfill_prices`
+    does: it refuses if the file grew while it was working, because a refresh
+    appending underneath a wholesale rewrite loses rows silently.
+    """
+    day = day or latest_day() or _day()
+    path = path_for(day)
+    rows = load_day(day)
+    if not rows:
+        print(f"no tracker rows for {day}")
+        return 1
+    before = sum(1 for _ in path.open(encoding="utf-8"))
+    # (the lock is taken by the caller in main(); see `rewriting`)
+    todo = [r for r in rows if r.get("n_analysts_yf") is None
+            and r.get("target_status") == "ok"]
+    outstanding = len(todo)
+    if limit:
+        todo = todo[:limit]
+    # Print BOTH numbers. "8 still without a count" when 3,051 remain is the
+    # shape of message that gets read as "nearly done" three hours early.
+    print(f"{day}: {len(rows)} rows, {outstanding} still without an analyst count"
+          + (f", fetching {len(todo)} of them this run" if limit else ""))
+    if not todo:
+        print("nothing to do")
+        return 0
+
+    import yfinance as yf
+    got = miss = err = 0
+    for i, r in enumerate(todo, 1):
+        try:
+            info = yf.Ticker(r["symbol"]).info or {}
+            n = info.get("numberOfAnalystOpinions")
+        except Exception as e:                                          # noqa: BLE001
+            r["n_analysts_yf"] = None
+            r["n_analysts_status"] = f"error:{type(e).__name__}"
+            err += 1
+        else:
+            if isinstance(n, (int, float)) and n > 0:
+                r["n_analysts_yf"] = int(n)
+                r["n_analysts_status"] = "ok"
+                got += 1
+            else:
+                r["n_analysts_yf"] = None
+                r["n_analysts_status"] = "empty"
+                miss += 1
+        time.sleep(YF_SLEEP_S)
+        if i % 100 == 0:
+            print(f"  {i}/{len(todo)}  got {got}  empty {miss}  error {err}")
+
+    after = sum(1 for _ in path.open(encoding="utf-8"))
+    if after != before:
+        print(f"REFUSED to write: {path.name} grew from {before} to {after} lines while "
+              f"this ran -- a refresh is appending underneath. Nothing was changed.")
+        return 1
+    tmp = path.with_suffix(".jsonl.tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+    try:
+        tmp.replace(path)
+    except PermissionError:
+        print(f"REFUSED: {path.name} is held open by another process. "
+              f"The repaired copy is at {tmp.name}; move it by hand when the "
+              f"other process is done.")
+        return 1
+    print(f"{day}: analyst count added for {got} names ({miss} empty, {err} error). "
+          f"Run --regrade next.")
+    return 0
+
+
 def show(day: str | None = None, n: int = 40) -> int:
     day = day or latest_day() or _day()
     rows = tracker.build_rows(load_day(day))
@@ -539,7 +692,7 @@ def merge_book_numbers(rows: list[dict], day: str) -> tuple[int, str]:
     what each one is worth (`p_up`, `exp_return`, `downside_5pct`,
     `confidence`). Two of the three personalities rank on the book's numbers, so
     without this join they correctly select nothing -- which is what "no
-    risk_adjusted value" meant, and is the right refusal rather than a zero.
+    risk_adjusted_ratio value" meant, and is the right refusal rather than a zero.
 
     Reads the SEAL, never re-derives. Same reason `alpha/brains/murat_rule.py`
     does: what trades has to be what was written down before the open, and a
@@ -557,7 +710,7 @@ def merge_book_numbers(rows: list[dict], day: str) -> tuple[int, str]:
     # generator produces `exp_return` / `downside_5pct` / `confidence`. Taking
     # the first row per symbol takes `event_counts_v1`, which carries none of
     # them -- so the join "succeeds" for every name and delivers nothing, and
-    # the portfolios then correctly report "no risk_adjusted value" for a pool
+    # the portfolios then correctly report "no risk_adjusted_ratio value" for a pool
     # that was in fact fully joined. Prefer the row that has the numbers.
     NUMBERS = ("p_up_21d", "exp_return", "downside_5pct", "confidence")
     by_sym: dict[str, dict] = {}
@@ -581,6 +734,48 @@ def merge_book_numbers(rows: list[dict], day: str) -> tuple[int, str]:
                f"generators {book.get('generators')})")
 
 
+def merge_brain_numbers(rows: list[dict], day: str) -> tuple[int, str]:
+    """Overlay the logic brain's adjusted numbers, keeping the rule's beside them.
+
+    THE ORDER MATTERS AND IS NOT ARBITRARY. `merge_book_numbers` runs first and
+    puts the RULE's forecast on every candidate; this runs second and moves it
+    on the few names the brain had a fact for. Reversing them would let the
+    rule overwrite the adjustment, which would look exactly like a brain that
+    never adjusts anything.
+
+    Every touched row records `numbers_source`, because a ranking built from two
+    different number sources that does not say which is which cannot be audited
+    -- and the whole point of the exercise is grading one against the other.
+    """
+    from scripts import logic_brain as lb
+
+    brain = {r["symbol"]: r for r in lb.load_run(day)}
+    if not brain:
+        for r in rows:
+            r.setdefault("numbers_source", "rule")
+        return 0, (f"no logic-brain run for {day} -- every book ranks on the rule's "
+                   f"own numbers. Run: python -m scripts.logic_brain --run")
+    n = moved = 0
+    for r in rows:
+        b = brain.get(r["symbol"])
+        if not b:
+            r.setdefault("numbers_source", "rule")
+            continue
+        for k in ("p_up_21d", "exp_return", "downside_5pct", "confidence"):
+            if b.get(k) is not None:
+                r[f"rule_{k}"] = r.get(k)
+                r[k] = b[k]
+        r["numbers_source"] = "brain" if b.get("fact_id") != "none" else "rule"
+        r["brain_adjustment"] = b.get("adjustment")
+        r["brain_fact_id"] = b.get("fact_id")
+        r["brain_reason"] = b.get("reason")
+        n += 1
+        if b.get("fact_id") != "none":
+            moved += 1
+    return n, (f"logic brain: {n} names carry a brain row, {moved} of them actually "
+               f"adjusted; the other {len(rows) - n} rank on the rule alone.")
+
+
 def portfolios(day: str | None = None) -> int:
     """The three personalities, each with its worst case printed."""
     day = day or latest_day() or _day()
@@ -592,7 +787,9 @@ def portfolios(day: str | None = None) -> int:
     tracker.apply_status(rows, prev_by_symbol={r["symbol"]: r for r in load_day(prev_day)}
                          if prev_day else {})
     _n, note = merge_book_numbers(rows, day)
-    print(f"  book: {note}\n")
+    print(f"  book:  {note}")
+    _b, bnote = merge_brain_numbers(rows, day)
+    print(f"  brain: {bnote}\n")
     print(f"TRACKER {day} -- three personalities over one candidate list\n")
     for p in tracker.PERSONALITIES:
         port = tracker.build_portfolio(rows, p)
@@ -603,8 +800,11 @@ def portfolios(day: str | None = None) -> int:
         print(f"  pool {port['candidate_pool']} -> eligible {port['eligible']} -> "
               f"selected {port['n_selected']}/{p.k}")
         for h in port["holdings"]:
+            src = h.get("numbers_source") or "rule"
+            adj = h.get("brain_adjustment")
             print(f"    {h['symbol']:8s} {h['notional']:.1%}  {h['sector'] or '--'}"
-                  f"   rank {h['rank_value']:+.4f}")
+                  f"   rank {h['rank_value']:+.4f}  [{src}"
+                  + (f" {adj:+.3f}]" if src == "brain" and adj is not None else "]"))
         if port["excluded_by_reason"]:
             print(f"  excluded: {port['excluded_by_reason']}")
         print(f"  WORST CASE {wc['worst_case_pct']}  "
@@ -657,6 +857,87 @@ def show_transitions(day: str | None = None) -> int:
     return 0
 
 
+def _labelled(day: str) -> list[dict]:
+    """Rows for one day, labelled with the status THAT day's rules assigned --
+    which needs that day's own predecessor, not today's."""
+    rows = tracker.build_rows(load_day(day))
+    if not rows:
+        return []
+    before = latest_day(before=day)
+    prev = {r["symbol"]: r for r in load_day(before)} if before else {}
+    tracker.apply_status(rows, prev_by_symbol=prev)
+    return rows
+
+
+def diff(day: str | None = None, prev_day: str | None = None, n: int = 25) -> int:
+    """Yesterday -> today: who entered, who left, what moved, by sector."""
+    day = day or latest_day() or _day()
+    prev_day = prev_day or latest_day(before=day)
+    if not prev_day:
+        print(f"REFUSED: {day} is the only tracker day on disk, so there is nothing to "
+              f"diff it against.\n"
+              f"  A single day cannot show what CHANGED, and printing an empty table "
+              f"would read as 'nothing changed'.\n"
+              f"  Run `--refresh` again tomorrow; the diff becomes available on the "
+              f"second day.")
+        return 1
+    today_rows, prev_rows = _labelled(day), _labelled(prev_day)
+    if not today_rows or not prev_rows:
+        print(f"REFUSED: {day} has {len(today_rows)} rows and {prev_day} has "
+              f"{len(prev_rows)}. A diff against an empty day is not a diff.")
+        return 1
+
+    d = tracker.build_diff(today_rows, prev_rows, day=day, prev_day=prev_day)
+    out = STORE / f"diff_{day}.json"
+    out.write_text(json.dumps(d, indent=1, default=str), encoding="utf-8")
+
+    c = d["n_candidates"]
+    print(f"TRACKER DIFF  {d['prev_day']} -> {d['day']}")
+    print(f"  names {d['n_prev']} -> {d['n_today']}  ({len(d['arrived'])} arrived, "
+          f"{len(d['departed'])} departed, {d['n_both']} in both)")
+    print(f"  candidates {c['prev']} -> {c['today']}  ({c['today'] - c['prev']:+d})\n")
+
+    def table(title: str, rows: list[dict], key: str) -> None:
+        print(f"{title} ({len(rows)})")
+        if not rows:
+            print("  -- none --\n")
+            return
+        rows = sorted(rows, key=lambda r: -(r.get("upside") or -9))
+        for r in rows[:n]:
+            print(f"  {r['symbol']:8s} {str(r.get('from')):10s} -> {str(r.get('to')):10s} "
+                  f"upside {_fmt(r.get('upside'), 1):>9s}  cons {_fmt(r.get('consensus')):>6s}  "
+                  f"cov {str(r.get('coverage') or '--'):>3s}  "
+                  f"{'PW ' if r.get('past_winner') else '   '}"
+                  f"{(r.get('sector') or '')[:22]}")
+        if len(rows) > n:
+            print(f"  ... and {len(rows) - n} more (all of them are in {out.name})")
+        print()
+
+    table("ENTERED the candidate list", d["entered"], "entered")
+    table("LEFT the candidate list", d["left"], "left")
+    table("REGRADED without crossing candidacy", d["regraded"], "regraded")
+
+    print("BIGGEST UPSIDE MOVES (present both days)")
+    for m in d["biggest_upside_moves"][:n]:
+        print(f"  {m['symbol']:8s} {_fmt(m['upside_prev'], 1):>9s} -> {_fmt(m['upside'], 1):>9s} "
+              f"({m['delta'] * 100:+6.1f}pp)  close {_fmt2(m.get('close_prev'))} -> "
+              f"{_fmt2(m.get('close'))}  {str(m.get('status')):10s} "
+              f"{(m.get('sector') or '')[:22]}")
+    print()
+
+    moved = {k: v for k, v in d["sectors"].items() if v["delta"]}
+    print(f"SECTOR COUNTS THAT MOVED ({len(moved)} of {len(d['sectors'])})")
+    for k, v in sorted(moved.items(), key=lambda kv: -abs(kv[1]["delta"]))[:20]:
+        print(f"  {k[:32]:34s} {v['prev']:>4d} -> {v['today']:>4d}  ({v['delta']:+d})")
+
+    if d["arrived"] or d["departed"]:
+        print(f"\nUNIVERSE CHURN -- not a rating change: {len(d['arrived'])} arrived, "
+              f"{len(d['departed'])} departed. A name that was not fetched is not a name "
+              f"that was downgraded.")
+    print(f"\nwritten: {out}")
+    return 0
+
+
 def publish(day: str | None = None) -> int:
     """Copy the candidate list to `docs/seed/tracker/` so the container can read it.
 
@@ -691,12 +972,18 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--refresh", action="store_true", help="fetch and rebuild today's rows")
     p.add_argument("--regrade", action="store_true", help="re-derive labels from today's fetched rows")
+    p.add_argument("--refetch-coverage", action="store_true",
+                   help="add the calibrated analyst count to a day already fetched")
     p.add_argument("--backfill-prices", action="store_true",
                    help="re-derive price columns (incl. realised_vol_20d) from one bulk bar fetch")
     p.add_argument("--show", action="store_true")
     p.add_argument("--sectors", action="store_true")
     p.add_argument("--portfolios", action="store_true")
     p.add_argument("--transitions", action="store_true")
+    p.add_argument("--diff", action="store_true",
+                   help="yesterday -> today: entered, left, biggest upside moves, sectors")
+    p.add_argument("--prev-day", default=None,
+                   help="compare against this day instead of the one before --day")
     p.add_argument("--publish", action="store_true")
     p.add_argument("--limit", type=int, default=None, help="cap the symbol count")
     p.add_argument("--day", default=None)
@@ -707,8 +994,19 @@ def main(argv: list[str] | None = None) -> int:
 
     if a.refresh:
         return refresh(limit=a.limit, skip_targets=a.skip_targets, day=a.day)
-    if a.backfill_prices:
-        return backfill_prices(a.day)
+    # THE TWO REWRITERS TAKE THE LOCK. `--refresh` appends and does not need it.
+    if a.refetch_coverage or a.backfill_prices:
+        day = a.day or latest_day() or _day()
+        try:
+            with rewriting(day, "refetch-coverage" if a.refetch_coverage
+                           else "backfill-prices"):
+                return (refetch_coverage(day, a.limit) if a.refetch_coverage
+                        else backfill_prices(day))
+        except DayLocked as exc:
+            print(exc)
+            return 1
+    if a.diff:
+        return diff(a.day, a.prev_day, n=a.n)
     if a.regrade:
         return grade_and_write(a.day or _day())
     if a.sectors:

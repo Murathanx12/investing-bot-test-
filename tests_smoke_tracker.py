@@ -159,12 +159,51 @@ def test_strong_buy_needs_all_four_and_says_which_one_blocked_it():
     assert any("catalyst" in b for b in v.blocked_by)
 
 
-def test_a_past_winner_cannot_be_a_candidate_however_good_the_numbers():
-    """Murat's objection, as a test. MU's own shape: huge upside, top rating."""
-    v = T.classify(_row(upside=0.62, consensus=4.21, past_winner=True,
-                        days_to_catalyst=24))
-    assert v.status not in T.CANDIDATE_STATUSES
+def test_a_past_winner_is_reported_by_the_status_and_barred_only_by_the_book():
+    """Murat's objection, as a test -- at its new address.
+
+    MU's own shape: huge upside, top rating, last year's winner. Until
+    2026-08-30 (e) the STATUS refused it. It no longer does, because hack3 and
+    hack4 now want different answers about that name and a universe label
+    cannot hold two. The status reports the flag; the BOOK decides.
+    """
+    row = _row(upside=0.62, consensus=4.21, past_winner=True,
+               past_winner_basis="ret_12m +702%", days_to_catalyst=24)
+    v = T.classify(row)
+    assert v.status == "STRONG_BUY", v.status
+    # ... but it must still SAY so, or the flag has been silently dropped.
     assert any("past winner" in b for b in v.blocked_by)
+
+    row["status"] = v.status
+    row.update(exp_return=0.01, downside_5pct=-0.10, confidence=0.9,
+               coverage_bucket="11-25", sector="TECH")
+    hack3 = next(x for x in T.PERSONALITIES if x.book == "hack3")
+    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+    assert hack3.exclude_past_winners is True
+    assert hack4.exclude_past_winners is False
+
+    held3 = T.build_portfolio([row], hack3)
+    assert held3["n_selected"] == 0
+    assert any("past winner" in r for r in held3["excluded_by_reason"])
+
+    held4 = T.build_portfolio([row], hack4)
+    assert [h["symbol"] for h in held4["holdings"]] == [row["symbol"]]
+    assert held4["holdings"][0]["past_winner"] is True
+
+
+def test_a_book_that_excludes_winners_refuses_an_unreadable_history():
+    """`past_winner is None` is not a pass. A book that cannot verify the name
+    is not last year's winner has not verified it -- and the two must not be
+    collapsed, which is the standing `unreadable is not failed` rule read in
+    the direction that costs money rather than the flattering one."""
+    row = _row(upside=0.62, consensus=4.21, past_winner=None, days_to_catalyst=24)
+    row["status"] = T.classify(row).status
+    row.update(exp_return=0.01, downside_5pct=-0.10, confidence=0.9,
+               coverage_bucket="11-25", sector="TECH")
+    hack3 = next(x for x in T.PERSONALITIES if x.book == "hack3")
+    port = T.build_portfolio([row], hack3)
+    assert port["n_selected"] == 0
+    assert any("unreadable" in r for r in port["excluded_by_reason"])
 
 
 def test_unreadable_is_not_failed():
@@ -237,11 +276,17 @@ def test_transitions_record_only_changes_and_carry_their_causes():
 # ------------------------------------------------------------------- portfolios
 
 def _candidates(n=30):
+    """A healthy candidate pool. Every fifth name is last year's winner, so the
+    clause-(f) A/B is exercised by the ordinary personality tests rather than
+    only by the one test that is about it."""
     rows = []
     for i in range(n):
         rows.append(dict(symbol=f"C{i}", status="BUY", sector=f"S{i % 4}",
                          upside=0.30 + 0.01 * i, consensus=4.0 + 0.01 * (i % 10),
                          coverage=12, coverage_bucket="11-25",
+                         coverage_source=T.COVERAGE_SOURCE_CALIBRATED,
+                         past_winner=(i % 5 == 0),
+                         past_winner_basis="ret_12m +120%" if i % 5 == 0 else None,
                          exp_return=0.001 * i, downside_5pct=-0.20,
                          confidence=0.5 + 0.01 * i, days_to_catalyst=10))
     return rows
@@ -252,17 +297,76 @@ def test_rank_value_sends_a_missing_input_last_not_to_zero():
     that is how an absence gets promoted into a position."""
     missing = dict(exp_return=None, downside_5pct=None)
     negative = dict(exp_return=-0.05, downside_5pct=-0.10)
-    assert T.rank_value(missing, "risk_adjusted") == float("-inf")
-    assert T.rank_value(negative, "risk_adjusted") > T.rank_value(missing, "risk_adjusted")
+    assert T.rank_value(missing, "risk_adjusted_ratio") == float("-inf")
+    assert (T.rank_value(negative, "risk_adjusted_ratio")
+            > T.rank_value(missing, "risk_adjusted_ratio"))
+    # A downside of exactly zero is an UNMEASURED downside, not a riskless
+    # name: `er / 0` would rank the least-known name first, forever.
+    assert T.rank_value(dict(exp_return=0.05, downside_5pct=0.0),
+                        "risk_adjusted_ratio") == float("-inf")
+
+
+def test_the_balanced_ranking_divides_because_subtracting_sorted_on_volatility():
+    """The bug this ranking replaced, pinned so it cannot come back.
+
+    Live rows carry `exp_return` ~0.0025 against `downside_5pct` ~0.25 -- two
+    orders of magnitude apart. Under `er - |dn|` the difference was ~99% the
+    downside term, so the "risk-adjusted" book ranked purely on LOW VOLATILITY
+    and refilled itself with mega-caps. Here `mega` has the calmer bad case and
+    `small` earns four times as much per unit of it; the ratio must prefer
+    `small`, and the subtraction (asserted below) would not have.
+    """
+    mega = dict(exp_return=0.0025, downside_5pct=-0.12)
+    small = dict(exp_return=0.0200, downside_5pct=-0.25)
+    assert (T.rank_value(small, "risk_adjusted_ratio")
+            > T.rank_value(mega, "risk_adjusted_ratio"))
+
+    def subtraction(r):
+        return r["exp_return"] - abs(r["downside_5pct"])
+
+    assert subtraction(mega) > subtraction(small), "the old ranking preferred the mega-cap"
+
+
+def test_the_balanced_book_caps_the_downside_it_will_rank_on():
+    """A ratio is scale-free, which is the point of it and its one hole:
+    +0.4% against -1% outranks +8% against -25%. `max_downside` is what stops
+    "risk-adjusted" from silently meaning "tiny"."""
+    hack3 = next(x for x in T.PERSONALITIES if x.book == "hack3")
+    assert hack3.max_downside is not None
+    row = dict(symbol="WIDE", status="BUY", sector="TECH", upside=0.40, consensus=4.2,
+               coverage=12, coverage_bucket="11-25", past_winner=False,
+               exp_return=0.30, downside_5pct=-(hack3.max_downside + 0.10),
+               confidence=0.9, days_to_catalyst=5)
+    port = T.build_portfolio([row], hack3)
+    assert port["n_selected"] == 0
+    assert any("downside" in r for r in port["excluded_by_reason"]), port["excluded_by_reason"]
 
 
 def test_each_personality_selects_its_own_k_and_counts_what_it_dropped():
+    """`n_selected <= k` alone is an assertion that passes when NOTHING was
+    selected, which is how a filter bug reads as a green test. Given a healthy
+    pool of 30 candidates every book must actually fill."""
     rows = _candidates()
     for p in T.PERSONALITIES:
         port = T.build_portfolio(rows, p)
-        assert port["n_selected"] <= p.k
+        assert port["n_selected"] == p.k, (p.book, port["n_selected"],
+                                           port["excluded_by_reason"])
         assert port["book"] == p.book
         assert isinstance(port["excluded_by_reason"], dict)
+
+
+def test_the_two_clause_f_arms_see_different_pools_from_the_same_universe():
+    """The whole point of running both arms: one universe, two eligible sets.
+    If these ever match, clause (f) has stopped doing anything and the
+    experiment is quietly over."""
+    rows = _candidates()
+    hack3 = next(x for x in T.PERSONALITIES if x.book == "hack3")
+    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+    on = T.build_portfolio(rows, hack3)
+    off = T.build_portfolio(rows, hack4)
+    assert on["candidate_pool"] == off["candidate_pool"]      # same universe
+    assert on["eligible"] < off["eligible"]                   # different books
+    assert not any(h["past_winner"] for h in on["holdings"])
 
 
 def test_the_balanced_book_respects_its_sector_cap():
@@ -270,6 +374,7 @@ def test_the_balanced_book_respects_its_sector_cap():
     CONCENTRATES that sector's factor rather than diversifying it."""
     rows = [dict(symbol=f"Z{i}", status="BUY", sector="OneSector",
                  upside=0.5, consensus=4.2, coverage=12, coverage_bucket="11-25",
+                 past_winner=False,
                  exp_return=0.01, downside_5pct=-0.10, confidence=0.8,
                  days_to_catalyst=5) for i in range(20)]
     p = [x for x in T.PERSONALITIES if x.book == "hack3"][0]
@@ -402,26 +507,141 @@ def test_the_cap_bars_candidacy_but_never_deletes_the_row():
     assert T.flags(rows)["upside_implausible"]["n"] == 1
 
 
-def test_clause_f_is_a_switch_and_the_flag_survives_it_being_off():
-    """Flipping the exclusion must not stop `past_winner` being COMPUTED.
+def test_clause_f_is_a_live_ab_across_the_books_not_one_setting():
+    """The exclusion costs ~2.9pp/yr on eleven years and Murat asked for it by
+    name. Neither of those settles it, so BOTH run: ON for hack3, OFF for
+    hack4 and hack6. This test exists so a later tidy-up cannot quietly make
+    the three books agree again and end the experiment without a result."""
+    by_book = {p.book: p.exclude_past_winners for p in T.PERSONALITIES}
+    assert by_book == {"hack3": True, "hack4": False, "hack6": False}, by_book
+    assert len(set(by_book.values())) == 2, "both arms must be live"
 
-    The flag is evidence whether or not it is currently a gate: the out-of-
-    sample test needs it recorded on every row in order to grade the clause at
-    all, and a gate that deletes its own evidence can never be re-argued.
-    """
-    import importlib
-    winner = _row(past_winner=True, past_winner_basis="ret_12m +702%")
-    assert T.EXCLUDE_PAST_WINNERS is True
-    assert T.classify(winner).status not in T.CANDIDATE_STATUSES
 
-    T.EXCLUDE_PAST_WINNERS = False
+def test_a_personality_must_declare_clause_f_rather_than_inherit_it():
+    """A switch worth 2.9pp/yr must not be acquired by forgetting to type it."""
     try:
-        v = T.classify(winner)
-        assert v.status == "STRONG_BUY", v.status
-        assert not any("past winner" in b for b in v.blocked_by)
-    finally:
-        importlib.reload(T)
-    assert T.EXCLUDE_PAST_WINNERS is True      # restored for every later test
+        T.Personality("hack9", "test", k=5, max_notional=0.05, rank="upside")
+    except ValueError as e:
+        assert "exclude_past_winners" in str(e)
+    else:
+        raise AssertionError("a personality without clause (f) was accepted")
+
+
+def test_the_flag_is_computed_and_written_whether_or_not_a_book_gates_on_it():
+    """A gate that deletes its own evidence can never be re-argued. hack4 does
+    not exclude winners -- and must still record which of its holdings are."""
+    winner = _row(upside=0.62, consensus=4.21, past_winner=True,
+                  past_winner_basis="ret_12m +702%", days_to_catalyst=24)
+    winner["status"] = T.classify(winner).status
+    winner.update(exp_return=0.01, downside_5pct=-0.10, confidence=0.9,
+                  coverage_bucket="11-25", sector="TECH")
+    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+    h = T.build_portfolio([winner], hack4)["holdings"][0]
+    assert h["past_winner"] is True
+
+
+def test_coverage_comes_from_the_calibrated_source_when_it_is_there():
+    """The analyst COUNT is not Finnhub's panel size.
+
+    Measured 2026-08-30: Finnhub's recommendation panel ran a median 1.80x
+    yfinance `numberOfAnalystOpinions` on a 56-name stratified sample, and on
+    the two thinnest live examples it was 4x and 7x (SLDP 8 vs 2, KULR 7 vs 1).
+    The buckets were calibrated on IBES `numrec`, which is the same quantity as
+    the yfinance field and NOT the same quantity as the panel size.
+    """
+    raw = [dict(symbol="SLDP", close=3.0, mean_target=6.875, n_analysts_yf=2,
+                rec_counts=dict(strongBuy=2, buy=5, hold=1, sell=0, strongSell=0))]
+    row = T.build_rows(raw)[0]
+    assert row["coverage"] == 2
+    assert row["coverage_finnhub"] == 8
+    assert row["coverage_source"] == T.COVERAGE_SOURCE_CALIBRATED
+    assert row["coverage_bucket"] == "1-3"
+    # the RATING still comes from the panel: an average over whoever is in it
+    # is a fair rating even when the panel's SIZE is not the analyst count.
+    assert row["consensus"] is not None
+
+
+def test_coverage_falls_back_but_says_which_scale_it_is_on():
+    raw = [dict(symbol="X", close=3.0, mean_target=6.0,
+                rec_counts=dict(strongBuy=2, buy=5, hold=1, sell=0, strongSell=0))]
+    row = T.build_rows(raw)[0]
+    assert row["coverage"] == 8
+    assert row["coverage_source"] == T.COVERAGE_SOURCE_UNCALIBRATED
+
+
+def test_a_bucket_rule_refuses_a_count_on_the_wrong_scale():
+    """hack6's mandate is PRESERVATION and it requires 4-10 analysts. On the
+    Finnhub scale that admitted one- and two-analyst names -- the exact opposite
+    of what the rule was written to do. A guard derives its input or refuses."""
+    hack6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    assert hack6.min_coverage_bucket == "4-10"
+    base = dict(symbol="Y", status="BUY", sector="TECH", upside=0.4, consensus=4.2,
+                past_winner=False, coverage=8, coverage_bucket="4-10",
+                exp_return=0.01, downside_5pct=-0.10, confidence=0.9,
+                days_to_catalyst=5)
+    wrong = dict(base, coverage_source=T.COVERAGE_SOURCE_UNCALIBRATED)
+    port = T.build_portfolio([wrong], hack6)
+    assert port["n_selected"] == 0
+    assert any("scale" in r for r in port["excluded_by_reason"]), port["excluded_by_reason"]
+
+    right = dict(base, coverage_source=T.COVERAGE_SOURCE_CALIBRATED)
+    assert T.build_portfolio([right], hack6)["n_selected"] == 1
+
+
+# ---------------------------------------------------------------------------
+# The daily diff
+# ---------------------------------------------------------------------------
+
+def _labelled_pair():
+    """Yesterday and today, differing in every way the diff must separate."""
+    prev = [
+        dict(symbol="ENTER", status="WATCH", sector="TECH", upside=0.10, close=10.0),
+        dict(symbol="LEAVE", status="BUY", sector="BIO", upside=0.40, close=5.0),
+        dict(symbol="STAY", status="BUY", sector="BIO", upside=0.35, close=8.0),
+        dict(symbol="GONE", status="BUY", sector="BANK", upside=0.50, close=7.0),
+    ]
+    today = [
+        dict(symbol="ENTER", status="BUY", sector="TECH", upside=0.45, close=9.0),
+        dict(symbol="LEAVE", status="WATCH", sector="BIO", upside=0.08, close=6.0),
+        dict(symbol="STAY", status="BUY", sector="BIO", upside=0.36, close=8.1),
+        dict(symbol="NEW", status="BUY", sector="BANK", upside=0.55, close=3.0),
+    ]
+    return today, prev
+
+
+def test_the_diff_separates_a_downgrade_from_a_name_that_was_not_fetched():
+    """A missing row and a downgraded row look identical in a histogram and
+    mean opposite things: the first is a data gap, the second is a decision."""
+    today, prev = _labelled_pair()
+    d = T.build_diff(today, prev, day="2026-08-31", prev_day="2026-08-30")
+    assert [r["symbol"] for r in d["entered"]] == ["ENTER"]
+    assert [r["symbol"] for r in d["left"]] == ["LEAVE"]
+    assert [r["symbol"] for r in d["arrived"]] == ["NEW"]
+    assert [r["symbol"] for r in d["departed"]] == ["GONE"]
+    # GONE was a candidate yesterday and is absent today -- it must NOT be
+    # reported as having left the list, because nobody decided that.
+    assert "GONE" not in {r["symbol"] for r in d["left"]}
+    assert "NEW" not in {r["symbol"] for r in d["entered"]}
+
+
+def test_the_diff_only_ranks_moves_for_names_present_both_days():
+    """A new listing has no yesterday, so it cannot have moved. Letting it in
+    would put the largest fake move at the top of the table every morning."""
+    today, prev = _labelled_pair()
+    d = T.build_diff(today, prev, day="2026-08-31", prev_day="2026-08-30")
+    syms = {m["symbol"] for m in d["biggest_upside_moves"]}
+    assert "NEW" not in syms and "GONE" not in syms
+    top = d["biggest_upside_moves"][0]
+    assert top["symbol"] == "ENTER"          # +35pp, the largest real move
+    assert abs(top["delta"] - 0.35) < 1e-9
+
+
+def test_the_diff_counts_candidates_per_sector_both_days():
+    today, prev = _labelled_pair()
+    d = T.build_diff(today, prev, day="2026-08-31", prev_day="2026-08-30")
+    assert d["sectors"]["TECH"] == {"today": 1, "prev": 0, "delta": 1}
+    assert d["sectors"]["BIO"] == {"today": 1, "prev": 2, "delta": -1}
+    assert d["n_candidates"] == {"today": 3, "prev": 3}
 
 
 # ---------------------------------------------------------------------------

@@ -143,16 +143,53 @@ PAST_WINNER_ABSOLUTE_RETURN = 1.00
 #: live and both of which measure positive. Clause (f) is a separate claim and
 #: it measures negative.
 #:
-#: Flipping this to False is a ONE-LINE change and is his call, not mine. The
-#: bottleneck rule says the right way to settle it is two selectors running
-#: side by side rather than one weight being argued about -- so if it is
-#: flipped, it should be flipped on ONE book, not on all of them.
-EXCLUDE_PAST_WINNERS = True
+#: MURAT'S DECISION, 2026-08-30 (e): clause (f) is ON for hack3 and OFF for
+#: hack4 and hack6. Both arms run live and the books say which was right.
+#:
+#: SO THE SWITCH IS NO LONGER HERE. It is `Personality.exclude_past_winners`,
+#: because a universe gate cannot express two answers at once: with the gate
+#: here, a past winner became WATCH for everybody and hack4 could never see a
+#: name hack3 had already demoted. A tracker STATUS is a property of the NAME
+#: -- what the analysts say about it -- and must not silently carry one book's
+#: taste. `past_winner` and `past_winner_basis` are computed and written on
+#: every row either way, so the flag is evidence whether or not it is a gate,
+#: and every book that declines a name for it COUNTS the decline by reason.
+#:
+#: That is the bottleneck rule applied to an idea cap: two selectors running
+#: side by side, not one weight being argued about.
 
 #: Below this many rated names, a sector's own decile is not a decile -- it is
 #: a small sample wearing one. Those names fall back to the market-wide decile
 #: and the row says so in `past_winner_basis`.
 MIN_SECTOR_N = 20
+
+#: WHICH ANALYST COUNT THE BUCKETS ARE ON. Measured 2026-08-30 (e), and it is
+#: not a detail.
+#:
+#: The IBES result that made thin coverage a live hypothesis bucketed on
+#: `numrec` -- the count of brokers with a current recommendation. Finnhub's
+#: `stock/recommendation` panel is a DIFFERENT quantity: it aggregates more
+#: sources, and on a 56-name stratified sample its count ran a MEDIAN 1.80x
+#: yfinance's `numberOfAnalystOpinions`, which is the field that means the same
+#: thing IBES means. Two live examples, both currently on the candidate list:
+#:
+#:     SLDP   Finnhub 8   yfinance 2
+#:     KULR   Finnhub 7   yfinance 1
+#:
+#: The consequences were exact and expensive. The live tracker had ZERO names
+#: in the 1-3 bucket -- the best bucket in the eleven-year test -- and its
+#: minimum was 5, not because the universe lacks thin names but because the
+#: variable could not express them. And hack6, whose whole mandate is
+#: PRESERVATION and which requires `4-10`, was on Finnhub's scale selecting
+#: names covered by one or two analysts while believing it had required four.
+#:
+#: So: `coverage` is yfinance `numberOfAnalystOpinions` when it is readable,
+#: and every row records `coverage_source`. A row bucketed on the Finnhub
+#: count is USABLE but NOT COMPARABLE to the backtest, and any book whose rule
+#: names a bucket must refuse it rather than read it on the wrong scale.
+COVERAGE_SOURCE_CALIBRATED = "yfinance_numberOfAnalystOpinions"
+COVERAGE_SOURCE_UNCALIBRATED = "finnhub_recommendation_panel"
+COVERAGE_FINNHUB_OVER_YF_MEDIAN = 1.80      # n=56, stratified, 2026-08-30
 
 #: Coverage buckets. The whole point of the tracker is that a 4-analyst biotech
 #: gets a row at all, so the thinnest bucket starts at ONE.
@@ -451,14 +488,16 @@ def classify(row: dict, *, prev: dict | None = None, stopped: bool = False) -> S
     if past is None:
         blocked.append("past_winner not established (no 12-month history)")
 
-    # `past_ok` is what clause (f) actually asserts. With EXCLUDE_PAST_WINNERS
-    # off, a past winner is no longer barred -- but `past_winner` is still
-    # computed and still recorded on the row, because the flag is evidence
-    # whether or not it is currently a gate.
-    past_ok = (past is False) if EXCLUDE_PAST_WINNERS else (past is not None)
+    # CLAUSE (f) IS NOT ASSERTED HERE ANY MORE. It is a per-book preference
+    # (`Personality.exclude_past_winners`), because the status is a property of
+    # the NAME and two books now want two different answers about it. What the
+    # status does instead is REPORT the flag, so a reader of this verdict can
+    # see it without the book's opinion baked in.
+    if past is True:
+        blocked.append(f"past winner -- {row.get('past_winner_basis') or 'flagged'} "
+                       "(reported, not barred: clause (f) is per book)")
     can_strong = (up is not None and up >= STRONG_BUY_UPSIDE
-                  and cons is not None and cons >= STRONG_BUY_CONSENSUS
-                  and past_ok)
+                  and cons is not None and cons >= STRONG_BUY_CONSENSUS)
     if can_strong:
         if cat is None:
             blocked.append(f"no dated catalyst readable (STRONG_BUY asserts one inside "
@@ -471,18 +510,15 @@ def classify(row: dict, *, prev: dict | None = None, stopped: bool = False) -> S
             return StatusVerdict("STRONG_BUY", [
                 f"upside {up:+.1%} >= {STRONG_BUY_UPSIDE:+.0%}",
                 f"consensus {cons:.2f} >= {STRONG_BUY_CONSENSUS}",
-                "not a past winner",
+                f"past winner: {past}",
                 f"catalyst in {cat} calendar days"], blocked, 0)
 
     if (up is not None and up >= BUY_UPSIDE and cons is not None
-            and cons >= BUY_CONSENSUS and past_ok):
+            and cons >= BUY_CONSENSUS):
         return StatusVerdict("BUY", [
             f"upside {up:+.1%} >= {BUY_UPSIDE:+.0%}",
             f"consensus {cons:.2f} >= {BUY_CONSENSUS}",
-            "not a past winner"], blocked, 0)
-
-    if past is True and EXCLUDE_PAST_WINNERS:
-        blocked.append(f"past winner -- {row.get('past_winner_basis') or 'flagged'}")
+            f"past winner: {past}"], blocked, 0)
 
     if on_list and up is not None and up >= HOLD_UPSIDE:
         return StatusVerdict("HOLD", [f"on the list, upside {up:+.1%} >= {HOLD_UPSIDE:+.0%}"],
@@ -533,6 +569,103 @@ def transitions(rows: list[dict], prev_by_symbol: dict[str, dict], *, day: str) 
             "reasons": r.get("status_reasons"), "blocked_by": r.get("status_blocked_by"),
         })
     return out
+
+
+def build_diff(today: list[dict], prev: list[dict], *, day: str,
+               prev_day: str) -> dict:
+    """Yesterday to today, as the premarket digest reads it.
+
+    THE DISTINCTION THIS EXISTS TO MAKE. A name that vanished from the file and
+    a name that lost its rating look identical in a status histogram, and they
+    mean opposite things: the first is a data gap, the second is a decision.
+    So churn (`arrived` / `departed`) is separated from grade changes
+    (`entered` / `left`), and a name is only ever counted in one of them.
+
+    Both sides must already be LABELLED -- pass rows through `apply_status`
+    first. Re-deriving the previous day's status here would silently grade
+    yesterday with today's rules and turn every rule change into a fake
+    market event.
+    """
+    t_by = {r["symbol"]: r for r in today}
+    p_by = {r["symbol"]: r for r in prev}
+    both = set(t_by) & set(p_by)
+
+    arrived = sorted(set(t_by) - set(p_by))
+    departed = sorted(set(p_by) - set(t_by))
+
+    def is_cand(r: dict | None) -> bool:
+        return bool(r) and r.get("status") in CANDIDATE_STATUSES
+
+    entered, left, regraded = [], [], []
+    for sym in sorted(both):
+        a, b = p_by[sym], t_by[sym]
+        was, now = a.get("status"), b.get("status")
+        if was == now:
+            continue
+        row = {"symbol": sym, "from": was, "to": now,
+               "sector": b.get("sector"), "upside": b.get("upside"),
+               "consensus": b.get("consensus"), "coverage": b.get("coverage"),
+               "coverage_bucket": b.get("coverage_bucket"),
+               "past_winner": b.get("past_winner"),
+               "days_to_catalyst": b.get("days_to_catalyst"),
+               "close": b.get("close"),
+               "why": b.get("status_reasons") or b.get("status_blocked_by") or []}
+        if is_cand(b) and not is_cand(a):
+            entered.append(row)
+        elif is_cand(a) and not is_cand(b):
+            left.append(row)
+        else:
+            regraded.append(row)
+
+    # Biggest moves in the number the rule actually reads. Only names present
+    # BOTH days, so a new listing cannot appear as a huge "change".
+    moves = []
+    for sym in both:
+        u0, u1 = p_by[sym].get("upside"), t_by[sym].get("upside")
+        if u0 is None or u1 is None:
+            continue
+        moves.append({"symbol": sym, "upside_prev": u0, "upside": u1,
+                      "delta": u1 - u0, "status": t_by[sym].get("status"),
+                      "sector": t_by[sym].get("sector"),
+                      "close_prev": p_by[sym].get("close"), "close": t_by[sym].get("close")})
+    moves.sort(key=lambda m: -abs(m["delta"]))
+
+    def by_sector(rows: list[dict]) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for r in rows:
+            if r.get("status") in CANDIDATE_STATUSES:
+                k = r.get("sector") or "_UNKNOWN"
+                out[k] = out.get(k, 0) + 1
+        return out
+
+    st, sp = by_sector(today), by_sector(prev)
+    sectors = {k: {"today": st.get(k, 0), "prev": sp.get(k, 0),
+                   "delta": st.get(k, 0) - sp.get(k, 0)}
+               for k in sorted(set(st) | set(sp))}
+
+    def hist(rows: list[dict]) -> dict[str, int]:
+        h: dict[str, int] = {}
+        for r in rows:
+            h[r.get("status") or "_NONE"] = h.get(r.get("status") or "_NONE", 0) + 1
+        return h
+
+    return {
+        "day": day, "prev_day": prev_day,
+        "n_today": len(today), "n_prev": len(prev), "n_both": len(both),
+        "status_histogram": {"today": hist(today), "prev": hist(prev)},
+        "n_candidates": {"today": sum(1 for r in today if is_cand(r)),
+                         "prev": sum(1 for r in prev if is_cand(r))},
+        "entered": entered, "left": left, "regraded": regraded,
+        "arrived": [{"symbol": s_, "status": t_by[s_].get("status"),
+                     "sector": t_by[s_].get("sector")} for s_ in arrived],
+        "departed": [{"symbol": s_, "was": p_by[s_].get("status"),
+                      "sector": p_by[s_].get("sector")} for s_ in departed],
+        "biggest_upside_moves": moves[:40],
+        "sectors": sectors,
+        "churn_note": ("`arrived`/`departed` are UNIVERSE changes -- a name that was not "
+                       "fetched is not a name that was downgraded. They are counted apart "
+                       "from `entered`/`left` so a bad refresh cannot read as a market move."),
+    }
 
 
 def candidates(rows: list[dict]) -> list[dict]:
@@ -597,22 +730,46 @@ class Personality:
     k: int
     max_notional: float          # per name, as a fraction of equity
     rank: str                    # which ranking this personality sorts on
+    #: Clause (f). DECLARED, never defaulted: a switch measured at -2.9pp/yr
+    #: should not be something a new personality acquires by forgetting to
+    #: mention it. See the EXCLUDE_PAST_WINNERS block above for the evidence.
+    exclude_past_winners: bool = None       # type: ignore[assignment]
     requires_catalyst: bool = False
     min_coverage_bucket: str | None = None
     max_sector_share: float | None = None
+    #: A hard CONSTRAINT on the downside, separate from the ranking. A ratio
+    #: ranking is scale-free, which is the point of it and also its one hole:
+    #: +0.4% expected against a -1% bad case outranks +8% against -25%. The
+    #: constraint is what stops "risk-adjusted" from meaning "tiny".
+    max_downside: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.exclude_past_winners is None:
+            raise ValueError(
+                f"{self.book}: exclude_past_winners must be declared explicitly. "
+                "It is worth ~2.9pp/yr on eleven years of IBES and it is currently "
+                "ON for hack3 and OFF for hack4/hack6 as a live A/B -- a silent "
+                "default would quietly end that experiment.")
 
 
 #: One personality per paper book. Each is its own PRODUCT_EXPERIMENT with its
 #: own selector -- never a weight inside a shared composite, which is the
 #: bottleneck rule: folding a new mechanism into a blend hides the only thing
 #: being tested, whether its errors are DIFFERENT errors.
+#: CLAUSE (f) IS A LIVE A/B, NOT A SETTING. hack3 excludes past winners because
+#: Murat's rule says so; hack4 and hack6 do not because eleven years of IBES say
+#: the exclusion costs ~2.9pp/yr and throws away the strongest sub-basket in the
+#: study (+18.60%/yr, t 3.31). Neither side is asserted to be right. Both run,
+#: on real paper money, and the books settle it -- which is the only way this
+#: project has ever settled anything.
 PERSONALITIES: tuple[Personality, ...] = (
-    Personality("hack3", "balanced", k=10, max_notional=0.083, rank="risk_adjusted",
-                max_sector_share=0.30),
+    Personality("hack3", "balanced", k=10, max_notional=0.083,
+                rank="risk_adjusted_ratio", exclude_past_winners=True,
+                max_sector_share=0.30, max_downside=0.30),
     Personality("hack4", "profit_max", k=5, max_notional=0.10, rank="upside_x_consensus",
-                requires_catalyst=True),
+                exclude_past_winners=False, requires_catalyst=True),
     Personality("hack6", "preservation", k=15, max_notional=0.06, rank="confidence",
-                min_coverage_bucket="4-10"),
+                exclude_past_winners=False, min_coverage_bucket="4-10"),
 )
 
 
@@ -624,9 +781,22 @@ def rank_value(row: dict, how: str) -> float:
     negative, which is how an absence gets promoted into a position.
     """
     neg = float("-inf")
-    if how == "risk_adjusted":
+    if how == "risk_adjusted_ratio":
+        # RETIRED 2026-08-30 (e): this used to be `er - abs(dn)`, and that
+        # SUBTRACTION was the bug. In live rows `exp_return` is about 0.0025
+        # and `downside_5pct` is about 0.25 -- a hundred times larger -- so the
+        # difference was ~99% the downside term and the "balanced" book was
+        # sorting on LOW VOLATILITY alone. It put TSM, AVGO and NVDA on top:
+        # the mega-cap bias the whole tracker exists to remove, walking back in
+        # through the ranking. Two numbers on different scales must be divided,
+        # not subtracted. The scale-freeness is paid for by `max_downside`,
+        # which is checked as a constraint in `build_portfolio`.
         er, dn = row.get("exp_return"), row.get("downside_5pct")
-        return neg if er is None or dn is None else er - abs(dn)
+        if er is None or dn is None:
+            return neg
+        # A downside of exactly zero is an UNMEASURED downside, not a riskless
+        # name; ranking it +inf would put the least-known name first.
+        return neg if abs(dn) < 1e-6 else er / abs(dn)
     if how == "upside_x_consensus":
         up, cons = row.get("upside"), row.get("consensus")
         return neg if up is None or cons is None else up * cons
@@ -649,11 +819,42 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
     pool = candidates(rows)
     excluded: dict[str, int] = {}
 
-    def drop(reason: str) -> None:
+    examples: dict[str, str] = {}
+
+    def drop(reason: str, detail: str = "") -> None:
+        """Count by CATEGORY, keep one example of the detail.
+
+        The first version counted the full reason string, and because a
+        past-winner reason names that name's own twelve-month return, 145
+        exclusions became 140 distinct keys and the report was unreadable --
+        which is the same failure as no report at all.
+        """
         excluded[reason] = excluded.get(reason, 0) + 1
+        if detail and reason not in examples:
+            examples[reason] = detail
 
     eligible = []
     for r in pool:
+        # CLAUSE (f), where it now lives. `past_winner is None` means the
+        # twelve-month history was unreadable -- that is not a pass, and a book
+        # that excludes winners cannot verify this name is not one.
+        if p.exclude_past_winners:
+            pw = r.get("past_winner")
+            if pw is True:
+                drop("past winner", f"{r['symbol']}: {r.get('past_winner_basis') or 'flagged'}")
+                continue
+            if pw is None:
+                drop("past_winner unreadable (no 12-month history)")
+                continue
+        if p.max_downside is not None:
+            dn = r.get("downside_5pct")
+            if dn is None:
+                drop("downside unreadable")
+                continue
+            if abs(dn) > p.max_downside + 1e-9:
+                drop(f"downside above the {p.max_downside:.0%} cap",
+                     f"{r['symbol']}: {abs(dn):.0%}")
+                continue
         if p.requires_catalyst:
             cat = r.get("days_to_catalyst")
             if cat is None:
@@ -663,6 +864,15 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
                 drop(f"catalyst beyond {CATALYST_MAX_CALENDAR_DAYS} calendar days")
                 continue
         if p.min_coverage_bucket:
+            # A GUARD DERIVES ITS INPUT OR REFUSES. Reading a Finnhub-panel
+            # count against a bucket calibrated on IBES `numrec` would let a
+            # one-analyst name in through a rule written to keep it out -- the
+            # count runs ~1.80x on that scale. Refuse, and say which.
+            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
+                drop("coverage on an uncalibrated scale",
+                     f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
+                     f"which {p.min_coverage_bucket} was not calibrated for")
+                continue
             br, need = bucket_rank(r.get("coverage_bucket")), bucket_rank(p.min_coverage_bucket)
             if br is None or need is None or br < need:
                 drop(f"coverage below {p.min_coverage_bucket}")
@@ -682,7 +892,7 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
         sec = r.get("sector") or "_UNKNOWN"
         if p.max_sector_share is not None:
             if sector_notional.get(sec, 0.0) + p.max_notional > p.max_sector_share + 1e-9:
-                drop(f"sector {sec} at its {p.max_sector_share:.0%} cap")
+                drop("sector at its cap", f"{sec} at {p.max_sector_share:.0%}")
                 continue
         sector_notional[sec] = sector_notional.get(sec, 0.0) + p.max_notional
         picked.append({
@@ -692,6 +902,12 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
             "coverage_bucket": r.get("coverage_bucket"),
             "exp_return": r.get("exp_return"), "downside_5pct": r.get("downside_5pct"),
             "confidence": r.get("confidence"), "days_to_catalyst": r.get("days_to_catalyst"),
+            "past_winner": r.get("past_winner"),
+            # WHOSE NUMBER RANKED THIS NAME. A book built from two number
+            # sources that does not say which is which cannot be graded, and
+            # grading one against the other is the entire point.
+            "numbers_source": r.get("numbers_source") or "rule",
+            "brain_adjustment": r.get("brain_adjustment"),
         })
 
     return {
@@ -699,11 +915,14 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
         "k_target": p.k, "n_selected": len(picked),
         "max_notional_each": p.max_notional,
         "requires_catalyst": p.requires_catalyst,
+        "exclude_past_winners": p.exclude_past_winners,
         "min_coverage_bucket": p.min_coverage_bucket,
         "max_sector_share": p.max_sector_share,
+        "max_downside": p.max_downside,
         "holdings": picked,
         "candidate_pool": len(pool), "eligible": len(eligible),
-        "excluded_by_reason": excluded,
+        "excluded_by_reason": dict(sorted(excluded.items(), key=lambda kv: -kv[1])),
+        "excluded_examples": examples,
         "sector_notional": {k: round(v, 4) for k, v in sorted(sector_notional.items())},
     }
 
@@ -751,15 +970,37 @@ def build_rows(raw: list[dict]) -> list[dict]:
     rows = []
     for r in raw:
         row = dict(r)
+        # The RATING comes from Finnhub's panel (an average over whoever is in
+        # it is a fair rating); the COUNT does not, because the panel's size is
+        # not the number of analysts covering the name. See
+        # COVERAGE_SOURCE_CALIBRATED above for the measurement.
         cons = consensus_score(r.get("rec_counts"))
         row["consensus"] = round(cons[0], 3) if cons else None
-        row["coverage"] = cons[1] if cons else (r.get("coverage") or 0)
+        row["coverage_finnhub"] = cons[1] if cons else None
+        n_yf = r.get("n_analysts_yf")
+        if isinstance(n_yf, (int, float)) and n_yf > 0:
+            row["coverage"] = int(n_yf)
+            row["coverage_source"] = COVERAGE_SOURCE_CALIBRATED
+        elif row["coverage_finnhub"]:
+            row["coverage"] = row["coverage_finnhub"]
+            row["coverage_source"] = COVERAGE_SOURCE_UNCALIBRATED
+        else:
+            row["coverage"] = r.get("coverage") or 0
+            row["coverage_source"] = None
         row["coverage_bucket"] = coverage_bucket(row["coverage"])
         row["upside"] = upside(r.get("mean_target"), r.get("close"))
         row["drawdown_60d"] = drawdown_60d(r.get("close"), r.get("high_60d"))
         rows.append(row)
     mark_past_winners(rows)
     return rows
+
+
+def _count_by(rows: list[dict], key: str) -> dict:
+    out: dict[str, int] = {}
+    for r in rows:
+        k = str(r.get(key))
+        out[k] = out.get(k, 0) + 1
+    return dict(sorted(out.items()))
 
 
 def summary(rows: list[dict], *, day: str, hist: dict, pw: dict) -> dict:
@@ -772,6 +1013,7 @@ def summary(rows: list[dict], *, day: str, hist: dict, pw: dict) -> dict:
         "n_with_target": sum(1 for r in rows if r.get("mean_target") is not None),
         "status_histogram": hist,
         "n_candidates": sum(hist.get(s, 0) for s in CANDIDATE_STATUSES),
+        "coverage_source_counts": _count_by(rows, "coverage_source"),
         "coverage_split_by_status": coverage_split(rows, "status"),
         "coverage_split_by_past_winner": coverage_split(rows, "past_winner"),
         "past_winner": pw,
@@ -783,13 +1025,16 @@ def summary(rows: list[dict], *, day: str, hist: dict, pw: dict) -> dict:
                            "catalyst_sessions": CATALYST_MAX_SESSIONS,
                            "catalyst_calendar_days": CATALYST_MAX_CALENDAR_DAYS,
                            "days_to_catalyst_units": "CALENDAR DAYS",
-                           "past_winner": False},
-            "BUY": {"upside": BUY_UPSIDE, "consensus": BUY_CONSENSUS, "past_winner": False},
+                           "past_winner": "reported, not a status bar"},
+            "BUY": {"upside": BUY_UPSIDE, "consensus": BUY_CONSENSUS,
+                    "past_winner": "reported, not a status bar"},
             "HOLD": {"upside": HOLD_UPSIDE, "requires": "already on the list"},
             "SELL": {"upside_below": SELL_UPSIDE, "consensus_below": SELL_CONSENSUS,
                      "or": "a stop hit on any book"},
             "DROP": {"sell_sessions": DROP_AFTER_SELL_SESSIONS, "min_price": MIN_PRICE_USD},
-            "past_winner": {"excluded": EXCLUDE_PAST_WINNERS,
+            "past_winner": {"excluded_by_book": {p.book: p.exclude_past_winners
+                                                for p in PERSONALITIES},
+                            "excluded_from_status": False,
                             "sector_decile": PAST_WINNER_SECTOR_DECILE,
                             "or_absolute_return": PAST_WINNER_ABSOLUTE_RETURN,
                             "min_sector_n": MIN_SECTOR_N},
