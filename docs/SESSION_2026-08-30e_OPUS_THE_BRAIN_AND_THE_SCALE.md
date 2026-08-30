@@ -16,6 +16,7 @@ For Murat and Fable. Plain language on purpose.
 | a bug found in our own data | **the analyst count was the wrong variable** — see §3. It is the biggest thing in this report. |
 | the daily diff | built (`tracker --diff`); needs a second day of data, and says so rather than printing an empty table |
 | the logic brain | **running**, $0.004 a night at today's scale, and it produced a finding about itself in §5 |
+| your fantasy transposition (T13) | **built and gated** — the rewriter-parity check passed at 0.12 against a 1.0 stop. §5b. |
 | fleet | $570,801 of $600,000 (−4.87%), unchanged — no new orders |
 
 ---
@@ -190,6 +191,61 @@ bound. This is now pinned by a test, because it would be an easy thing to
 
 Cost: **$0.004** for tonight's run, against your ~$0.50/day allowance.
 
+## 5b. T13 is built, and the rewriter is not the signal
+
+Your fantasy transposition is running. `alpha/transpose.py` + `scripts/era_replay.py`.
+
+**What it does.** It takes one company-month of real news, rewrites it into a
+made-up world — a made-up year, a made-up industry, made-up companies — and asks
+a *different* model family to forecast the next 21 sessions from the rewrite. If
+it can still pick winners, it is reading the situation rather than remembering
+the company. Here is a real one, Agilent's August guidance update:
+
+> `[2051-08-27]` Fenwick Works (orbital cooling) Narrows FY2051 Adj EPS Guidance
+> from $5.54-$5.61 to $5.56-$5.59 vs $5.58 Est; Raises FY2051 Sales Guidance from
+> $6.730B-$6.810B to $6.910B-$6.930B vs $6.787B Est
+
+Every one of the twelve numbers survived; the company, the industry and the year
+did not. That is the whole idea in one line.
+
+**The gate passed, and it is the result that matters most so far.** Before
+paying for the grid, the same windows are rewritten twice by two *different*
+model families and we check whether the forecast moves more between two rewrites
+of one window than it does between different windows. If it did, we would be
+measuring the rewriter and every number after it would be worthless.
+
+| | |
+|---|---|
+| p_up moved between two rewrites of the same window | **0.0045** |
+| p_up moved across different windows | **0.0372** |
+| ratio | **0.12** — well under the 1.0 that would stop the run |
+
+So the model is responding to the situation, not to how it was phrased.
+
+**Four arms, and the one that could end the exercise cheaply.** Alongside `real`
+(names and year intact), `real_anon` and `fantasy`, there is a `numbers_only`
+arm: the magnitudes and event types with every sentence deleted. If that scores
+like the fantasy arm, the prose was carrying nothing and we have our answer
+without a council. `real − fantasy` is how much was memory. Two nulls run
+beside them: the same picks against somebody else's outcome, and the
+equal-weighted era basket.
+
+**"I don't know" is gone**, as you asked. The decider returns p_up, expected
+return, downside and confidence for every name, every time; uncertainty is p_up
+near 0.5 at low confidence. On the first 29 windows it used the range: p_up
+0.35 to 0.62, confidence 0.10 to 0.70. Then the *choosing* is code, and wealth
+and calibration are graded separately, because a model can rank well and be
+badly calibrated or the reverse, and one number would hide whichever is smaller.
+
+**Two bugs in my own checker, both found by running it.** The rule that a
+rewrite must preserve every number was throwing away good rewrites: it read the
+day-numbers out of my own date headers, so `[2025-10-27] → [2051-11-17]` looked
+like three numbers deleted and three invented. Worse, the drop was concentrated
+in the windows with the most dated items — the ones carrying the most
+information. The fix then broke differently: "Mar" matched inside "Margin", so
+"Margin 31%" was stripped as a date and a real number vanished. Both are pinned
+by tests now.
+
 ## 6. A near-miss worth recording
 
 Two commands rewrite the tracker day file — the price backfill and the new
@@ -203,6 +259,26 @@ line count — so it would have passed straight through the collision it was
 written to stop. I started both by accident tonight, caught it before either
 wrote, and replaced the guard with a real lock that names who holds it and for
 how long.
+
+### And the two hours I lost to a process that was never running
+
+A second one, in the same family, worth writing down because the checks I made
+were the wrong checks. I launched the 3,000-name coverage repair in the
+background and then, for two hours, confirmed it was fine twice:
+
+- the process table showed it running — **it did**, as a shell that had already failed
+- its log was empty — **which I read as "it writes at the end"**
+
+Both readings were wrong, and they were wrong for the *same* reason, which is
+why they agreed with each other. The job had exited immediately with code 127.
+Its own exit line said so, one line above the empty log I was looking at.
+
+The measurement that settled it in thirty seconds was CPU time: six seconds
+after two hours, for a job that should burn minutes parsing three thousand
+responses. Now the job prints `50/2950 0.64/s ~73 min left` every twenty-five
+names, flushed, so "started" and "not started" can never look alike again.
+
+The repair is genuinely running now and finishes tonight.
 
 ## 7. What is yours to decide
 
