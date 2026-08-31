@@ -80,10 +80,17 @@ FLEET: dict[str, Mandate] = {
         rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
         caveat="ADJUDICATED 28 Aug (Aegis knife_basket_backtest, CRSP 2013-2024): the -50..-20% drawdown cell LOSES -0.31%/5d (t -2.35); only >50%-down at >100% vol pays (+2.32%, t 2.60, n=88). theme_basket now buys only that cell and near-high names; the middle is declined with the number. Graded vs IWM and vs `hack2`."),
     "hack4": Mandate(
-        role="hack4", tier="RISKY", label="PREDATOR: small-cap post-print continuation",
-        question="Does the 116,231-event continuation cell (surprise and reaction agree) pay outside the mega-11 via shares and the short-loser/long-IWM pair?",
-        brains=("post_event_drift",), shadow=("narrative_dispersion",), profile="maximum", universe="window",
-        allow_maximum=True, rank_objective="median", extra_args=("--window-universe",)),
+        role="hack4", tier="RISKY", label="TRACKER PROFIT-MAX: sealed upside x consensus, shares only",
+        question="Does upside x consensus + catalyst selection (sealed pre-open, k=5 x 10%) create better P&L and opportunity recall than measured drift (hack2) and balanced breadth (hack3)?",
+        brains=("tracker_portfolio",), shadow=("post_event_drift",), profile="maximum", universe="window",
+        allow_maximum=True, rank_objective="median", structure_kinds=("long_shares",),
+        extra_args=("--window-universe",),
+        caveat="APPROVED 2026-08-31 (docs/DECISION_2026-08-31_HACK4_TRACKER_APPROVED.md): shares only, "
+               "the sealed notional is a reduce-only ceiling, exact names from the sealed artifact. "
+               "STATED PROPERTY, not an accident: profit_max has NO max_downside, so it selects "
+               "high-modelled-downside names BY CONSTRUCTION -- report the worst case BOTH ways "
+               "(stop-based AND all-names-gap-to-modelled-5%-downside; on 2026-08-31 those were "
+               "-3.00% and ~-18.4%). The old post-print continuation mandate runs as shadow."),
     "hack5": Mandate(
         role="hack5", tier="RISKY", label="CONVEXITY: options only, EV-ranked",
         question="When the ranker is allowed to chase the mean (long calls, bull call spreads) on the high-vol theme names, does five sessions of it end above the median book?",
