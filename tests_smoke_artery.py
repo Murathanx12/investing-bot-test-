@@ -407,22 +407,56 @@ def test_proof_4_the_sealed_WEIGHT_is_a_ceiling_not_a_suggestion():
 
 
 def test_proof_5_the_runner_asks_about_the_sealed_names():
-    """A name can be sealed, the brain ready, and the runner never ASK -- the
-    universe was built from a hardcoded list + window universe + candidates
-    file, none of which reads the seal. The book would prove which names trade
-    and then trade none of them."""
-    import inspect
+    """A name can be sealed, the brain ready, and the runner never ASK.
 
+    The universe was built from a hardcoded list + window universe + candidates
+    file, none of which reads the seal, so the book would prove which names
+    trade and then trade none of them.
+
+    EXECUTED, not grepped. The first version of this proof searched `main`'s
+    source for a substring, which shows a string exists -- not that a sealed
+    name reaches the universe. Proving a wiring gap by reading source is the
+    same mistake one level up, so the injection was extracted into a callable
+    and is exercised here with a staged book.
+    """
     import scripts.run_pass as rp
-    src = inspect.getsource(rp)
-    check("proof5: run_pass injects the sealed holdings into its universe",
-          "sealed_holdings()" in src)
-    check("proof5: it is keyed off the brain being enabled, not a separate flag "
-          "that must be remembered",
-          'if "tracker_portfolio" in (args.brains' in src)
-    check("proof5: an unreadable sealed book REFUSES the pass rather than "
-          "quietly running without those names",
-          "could not be read" in src and "return 2" in src)
+
+    book = {"book": "hack4", "day": "2026-08-31", "content_sha256": "ab" * 32,
+            "holdings": {"AAA": {}, "BBB": {}, "SPY": {}}}
+    base = ["SPY", "QQQ", "IWM"]
+
+    # brain OFF: the seal must not leak into an unrelated run
+    got, refusal = rp.inject_sealed_portfolio(base, "post_event_drift",
+                                              sealed_holdings=lambda: book)
+    check("proof5: with the brain off the universe is untouched",
+          got == base and refusal is None, str(got))
+
+    # brain ON: every sealed name is now askable, and no duplicates
+    got, refusal = rp.inject_sealed_portfolio(
+        base, "theme_basket,tracker_portfolio", sealed_holdings=lambda: book)
+    check("proof5: refusal is None on a readable book", refusal is None, str(refusal))
+    for sym in ("AAA", "BBB"):
+        check(f"proof5: sealed name {sym} is now in the universe", sym in got, str(got))
+    check("proof5: a name already present is not duplicated",
+          got.count("SPY") == 1, str(got))
+    check("proof5: the pre-existing universe survives",
+          all(s_ in got for s_ in base))
+
+    # an unreadable book REFUSES rather than running the other brains over a
+    # universe that is missing exactly the names the book chose
+    def _boom():
+        raise RuntimeError("no sealed book for 2026-08-31")
+    got, refusal = rp.inject_sealed_portfolio(
+        base, "tracker_portfolio", sealed_holdings=_boom)
+    check("proof5: an unreadable sealed book returns a refusal",
+          refusal is not None and "could not be read" in refusal, str(refusal))
+    check("proof5: and does not silently extend the universe", got == base)
+
+    # and main() must act on that refusal rather than continue
+    import inspect
+    check("proof5: main returns 2 on the refusal",
+          "return 2" in inspect.getsource(rp.main))
+
 
 
 # The __main__ guard stays at the BOTTOM: `_run_all` collects from globals() at

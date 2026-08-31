@@ -63,6 +63,36 @@ def sentinels_rows() -> list[dict]:
     return out
 
 
+def inject_sealed_portfolio(universe_syms: list[str], brains: str | None,
+                            *, sealed_holdings=None) -> tuple[list[str], str | None]:
+    """Add the sealed book's names to the universe. Returns (universe, refusal).
+
+    Extracted from `main` so it can be TESTED rather than grepped. The first
+    version of this guard was verified by searching `main`'s source for a
+    substring, which proves a string exists and not that a name reaches a
+    forecast -- the exact shape of the bug it was written to catch.
+
+    `sealed_holdings` is injectable so a test can stage a book without a
+    tracker, a seal or a clock.
+    """
+    if "tracker_portfolio" not in (brains or ""):
+        return universe_syms, None
+    try:
+        if sealed_holdings is None:
+            from alpha.brains import tracker_portfolio as _tp
+            sealed_holdings = _tp.sealed_holdings
+        sealed = sealed_holdings()
+        extra = [s for s in sealed["holdings"] if s not in universe_syms]
+        logging.info("sealed portfolio %s (%s, sha %s): +%d names -> %s",
+                     sealed.get("book"), sealed.get("day"),
+                     str(sealed.get("content_sha256"))[:12], len(extra),
+                     ",".join(sorted(sealed["holdings"])))
+        return universe_syms + extra, None
+    except Exception as exc:                                        # noqa: BLE001
+        return universe_syms, (f"tracker_portfolio is enabled but its sealed "
+                               f"portfolio could not be read: {exc}")
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--expiry", required=True, help="YYYY-MM-DD")
@@ -184,23 +214,13 @@ def main() -> int:
     #
     # Injected whenever the brain is enabled -- not behind its own flag, because
     # a flag that must be remembered is the same failure one step later.
-    if "tracker_portfolio" in (args.brains or ""):
-        try:
-            from alpha.brains import tracker_portfolio as _tp
-            sealed = _tp.sealed_holdings()
-            extra = [s_ for s_ in sealed["holdings"] if s_ not in universe_syms]
-            universe_syms += extra
-            logging.info("sealed portfolio %s (%s, sha %s): +%d names -> %s",
-                         sealed["book"], sealed["day"],
-                         str(sealed["content_sha256"])[:12], len(extra),
-                         ",".join(sorted(sealed["holdings"])))
-        except Exception as exc:                                    # noqa: BLE001
-            # REFUSE rather than trade a partial book. Silently running the
-            # other brains over a universe missing the sealed names would look
-            # like a normal session and grade as one.
-            logging.error("tracker_portfolio is enabled but its sealed portfolio "
-                          "could not be read: %s", exc)
-            return 2
+    universe_syms, refusal = inject_sealed_portfolio(universe_syms, args.brains)
+    if refusal:
+        # REFUSE rather than trade a partial book. Silently running the other
+        # brains over a universe missing the sealed names would look like a
+        # normal session and would grade as one.
+        logging.error("%s", refusal)
+        return 2
     args.universe = universe_syms
     names = [b.strip() for b in args.brains.split(",") if b.strip()]
     unknown = [b for b in names if b not in brains.BRAINS]
