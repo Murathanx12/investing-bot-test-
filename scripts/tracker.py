@@ -474,6 +474,26 @@ def grade_and_write(day: str) -> int:
     print(f"past winners flagged: {summary['n_past_winners']} "
           f"({pw['judged_against_sector']} vs own sector, {pw['judged_against_market']} vs market, "
           f"{pw['not_judged_no_history']} no 12m history)")
+
+    # THE DAILY VINTAGE, taken here because this is the moment it is knowable.
+    # CompanyState is worth more every night it runs and a missing DAY cannot be
+    # backfilled -- so it must not depend on anyone remembering to run a second
+    # command. It is offline, reads only files already on disk, and is attached
+    # to its true dependency rather than to a scheduler entry that can drift out
+    # of step with the refresh.
+    #
+    # A FAILURE HERE MUST NOT FAIL THE REFRESH. The refresh's own product --
+    # the day file and latest.json -- is already written and correct above; the
+    # vintage is derived from it and can be rebuilt by hand from the same files.
+    # So this reports loudly and returns 0.
+    try:
+        from scripts.company_state_append import main as _cs_main
+        print()
+        _cs_main(["--day", day])
+    except Exception as exc:                                        # noqa: BLE001
+        print(f"\n  CompanyState vintage NOT written: {type(exc).__name__}: {exc}")
+        print("  The refresh itself is complete and correct. Recover with:")
+        print(f"      python -m scripts.company_state_append --day {day}")
     return 0
 
 
