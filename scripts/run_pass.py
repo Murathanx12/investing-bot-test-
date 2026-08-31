@@ -63,6 +63,98 @@ def sentinels_rows() -> list[dict]:
     return out
 
 
+def inject_news_universe(universe_syms: list[str], *, enabled: bool,
+                         day: str | None = None, digest: dict | None = None,
+                         max_age_hours: float = 18.0, top_n: int | None = None
+                         ) -> tuple[list[str], str | None]:
+    """Add today's NEWS-DISCOVERED names to the universe. Returns (universe, refusal).
+
+    THE CUT THIS CLOSES (2026-08-31)
+    ================================
+    `premarket_digest` reads the whole market's news, asks the LLM for a dated
+    bet on each name it finds, and writes `state/premarket/<day>.json`. On
+    2026-08-31 it ranked **WBUY first** and wrote a real bet: up, +10%, one
+    session, 70% already priced, with a falsifier. The stock then moved 20%.
+
+    Nothing acted on it, and not because a gate rejected it -- because no code
+    path could see it. Every reader of that file is a shadow tool:
+    `dislocation_scan` takes `council_symbols` as a ranking and "places
+    nothing"; `discovery_autopsy` classifies movers after the close and "places
+    nothing". `run_pass` -- the only thing that places -- built its universe
+    from the hardcoded list, the window universe, the candidate file and the
+    seal. The digest was never among its inputs.
+
+    This is the SAME SHAPE as the sealed-portfolio cut fixed hours earlier, one
+    stage upstream: there the book could not reach the runner, here discovery
+    cannot reach the book. Each component ran, wrote a receipt and passed its
+    tests; the defect lived between the files, which is why 2,687 checks never
+    saw it. A pipeline needs a reachability test, not per-stage correctness.
+
+    WHY IT REFUSES INSTEAD OF PASSING QUIETLY
+    ========================================
+    "the digest ran and found nothing" and "the digest never ran" are the same
+    silence on disk. If the caller asked for news names and there is no fresh
+    digest, this returns a refusal so the pass exits non-zero, rather than
+    trading a universe that merely looks normal. Absence of a file is not a
+    finding of no news.
+
+    WIDENING THE UNIVERSE IS NOT AUTHORISING A TRADE. This adds names the
+    brains are ASKED about. Admission, sizing, the liquidity floor and the
+    sealed-weight ceiling all still apply downstream and are untouched.
+
+    `digest` is injectable so a test can stage a day without a clock, an LLM or
+    a network.
+    """
+    if not enabled:
+        return universe_syms, None
+    import json
+    from datetime import datetime, timedelta, timezone
+    from pathlib import Path
+
+    if digest is None:
+        d = day or (datetime.now(timezone.utc) - timedelta(hours=4)).date().isoformat()
+        p = Path("state") / "premarket" / f"{d}.json"
+        if not p.exists():
+            return universe_syms, (
+                f"--news-universe was given but {p} does not exist. Refusing: an "
+                f"absent digest is not a digest that found nothing.")
+        try:
+            digest = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            return universe_syms, f"--news-universe: {p} is unreadable: {exc}"
+
+    # A STALE DIGEST IS WORSE THAN NONE. Yesterday's news ranked today reads as
+    # a live opinion and grades as one.
+    gen = str(digest.get("generated_utc") or "")
+    try:
+        age_h = (datetime.now(timezone.utc)
+                 - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600.0
+    except ValueError:
+        return universe_syms, (f"--news-universe: digest has no readable "
+                               f"generated_utc ({gen!r}); refusing to date it by guess.")
+    if age_h > max_age_hours:
+        return universe_syms, (f"--news-universe: digest is {age_h:.1f}h old "
+                               f"(limit {max_age_hours}h). Refusing to trade stale news.")
+
+    # RANK ORDER IS THE DIGEST'S OWN. It scored these names against the news it
+    # read; re-scoring them here would be a second, unrecorded opinion.
+    bets = digest.get("bets") or []
+    ranked = [str(b.get("symbol", "")).upper() for b in bets if b.get("symbol")]
+    for s in (digest.get("council_symbols") or []):
+        s = str(s).upper()
+        if s and s not in ranked:
+            ranked.append(s)
+    if top_n is not None:
+        ranked = ranked[:top_n]
+
+    extra = [s for s in ranked if s not in universe_syms]
+    logging.info("news universe from digest %s (%s, %.1fh old): %d bets, "
+                 "+%d names -> %s", digest.get("date"),
+                 digest.get("universe_mode", "?"), age_h, len(bets), len(extra),
+                 ",".join(extra[:12]))
+    return universe_syms + extra, None
+
+
 def inject_sealed_portfolio(universe_syms: list[str], brains: str | None,
                             *, sealed_holdings=None) -> tuple[list[str], str | None]:
     """Add the sealed book's names to the universe. Returns (universe, refusal).
@@ -123,6 +215,13 @@ def main() -> int:
                          "in late August it produces zero forecasts."))
     p.add_argument("--candidates", action="store_true",
                    help="add today's whole-market candidates (state/candidates/<date>.json) to the universe")
+    p.add_argument("--news-universe", action="store_true",
+                   help=("add the names TODAY'S NEWS surfaced (state/premarket/<date>.json) "
+                         "to the universe, in the digest's own rank order. Closes the cut "
+                         "where premarket_digest wrote a bet nothing could act on. REFUSES "
+                         "if the digest is missing or stale rather than passing quietly."))
+    p.add_argument("--news-top", type=int, default=None,
+                   help="cap --news-universe at the N highest-ranked news names")
     p.add_argument("--field-leader", type=float, default=None,
                    help="estimated podium return, e.g. 0.25 for +25%%")
     args = p.parse_args()
@@ -204,6 +303,16 @@ def main() -> int:
             logging.info("candidates from %s: +%d symbols (%s)", files[-1].name, len(extra), ",".join(extra[:12]))
         else:
             logging.warning("--candidates given but no state/candidates/*.json exists; universe unchanged")
+
+    # DISCOVERY MUST REACH THE BOOK. The digest reads the whole market's news
+    # and ranks what it finds; until 2026-08-31 nothing that could place an
+    # order read its output. See `inject_news_universe` for the full account.
+    universe_syms, refusal = inject_news_universe(
+        universe_syms, enabled=bool(getattr(args, "news_universe", False)),
+        top_n=getattr(args, "news_top", None))
+    if refusal:
+        logging.error("%s", refusal)
+        return 2
 
     # THE SEALED PORTFOLIO MUST BE ASKABLE. The universe was built from the
     # hardcoded list, the window universe and the candidate file -- none of

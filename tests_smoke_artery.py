@@ -519,6 +519,80 @@ def test_proof_6_the_runner_APPLIES_the_cap_it_was_given():
           "apply_sealed_cap(" in inspect.getsource(runner.evaluate))
 
 
+def test_proof_7_news_discovery_reaches_the_universe_that_places():
+    """The second cut, one stage upstream of proof 1-6.
+
+    On 2026-08-31 `premarket_digest` ranked WBUY FIRST and wrote a real bet on
+    it. The stock moved 20%. No gate rejected it -- `run_pass`, the only thing
+    that places, simply never read the digest, so the name was never in the
+    universe the brains are asked about. Every reader of that file ("places
+    nothing", twice, in their own docstrings) was a shadow tool.
+
+    Executed, not grepped: the first version of the sealed-portfolio guard was
+    "verified" by finding a substring in `main`, which proves a string exists
+    and not that a name reaches a forecast.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    from scripts import run_pass
+
+    now = datetime.now(timezone.utc)
+    base = ["NVDA", "AMD"]
+
+    def digest(hours_old=1.0, bets=("WBUY", "GME"), council=("WBUY", "LULU")):
+        return {"date": "2026-08-31", "universe_mode": "adaptive_news",
+                "generated_utc": (now - timedelta(hours=hours_old)).isoformat(),
+                "bets": [{"symbol": s, "direction": "up"} for s in bets],
+                "council_symbols": list(council)}
+
+    # 1. OFF by default: the flag must be asked for, and costs nothing unasked.
+    u, rej = run_pass.inject_news_universe(base, enabled=False, digest=digest())
+    check("proof7: disabled leaves the universe untouched", u == base and rej is None)
+
+    # 2. ON: the news names arrive, in the DIGEST'S OWN rank order.
+    u, rej = run_pass.inject_news_universe(base, enabled=True, digest=digest())
+    check("proof7: enabled adds the news names", rej is None and u[:2] == base)
+    check("proof7: rank order is the digest's, not re-scored here",
+          u[2:] == ["WBUY", "GME", "LULU"])
+
+    # 3. THE ACTUAL FAILING CASE. This is the whole point of the proof.
+    check("proof7: WBUY reaches the universe that places", "WBUY" in u)
+
+    # 4. A name already present is not duplicated.
+    u2, _ = run_pass.inject_news_universe(["WBUY"], enabled=True, digest=digest())
+    check("proof7: no duplicates", u2.count("WBUY") == 1)
+
+    # 5. STALE NEWS REFUSES. Yesterday's digest ranked today reads as a live
+    #    opinion and would grade as one.
+    u3, rej = run_pass.inject_news_universe(base, enabled=True, digest=digest(hours_old=30))
+    check("proof7: a stale digest refuses", rej is not None and "stale" in rej)
+    check("proof7: and does not widen the universe on the way out", u3 == base)
+
+    # 6. An undateable digest refuses rather than being dated by guess.
+    bad = digest(); bad["generated_utc"] = "not a time"
+    _, rej = run_pass.inject_news_universe(base, enabled=True, digest=bad)
+    check("proof7: an undateable digest refuses", rej is not None and "generated_utc" in rej)
+
+    # 7. ABSENCE IS NOT A FINDING OF NO NEWS. Asked for news, no file on disk
+    #    for that day -> refuse, so the pass exits non-zero instead of running
+    #    a universe that merely looks normal.
+    _, rej = run_pass.inject_news_universe(base, enabled=True, day="1990-01-02")
+    check("proof7: a missing digest refuses rather than passing quietly",
+          rej is not None and "does not exist" in rej)
+
+    # 8. The cap is a cap.
+    u4, _ = run_pass.inject_news_universe(base, enabled=True, digest=digest(), top_n=1)
+    check("proof7: --news-top caps the list", u4 == base + ["WBUY"])
+
+    # 9. AND THE CALL SITE EXISTS. A perfect function nobody calls is the bug
+    #    this whole file was written about.
+    import inspect
+    src = inspect.getsource(run_pass.main)
+    check("proof7: main calls it", "inject_news_universe(" in src)
+    check("proof7: and returns 2 on its refusal",
+          "inject_news_universe(" in src and "return 2" in src.split("inject_news_universe(")[1][:400])
+
+
 # The __main__ guard stays at the BOTTOM: `_run_all` collects from globals() at
 # call time, so a test defined below it would never run while the suite still
 # printed ALL PASS. That happened once already, on 2026-08-31, to five checks.
