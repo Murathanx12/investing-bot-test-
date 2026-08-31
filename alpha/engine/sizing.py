@@ -379,8 +379,17 @@ def size(
     open_convex_risk: float = 0.0,
     conviction: float = 1.0,
     risk_profile: str | None = None,
+    sealed_notional: float | None = None,
 ) -> SizingVerdict:
-    """How much defined risk this structure earns, or why it earns none."""
+    """How much defined risk this structure earns, or why it earns none.
+
+    `sealed_notional` marks a SEALED-PORTFOLIO expression: the selection and
+    the weight were decided at the pre-open seal, so Gate 2 (our forecast vs
+    the chain's implied distribution) does not apply -- there is no per-name
+    disagreement being expressed, and on most tracker names there is no chain
+    to disagree with. Gate 1 (quote quality) and every downstream admission
+    layer (book limits, gross caps, the sealed-weight clamp, opening range)
+    still bind, and only ever CUT."""
     env = profile(risk_profile)
 
     # -- Gate 1: can we even trade the quote we are looking at? -----------------
@@ -391,6 +400,37 @@ def size(
             f"round-trip spread is {spread_cost / structure.max_loss:.0%} of max loss "
             f"(ceiling {MAX_SPREAD_TO_MAXLOSS:.0%}). The edge is inside the spread; "
             "this is a fee, not a trade.",
+        )
+
+    # -- SEALED-PORTFOLIO EXPRESSION (2026-08-31) ------------------------------
+    # Discovered on the first live morning: every sealed name refused. Names
+    # with a chain failed Gate 2 (a ~0.25%/session book centre is never 5pp of
+    # disagreement with anything), names without a chain never reached it. Both
+    # gates were re-adjudicating a selection the seal had already made. Here the
+    # sizer's job is to EXPRESS the sealed weight, and its risk is declared the
+    # honest way the mandate does: weight x (max structure loss / notional).
+    if sealed_notional is not None:
+        w = float(sealed_notional)
+        if not (0.0 < w <= 0.25):
+            return SizingVerdict(
+                False, 0.0, 0.0,
+                f"sealed notional {w:+.1%} is outside (0, 25%] -- a sealed weight "
+                "this size is a corrupt artifact, not a decision.",
+            )
+        if structure.entry_cost <= 0 or structure.max_loss <= 0:
+            return SizingVerdict(
+                False, 0.0, 0.0,
+                f"sealed expression needs a positive entry cost and bounded loss "
+                f"(entry {structure.entry_cost}, max_loss {structure.max_loss}); "
+                "refusing rather than dividing by them.",
+            )
+        risk = w * (structure.max_loss / structure.entry_cost)
+        return SizingVerdict(
+            True, risk, 0.0,
+            f"sealed-portfolio expression: {w:.1%} of equity as decided at the seal; "
+            f"risk {risk:.2%} = weight x max-loss/notional. The chain was not "
+            "consulted -- selection happened at the seal, and the sealed-weight "
+            "clamp and book limits still cut.",
         )
 
     # -- Gate 2: the MDM power check ------------------------------------------

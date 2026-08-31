@@ -593,6 +593,68 @@ def test_proof_7_news_discovery_reaches_the_universe_that_places():
           "inject_news_universe(" in src and "return 2" in src.split("inject_news_universe(")[1][:400])
 
 
+
+def test_sealed_sizing_expresses_the_weight_and_skips_the_chain():
+    """2026-08-31, first live morning: 5 of 5 sealed names refused. Names with
+    a chain failed the 5pp MDM floor (a 0.25%/session book centre is never 5pp
+    of disagreement); names without a chain died in _forecast_width. Both gates
+    re-adjudicated a selection the seal had already made."""
+    from alpha.engine import sizing as sz
+
+    state = sz.TournamentState(equity=100_000.0, starting_equity=100_000.0,
+                               fraction_of_window_remaining=0.5)
+    shares = sz.Structure(symbol="RZLV", kind="long_shares", direction="up",
+                          entry_cost=2.83, max_loss=0.17, quote_spread_pct=0.004,
+                          breakeven_move=0.004, implied_move=0.03)
+
+    # 1. A sealed weight is expressed exactly: risk = w x max_loss/notional.
+    v = sz.size(shares, 0.0025, 0.02, state, sealed_notional=0.10, risk_profile="maximum")
+    check("sealed weight approved without consulting the chain", v.approved, v.reason)
+    check("risk equals weight x max-loss-per-notional",
+          abs(v.risk_fraction - 0.10 * (0.17 / 2.83)) < 1e-9, f"{v.risk_fraction}")
+
+    # 2. The SAME structure without the sealed mark still faces Gate 2 and dies
+    #    on the tiny centre -- proving the branch is the sealed mark, not a
+    #    loosening of the general gate.
+    v2 = sz.size(shares, 0.0025, 0.02, state, risk_profile="maximum")
+    check("an unsealed tiny-centre forecast still refuses", not v2.approved, v2.reason)
+
+    # 3. Gate 1 (quote quality) still binds a sealed name: a spread that eats
+    #    the max loss is a fee whoever decided the weight.
+    wide = sz.Structure(symbol="ALMU", kind="long_shares", direction="up",
+                        entry_cost=13.0, max_loss=0.78, quote_spread_pct=0.20)
+    v3 = sz.size(wide, 0.0025, 0.02, state, sealed_notional=0.10, risk_profile="maximum")
+    check("a fee-sized spread still refuses a sealed name", not v3.approved, v3.reason)
+
+    # 4. A corrupt weight is refused loudly, in both directions.
+    for bad in (0.5, 0.0, -0.1):
+        vb = sz.size(shares, 0.0025, 0.02, state, sealed_notional=bad, risk_profile="maximum")
+        check(f"sealed notional {bad} refused as corrupt", not vb.approved)
+
+    # 5. _forecast_width: a sealed direction forecast uses the SEALED width
+    #    (sd = |downside_5pct|/1.645, stated pre-open under the hash) when no
+    #    chain exists; an unsealed one still refuses.
+    from alpha import runner as rn
+    from alpha.brains import Forecast
+    chainless = sz.Structure(symbol="ABAT", kind="long_shares", direction="up",
+                             entry_cost=2.55, max_loss=0.15, implied_move=0.0)
+    sealed_f = Forecast(brain="tracker_portfolio", symbol="ABAT", horizon_days=4.0,
+                        centre=0.0025, sd=0.21, conviction=0.9, claim="direction",
+                        signal_shape=None, rationale="t",
+                        evidence={"sealed_notional": 0.10})
+    w, src = rn.effective_sd(sealed_f, chainless)
+    check("sealed width comes from the sealed downside model",
+          abs(w - 0.21) < 1e-12 and src == "sealed_downside_model", f"{w} {src}")
+    plain_f = Forecast(brain="post_event_drift", symbol="ABAT", horizon_days=4.0,
+                       centre=0.0025, sd=0.21, conviction=0.9, claim="direction",
+                       signal_shape=None, rationale="t", evidence={})
+    try:
+        rn.effective_sd(plain_f, chainless)
+        check("an unsealed chainless direction forecast still refuses", False)
+    except rn.ChainWidthUnavailable:
+        check("an unsealed chainless direction forecast still refuses", True)
+
+
 # The __main__ guard stays at the BOTTOM: `_run_all` collects from globals() at
 # call time, so a test defined below it would never run while the suite still
 # printed ALL PASS. That happened once already, on 2026-08-31, to five checks.

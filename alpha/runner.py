@@ -441,6 +441,15 @@ def effective_sd(forecast: Forecast, structure: sizing.Structure) -> tuple[float
 
     if forecast.claim != "direction":
         return forecast.sd, "brain"
+    if (forecast.evidence or {}).get("sealed_notional") is not None:
+        # A sealed-portfolio name. Its sd is NOT a fallback guess: the seal
+        # carries a modelled 5% downside per name and the brain recovers
+        # sd = |downside_5pct| / 1.645 -- a width stated pre-open, in the
+        # artifact, under the hash. Most tracker names quote no chain at all,
+        # so demanding the chain's width here would refuse the whole book on
+        # exactly the thin names the tracker exists to reach (2026-08-31,
+        # first live morning: 5 of 5 refused).
+        return forecast.sd, "sealed_downside_model"
     implied = getattr(structure, "implied_move", 0.0) or 0.0
     if implied <= 0:
         raise ChainWidthUnavailable(
@@ -566,6 +575,7 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
             structure, forecast.centre, sd_used, state,
             open_convex_risk=risk, conviction=forecast.conviction,
             risk_profile=risk_profile,
+            sealed_notional=(forecast.evidence or {}).get("sealed_notional"),
         )
         if not verdict.approved:
             rejected.append((structure, verdict))
@@ -604,13 +614,27 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
                                               "sd_source": sd_note},
                           reason=f"{verdict.reason} {econ.summary()}.")
         if econ.ev_usd <= 0.0:
-            cash_beat += 1
-            rejected.append((structure, replace(
-                verdict, approved=False, risk_fraction=0.0,
-                reason=(f"CASH beats it: cleared the MDM gate ({verdict.mdm_edge:+.1%}) but "
-                        f"{econ.summary()} -- expected P&L is not positive after the spread. "
-                        "Cash is a structure with EV exactly zero and it wins this comparison."))))
-            continue
+            if (forecast.evidence or {}).get("sealed_notional") is not None:
+                # A sealed-portfolio expression is NOT refused by the runner's
+                # own EV model -- that model's centre is the seal's number and
+                # its verdict on the bet was rendered AT THE SEAL, at the
+                # declared weight. The dissent is recorded on the verdict (the
+                # autopsy can grade the model against the book), but the third
+                # re-adjudication layer in one morning does not get authority
+                # over a decision the artifact already made (2026-08-31: MDM,
+                # chain width, then this, each refusing the whole book in turn).
+                verdict = replace(verdict, reason=(
+                    f"{verdict.reason} SEALED EXPRESSION OVERRIDES CASH COMPARISON: the "
+                    f"runner's model puts EV at {econ.ev_usd:+.0f}/unit and its dissent is "
+                    "recorded here, not enforced."))
+            else:
+                cash_beat += 1
+                rejected.append((structure, replace(
+                    verdict, approved=False, risk_fraction=0.0,
+                    reason=(f"CASH beats it: cleared the MDM gate ({verdict.mdm_edge:+.1%}) but "
+                            f"{econ.summary()} -- expected P&L is not positive after the spread. "
+                            "Cash is a structure with EV exactly zero and it wins this comparison."))))
+                continue
         mine = _rank_value(structure, verdict.economics, objective)
         if best is None or mine > _rank_value(best[0], best[1].economics, objective):
             if best is not None:
