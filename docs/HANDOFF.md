@@ -47,8 +47,14 @@ window universe self-heals; NIO/MDT print 09-01, PANW/MDB 09-02).
 2. Verify tonight's in-container write-back ran (logs: "decision_writeback";
    volume file decision_outcomes/2026-08-31_<book>.jsonl) and tomorrow's seal
    order: refresh -> --backfill-prices -> seal -> --publish -> push.
-3. hack1 anchor core still attended: `python -m scripts.competition_book`
-   after 15:45 ET, human places or explicitly delegates.
+3. hack1 anchor core PLACED 2026-08-31 ~10:40 ET on Murat's explicit
+   instruction: SPY x7 / QQQ x8 / IWM x17 as market-on-close orders
+   (coids aat-anchor-core-20260831-*), ~$16k = 16% of equity, filling at the
+   16:00 close per the overnight-capture design. The $5k SPY ATM call leg was
+   SKIPPED: it needs a live-worked 15:30-15:55 limit and nobody is at the
+   desk -- place it attended or record the day as shares-only. These orders
+   are NOT on the container's ledger (hand entry, as the mandate designed);
+   the loop manages the positions once filled.
 4. Rebuild the observation universe (`build(scope="observe")`) -- held all
    day, still pending; then news-universe reachability in one lane.
 5. Murat's holder-provenance idea: aegis-finance
