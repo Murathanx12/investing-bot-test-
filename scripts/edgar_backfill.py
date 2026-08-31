@@ -403,8 +403,15 @@ def main() -> int:
     elapsed = time.time() - t0
     total_new = sum(r.get("would_store", r["stored"]) for r in records)
     refused = [r for r in records if r["refusals"]]
-    print(f"\nstored {total_new} new filings across {len(records)} names in {elapsed:.0f}s "
-          f"({throttle.n_calls} requests, {throttle.slept_s:.1f}s throttled)")
+    # SAY WHICH ONE HAPPENED. `--dry-run` correctly stores nothing (the guard is
+    # at `if not dry_run` in `collect`), but this line printed "stored N new
+    # filings" either way, so a dry run reported writing data it had not
+    # written. A message that misreports the action is the same class of fault
+    # as the action being wrong -- it is what the next reader believes.
+    verb = "WOULD store" if args.dry_run else "stored"
+    print(f"\n{verb} {total_new} new filings across {len(records)} names in {elapsed:.0f}s "
+          f"({throttle.n_calls} requests, {throttle.slept_s:.1f}s throttled)"
+          + ("   [--dry-run: nothing was written]" if args.dry_run else ""))
     if no_cik:
         # ETFs (SPY/QQQ/IWM) and foreign ADRs without a US ticker entry land here.
         # Named, not silently dropped: "no filings" and "not in the map" differ.
