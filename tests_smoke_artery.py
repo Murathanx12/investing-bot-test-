@@ -254,6 +254,105 @@ def test_the_seal_carries_the_portfolio_and_the_hash_covers_it():
     check("changing one sealed holding changes the book hash", h1 != h2)
 
 
+def test_the_sealed_block_carries_exposure_gross_and_worst_case():
+    """§1a (brief g): driver exposure, derived gross and the worst-case bound
+    are INSIDE the sealed block, with the limits derived from the modules that
+    enforce them -- not typed beside them."""
+    from alpha import tracker as T
+    from scripts import prediction_book as PB
+    p = next(x for x in T.PERSONALITIES if x.book == "hack4")
+    port = {
+        "k_target": p.k, "n_selected": 2, "max_notional_each": p.max_notional,
+        "rank_distinct_values": 2, "ranking_is_degenerate": False,
+        "exclude_past_winners": p.exclude_past_winners,
+        "requires_catalyst": p.requires_catalyst,
+        "min_coverage_bucket": p.min_coverage_bucket,
+        "max_coverage_bucket": p.max_coverage_bucket,
+        "min_dollar_volume": p.min_dollar_volume,
+        "max_sector_share": p.max_sector_share,
+        "max_names_per_sector": 2, "max_downside": p.max_downside,
+        "holdings": [
+            {"symbol": "AAA", "notional": p.max_notional, "sector": "Tech",
+             "rank_value": 9.9, "exp_return": 0.06, "downside_5pct": -0.20,
+             "confidence": 0.8, "numbers_source": "rule"},
+            {"symbol": "BBB", "notional": p.max_notional, "sector": "Mining",
+             "rank_value": 7.1, "exp_return": 0.04, "downside_5pct": -0.15,
+             "confidence": 0.6, "numbers_source": "rule"},
+        ],
+        "candidate_pool": 10, "eligible": 5, "excluded_by_reason": {},
+        "sector_notional": {"Tech": p.max_notional, "Mining": p.max_notional},
+    }
+    blk = PB._portfolio_block(port, p, {"AAA": "AI_DATACENTER_CAPEX"})
+
+    check("derived_gross is the sum of |notional|",
+          abs(blk["derived_gross"] - 2 * p.max_notional) < 1e-9,
+          f"got {blk['derived_gross']}")
+    check("driver_exposure sums to derived_gross",
+          abs(sum(blk["driver_exposure"].values()) - blk["derived_gross"]) < 1e-6,
+          f"{blk['driver_exposure']} vs {blk['derived_gross']}")
+    check("a symbol absent from the resolved map still lands on a driver",
+          sum(1 for d in blk["driver_exposure"]) >= 1 and
+          "AI_DATACENTER_CAPEX" in blk["driver_exposure"])
+
+    wc = blk["worst_case"]
+    check("worst case is determinable from the live limits", wc.get("determinable") is True,
+          f"{wc}")
+    if wc.get("determinable"):
+        check("worst case names its binding constraint",
+              wc["binding"] in ("gross_cap", "name_count"))
+        check("gross is min(requested, cap) -- the 28 Aug arithmetic",
+              abs(wc["gross"] - min(wc["requested_gross"], wc["gross_cap"])) < 1e-9)
+        check("worst_case = -gross x stop, no other formula",
+              abs(wc["worst_case_fraction"] - round(-wc["gross"] * wc["stop_fraction"], 6)) < 1e-9)
+        check("the risk profile is named, not implied", bool(wc.get("profile")))
+
+
+def test_worst_case_refuses_visibly_when_limits_are_unreadable():
+    """A guard derives its inputs or refuses -- an unreadable limit must
+    produce `determinable: False` WITH a reason, never a missing bound."""
+    from alpha import tracker as T
+    from scripts import prediction_book as PB
+
+    class _Ghost:  # a book no fleet mandate knows
+        book = "hack99"; name = "ghost"; k = 1; max_notional = 0.10
+        rank = "x"; exclude_past_winners = False; requires_catalyst = False
+        min_coverage_bucket = None; max_coverage_bucket = None
+        min_dollar_volume = None; max_sector_share = None; max_downside = None
+
+    port = {"k_target": 1, "n_selected": 0, "max_notional_each": 0.10,
+            "rank_distinct_values": 0, "ranking_is_degenerate": False,
+            "exclude_past_winners": False, "requires_catalyst": False,
+            "min_coverage_bucket": None, "max_coverage_bucket": None,
+            "min_dollar_volume": None, "max_sector_share": None,
+            "max_names_per_sector": None, "max_downside": None,
+            "holdings": [], "candidate_pool": 0, "eligible": 0,
+            "excluded_by_reason": {}, "sector_notional": {}}
+    blk = PB._portfolio_block(port, _Ghost, {})
+    wc = blk["worst_case"]
+    check("unreadable limits -> determinable False", wc.get("determinable") is False, f"{wc}")
+    check("and the refusal carries its reason", bool(wc.get("reason")))
+
+
+def test_source_versions_and_honest_authority():
+    """§1a: the seal names the code that sealed it, and the authority text no
+    longer denies what an enabled selector brain explicitly does."""
+    from scripts import prediction_book as PB
+    sv = PB._source_versions()
+    for k in ("code_commit", "seal_script", "portfolio_module",
+              "selector_brain", "rule_generator", "rule_registered"):
+        check(f"source_versions carries {k}", k in sv, f"{sorted(sv)}")
+    check("rule_generator matches the frozen contract",
+          sv["rule_generator"] == "murat_rule_v1", f"{sv['rule_generator']}")
+    check("code_commit is a string or an honest None",
+          sv["code_commit"] is None or isinstance(sv["code_commit"], str))
+
+    src = Path(PB.__file__).read_text(encoding="utf-8")
+    check("the false 'nothing may influence an order' text is gone",
+          "Nothing in this file may size, order or influence an order" not in src)
+    check("the authority text names both selectors",
+          src.count("NOT SELF-EXECUTING") >= 2)
+
+
 def _run_all() -> int:
     import traceback
     tests = [(n, f) for n, f in sorted(globals().items())

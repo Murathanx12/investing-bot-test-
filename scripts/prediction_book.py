@@ -438,6 +438,97 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
     return rows, prov, cands
 
 
+def _source_versions() -> dict:
+    """Which code sealed this book (§1a, brief g). AAT_BUILD_COMMIT first, for
+    the same reason as `agent_loop._commit`: in the deployed container `.git`
+    is not shipped and `git rev-parse` has always failed there. A dirty tree is
+    stamped `+dirty` -- a seal from uncommitted code should say so."""
+    import subprocess
+    commit = os.getenv("AAT_BUILD_COMMIT", "").strip() or None
+    if not commit:
+        try:
+            commit = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=str(ROOT), text=True, timeout=10).strip()
+            if subprocess.check_output(["git", "status", "--porcelain"],
+                                       cwd=str(ROOT), text=True, timeout=10).strip():
+                commit += "+dirty"
+        except (OSError, subprocess.SubprocessError):
+            commit = None
+    return {
+        "code_commit": commit,
+        "seal_script": "scripts/prediction_book.py",
+        "portfolio_module": "alpha.tracker",
+        "selector_brain": "alpha.brains.tracker_portfolio",
+        "rule_generator": RULE_GENERATOR,
+        "rule_registered": murat_rule.CONTRACT["registered"],
+    }
+
+
+def _portfolio_block(port: dict, p, driver_of: dict[str, str]) -> dict:
+    """One book's sealed block from an already-built portfolio (§1a, brief g).
+
+    Three derived fields beyond the holdings, so the seal answers "is this one
+    hidden bet?" and "what is the dollar bound?" by itself:
+
+    - `driver_exposure`: Σ|notional| per causal driver, via `drivers`. Twelve
+      sectors that are one driver show up here as one number.
+    - `derived_gross`: Σ|notional| actually selected -- the gross this book
+      REQUESTS, before any runner cap.
+    - `worst_case`: from `alpha.tracker.worst_case` with the cap and stop read
+      from the modules that ENFORCE them (`scripts.tracker._limits_for`), the
+      binding constraint named. When the limits cannot be read the block says
+      `determinable: False` WITH THE REASON, never a silently absent bound --
+      a guard derives its inputs or refuses (CLAUDE.md, monday_gate lesson).
+    """
+    holdings = [{"symbol": h["symbol"], "notional": h["notional"],
+                 "sector": h["sector"], "rank_value": h["rank_value"],
+                 "exp_return": h["exp_return"],
+                 "downside_5pct": h["downside_5pct"],
+                 "confidence": h["confidence"],
+                 "numbers_source": h["numbers_source"]}
+                for h in port["holdings"]]
+    derived_gross = round(sum(abs(float(h["notional"] or 0.0)) for h in holdings), 4)
+    try:
+        from scripts.tracker import _limits_for
+        gross_cap, stop, profile = _limits_for(p.book)
+        wc = _tracker.worst_case(n=port["n_selected"], notional_each=p.max_notional,
+                                 stop_fraction=stop, gross_cap=gross_cap)
+        wc["profile"] = profile
+        wc["determinable"] = True
+    except (Exception, SystemExit) as exc:  # _limits_for REFUSES via SystemExit
+        wc = {"determinable": False, "reason": f"{type(exc).__name__}: {exc}"}
+    return {
+        "book": p.book, "personality": p.name, "ranking": p.rank,
+        "k_target": port["k_target"], "n_selected": port["n_selected"],
+        "max_notional_each": port["max_notional_each"],
+        "rank_distinct_values": port["rank_distinct_values"],
+        "ranking_is_degenerate": port["ranking_is_degenerate"],
+        "constraints": {
+            "exclude_past_winners": port["exclude_past_winners"],
+            "requires_catalyst": port["requires_catalyst"],
+            "min_coverage_bucket": port["min_coverage_bucket"],
+            "max_coverage_bucket": port["max_coverage_bucket"],
+            "min_dollar_volume": port["min_dollar_volume"],
+            "max_sector_share": port["max_sector_share"],
+            "max_names_per_sector": port["max_names_per_sector"],
+            "max_downside": port["max_downside"],
+        },
+        # The ONLY thing the runner is allowed to act on. Symbol and weight,
+        # decided before the open, frozen by the hash.
+        "holdings": holdings,
+        "candidate_pool": port["candidate_pool"], "eligible": port["eligible"],
+        "excluded_by_reason": port["excluded_by_reason"],
+        "sector_notional": port["sector_notional"],
+        "driver_exposure": {d: round(v, 4) for d, v in sorted(
+            drivers.notional_by_driver(
+                {h["symbol"]: float(h["notional"] or 0.0) for h in holdings},
+                driver_of).items())},
+        "derived_gross": derived_gross,
+        "worst_case": wc,
+    }
+
+
 def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
     """The sealed book over the tracker's candidate list. One generator, all numbers."""
     rows, prov, cands = tracker_rows()
@@ -489,36 +580,8 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
     # `tracker_portfolio` brain; sealing is not enabling.
     portfolios = {}
     for p in _tracker.PERSONALITIES:
-        port = _tracker.build_portfolio(cands, p)
-        portfolios[p.book] = {
-            "book": p.book, "personality": p.name, "ranking": p.rank,
-            "k_target": port["k_target"], "n_selected": port["n_selected"],
-            "max_notional_each": port["max_notional_each"],
-            "rank_distinct_values": port["rank_distinct_values"],
-            "ranking_is_degenerate": port["ranking_is_degenerate"],
-            "constraints": {
-                "exclude_past_winners": port["exclude_past_winners"],
-                "requires_catalyst": port["requires_catalyst"],
-                "min_coverage_bucket": port["min_coverage_bucket"],
-                "max_coverage_bucket": port["max_coverage_bucket"],
-                "min_dollar_volume": port["min_dollar_volume"],
-                "max_sector_share": port["max_sector_share"],
-                "max_names_per_sector": port["max_names_per_sector"],
-                "max_downside": port["max_downside"],
-            },
-            # The ONLY thing the runner is allowed to act on. Symbol and weight,
-            # decided before the open, frozen by the hash.
-            "holdings": [{"symbol": h["symbol"], "notional": h["notional"],
-                          "sector": h["sector"], "rank_value": h["rank_value"],
-                          "exp_return": h["exp_return"],
-                          "downside_5pct": h["downside_5pct"],
-                          "confidence": h["confidence"],
-                          "numbers_source": h["numbers_source"]}
-                         for h in port["holdings"]],
-            "candidate_pool": port["candidate_pool"], "eligible": port["eligible"],
-            "excluded_by_reason": port["excluded_by_reason"],
-            "sector_notional": port["sector_notional"],
-        }
+        portfolios[p.book] = _portfolio_block(_tracker.build_portfolio(cands, p),
+                                              p, driver_of)
 
     payload = {
         "schema": "prediction-book-3",
@@ -534,6 +597,7 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
             "trades today. A book listed here is not thereby live: it trades only "
             "on an account whose AAT_LOOP_BRAINS contains `tracker_portfolio`."),
         "universe_source": prov,
+        "source_versions": _source_versions(),
         "murat_rule_contract": murat_rule.CONTRACT,
         "murat_rule_prior": prior,
         "claims_by_generator": {RULE_GENERATOR: rule_claims},
@@ -550,7 +614,14 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
         "claims_made": rule_claims,
         "skipped": {},
         "driver_taxonomy": driver_note,
-        "authority": "ZERO SIZE. Nothing in this file may size, order or influence an order.",
+        "authority": (
+            "NOT SELF-EXECUTING. This file sizes and orders NOTHING by itself. It becomes "
+            "tradable only on an account whose AAT_LOOP_BRAINS names an enabled selector -- "
+            "`murat_rule` for per-name claims, `tracker_portfolio` for `portfolios[book]` -- "
+            "and admission may CUT what a selector takes from it, never raise it. The old "
+            "text ('nothing may influence an order') was false the moment a selector brain "
+            "was built to consume this artifact; an artifact must not deny the authority "
+            "an enabled brain explicitly exercises over it."),
         "claiming": True,
         "evidence_caveat": (
             "THE BASE RATE IS TRANSFERRED, NOT MEASURED HERE. `p_up` on every row below comes "
@@ -720,7 +791,14 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None,
         "claim_fraction": CLAIM_FRACTION,
         "skipped": skipped,
         "driver_taxonomy": driver_note,
-        "authority": "ZERO SIZE. Nothing in this file may size, order or influence an order.",
+        "authority": (
+            "NOT SELF-EXECUTING. This file sizes and orders NOTHING by itself. It becomes "
+            "tradable only on an account whose AAT_LOOP_BRAINS names an enabled selector -- "
+            "`murat_rule` for per-name claims, `tracker_portfolio` for `portfolios[book]` -- "
+            "and admission may CUT what a selector takes from it, never raise it. The old "
+            "text ('nothing may influence an order') was false the moment a selector brain "
+            "was built to consume this artifact; an artifact must not deny the authority "
+            "an enabled brain explicitly exercises over it."),
         "claiming": CLAIMING,
         "evidence_caveat": (
             "Measured on 152 symbols over 11 date blocks: ZERO of 29 features have a 95% CI "
