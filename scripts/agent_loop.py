@@ -60,7 +60,7 @@ log = logging.getLogger("loop")
 #: slow pass, it is a stuck one, and the next cycle re-reads the venue anyway.
 #: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
 #: for why this is the proportionate fix and venue-side structure stops are not.)
-TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.premarket_digest": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900,
+TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.premarket_digest": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900, "scripts.decision_writeback": 600,
               "scripts.fill_audit": 300}
 
 
@@ -265,6 +265,12 @@ def _cycle(client, args, last: dict) -> int:
             # The SECOND autopsy question: which of today's biggest movers did we never
             # generate? A miss with pre-open evidence is a research task (vision §4.3).
             _run("scripts.discovery_autopsy", live=False)
+            # THE WRITE-BACK (checkpoint queue item 5): every sealed decision gets a
+            # (day, symbol, book) row -- submitted, refused-with-reason, or
+            # never_reached -- and matured horizon returns append on later nights.
+            # Runs here because the ledger holding the refusal rows lives on THIS
+            # container's volume. A role with no sealed book writes nothing, loudly.
+            _run("scripts.decision_writeback", "--grade", live=False)
         if (getattr(args, "window_universe", False) and args.refresh_window_minutes
                 and now - last.get("window", 0.0) >= args.refresh_window_minutes * 60):
             # The calendar moves: a name that reacts tomorrow is not in today's
