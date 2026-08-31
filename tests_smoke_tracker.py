@@ -768,9 +768,6 @@ def _run_all() -> int:
     return 1 if _fails else 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(_run_all())
-
 
 # ------------------------------------------------- 2026-08-31: floors, caps, age
 
@@ -939,3 +936,12 @@ def test_the_books_are_analysis_and_the_only_bridge_to_an_order_is_named():
         assert token not in loop_src, (
             f"agent_loop now references {token!r}: the books may have been wired "
             f"to the runner. Update the connection map and this test.")
+
+
+# The __main__ guard MUST stay at the very bottom. `_run_all` collects from
+# globals() at call time, so any test defined BELOW the guard is invisible to it:
+# on 2026-08-31 five new checks sat under it and run_tests.py counted 49 while
+# pytest counted 54, reporting ALL PASS over five checks that never executed.
+# A check that did not run is not a check that passed.
+if __name__ == "__main__":
+    raise SystemExit(_run_all())

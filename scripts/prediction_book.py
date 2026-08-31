@@ -339,7 +339,7 @@ def rule_predictions(rows: list[dict], prior: dict, driver_of: dict[str, str]) -
 # ------------------------------------------------------------------- the build
 
 
-def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
+def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
     """Book rows built from the TRACKER instead of the corpus. (rows, provenance).
 
     WHY THE TRACKER AND NOT THE CORPUS
@@ -429,16 +429,36 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
             "names carry no corpus rows; scoring those as zero would read 'not covered' as "
             "'no events happened'. A generator with no inputs says so."),
     }
-    return rows, prov
+    # `cands` is returned ALONGSIDE the reshaped rows, not instead of them. The
+    # reshaped row is what the rule reads (`target_ratio`, `days_to_next_catalyst`);
+    # the tracker row is what the PERSONALITIES read (`upside`, `median_dollar_volume`,
+    # `coverage_source`, `status`). Handing `rows` to `build_portfolio` returns an
+    # empty book in silence, because every filter reads a key that is not there --
+    # which is why the two shapes are now returned together and named apart.
+    return rows, prov, cands
 
 
 def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
     """The sealed book over the tracker's candidate list. One generator, all numbers."""
-    rows, prov = tracker_rows()
+    rows, prov, cands = tracker_rows()
     prior = rule_prior()
     driver_of, driver_note = drivers.resolve([r["symbol"] for r in rows])
     predictions = rule_predictions(rows, prior, driver_of)
     rule_claims = sum(1 for p in predictions if p["claims"])
+
+    # The personalities rank on the RULE's numbers, so they have to be carried
+    # back onto the tracker rows before the books are built -- exactly what
+    # `scripts/tracker.py --portfolios` does via `merge_book_numbers`. Without
+    # this the ratio rankings see None and every name ranks -inf, which is an
+    # empty book that took the same code path as a full one.
+    _pred_by_symbol = {p["symbol"]: p for p in predictions}
+    for _c in cands:
+        _p = _pred_by_symbol.get(_c["symbol"])
+        if not _p:
+            continue
+        for _k in ("exp_return", "downside_5pct", "confidence", "p_up_21d"):
+            _c[_k] = _p.get(_k)
+        _c["numbers_source"] = "rule"
 
     # Carry the tracker's own columns onto every prediction so a reader can see
     # WHICH universe rule the name passed as well as which clause the rule read.
@@ -459,12 +479,60 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
         d["ranked"] += 1
         d["claimed"] += 1 if p["claims"] else 0
 
+    # THE ARTERY (2026-08-31). Until now the seal carried per-name CLAIMS and
+    # nothing else, so `murat_rule` traded claimers -- never hack3/hack4/hack6.
+    # The personalities, their rankings, sector caps, coverage bands, liquidity
+    # floors and downside limits lived only in a PRINT. Sealing the exact
+    # holdings and weights here puts them inside `content_sha256`, which is what
+    # makes "the runner traded what I inspected" a checkable statement instead
+    # of a hope. Nothing acts on this block unless an account enables the
+    # `tracker_portfolio` brain; sealing is not enabling.
+    portfolios = {}
+    for p in _tracker.PERSONALITIES:
+        port = _tracker.build_portfolio(cands, p)
+        portfolios[p.book] = {
+            "book": p.book, "personality": p.name, "ranking": p.rank,
+            "k_target": port["k_target"], "n_selected": port["n_selected"],
+            "max_notional_each": port["max_notional_each"],
+            "rank_distinct_values": port["rank_distinct_values"],
+            "ranking_is_degenerate": port["ranking_is_degenerate"],
+            "constraints": {
+                "exclude_past_winners": port["exclude_past_winners"],
+                "requires_catalyst": port["requires_catalyst"],
+                "min_coverage_bucket": port["min_coverage_bucket"],
+                "max_coverage_bucket": port["max_coverage_bucket"],
+                "min_dollar_volume": port["min_dollar_volume"],
+                "max_sector_share": port["max_sector_share"],
+                "max_names_per_sector": port["max_names_per_sector"],
+                "max_downside": port["max_downside"],
+            },
+            # The ONLY thing the runner is allowed to act on. Symbol and weight,
+            # decided before the open, frozen by the hash.
+            "holdings": [{"symbol": h["symbol"], "notional": h["notional"],
+                          "sector": h["sector"], "rank_value": h["rank_value"],
+                          "exp_return": h["exp_return"],
+                          "downside_5pct": h["downside_5pct"],
+                          "confidence": h["confidence"],
+                          "numbers_source": h["numbers_source"]}
+                         for h in port["holdings"]],
+            "candidate_pool": port["candidate_pool"], "eligible": port["eligible"],
+            "excluded_by_reason": port["excluded_by_reason"],
+            "sector_notional": port["sector_notional"],
+        }
+
     payload = {
-        "schema": "prediction-book-2",
+        "schema": "prediction-book-3",
         "day": day,
         "sealed_at_utc": seal_utc,
         "generator": RULE_GENERATOR,
         "generators": [RULE_GENERATOR],
+        "portfolios": portfolios,
+        "portfolios_note": (
+            "EXACT holdings and weights per book, sealed inside content_sha256. "
+            "The `tracker_portfolio` brain reads THIS and nothing else -- it does "
+            "not re-rank, and a tracker refresh after the seal cannot change what "
+            "trades today. A book listed here is not thereby live: it trades only "
+            "on an account whose AAT_LOOP_BRAINS contains `tracker_portfolio`."),
         "universe_source": prov,
         "murat_rule_contract": murat_rule.CONTRACT,
         "murat_rule_prior": prior,

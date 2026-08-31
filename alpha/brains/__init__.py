@@ -18,7 +18,8 @@ import logging
 from typing import Any, Callable
 
 from alpha.brains import (council_vector, event_move, murat_rule, narrative_dispersion,
-                          options_attention, post_event_drift, relay, theme_basket, vol_gap)
+                          options_attention, post_event_drift, relay, theme_basket,
+                          tracker_portfolio, vol_gap)
 from alpha.brains.base import Forecast
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,13 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
     # and trades only what was written down before the open; if the book claimed
     # nothing, it declines every symbol and the account holds cash.
     "murat_rule": lambda client, sym, h, **kw: murat_rule.forecast(client, sym, h),
+    # THE ARTERY (2026-08-31). `murat_rule` trades the sealed book's per-name
+    # CLAIMS; this one trades the sealed PORTFOLIO -- hack3/hack4/hack6's exact
+    # holdings and weights, chosen before the open and frozen in the hash. They
+    # are different selectors over the same seal and are registered apart on
+    # purpose: enabling one does NOT enable the other, and a handoff that says
+    # "the tracker portfolio is live" is only true of this one.
+    "tracker_portfolio": lambda client, sym, h, **kw: tracker_portfolio.forecast(client, sym, h),
 }
 
 
