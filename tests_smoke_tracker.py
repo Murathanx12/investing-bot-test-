@@ -885,3 +885,57 @@ def test_stale_tracker_data_is_refused_and_the_age_is_in_sessions():
             pass
         else:
             raise AssertionError(f"assert_fresh({bad!r}) should have refused")
+
+
+def test_the_books_are_analysis_and_the_only_bridge_to_an_order_is_named():
+    """WHAT THE BOOKS ACTUALLY REACH, pinned because a handoff got it wrong.
+
+    The 2026-08-31 connection map read:
+
+        | book -> portfolios (hack3/4/6) | ranked names | ... |
+        | portfolios -> runner | orders  | admission, day latch | none known |
+
+    "none known" was wrong: there is no such link. `build_portfolio` is called
+    by `scripts/tracker.py --portfolios` (a print) and by these tests, and by
+    nothing the runner can reach -- `scripts.reachability` says so out loud
+    (`ORPHAN alpha.tracker`), buried among 22 other orphans, which is why a
+    session read past it and shipped a fix believing it would trade Monday.
+
+    The ONLY path from a tracker candidate to an order is:
+
+        tracker --refresh
+          -> prediction_book --seal --universe tracker   (claims per name)
+          -> --publish  (docs/seed/predictions/<day>.json; /app/state is a
+             VOLUME and shadows state/, so the seed dir is the delivery path)
+          -> the `murat_rule` BRAIN, which reads that file
+          -> only if that brain is in AAT_LOOP_BRAINS for an account.
+
+    So enabling a book is an env-var decision on Railway, invisible from here.
+    This test pins the half that IS visible: the personalities do not reach the
+    runner on their own, and `murat_rule` is the named bridge. If someone wires
+    the books directly later, this test should be REWRITTEN, not deleted -- the
+    point is that the answer is stated somewhere a reader will hit.
+    """
+    import inspect
+    from alpha import brains
+
+    # The bridge exists and is registered under the name the loop asks for.
+    assert "murat_rule" in brains.BRAINS, \
+        "the only sealed-book -> order bridge is no longer registered"
+    assert "murat_rule" not in brains.QUARANTINED, (
+        "the bridge is quarantined -- it cannot trade even if an account enables it")
+
+    # The bridge reads a SEALED BOOK, not the personalities.
+    from alpha.brains import murat_rule as bridge
+    src = inspect.getsource(bridge)
+    assert "SEED_BOOKS" in src and "predictions" in src
+    assert "build_portfolio" not in src, \
+        "the bridge now calls build_portfolio -- rewrite this test and the map"
+
+    # The personalities are not reachable from the runner's entry point.
+    import scripts.agent_loop as loop
+    loop_src = inspect.getsource(loop)
+    for token in ("build_portfolio", "PERSONALITIES", "alpha.tracker", "alpha import tracker"):
+        assert token not in loop_src, (
+            f"agent_loop now references {token!r}: the books may have been wired "
+            f"to the runner. Update the connection map and this test.")
