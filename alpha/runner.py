@@ -700,10 +700,19 @@ def share_structure(client: AlpacaPaper, forecast: Forecast, snapshot, expiry: s
         bars = _daily_bars(client, symbol, equity.GAP_LOOKBACK + 20)
     except Exception as exc:                                              # noqa: BLE001
         logger.info("%s: bars for the gap allowance not read (%s); floor applies", symbol, exc)
-    implied = snapshot.implied_move(expiry) or 0.0
+    # A name with NO listed options (ABAT and ALMU on 2026-08-31 -- exactly the
+    # small-caps the tracker book selects) must still build a SHARE structure:
+    # the chain is an input to the option builders, not a precondition for
+    # owning stock. Unguarded, `None.implied_move` threw here and "share
+    # structure not built" silently shrank a sealed 5-name book to 3. The gap
+    # charge falls back to the name's own measured overnight gaps + floor,
+    # which is the correct stress source when no options market exists.
+    implied = (snapshot.implied_move(expiry) or 0.0) if snapshot is not None else 0.0
     charge, charge_note = equity.stress_charge(bars, implied_move=implied, event_pending=event_pending)
     return equity.shares(
-        symbol, spot=snapshot.spot, bid=bid, ask=ask, direction=direction,
+        # `spot`, not `snapshot.spot`: the local carries the /snapshot repair
+        # and survives a None chain; `snapshot.spot` does neither.
+        symbol, spot=spot, bid=bid, ask=ask, direction=direction,
         implied_move=implied, charge_fraction=charge, charge_note=charge_note,
         horizon_days=forecast.horizon_days, days_to_expiry=dte, shortable=shortable,
         quote={"symbol": symbol, "bid": bid, "ask": ask, "bid_size": raw.get("bs"),
