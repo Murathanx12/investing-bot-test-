@@ -1,3 +1,62 @@
+## SESSION 31 (2026-08-31, Fable, open -> ~10:30 ET) -- THE BOOKS TRADE; THE RUNNER STOPPED RE-ADJUDICATING THE SEAL
+
+**RESULT IMPROVEMENT: TWO SEALED TRACKER BOOKS HOLD LIVE POSITIONS.** First
+fills any tracker book ever generated. Suite 63 / 2,755 green. Build `34f08ca`
+on hack3/hack4/hack6 via `fleet --deploy <role> --up`.
+
+**Fills (10:15 ET pass, sealed weights expressed to the dollar, stops resting
+at the broker):**
+- hack4 (profit-max k=5 x 10%): NB 2394@4.15, LAES 3991@2.49, ABAT 3778@2.63,
+  ALMU 750@13.23 (~$9.9k each = 10%). RZLV OUT: its own sealed exp_return is
+  -0.0116 -> brain forecasts DOWN -> long-only book refuses. Correct, recorded.
+- hack3 (balanced k=10 x 8.3%): its 4 positive-exp names submitted -- LAES,
+  ORCL, RZLT filled ~$7.5k each; LOVE limit was working at handoff. 6 names
+  out (negative exp_return).
+- hack6 (diversified k=15 x 6%): ZERO entries, correctly -- ALL 15 sealed
+  names carry negative exp_return. An empty book with 15 recorded reasons.
+
+**The morning's core fix (commit 34f08ca): three gates re-adjudicated the seal.**
+5/5 names refused at the open by, in turn: Gate 2 MDM (a 0.25%/session book
+centre is never 5pp of chain disagreement), chain-width (most tracker names
+quote NO chain), then the cash-EV comparison (same centre -> cash always won).
+For forecasts carrying `sealed_notional` only: width = sealed downside model
+(|downside_5pct|/1.645, pre-open, under the hash); sizing expresses the sealed
+weight (risk = w x max_loss/notional); the cash-EV dissent is RECORDED on the
+verdict, not enforced. Gate 1 (spread fee), book limits, gross caps, opening
+range, sealed-weight clamp all still bind and only cut. Worst cases unchanged
+from the approved mandates: hack4 -3.00%/-18.3% - hack3 -6.64%/-23.3% -
+hack6 -2.70%/-13.0% (stop-case / all-gap-case).
+
+**Also this session:** hack3+hack6 mandates flipped to their own sealed books
+(e1df061; old selectors are SHADOW, adjudicated rules intact there) -- a live
+breadth A/B on T13's ridge - **the write-back shipped** (bd719b1): nightly, in
+container, one append-only row per (day, symbol, book): sealed numbers,
+submitted/refused-with-reason/never_reached, then matured 1/5/21/63/126/252-
+session grades FOR REFUSED NAMES TOO (the price of a refusal; feeds T15) -
+opening-range refusals at 09:31 all recorded - Finnhub recovered (hack2's
+window universe self-heals; NIO/MDT print 09-01, PANW/MDB 09-02).
+
+**NEXT SESSION, IN ORDER (for Opus and all):**
+1. **Seal-generator contradiction (research, before tomorrow's seal):** rank
+   (upside x consensus) and calibrated exp_return disagree wholesale --
+   RZLV ranked #1 with negative exp_return; hack6's book is 15/15 negative;
+   exp_return is a CONSTANT 0.00246 across names (a rule base rate, "a
+   constant score is a hidden delegation to the sort"). Decide: should books
+   select on exp_return sign? Should profit_max rank incorporate it? This is
+   the S30b toxicity result speaking -- do not paper over it to fill books.
+2. Verify tonight's in-container write-back ran (logs: "decision_writeback";
+   volume file decision_outcomes/2026-08-31_<book>.jsonl) and tomorrow's seal
+   order: refresh -> --backfill-prices -> seal -> --publish -> push.
+3. hack1 anchor core still attended: `python -m scripts.competition_book`
+   after 15:45 ET, human places or explicitly delegates.
+4. Rebuild the observation universe (`build(scope="observe")`) -- held all
+   day, still pending; then news-universe reachability in one lane.
+5. Murat's holder-provenance idea: aegis-finance
+   `docs/IDEA_2026-08-31_HOLDER_PROVENANCE_TO_THE_ROOTS.md` (H1-H7, data
+   roots, the BLK+VG>=15% safety-vs-return scope caution). Start at §4.
+6. Judging 09-04 11:00 ET. Ledger hash chain: still broken since 25 Aug (6
+   declared epochs) -- logged, never silently repaired.
+
 > ## SESSION 20d (2026-08-29 night, Fable) -- NEWS IS NUMBERS NOW; THE BLIND LLM READ HAS NO DIRECTION
 >
 > **RESULT IMPROVEMENT: NONE in P&L. Two measured verdicts that decide what the

@@ -61,6 +61,16 @@ signal-starved until the window universe refreshes post-Finnhub-outage and this
 week's printers (NIO/MDT 09-01, PANW/MDB 09-02) arrive; hack5 holds its two
 convexity positions.
 
+## 3b. OUTCOME (10:15 ET): the books trade
+
+After 34f08ca (the runner expresses the sealed weight instead of
+re-adjudicating the seal through three options-edge gates — see HANDOFF.md
+session 31): hack4 filled NB/LAES/ABAT/ALMU at ~$9.9k each (10%) with stops
+resting; RZLV out on its own negative sealed exp_return. hack3 filled
+LAES/ORCL/RZLT (~$7.5k = 8.3% each), LOVE working. hack6 entered nothing,
+correctly — all 15 sealed names carry negative exp_return. The
+rank-vs-exp_return contradiction is queued as next session's item 1.
+
 ## 3a. The first live entry pass (09:31 ET) — verified, and a refusal is a finding
 
 hack4's 09:31 pass, from the container logs: `sealed portfolio hack4
