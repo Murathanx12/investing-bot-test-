@@ -24,7 +24,11 @@ def check(name, ok, detail=""):
 
 print("\n-- fleet: six mandates, all executable")
 check("six roles named hack1..hack6", list(fleet.FLEET) == [f"hack{i}" for i in range(1, 7)], str(list(fleet.FLEET)))
-check("hack6 is a BLEND of three selectors", len(fleet.FLEET["hack6"].brains) >= 3)
+check("three tracker books (hack3/4/6) run the sealed selector, shares only",
+      all(fleet.FLEET[r].brains == ("tracker_portfolio",) and fleet.FLEET[r].structure_kinds == ("long_shares",)
+          for r in ("hack3", "hack4", "hack6")))
+check("hack6's council blend survives as SHADOW (>=3 comparators)", len(fleet.FLEET["hack6"].shadow) >= 3)
+check("hack3's adjudicated thesis brains survive as SHADOW", set(fleet.FLEET["hack3"].shadow) >= {"theme_basket", "murat_rule"})
 check("1-2 safe, rest risky", 1 <= len(fleet.SAFE) <= 2 and len(fleet.RISKY) == 6 - len(fleet.SAFE), f"{fleet.SAFE} {fleet.RISKY}")
 for r, m in fleet.FLEET.items():
     check(f"{r}: role name valid", r == r.lower() and r.replace("_", "").isalnum() and r not in ("dev", "competition"))

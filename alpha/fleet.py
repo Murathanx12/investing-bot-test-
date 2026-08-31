@@ -73,12 +73,19 @@ FLEET: dict[str, Mandate] = {
         brains=("post_event_drift",), shadow=("narrative_dispersion",), profile="aggressive", universe="window",
         rank_objective="median", extra_args=("--window-universe",)),
     "hack3": Mandate(
-        role="hack3", tier="RISKY", label="THESIS: Murat's future-state basket",
-        question="Do robotics-sensors, quantum, nuclear, storage, grid and raw-materials names beat IWM this week when bought NEAR THEIR 20-SESSION HIGH (half tilt)? The original dip-buy (20-50% drawdown) was adjudicated against on CRSP 2013-2024 (-0.31%/5d, t -2.35) and is REFUSED by the brain; any dip entry is a typed human thesis (scripts.thesis).",
-        brains=("theme_basket", "murat_rule"), profile="basket", universe="themes_plus_rule",
+        role="hack3", tier="RISKY", label="TRACKER BALANCED: sealed upside x consensus, k=10, shares only",
+        question="Same sealed-tracker artery as hack4 at double the breadth (k=10 x 8.3%): does balanced breadth beat profit-max k=5 (hack4) and diversified k=15 (hack6) on REAL FILLS? T13 found a ridge (prose arms beat at k=5, collapsed at k=10) -- this is the live test of that ridge.",
+        brains=("tracker_portfolio",), shadow=("theme_basket", "murat_rule"), profile="basket", universe="themes_plus_rule",
         allow_maximum=True,
-        rank_objective="median", structure_kinds=("long_shares", "bull_call_spread", "long_call"),
-        caveat="ADJUDICATED 28 Aug (Aegis knife_basket_backtest, CRSP 2013-2024): the -50..-20% drawdown cell LOSES -0.31%/5d (t -2.35); only >50%-down at >100% vol pays (+2.32%, t 2.60, n=88). theme_basket now buys only that cell and near-high names; the middle is declined with the number. Graded vs IWM and vs `hack2`."),
+        rank_objective="median", structure_kinds=("long_shares",),
+        caveat="APPROVED by Murat 2026-08-31 ('make sure all the other paper accounts are also wired "
+               "and not empty ... up to the engine'): the thesis basket and murat_rule move to SHADOW "
+               "with their adjudicated rules intact (dip cell -0.31%/5d t -2.35 still refused there). "
+               "Shares only; sealed notional is a reduce-only ceiling; exact names from "
+               "portfolios[hack3] in the sealed artifact. Worst case BOTH ways, 2026-08-31 seal: "
+               "stop-based -6.64% AND all-names-gap-to-modelled-5%-downside ~-23.3% -- WORSE than "
+               "hack4's gap case because breadth was bought with gross (83% vs 50%), a stated "
+               "property of the balanced personality, not an accident."),
     "hack4": Mandate(
         role="hack4", tier="RISKY", label="TRACKER PROFIT-MAX: sealed upside x consensus, shares only",
         question="Does upside x consensus + catalyst selection (sealed pre-open, k=5 x 10%) create better P&L and opportunity recall than measured drift (hack2) and balanced breadth (hack3)?",
@@ -98,11 +105,18 @@ FLEET: dict[str, Mandate] = {
         allow_maximum=False, rank_objective="mean", structure_kinds=("long_call", "bull_call_spread"),
         caveat="Long premium on 100%-vol names: the receipt says P(profit) ~33-51% per structure; this account exists to measure the tail, not to be the safe one."),
     "hack6": Mandate(
-        role="hack6", tier="RISKY", label="BLEND: council vector + drift + basket",
-        question="Does MIXING three independent selectors (council vector, post-print drift, theme basket) in one aggressive book beat each of them alone? (Murat: 'the best will be mixing them')",
-        brains=("council_vector", "post_event_drift", "theme_basket"), profile="aggressive", universe="window_plus_themes",
-        rank_objective="median", extra_args=("--window-universe", "--council"),
-        caveat="The council is fed by `scripts.dislocation_scan --deep` each morning; a day with no packets is a day this account holds cash, and that is recorded, not hidden."),
+        role="hack6", tier="RISKY", label="TRACKER DIVERSIFIED: sealed upside x consensus, k=15, shares only",
+        question="Same sealed-tracker artery at k=15 x 6%: does diversification keep the upside family's edge with the smallest worst case of the three tracker books (hack4 k=5, hack3 k=10)?",
+        brains=("tracker_portfolio",), shadow=("council_vector", "post_event_drift", "theme_basket"),
+        profile="aggressive", universe="window_plus_themes",
+        rank_objective="median", structure_kinds=("long_shares",),
+        extra_args=("--window-universe", "--council"),
+        caveat="APPROVED by Murat 2026-08-31 ('make sure all the other paper accounts are also wired "
+               "and not empty ... up to the engine'): the council blend moves to SHADOW (still fed by "
+               "scripts.dislocation_scan --deep; a packet-less day now trades the sealed book instead "
+               "of holding cash). Shares only; sealed notional is a reduce-only ceiling; exact names "
+               "from portfolios[hack6] in the sealed artifact. Worst case BOTH ways, 2026-08-31 seal: "
+               "stop-based -2.70% AND all-names-gap-to-modelled-5%-downside ~-13.0%."),
 }
 
 SAFE = tuple(r for r, m in FLEET.items() if m.tier == "SAFE")
