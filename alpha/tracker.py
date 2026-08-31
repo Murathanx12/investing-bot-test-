@@ -68,7 +68,7 @@ from __future__ import annotations
 import math
 import statistics as st
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 SCHEMA = "tracker-1"
 
@@ -244,6 +244,94 @@ UPSIDE_IMPLAUSIBLE_AT = 4.00
 STATUSES = ("STRONG_BUY", "BUY", "HOLD", "SELL", "DROP", "WATCH")
 #: Statuses that put a name on the candidate list.
 CANDIDATE_STATUSES = ("STRONG_BUY", "BUY")
+
+
+# --------------------------------------------------------------------------
+# Freshness -- the LOCK had a staleness rule and the DATA did not
+# --------------------------------------------------------------------------
+#
+# The nightly refresh takes a lock with a staleness rule, so a dead refresh
+# cannot wedge the next one. Nothing checked the age of what it LEFT BEHIND.
+# `prediction_book.tracker_rows` calls `latest_day()`, which returns the newest
+# file on disk regardless of when it was written -- so a refresh that dies on
+# Sunday and again on Monday produces a Tuesday seal priced on Friday's closes,
+# reported with Tuesday's date and no warning anywhere. That is the house
+# failure mode exactly: green, silent, and wrong.
+#
+# Counted in SESSIONS, not calendar days. Monday reading Sunday's file is one
+# session old and perfectly normal; a calendar rule would refuse every Monday
+# and be switched off within a week.
+
+#: Sessions of age at which the seal and the portfolio builder REFUSE.
+MAX_TRACKER_AGE_SESSIONS = 2
+
+#: US market holidays inside any plausible window. Labor Day 2026 is 7 Sep,
+#: after the contest, so the set is empty -- STATED rather than assumed,
+#: because an empty holiday set is a claim about the calendar, not a default.
+TRACKER_HOLIDAYS: frozenset[str] = frozenset()
+
+
+class StaleTrackerData(RuntimeError):
+    """Raised when the tracker file being priced on is too old to use."""
+
+
+def _sessions_between(a: date, b: date) -> int:
+    """Trading sessions strictly after `a`, up to and including `b`."""
+    if b <= a:
+        return 0
+    n, cur = 0, a
+    while cur < b:
+        cur += timedelta(days=1)
+        if cur.weekday() < 5 and cur.isoformat() not in TRACKER_HOLIDAYS:
+            n += 1
+    return n
+
+
+def freshness(day: str | None, *, asof: str | None = None) -> dict:
+    """How old the tracker file for `day` is, in sessions. Never raises.
+
+    Returns `determinable: False` rather than a number when either date is
+    missing or unparseable. A guard DERIVES its input or REFUSES -- it does not
+    fall back to 0, which would read as "fresh" precisely when the pipeline is
+    broken enough to have lost the date.
+    """
+    if asof is None:
+        from alpha.exits import session_day     # lazy: keeps this module light
+        asof = session_day()
+    try:
+        d0 = date.fromisoformat(str(day))
+        d1 = date.fromisoformat(str(asof))
+    except (TypeError, ValueError):
+        return {"determinable": False, "day": day, "asof": asof,
+                "max_age_sessions": MAX_TRACKER_AGE_SESSIONS,
+                "reason": f"CANNOT DETERMINE: day={day!r} asof={asof!r} is not a date"}
+    age = _sessions_between(d0, d1)
+    return {"determinable": True, "day": str(day), "asof": str(asof),
+            "age_sessions": age, "max_age_sessions": MAX_TRACKER_AGE_SESSIONS,
+            "stale": age > MAX_TRACKER_AGE_SESSIONS,
+            "reason": (f"tracker data for {day} is {age} session(s) old as of {asof}"
+                       f" (limit {MAX_TRACKER_AGE_SESSIONS})")}
+
+
+def assert_fresh(day: str | None, *, asof: str | None = None,
+                 what: str = "tracker data") -> dict:
+    """`freshness`, but REFUSES. Raises `StaleTrackerData` when stale.
+
+    An undeterminable age is also a refusal here: the seal is about to commit
+    real orders to whatever this file says, and "I could not tell how old it
+    is" is not a licence to proceed.
+    """
+    f = freshness(day, asof=asof)
+    if not f["determinable"]:
+        raise StaleTrackerData(f"REFUSED: {what} -- {f['reason']}")
+    if f["stale"]:
+        raise StaleTrackerData(
+            f"REFUSED: {what} is {f['age_sessions']} sessions old "
+            f"({f['day']}, as of {f['asof']}); the limit is "
+            f"{MAX_TRACKER_AGE_SESSIONS}. The nightly refresh has probably died "
+            f"-- run `python -m scripts.tracker --refresh` and re-seal. Pricing "
+            f"Monday's book on stale closes is worse than not trading.")
+    return f
 
 
 # --------------------------------------------------------------------------
@@ -736,6 +824,19 @@ class Personality:
     exclude_past_winners: bool = None       # type: ignore[assignment]
     requires_catalyst: bool = False
     min_coverage_bucket: str | None = None
+    #: The TOP of the coverage band. A book with a floor and no ceiling is a
+    #: one-sided guard, and the one-sided version of this rule is what let
+    #: hack6 -- a 4-10 book -- fill with 26+ mega-caps whenever they qualified.
+    #: `min` and `max` are written in the same edit on purpose.
+    max_coverage_bucket: str | None = None
+    #: Median dollar volume floor. NOTE, so nobody reads more into this than is
+    #: there: `universe.MIN_DOLLAR_VOLUME` already screens the whole tracker at
+    #: $3m/day, so a $1m floor here excludes NOTHING today and is declared only
+    #: so the book states its own requirement rather than inheriting one. The
+    #: $5m floor on hack6 is the one that actually binds (580 -> 514 names on
+    #: 2026-08-30). `excluded_by_reason` reports the count either way, so an
+    #: inert floor is visible as inert rather than mistaken for a screen.
+    min_dollar_volume: float | None = None
     max_sector_share: float | None = None
     #: A hard CONSTRAINT on the downside, separate from the ranking. A ratio
     #: ranking is scale-free, which is the point of it and also its one hole:
@@ -765,12 +866,61 @@ class Personality:
 PERSONALITIES: tuple[Personality, ...] = (
     Personality("hack3", "balanced", k=10, max_notional=0.083,
                 rank="risk_adjusted_ratio", exclude_past_winners=True,
+                min_dollar_volume=1_000_000.0,
                 max_sector_share=0.30, max_downside=0.30),
     Personality("hack4", "profit_max", k=5, max_notional=0.10, rank="upside_x_consensus",
-                exclude_past_winners=False, requires_catalyst=True),
-    Personality("hack6", "preservation", k=15, max_notional=0.06, rank="confidence",
-                exclude_past_winners=False, min_coverage_bucket="4-10"),
+                exclude_past_winners=False, requires_catalyst=True,
+                min_dollar_volume=1_000_000.0, max_sector_share=0.20),
+    Personality("hack6", "preservation", k=15, max_notional=0.06,
+                rank="upside_downside_ratio", exclude_past_winners=False,
+                min_coverage_bucket="4-10", max_coverage_bucket="11-25",
+                min_dollar_volume=5_000_000.0, max_sector_share=0.18,
+                max_downside=0.20),
 )
+
+#: THE SECTOR CAP IS A NAME COUNT WEARING A NOTIONAL. `max_sector_share` is a
+#: fraction of equity because that is what the risk system reads, but it is
+#: CHOSEN as `names_allowed x max_notional`, so it must be re-derived whenever
+#: `k` or `max_notional` moves or it silently becomes a different rule:
+#:
+#:     hack3   3 x 0.083 = 0.249 -> 0.30   (3 of 10)
+#:     hack4   2 x 0.10  = 0.20  -> 0.20   (2 of 5)
+#:     hack6   3 x 0.06  = 0.18  -> 0.18   (3 of 15)
+#:
+#: Why at all: 20 of 21 names falling together on 28 Aug was ONE bet wearing 20
+#: tickers. A ranking column without a sector cap re-creates that in whichever
+#: sector is cheapest that day -- which is exactly how hack6's degenerate sort
+#: came out as 12 biotechs rather than 12 of anything else.
+SECTOR_CAP_NAMES: dict[str, int] = {"hack3": 3, "hack4": 2, "hack6": 3}
+
+#: WHY hack6 GAINED A `max_downside` IT WAS NOT ASKED FOR (2026-08-31).
+#:
+#: Not in the brief. It is here because the ranking change above CREATED the
+#: exposure and shipping one without the other would have been a regression
+#: introduced by a bug fix. With `confidence` constant the selection was
+#: arbitrary; `upside / |downside|` actively SELECTS FOR HIGH UPSIDE, and high
+#: upside is high vol, so the first build put this in the *preservation* book:
+#:
+#:     FRMI -52.5%   NB -41.6%   RZLV -38.0%   WVE -37.8%   APLD -35.1%
+#:     worst -52.5%, mean -27.4% -- against hack3's -30% CAP
+#:
+#: The preservation book was carrying more per-name downside than the balanced
+#: one, and hack6's stop is 3%: a name whose 5% quantile is -38% does not get
+#: stopped at -3%, it gaps through it. The stop and the downside cap have to
+#: agree or the stop is decoration.
+#:
+#: 0.20 was chosen off a measured sweep, not asserted. Eligible names at each
+#: cap, and whether the book still fills 15:
+#:
+#:     none 514 (15/15)  0.35 378 (15/15)  0.30 314 (15/15)  0.25 231 (15/15)
+#:     0.20 132 (15/15)  0.15  44 (15/15)  0.12  13 (13/15)  0.10 3 (3/15)
+#:
+#: A plateau from 0.35 to 0.15, a cliff below. 0.20 is mid-plateau with 8.8x
+#: headroom over the 15 it needs, so a thin refresh day still fills; 0.15 fills
+#: today on 44 names and is the edge of the cliff. Result: worst -18.7%, mean
+#: -14.5%, still 9 sectors. Tighter than balanced, which is what the word
+#: preservation has to mean or the personalities are only names.
+#: REVERT: delete `max_downside=0.20` from hack6 -- nothing else depends on it.
 
 
 def rank_value(row: dict, how: str) -> float:
@@ -800,6 +950,27 @@ def rank_value(row: dict, how: str) -> float:
     if how == "upside_x_consensus":
         up, cons = row.get("upside"), row.get("consensus")
         return neg if up is None or cons is None else up * cons
+    if how == "upside_downside_ratio":
+        # ADOPTED 2026-08-31, replacing `confidence` on hack6. `confidence` is
+        # `(clauses readable / 4) x min(1, date blocks / N)`: a property of how
+        # much of the ROW could be read, not of the name. Every name whose four
+        # clauses were readable scored the same 0.9170, so 607 eligible names
+        # carried 2 distinct values, the sort was a no-op, and Python's stable
+        # sort handed back insertion order -- which surfaced as 12 biotechs and
+        # 3 others. Same class as hack3's subtraction sorting on volatility:
+        # the column was not wrong, it was CONSTANT.
+        #
+        # `upside` (consensus target vs last close) and `downside_5pct` (the 5%
+        # normal quantile at the name's own realised vol) both vary per name,
+        # and their ratio is what "preservation" means: reward per unit of the
+        # name's own bad case. Deliberately NOT `risk_adjusted_ratio` -- that
+        # one divides `exp_return`, which carries the rule's p_up, and hack6 is
+        # the book that is supposed to rank on the STREET's number, not ours.
+        up, dn = row.get("upside"), row.get("downside_5pct")
+        if up is None or dn is None:
+            return neg
+        # A zero downside is an UNMEASURED downside, not a riskless name.
+        return neg if abs(dn) < 1e-6 else up / abs(dn)
     if how == "confidence":
         c = row.get("confidence")
         return neg if c is None else float(c)
@@ -877,6 +1048,31 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
             if br is None or need is None or br < need:
                 drop(f"coverage below {p.min_coverage_bucket}")
                 continue
+        if p.max_coverage_bucket:
+            # Same calibration refusal as the floor: a ceiling read against a
+            # Finnhub count that runs ~1.80x the IBES scale would admit a
+            # 40-analyst name into a 4-25 book.
+            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
+                drop("coverage on an uncalibrated scale",
+                     f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
+                     f"which {p.max_coverage_bucket} was not calibrated for")
+                continue
+            br, top = bucket_rank(r.get("coverage_bucket")), bucket_rank(p.max_coverage_bucket)
+            if br is None or top is None or br > top:
+                drop(f"coverage above {p.max_coverage_bucket}")
+                continue
+        if p.min_dollar_volume is not None:
+            # A GUARD DERIVES ITS INPUT OR REFUSES. An unreadable dollar volume
+            # is not a liquid name; passing it through on `or 0` would admit
+            # exactly the names the floor exists to keep out.
+            dv = r.get("median_dollar_volume")
+            if dv is None:
+                drop("dollar volume unreadable")
+                continue
+            if dv < p.min_dollar_volume:
+                drop(f"below the ${p.min_dollar_volume / 1e6:.0f}m/day liquidity floor",
+                     f"{r['symbol']}: ${dv / 1e6:.1f}m/day")
+                continue
         if rank_value(r, p.rank) == float("-inf"):
             drop(f"no {p.rank} value")
             continue
@@ -928,7 +1124,10 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
         "requires_catalyst": p.requires_catalyst,
         "exclude_past_winners": p.exclude_past_winners,
         "min_coverage_bucket": p.min_coverage_bucket,
+        "max_coverage_bucket": p.max_coverage_bucket,
+        "min_dollar_volume": p.min_dollar_volume,
         "max_sector_share": p.max_sector_share,
+        "max_names_per_sector": SECTOR_CAP_NAMES.get(p.book),
         "max_downside": p.max_downside,
         "holdings": picked,
         "candidate_pool": len(pool), "eligible": len(eligible),

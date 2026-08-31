@@ -796,6 +796,17 @@ def portfolios(day: str | None = None) -> int:
     prev_day = latest_day(before=day)
     tracker.apply_status(rows, prev_by_symbol={r["symbol"]: r for r in load_day(prev_day)}
                          if prev_day else {})
+    # The same age refusal the seal makes. A book printed from stale closes
+    # looks exactly like one printed from fresh closes, which is why this is
+    # checked rather than eyeballed.
+    fresh = tracker.freshness(day)
+    if not fresh["determinable"] or fresh["stale"]:
+        print(f"REFUSED: {fresh['reason']}")
+        print("  The nightly refresh has probably died. Run "
+              "`python -m scripts.tracker --refresh` before trusting any of this.")
+        return 1
+    print(f"  data:  {day} is {fresh['age_sessions']} session(s) old "
+          f"(limit {fresh['max_age_sessions']})")
     _n, note = merge_book_numbers(rows, day)
     print(f"  book:  {note}")
     _b, bnote = merge_brain_numbers(rows, day)

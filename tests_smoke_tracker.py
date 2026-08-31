@@ -24,6 +24,12 @@ from __future__ import annotations
 
 from alpha import tracker as T
 
+#: Every portfolio fixture needs a dollar volume now that the books carry a
+#: liquidity floor. An UNREADABLE volume is a refusal, not a pass, so a fixture
+#: that omits it is correctly dropped -- these tests are about rankings and
+#: caps, so they declare a comfortably liquid name and vary what they mean to.
+LIQUID = 25_000_000.0
+
 
 # ------------------------------------------------------------------ arithmetic
 
@@ -146,7 +152,8 @@ def test_no_history_is_not_a_past_winner_and_not_a_fresh_one():
 
 def _row(**kw):
     base = dict(symbol="X", close=10.0, upside=0.60, consensus=4.3, past_winner=False,
-                days_to_catalyst=10, coverage=8, coverage_bucket="4-10", tradable=True)
+                days_to_catalyst=10, coverage=8, coverage_bucket="4-10", tradable=True,
+                median_dollar_volume=LIQUID)
     base.update(kw)
     return base
 
@@ -276,18 +283,22 @@ def test_transitions_record_only_changes_and_carry_their_causes():
 # ------------------------------------------------------------------- portfolios
 
 def _candidates(n=30):
-    """A healthy candidate pool. Every fifth name is last year's winner, so the
+    """A healthy candidate pool. EIGHT sectors, not four: every book now caps
+    names per sector, and a four-sector pool cannot fill hack6's fifteen at
+    three per sector -- that is the cap working, so the fixture widens rather
+    than the cap loosening. Every fifth name is last year's winner, so the
     clause-(f) A/B is exercised by the ordinary personality tests rather than
     only by the one test that is about it."""
     rows = []
     for i in range(n):
-        rows.append(dict(symbol=f"C{i}", status="BUY", sector=f"S{i % 4}",
+        rows.append(dict(symbol=f"C{i}", status="BUY", sector=f"S{i % 8}",
                          upside=0.30 + 0.01 * i, consensus=4.0 + 0.01 * (i % 10),
                          coverage=12, coverage_bucket="11-25",
                          coverage_source=T.COVERAGE_SOURCE_CALIBRATED,
                          past_winner=(i % 5 == 0),
                          past_winner_basis="ret_12m +120%" if i % 5 == 0 else None,
                          exp_return=0.001 * i, downside_5pct=-0.20,
+                         median_dollar_volume=LIQUID,
                          confidence=0.5 + 0.01 * i, days_to_catalyst=10))
     return rows
 
@@ -336,7 +347,7 @@ def test_the_balanced_book_caps_the_downside_it_will_rank_on():
     row = dict(symbol="WIDE", status="BUY", sector="TECH", upside=0.40, consensus=4.2,
                coverage=12, coverage_bucket="11-25", past_winner=False,
                exp_return=0.30, downside_5pct=-(hack3.max_downside + 0.10),
-               confidence=0.9, days_to_catalyst=5)
+               median_dollar_volume=LIQUID, confidence=0.9, days_to_catalyst=5)
     port = T.build_portfolio([row], hack3)
     assert port["n_selected"] == 0
     assert any("downside" in r for r in port["excluded_by_reason"]), port["excluded_by_reason"]
@@ -370,31 +381,85 @@ def test_the_two_clause_f_arms_see_different_pools_from_the_same_universe():
 
 
 def test_a_ranking_where_every_name_ties_is_reported_as_degenerate():
-    """MEASURED 2026-08-30, on the live book. hack6 sorts on `confidence`, the
-    rule publishes the same confidence for every non-claiming name, and all 607
-    eligible names scored +0.9170 -- so "the top 15 by confidence" was the first
-    15 in dict order and came out as 13 biotechs.
+    """The DETECTOR, driven through whatever column hack6 currently ranks on.
 
-    Same class as hack3's subtraction sorting on volatility, and invisible
-    unless something counts the distinct values. Reported, never repaired:
-    which column a book ranks on is a selection decision, not a bug fix.
+    MEASURED 2026-08-30 on the live book: hack6 sorted on `confidence`, the rule
+    publishes the same confidence for every non-claiming name, all 607 eligible
+    names scored +0.9170, so "the top 15 by confidence" was the first 15 in dict
+    order and came out as 13 biotechs. The ranking was replaced on 2026-08-31
+    (see `test_no_book_ranks_on_a_column_that_cannot_rank`), but the DETECTOR is
+    what makes the next such column visible, so it is pinned against the live
+    personality rather than against the retired one.
     """
-    rows = [dict(symbol=f"T{i}", status="BUY", sector="BIO", upside=0.4, consensus=4.2,
+    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    # Sectors are spread because hack6 now caps at 3 names per sector; a
+    # one-sector fixture would test the cap, not the ranking.
+    rows = [dict(symbol=f"T{i}", status="BUY", sector=f"S{i % 8}", consensus=4.2,
                  coverage=12, coverage_bucket="11-25",
                  coverage_source=T.COVERAGE_SOURCE_CALIBRATED, past_winner=False,
-                 exp_return=0.01, downside_5pct=-0.10, confidence=0.9170,
-                 days_to_catalyst=5) for i in range(20)]
-    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+                 upside=0.40, exp_return=0.01, downside_5pct=-0.10,
+                 median_dollar_volume=LIQUID, confidence=0.9170,
+                 days_to_catalyst=5) for i in range(24)]
     port = T.build_portfolio(rows, p6)
     assert port["n_selected"] == p6.k
     assert port["rank_distinct_values"] == 1
     assert port["ranking_is_degenerate"] is True
 
+    # Vary the live ranking's inputs and the degeneracy must clear.
     for i, r in enumerate(rows):
-        r["confidence"] = 0.5 + 0.01 * i
+        r["upside"] = 0.20 + 0.05 * i
     port2 = T.build_portfolio(rows, p6)
     assert port2["ranking_is_degenerate"] is False
     assert port2["rank_distinct_values"] == len(rows)
+
+
+def test_no_book_ranks_on_a_column_that_cannot_rank():
+    """`confidence` is `(clauses readable / 4) x min(1, date blocks / N)` -- a
+    property of how much of the ROW could be read, not of the name. Every name
+    whose four clauses were readable carries the SAME value, so sorting on it
+    returns insertion order. No live book may rank on it again.
+
+    This is the general form, not a hack6 special case: any ranking that is
+    constant across a realistic pool is a no-op sort wearing a column name.
+    """
+    rows = [dict(symbol=f"D{i}", status="BUY", sector=f"S{i % 8}", consensus=4.2,
+                 coverage=12, coverage_bucket="11-25",
+                 coverage_source=T.COVERAGE_SOURCE_CALIBRATED, past_winner=False,
+                 upside=0.30 + 0.02 * i, exp_return=0.001 * i,
+                 downside_5pct=-0.10 - 0.002 * i, median_dollar_volume=LIQUID,
+                 confidence=0.9170, days_to_catalyst=5) for i in range(24)]
+    for p in T.PERSONALITIES:
+        assert p.rank != "confidence", f"{p.book} ranks on a constant column"
+        port = T.build_portfolio(rows, p)
+        if port["eligible"] >= 2:
+            assert not port["ranking_is_degenerate"], (
+                f"{p.book}'s ranking {p.rank!r} is constant over a pool whose "
+                f"upside, exp_return and downside all vary")
+
+
+def test_preservation_ranks_on_reward_per_unit_of_its_own_bad_case():
+    """hack6's replacement ranking, and the direction it must sort in.
+
+    Two names, same upside, different downside: the calmer one ranks first.
+    That is what `preservation` has to mean, and it is the property the
+    retired `confidence` column could not express at all.
+    """
+    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    assert p6.rank == "upside_downside_ratio"
+    calm = dict(symbol="CALM", status="BUY", sector="S0", consensus=4.2, coverage=12,
+                coverage_bucket="11-25", coverage_source=T.COVERAGE_SOURCE_CALIBRATED,
+                past_winner=False, upside=0.40, downside_5pct=-0.10,
+                exp_return=0.01, median_dollar_volume=LIQUID, days_to_catalyst=5)
+    wild = dict(calm, symbol="WILD", sector="S1", downside_5pct=-0.19)
+    port = T.build_portfolio([wild, calm], p6)
+    assert [h["symbol"] for h in port["holdings"]] == ["CALM", "WILD"]
+
+    # A zero downside is an UNMEASURED downside, not a riskless name: ranking
+    # it +inf would put the least-known name at the top of the book.
+    assert T.rank_value(dict(upside=0.4, downside_5pct=0.0),
+                        "upside_downside_ratio") == float("-inf")
+    assert T.rank_value(dict(upside=None, downside_5pct=-0.1),
+                        "upside_downside_ratio") == float("-inf")
 
 
 def test_the_balanced_book_respects_its_sector_cap():
@@ -404,6 +469,7 @@ def test_the_balanced_book_respects_its_sector_cap():
                  upside=0.5, consensus=4.2, coverage=12, coverage_bucket="11-25",
                  past_winner=False,
                  exp_return=0.01, downside_5pct=-0.10, confidence=0.8,
+                 median_dollar_volume=LIQUID,
                  days_to_catalyst=5) for i in range(20)]
     p = [x for x in T.PERSONALITIES if x.book == "hack3"][0]
     port = T.build_portfolio(rows, p)
@@ -606,7 +672,7 @@ def test_a_bucket_rule_refuses_a_count_on_the_wrong_scale():
     base = dict(symbol="Y", status="BUY", sector="TECH", upside=0.4, consensus=4.2,
                 past_winner=False, coverage=8, coverage_bucket="4-10",
                 exp_return=0.01, downside_5pct=-0.10, confidence=0.9,
-                days_to_catalyst=5)
+                median_dollar_volume=LIQUID, days_to_catalyst=5)
     wrong = dict(base, coverage_source=T.COVERAGE_SOURCE_UNCALIBRATED)
     port = T.build_portfolio([wrong], hack6)
     assert port["n_selected"] == 0
@@ -704,3 +770,118 @@ def _run_all() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(_run_all())
+
+
+# ------------------------------------------------- 2026-08-31: floors, caps, age
+
+def test_every_book_declares_a_liquidity_floor_and_refuses_an_unreadable_volume():
+    """A missing dollar volume is a REFUSAL, not a pass.
+
+    `or 0` on this field would admit exactly the names the floor exists to keep
+    out, which is the `net_breadth` collapse in a new place: an absence read as
+    a value. Note what this floor does NOT do -- `universe.MIN_DOLLAR_VOLUME`
+    already screens the tracker at $3m/day, so hack3's and hack4's $1m floors
+    exclude nothing today. They are declared so each book states its own
+    requirement rather than inheriting one silently.
+    """
+    for p in T.PERSONALITIES:
+        assert p.min_dollar_volume is not None, f"{p.book} declares no liquidity floor"
+    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    base = dict(symbol="THIN", status="BUY", sector="S0", consensus=4.2, coverage=12,
+                coverage_bucket="11-25", coverage_source=T.COVERAGE_SOURCE_CALIBRATED,
+                past_winner=False, upside=0.40, downside_5pct=-0.10, exp_return=0.01,
+                days_to_catalyst=5)
+
+    unreadable = dict(base)                       # no median_dollar_volume at all
+    port = T.build_portfolio([unreadable], p6)
+    assert port["n_selected"] == 0
+    assert any("unreadable" in r for r in port["excluded_by_reason"]), \
+        port["excluded_by_reason"]
+
+    too_thin = dict(base, median_dollar_volume=p6.min_dollar_volume - 1.0)
+    port = T.build_portfolio([too_thin], p6)
+    assert port["n_selected"] == 0
+    assert any("liquidity floor" in r for r in port["excluded_by_reason"]), \
+        port["excluded_by_reason"]
+
+    ok = dict(base, median_dollar_volume=p6.min_dollar_volume)
+    assert T.build_portfolio([ok], p6)["n_selected"] == 1
+
+
+def test_the_coverage_band_has_a_ceiling_as_well_as_a_floor():
+    """A one-sided guard catches half the error. hack6 is a 4-25 book: without
+    a ceiling it fills with 26+ mega-caps whenever they qualify, which is the
+    mega-cap bias the tracker exists to remove walking back in through the
+    coverage rule."""
+    p6 = next(x for x in T.PERSONALITIES if x.book == "hack6")
+    assert p6.min_coverage_bucket == "4-10" and p6.max_coverage_bucket == "11-25"
+    base = dict(symbol="BIG", status="BUY", sector="S0", consensus=4.2,
+                coverage_source=T.COVERAGE_SOURCE_CALIBRATED, past_winner=False,
+                upside=0.40, downside_5pct=-0.10, exp_return=0.01,
+                median_dollar_volume=LIQUID, days_to_catalyst=5)
+
+    for bucket, n in (("26+", 44), ("1-3", 2)):
+        port = T.build_portfolio([dict(base, coverage=n, coverage_bucket=bucket)], p6)
+        assert port["n_selected"] == 0, f"{bucket} should not be admissible"
+    inside = dict(base, coverage=12, coverage_bucket="11-25")
+    assert T.build_portfolio([inside], p6)["n_selected"] == 1
+    # The ceiling refuses an uncalibrated count for the same reason the floor
+    # does: Finnhub's panel runs ~1.80x the scale these buckets were fitted on.
+    wrong_scale = dict(inside, coverage_source=T.COVERAGE_SOURCE_UNCALIBRATED)
+    assert T.build_portfolio([wrong_scale], p6)["n_selected"] == 0
+
+
+def test_every_book_caps_its_sector_and_the_cap_is_a_name_count():
+    """20 of 21 names falling together on 28 Aug was ONE bet wearing 20 tickers.
+    `max_sector_share` is a notional because that is what the risk system reads,
+    but it is CHOSEN as `names x max_notional` -- so the two must agree, or a
+    later edit to `k` or `max_notional` silently changes the rule."""
+    for p in T.PERSONALITIES:
+        assert p.max_sector_share is not None, f"{p.book} has no sector cap"
+        want = T.SECTOR_CAP_NAMES[p.book]
+        got = int(p.max_sector_share / p.max_notional + 1e-9)
+        assert got == want, (f"{p.book}: {p.max_sector_share} / {p.max_notional} "
+                             f"admits {got} names, not the declared {want}")
+        rows = [dict(symbol=f"{p.book}{i}", status="BUY", sector="OneSector",
+                     consensus=4.2, coverage=8, coverage_bucket="4-10",
+                     coverage_source=T.COVERAGE_SOURCE_CALIBRATED, past_winner=False,
+                     upside=0.50 - 0.01 * i, downside_5pct=-0.10, exp_return=0.05,
+                     median_dollar_volume=LIQUID, days_to_catalyst=5)
+                for i in range(20)]
+        port = T.build_portfolio(rows, p)
+        assert port["n_selected"] == want, (
+            f"{p.book} took {port['n_selected']} names from one sector, cap is {want}")
+        assert port["sector_notional"]["OneSector"] <= p.max_sector_share + 1e-9
+
+
+def test_stale_tracker_data_is_refused_and_the_age_is_in_sessions():
+    """The lock had a staleness rule and the DATA did not.
+
+    `latest_day()` returns the newest file on disk however old it is, so a
+    refresh that dies on Sunday and again on Monday produces a Tuesday seal
+    priced on Friday's closes with no warning. Counted in SESSIONS: a Monday
+    reading Sunday's file is one session old and perfectly normal, and a
+    calendar-day rule would refuse every Monday and be switched off in a week.
+    """
+    # Fri 2026-08-28 -> Mon 2026-08-31 is ONE session, not three calendar days.
+    f = T.freshness("2026-08-28", asof="2026-08-31")
+    assert f["determinable"] and f["age_sessions"] == 1 and f["stale"] is False
+    # Sunday's file read on Monday: same session count as Friday's.
+    assert T.freshness("2026-08-30", asof="2026-08-31")["age_sessions"] == 1
+    # Two dead refreshes: Friday's file read on Wednesday is 3 sessions.
+    late = T.freshness("2026-08-28", asof="2026-09-02")
+    assert late["age_sessions"] == 3 and late["stale"] is True
+
+    # A guard DERIVES its input or REFUSES -- it never reads an absence as 0.
+    unknown = T.freshness(None, asof="2026-08-31")
+    assert unknown["determinable"] is False
+    assert "CANNOT DETERMINE" in unknown["reason"]
+
+    T.assert_fresh("2026-08-28", asof="2026-08-31")          # does not raise
+    for bad in ("2026-08-28", None):
+        try:
+            T.assert_fresh(bad, asof="2026-09-02" if bad else "2026-08-31")
+        except T.StaleTrackerData:
+            pass
+        else:
+            raise AssertionError(f"assert_fresh({bad!r}) should have refused")

@@ -371,6 +371,13 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
     raw = tracker_cli.load_day(day)
     if not raw:
         raise SystemExit(f"REFUSED: tracker file for {day} is empty.")
+    # AGE. `latest_day()` returns the newest file on disk however old it is, so
+    # without this a dead refresh seals Monday's book on Friday's closes and
+    # says nothing. Counted in sessions: Monday on Sunday's file is age 1.
+    try:
+        fresh = _tracker.assert_fresh(day, what=f"tracker file {day} (the seal's price source)")
+    except _tracker.StaleTrackerData as exc:
+        raise SystemExit(str(exc)) from exc
     trows = _tracker.build_rows(raw)
     prev_day = tracker_cli.latest_day(before=day)
     prev = {r["symbol"]: r for r in tracker_cli.load_day(prev_day)} if prev_day else {}
@@ -401,6 +408,7 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict]:
         })
     prov = {
         "source": "tracker", "tracker_day": day, "previous_day": prev_day,
+        "tracker_freshness": fresh,
         "tracker_names_total": len(trows), "tracker_status_histogram": hist,
         "candidates_ranked": len(rows),
         "clause_f_not_past_winner": (
