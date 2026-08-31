@@ -49,7 +49,7 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from alpha import config, fleet
+from alpha import config, fleet, newsmakers
 from alpha.broker.alpaca import AlpacaPaper
 from alpha.council import providers
 
@@ -89,6 +89,60 @@ def universe(extra: list[str] | None) -> list[str]:
         pass
     syms.update(s.upper() for s in (extra or []))
     return sorted(syms)
+
+
+def _tracker_candidates() -> list[str]:
+    """Today's BUY/STRONG_BUY from the tracker -- our own screen's list.
+
+    Read from `latest.json`, which the refresh writes at the END of a run, so a
+    refresh in flight cannot hand back a half-built universe. Missing tracker is
+    an empty list and SAYS SO: the digest still runs on the news, which is the
+    point of making it adaptive.
+    """
+    p = STATE / "tracker" / "latest.json"
+    if not p.exists():
+        print("  (no tracker latest.json -- candidates empty, news-only universe)")
+        return []
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"  (tracker latest.json unreadable: {exc} -- candidates empty)")
+        return []
+    rows = d.get("candidates") or []
+    return [str(r["symbol"]).upper() for r in rows if r.get("symbol")]
+
+
+def wide_news(client, hours: int, *, max_pages: int = 12) -> list[dict]:
+    """The WHOLE market's news -- no symbol filter. What is the world saying.
+
+    The symbol-filtered call answers "what was written about my list", which
+    cannot surface a name the list does not already contain. Omitting `symbols`
+    answers "who is making news", which is the question the digest needs.
+    Measured 2026-08-31: one page carried 79 distinct symbols.
+    """
+    start = (datetime.now(timezone.utc) - timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    out, token, pages = [], None, 0
+    while pages < max_pages:
+        params = {"limit": 50, "sort": "desc", "start": start}
+        if token:
+            params["page_token"] = token
+        try:
+            d = client._request("GET", "/v1beta1/news", base=config.data_url(), params=params)
+        except Exception as exc:                                        # noqa: BLE001
+            # A refusal is recorded, never read as "no news". A rate limit that
+            # returns an empty universe would silently shrink the day's list.
+            out.append({"refusal": f"wide page {pages}: {type(exc).__name__}: {exc}"})
+            break
+        for n in (d or {}).get("news") or []:
+            out.append({"symbols": [str(x).upper() for x in (n.get("symbols") or [])],
+                        "headline": n.get("headline", ""),
+                        "summary": (n.get("summary") or "")[:300],
+                        "source": n.get("source"), "at": n.get("created_at")})
+        token = (d or {}).get("next_page_token")
+        pages += 1
+        if not token:
+            break
+    return out
 
 
 def alpaca_news(client, symbols: list[str], hours: int) -> list[dict]:
@@ -193,12 +247,48 @@ def main() -> int:
     ap.add_argument("--symbols", nargs="*", default=None, help="extra names to include")
     ap.add_argument("--no-east", action="store_true")
     ap.add_argument("--top", type=int, default=25)
+    ap.add_argument("--top-news", type=int, default=None,
+                    help="cap the news-first block (default: NO cap -- adaptive)")
+    ap.add_argument("--fixed-universe", action="store_true",
+                    help="the pre-2026-08-31 behaviour: window+theme list only, no wide news")
     args = ap.parse_args()
     config.load_env()
     client = AlpacaPaper()
-    syms = universe(args.symbols)
     live = providers.probe(["deepseek", "featherless", "nvidia_kimi", "hf_glm"])
-    print(f"universe {len(syms)} names; providers " + str({k: v.get('state') for k, v in live.items()}))
+
+    # NEWS FIRST, THEN OUR LIST. The universe is no longer a fixed set that the
+    # news is filtered against; the day decides who is in it.
+    uni = None
+    if args.fixed_universe:
+        syms = universe(args.symbols)
+        print(f"universe {len(syms)} names [FIXED -- window+theme only]")
+    else:
+        # Locals named apart from the digest's own `ranked`/`refusals`, which
+        # hold the BETS and are built further down. One shadowed name here
+        # would silently replace the bet list with an attention ranking.
+        wide = wide_news(client, args.hours)
+        wide_refusals = [w["refusal"] for w in wide if "refusal" in w]
+        tal = newsmakers.tally(wide)
+        news_ranked = newsmakers.score(tal, newsmakers.load_baseline())
+        _day_now = (datetime.now(timezone.utc) - timedelta(hours=4)).date().isoformat()
+        newsmakers.append_baseline(_day_now, {k: v["n_articles"] for k, v in tal.items()})
+        uni = newsmakers.adaptive_universe(
+            newsmakers=news_ranked, candidates=_tracker_candidates(),
+            always=["SPY", "QQQ", "IWM"], extra=args.symbols,
+            top_news=args.top_news)
+        syms = uni["symbols"]
+        n_new = sum(1 for r in news_ranked if r["is_new"])
+        print(f"wide news: {len(wide) - len(wide_refusals)} items -> {len(tal)} names "
+              f"making news ({n_new} with no prior baseline)"
+              + (f"; {len(wide_refusals)} page refusals" if wide_refusals else ""))
+        print(f"universe {uni['n_total']} names ADAPTIVE = {uni['n_news']} news-first "
+              f"+ {uni['n_candidates']} tracker candidates + index proxies")
+        if news_ranked:
+            head = ", ".join(f"{r['symbol']}({r['n_articles']}a/{r['n_sources']}s"
+                             + (",NEW" if r["is_new"] else f",z{r['attention_z']:+.1f}") + ")"
+                             for r in news_ranked[:8])
+            print(f"  today's newsmakers: {head}")
+    print("  providers " + str({k: v.get('state') for k, v in live.items()}))
 
     east = []
     if not args.no_east:
@@ -245,7 +335,13 @@ def main() -> int:
     receipt = {"date": day, "generated_utc": datetime.now(timezone.utc).isoformat(), "hours": args.hours,
                "n_symbols": len(syms), "universe": syms, "n_headlines": n_head, "n_east": len(east), "east": east_view,
                "bets": ranked, "refusals": refusals + [h["refusal"] for h in news + east if "refusal" in h],
-               "council_symbols": [b["symbol"] for b in ranked[:8] if b["symbol"] not in ("SPY", "QQQ", "IWM")]}
+               "council_symbols": [b["symbol"] for b in ranked[:8] if b["symbol"] not in ("SPY", "QQQ", "IWM")],
+               # WHERE EACH NAME CAME FROM. A universe that cannot say why a
+               # name is in it cannot be debugged, and an adaptive one changes
+               # every day.
+               "universe_mode": "fixed" if args.fixed_universe else "adaptive_news_first",
+               "universe_provenance": uni,
+               "newsmakers": news_ranked[:60] if not args.fixed_universe else None}
     (out / f"{day}.json").write_text(json.dumps(receipt, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"\nreceipt: {out / (day + '.json')}   (shadow: feeds dislocation_scan and scripts.thesis; places nothing)")
     return 0
