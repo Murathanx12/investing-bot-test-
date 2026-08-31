@@ -311,6 +311,8 @@
 > 40% -> 35%), intent-before-POST plus `scripts/reconcile`, 0 lost rows.
 
 # HANDOFF — read this first
+> **31 Aug (f), Fable:** session 28 validated. Orders: `docs/NEXT_SESSION_2026-08-31f_OPUS.md` -- hack6 ranking fix + sector caps + $1m/day liquidity floor + data-staleness guard, then PUSH BY 08:00 ET Monday (fallback: push df31a7f's safe state). Decisions taken: liquidity floor $1m (thin band becomes a spread-measurement lane), hack6 ranks on the ratio w/ sector cap <=3/15. DELIBERATELY NOT PUSHED by Fable: pushing now would deploy dictionary-order hack6.
+
 > **30 Aug (e), Fable:** session 27 validated (tracker 3,059 names; IBES 2013-24: cap at 4x turns -5.5%/yr into +3.9%/yr; thin coverage CONFIRMED; past-winner exclusion REFUTED). Decisions: EXCLUDE_PAST_WINNERS OFF on hack4/hack6, ON on hack3; hack3 ranks on the ratio; PUSHED. Orders: `docs/NEXT_SESSION_2026-08-30e_OPUS.md`.
 
 > **30 Aug (d), Fable:** Opus session 26 validated (book claims MU only -- Murat: one past winner is not a portfolio). Orders in `docs/NEXT_SESSION_2026-08-30d_OPUS.md`: whole-market TRACKER (Finnhub rec counts + yfinance targets, every name with >=1 analyst, append-only daily snapshots, STRONG_BUY/BUY/HOLD/SELL/DROP), book selects from it, three portfolio personalities on hack3/4/6, IBES whole-market backtest of the same rules. Recommendation: push 30180dd.
