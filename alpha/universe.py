@@ -47,6 +47,72 @@ EXCHANGES = frozenset({"NYSE", "NASDAQ", "ARCA", "AMEX", "BATS"})
 MIN_PRICE = 2.0
 MIN_DOLLAR_VOLUME = 3_000_000.0
 VOL_WINDOW = 60
+
+# ---------------------------------------------------------------------------
+# OBSERVATION IS NOT EXECUTION (2026-08-31)
+#
+# One constant used to do two different jobs. `MIN_DOLLAR_VOLUME` decided both
+# "can we buy this at our size?" and "are we allowed to KNOW about this?", and
+# a single `continue` in `build` deleted the name entirely.
+#
+# WBUY is what that costs. The news engine ranked it FIRST on 08-31 and wrote a
+# real bet on it; the stock moved 20%. It trades ~$25k/day, so it failed the
+# $3m floor 120x over -- and therefore never got a CompanyState row, never
+# entered the tracker, and could never reach a seal. We did not decide against
+# it. We arranged never to have an opinion.
+#
+# Those are separate questions and they now have separate constants. A name
+# below the EXECUTE floor is still observed, still scored, still graded -- it
+# simply carries `execution_authority = 0.0`, which is a fact about our size,
+# not a fact about the company.
+#
+# `load()` still defaults to EXECUTE-grade, so every existing caller is
+# unchanged. What changes is that being unbuyable is now a PROPERTY of a row
+# rather than a reason the row does not exist.
+#
+# NOT YET TRUE: the stored universe file was BUILT at the execute floor, so
+# `load(scope="observe")` returns the same names until `build(scope="observe")`
+# is re-run against the venue. The structure is in place; the data is not.
+# Stated here so nobody reads the constant and believes the coverage.
+# ---------------------------------------------------------------------------
+
+#: Low enough to see a nano-cap that moved on news. Not an invitation to trade
+#: one -- see `execution_authority`.
+MIN_OBSERVE_DOLLAR_VOLUME = 20_000.0
+#: Unchanged. What we can actually transact at our size.
+MIN_EXECUTE_DOLLAR_VOLUME = MIN_DOLLAR_VOLUME
+#: Never take more than this share of a name's median daily dollar volume.
+#: 1% of ADV is a conventional impact-tolerable ceiling; at WBUY's ~$25k/day
+#: that is ~$250, which is the honest answer rather than a refusal.
+MAX_ADV_PARTICIPATION = 0.01
+
+
+def execution_authority(median_dollar_volume: float | None, equity: float | None = None) -> dict:
+    """How much of THIS name may we buy, and why. Never a reason to stop looking.
+
+    Returns the dollar cap, the same cap as a fraction of `equity` when one is
+    given, and a `tier` a human can read. `None` in means UNKNOWN, which is
+    reported as unknown and authorises nothing -- an absent dollar volume is
+    not a dollar volume of zero and it is not a dollar volume of a million.
+    """
+    if median_dollar_volume is None:
+        return {"tier": "UNKNOWN", "max_usd": 0.0, "max_fraction": 0.0,
+                "reason": "no median dollar volume on the row; authority cannot be derived"}
+    mdv = float(median_dollar_volume)
+    cap = mdv * MAX_ADV_PARTICIPATION
+    if mdv < MIN_OBSERVE_DOLLAR_VOLUME:
+        tier, reason = "NONE", f"below the ${MIN_OBSERVE_DOLLAR_VOLUME:,.0f}/day observation floor"
+    elif mdv < MIN_EXECUTE_DOLLAR_VOLUME:
+        tier, reason = "OBSERVE_ONLY", (
+            f"${mdv:,.0f}/day is under the ${MIN_EXECUTE_DOLLAR_VOLUME:,.0f} execute floor: "
+            f"observable and gradeable, at most ${cap:,.0f} transactable")
+    else:
+        tier, reason = "FULL", f"${mdv:,.0f}/day clears the execute floor"
+    if tier == "NONE":
+        cap = 0.0
+    return {"tier": tier, "max_usd": round(cap, 2),
+            "max_fraction": (round(cap / equity, 6) if equity else 0.0),
+            "reason": reason}
 #: Dollar-volume buckets used until a market cap is read. Labelled as such.
 DV_BUCKETS = (("micro", 0.0), ("small", 10e6), ("mid", 50e6), ("large", 300e6), ("mega", 2e9))
 ETF_WORDS = ("ETF", "TRUST", "FUND", "INDEX", "ISHARES", "PROSHARES", "SPDR", "VANGUARD", "INVESCO",
@@ -99,8 +165,17 @@ def looks_like_etf(name: str) -> bool:
     return any(w in u for w in ETF_WORDS)
 
 
-def build(client, *, lookback_sessions: int = VOL_WINDOW, max_symbols: int | None = None) -> list[Member]:
-    """Screen the venue's asset list against its own bars. One call per 200 symbols."""
+def build(client, *, lookback_sessions: int = VOL_WINDOW, max_symbols: int | None = None,
+          scope: str = "execute") -> list[Member]:
+    """Screen the venue's asset list against its own bars. One call per 200 symbols.
+
+    `scope="observe"` screens at the OBSERVATION floor instead, keeping names we
+    could never transact so they can still be studied and graded. The execute
+    floor is then applied by `load()`, not by deletion here.
+    """
+    if scope not in ("execute", "observe"):
+        raise ValueError(f"scope must be 'execute' or 'observe', not {scope!r}")
+    floor = MIN_OBSERVE_DOLLAR_VOLUME if scope == "observe" else MIN_EXECUTE_DOLLAR_VOLUME
     assets = client.assets()
     raw = [a for a in assets
            if a.get("tradable") and a.get("status") == "active"
@@ -123,7 +198,7 @@ def build(client, *, lookback_sessions: int = VOL_WINDOW, max_symbols: int | Non
         dv = [float(x.get("c") or 0.0) * float(x.get("v") or 0.0) for x in b]
         price = float(b[-1].get("c") or 0.0)
         med = statistics.median(dv) if dv else 0.0
-        if price < MIN_PRICE or med < MIN_DOLLAR_VOLUME:
+        if price < MIN_PRICE or med < floor:
             continue
         a = by_sym[sym]
         members.append(Member(
@@ -133,8 +208,8 @@ def build(client, *, lookback_sessions: int = VOL_WINDOW, max_symbols: int | Non
             fractionable=bool(a.get("fractionable")), etf_like=looks_like_etf(a.get("name") or ""),
             dv_bucket=dv_bucket(med),
         ))
-    logger.info("universe: %d members after price>=%.0f and median $vol>=%.0fM over %d sessions",
-                len(members), MIN_PRICE, MIN_DOLLAR_VOLUME / 1e6, lookback_sessions)
+    logger.info("universe[%s]: %d members after price>=%.0f and median $vol>=$%s over %d sessions",
+                scope, len(members), MIN_PRICE, f"{floor:,.0f}", lookback_sessions)
     return members
 
 
@@ -151,13 +226,30 @@ def save(members: list[Member], *, asof: str | None = None) -> Path:
     return path
 
 
-def load(asof: str | None = None) -> list[Member]:
+def load(asof: str | None = None, *, scope: str = "execute") -> list[Member]:
+    """Members of the stored universe. `scope` is EXECUTE by default.
+
+    "execute" -- names we could transact at our size (the historical behaviour,
+                 so every existing caller is unchanged).
+    "observe" -- every name we are allowed to have an opinion about. Superset.
+
+    A file built at the execute floor cannot contain observe-only names, so
+    "observe" is honest about what is on disk rather than implying coverage it
+    does not have: it returns what the file holds, and the file's own screen is
+    the limit. Re-run `build(scope="observe")` to widen it.
+    """
+    if scope not in ("execute", "observe"):
+        raise ValueError(f"scope must be 'execute' or 'observe', not {scope!r}")
     files = sorted(STORE.glob(f"{NAME}_*.json"))
     if not files:
         return []
     path = files[-1] if asof is None else STORE / f"{NAME}_{asof}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
-    return [Member(**m) for m in data["members"]]
+    members = [Member(**m) for m in data["members"]]
+    if scope == "observe":
+        return members
+    return [m for m in members
+            if (m.median_dollar_volume or 0.0) >= MIN_EXECUTE_DOLLAR_VOLUME]
 
 
 def composition(members: list[Member]) -> dict:
