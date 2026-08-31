@@ -459,6 +459,66 @@ def test_proof_5_the_runner_asks_about_the_sealed_names():
 
 
 
+def test_proof_6_the_runner_APPLIES_the_cap_it_was_given():
+    """proof4 showed `clamp_to_sealed` computes the right number. This shows the
+    RUNNER acts on it -- builds the reduced verdict, or the refusal, correctly.
+
+    `evaluate` needs a live client for chains and quotes, so the applied logic
+    is extracted into `apply_sealed_cap` and driven here with real
+    `SizingVerdict` objects. What remains unproven by test is the single call
+    site's POSITION inside evaluate's loop; that is one line and is stated
+    rather than implied.
+    """
+    from alpha import runner
+    from alpha.brains.base import Forecast
+    from alpha.engine import sizing
+
+    def fc(**ev):
+        return Forecast(brain="tracker_portfolio", symbol="AAA", horizon_days=21,
+                        centre=0.02, sd=0.05, evidence=ev)
+
+    approved = sizing.SizingVerdict(True, 0.15, 0.04, "sized on the profile")
+
+    # 1. oversized -> reduced, and the reason records it
+    v, rej = runner.apply_sealed_cap(approved, fc(sealed_notional=0.10), "long_shares")
+    check("proof6: the runner reduces an oversized verdict", v.risk_fraction == 0.10,
+          str(v.risk_fraction))
+    check("proof6: no rejection when it can simply be cut", rej is None)
+    check("proof6: the reason carries the cut", "sealed weight" in v.reason)
+    check("proof6: the rest of the verdict is preserved",
+          v.approved is True and v.mdm_edge == 0.04)
+
+    # 2. already inside the sealed weight -> untouched
+    small = sizing.SizingVerdict(True, 0.04, 0.04, "sized on the profile")
+    v, rej = runner.apply_sealed_cap(small, fc(sealed_notional=0.10), "long_shares")
+    check("proof6: a smaller verdict is left exactly alone",
+          v.risk_fraction == 0.04 and v.reason == "sized on the profile")
+    check("proof6: and is not rejected", rej is None)
+
+    # 3. an option carrying a sealed weight -> REFUSED, not converted
+    v, rej = runner.apply_sealed_cap(approved, fc(sealed_notional=0.10), "long_call")
+    check("proof6: an option with a sealed weight is rejected", rej is not None)
+    check("proof6: the rejection is a refusing verdict",
+          rej is not None and rej.approved is False and rej.risk_fraction == 0.0)
+    check("proof6: and says why", rej is not None and "SHARES-ONLY" in rej.reason)
+
+    # 4. a forecast from any other brain is untouched
+    v, rej = runner.apply_sealed_cap(approved, fc(last_close=10.0), "long_call")
+    check("proof6: a non-sealed forecast passes through unchanged",
+          v.risk_fraction == 0.15 and rej is None)
+
+    # 5. a REFUSED verdict is never resurrected by the cap
+    refused = sizing.SizingVerdict(False, 0.0, 0.01, "the edge is inside the spread")
+    v, rej = runner.apply_sealed_cap(refused, fc(sealed_notional=0.10), "long_shares")
+    check("proof6: an already-refused verdict stays refused",
+          v.approved is False and v.risk_fraction == 0.0 and rej is None)
+
+    # the call site itself
+    import inspect
+    check("proof6: evaluate calls it",
+          "apply_sealed_cap(" in inspect.getsource(runner.evaluate))
+
+
 # The __main__ guard stays at the BOTTOM: `_run_all` collects from globals() at
 # call time, so a test defined below it would never run while the suite still
 # printed ALL PASS. That happened once already, on 2026-08-31, to five checks.

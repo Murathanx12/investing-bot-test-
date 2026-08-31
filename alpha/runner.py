@@ -451,6 +451,32 @@ def effective_sd(forecast: Forecast, structure: sizing.Structure) -> tuple[float
     return implied * math.sqrt(math.pi / 2.0), "chain_implied_move"
 
 
+def apply_sealed_cap(verdict, forecast: Forecast, structure_kind: str):
+    """Cut an approved verdict to the sealed weight. Returns (verdict, rejection).
+
+    Extracted from `evaluate`'s loop so the applied logic can be TESTED rather
+    than inferred: `evaluate` needs a live client for chains and quotes, and a
+    guard whose only proof is "the call appears in the source" is the same
+    weakness this whole artery exists to remove.
+
+    `rejection` is a refusing `SizingVerdict` when the structure cannot express
+    an equity weight honestly, otherwise None. Only ever reduces the fraction.
+    """
+    if not verdict.approved:
+        return verdict, None
+    if (forecast.evidence or {}).get("sealed_notional") is None:
+        return verdict, None                    # not a sealed-portfolio forecast
+    try:
+        capped, note = _tracker_portfolio.clamp_to_sealed(
+            verdict.risk_fraction, forecast.evidence, structure_kind)
+    except _tracker_portfolio.SealedWeightRefusal as exc:
+        return verdict, sizing.SizingVerdict(False, 0.0, verdict.mdm_edge, str(exc))
+    if capped != verdict.risk_fraction:
+        verdict = replace(verdict, risk_fraction=capped,
+                          reason=f"{verdict.reason} [sealed weight: {note}]")
+    return verdict, None
+
+
 def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.TournamentState,
              expiry: str, risk_profile: str | None = None,
              open_risk: float | None = None):
@@ -550,17 +576,10 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
         # the account's risk profile. hack4's profile allows 15% per thesis
         # against a sealed 10%. This only ever REDUCES, and it refuses a
         # structure that cannot express an equity weight honestly.
-        if verdict.approved and (forecast.evidence or {}).get("sealed_notional") is not None:
-            try:
-                capped, note = _tracker_portfolio.clamp_to_sealed(
-                    verdict.risk_fraction, forecast.evidence, structure.kind)
-            except _tracker_portfolio.SealedWeightRefusal as exc:
-                rejected.append((structure, sizing.SizingVerdict(
-                    False, 0.0, verdict.mdm_edge, str(exc))))
-                continue
-            if capped != verdict.risk_fraction:
-                verdict = replace(verdict, risk_fraction=capped,
-                                  reason=f"{verdict.reason} [sealed weight: {note}]")
+        verdict, sealed_rejection = apply_sealed_cap(verdict, forecast, structure.kind)
+        if sealed_rejection is not None:
+            rejected.append((structure, sealed_rejection))
+            continue
         # THE GATE passed. Now THE RANKER: integrate the actual payoff over our
         # own forecast. A structure that cannot beat cash after the spread is
         # refused here, whatever its probability edge looked like.
