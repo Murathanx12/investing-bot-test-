@@ -100,10 +100,13 @@ all-names-in-cell, +200–400% as control band:
 
 1. **After Fable's flip confirmation:** `universe.build(scope="observe")`
    against the venue; then WBUY CompanyState row + multi-horizon grading.
-2. **Per-broker / per-analyst skill from `ptgdetu`** — with the pre-registered
-   control: skill-weighted consensus must beat equal-weighted out of sample or
-   the provenance branch is a corpse. (`amaskcd` gives person-level tracking
-   across firm changes; `anndats` is the PIT bound.)
+2. **Per-broker / per-analyst skill from `ptgdetu`** — the decisive control is
+   now PRE-REGISTERED and corpse-checked (PASS vs 352 prior experiments):
+   `Aegis module:TRIALS/PREREG_ANALYST_SKILL_1.md` (`8be8857`). Deciding
+   number: paired monthly ΔIC, NW(3) t ≥ 2.0, estimation 2013-2018 frozen,
+   evaluation 2019-2024, split-crossing targets excluded from BOTH arms. No
+   skill number has been computed — run the trial as written, no parameter
+   moves.
 3. Form 4 insider ingestion (fast clock) before politicians (slow clock);
    three timestamps (`transaction/filing/first_seen`) mandatory on both.
 4. DecisionCard — `execution_authority` already supplies its capital-authority
