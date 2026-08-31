@@ -411,6 +411,19 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
         "tracker_freshness": fresh,
         "tracker_names_total": len(trows), "tracker_status_histogram": hist,
         "candidates_ranked": len(rows),
+        # ABSENT vs REFUSED, distinguishable inside the artifact (2026-08-31,
+        # after a Finnhub 503 storm left 75 observed-but-consensus-unreadable
+        # rows). A row that could not be read is a recorded refusal on the day
+        # file; this count surfaces it in the seal so a reader does not have to
+        # diff the universe to discover a data gap -- the daily_autopsy
+        # rate-limit lesson (a SourceRefusal that prints as a confident zero).
+        "data_gaps": {
+            "rows_rec_status_not_ok": sum(1 for r in raw if r.get("rec_status") != "ok"),
+            "rows_target_status_not_ok": sum(1 for r in raw if r.get("target_status") != "ok"),
+            "note": ("observed names whose vendor reading failed STAY in the day file with "
+                     "the failure on the row; they are blocked from candidacy with a reason, "
+                     "never silently absent"),
+        },
         "clause_f_not_past_winner": (
             "NOT APPLIED TO THIS BOOK, AND THAT IS DELIBERATE. Until 2026-08-30 (e) the tracker "
             "status itself required `past_winner is False`, so the sealed book inherited clause "
