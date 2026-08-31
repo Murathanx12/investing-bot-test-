@@ -5,7 +5,7 @@
     python -m scripts.company_state_append --dry-run    # assemble and report, write nothing
 
 Joins what already exists -- the tracker's day file, the news-attention
-baseline, the EDGAR filing receipts and the sealed book's rule numbers -- into
+baseline, the STORED EDGAR filings and the sealed book's rule numbers -- into
 one append-only row per company per day. It fetches NOTHING: every input is
 already on disk, so this is cheap, offline, and safe to run beside a refresh.
 
@@ -39,26 +39,30 @@ from alpha import tracker as _tracker
 STATE = Path(__file__).resolve().parent.parent / "state"
 
 
-def _edgar_counts() -> dict[str, dict]:
-    """{symbol: {total, by_form}} from every EDGAR backfill receipt on disk."""
+def _edgar_counts(as_of: str | None = None) -> dict[str, dict]:
+    """{symbol: {total, by_form}} from the STORED FILINGS, not from the receipt.
+
+    The first version read `edgar_backfill_<date>.json`. That receipt is named
+    per DAY and is REWRITTEN by every run, so seven batches of 500 names each
+    overwrote the last and it held 59 records -- while 161,215 filings sat
+    correctly in the corpus. CompanyState then recorded EDGAR coverage on 164
+    of 3,059 names and looked merely sparse rather than wrong.
+
+    A summary artefact is not the data. Counting from the observations also
+    makes this point-in-time: `as_of` bounds `observed_at`, so a past day's
+    vintage counts only the filings we could have known about THEN.
+    """
+    from alpha.sources import corpus
+
     out: dict[str, dict] = {}
-    for f in sorted((STATE / "corpus").glob("edgar_backfill_*.json")):
-        try:
-            d = json.loads(f.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+    for r in corpus.read(as_of=as_of):
+        if r.get("source_type") != "company_filing":
             continue
-        if d.get("dry_run"):
-            continue                      # a dry run stored nothing; do not count it
-        for r in d.get("records") or []:
-            sym = str(r.get("symbol", "")).upper()
-            if not sym:
-                continue
-            by = dict(r.get("by_form") or {})
-            prev = out.get(sym)
-            # Latest receipt wins per symbol rather than summing: two backfills
-            # over overlapping windows would double-count the same filings.
-            if prev is None or sum(by.values()) >= (prev.get("total") or 0):
-                out[sym] = {"total": sum(by.values()), "by_form": by}
+        form = str(((r.get("extra") or {}).get("form")) or r.get("body") or "other")
+        for sym in (r.get("symbols") or []):
+            d = out.setdefault(str(sym).upper(), {"total": 0, "by_form": {}})
+            d["total"] += 1
+            d["by_form"][form] = d["by_form"].get(form, 0) + 1
     return out
 
 
@@ -149,7 +153,9 @@ def main(argv: list[str] | None = None) -> int:
             if b is not None:
                 prior_band[str(r.get("symbol", "")).upper()] = b
 
-    att, fil, book = _attention(), _edgar_counts(), _book_numbers(day)
+    # `as_of` the day being recorded: a vintage must not count filings that
+    # arrived after it.
+    att, fil, book = _attention(), _edgar_counts(as_of=day), _book_numbers(day)
 
     out = []
     for r in rows:

@@ -148,6 +148,20 @@ runner.structures.enumerate_all = lambda snapshot, expiry: [strad]
 full = bk(45_000.0, {"AVGO": 45_000.0})
 runner.book_mod.read = lambda client, **k: full
 runner.admission.book_greeks = lambda client, **k: admission.BookGreeks(note="fake client")
+# PIN THE TOURNAMENT CLOCK. `run_pass` builds its state from `datetime.now()`
+# against a fixed KICKOFF/DEADLINE, and `_tournament_multiplier` steps 1.000 ->
+# 1.100 when `fraction_of_window_remaining` crosses 0.60. That boundary was
+# crossed during 2026-08-31, and the sizer went from 16 contracts to 18 -- so
+# this file's "19.2% on one name" became 21.6% and two suites failed with no
+# code change at all. After the deadline `remaining` pins at 0 and it would
+# have changed again.
+#
+# The multiplier is correct behaviour; a test that reads the wall clock and
+# asserts an exact size is not. Fixed early-phase state, so the arithmetic
+# under test is the ADMISSION arithmetic and nothing else.
+runner.tournament_state = lambda client, **k: sizing.TournamentState(
+    equity=EQ, starting_equity=EQ, fraction_of_window_remaining=0.75,
+    field_leader_estimate=None)
 # The print is BEHIND us on purpose (2026-08-20, not ahead). This fixture is an
 # NVDA long straddle into NVDA's own print -- which is exactly the route
 # alpha/refuted.py now blocks, and it would be declined before admission is ever
