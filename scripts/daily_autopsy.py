@@ -156,11 +156,24 @@ def main() -> int:
 
     # measured why
     today = datetime.now(timezone.utc).date()
+    # A REFUSAL IS NOT A ZERO. This used to fall back to `printed = set()`, which
+    # turned "the calendar would not answer" into "no mover had an earnings
+    # print" -- a measurement. Measured 2026-08-31: six roles run in sequence
+    # rate-limited Finnhub, and hack1 and hack4 recorded
+    # `winners_with_print: 0` while hack2/3/5/6 recorded 3 ON THE SAME DAY. The
+    # zero was the refusal, and nothing in the receipt said so.
+    #
+    # `printed = None` propagates as `had_print: None` -- unknown, not false --
+    # and the grade reports CANNOT_DETERMINE instead of a count.
+    printed: set[str] | None
     try:
         cal = finnhub.earnings_calendar(start=(today - timedelta(days=4)).isoformat(), end=today.isoformat())
         printed = {(r.get("symbol") or "").upper() for r in cal}
-    except SourceRefusal:
-        printed = set()
+        print_lookup = "ok"
+    except SourceRefusal as exc:
+        printed, print_lookup = None, f"REFUSED: {exc}"
+        print(f"  earnings calendar REFUSED -- had_print is UNKNOWN for every mover, "
+              f"not False: {exc}")
     heads = _headlines(client, syms)
     universe.enrich([by_sym[s] for s in syms], max_calls=2 * args.top)
 
@@ -177,7 +190,7 @@ def main() -> int:
         movers.append({"symbol": s, "side": side, "ret_1d": round(r, 4), "ret_5d": round(r5.get(s, 0.0), 4),
                        "median_dollar_volume": m.median_dollar_volume, "dv_bucket": m.dv_bucket,
                        "market_cap_usd": m.market_cap_usd, "cap_bucket": universe.cap_bucket(m.market_cap_usd),
-                       "industry": m.industry, "had_print": s in printed, "headlines": heads.get(s, []),
+                       "industry": m.industry, "had_print": (s in printed) if printed is not None else None, "headlines": heads.get(s, []),
                        "engine": {"candidate": cands.get(s), "candidate_right_way": (cands.get(s) == ("UP" if side == "WIN" else "DOWN")) if s in cands else None,
                                   "old_universe": s in universe.OLD_UNIVERSE, "control_holding": s in universe.CONTROL_HOLDINGS}})
     # industry clusters among the movers
@@ -197,9 +210,15 @@ def main() -> int:
     for m in movers:
         m["compiled"] = (compiled or {}).get("movers", {}).get(m["symbol"]) if compiled and "movers" in compiled else None
 
-    n_win_print = sum(1 for m in movers if m["side"] == "WIN" and m["had_print"])
-    n_loss_print = sum(1 for m in movers if m["side"] == "LOSS" and m["had_print"])
+    # CANNOT DETERMINE rather than 0 when the calendar refused -- a guard
+    # derives its input or refuses, and a count is a claim that it looked.
+    if printed is None:
+        n_win_print = n_loss_print = "CANNOT_DETERMINE"
+    else:
+        n_win_print = sum(1 for m in movers if m["side"] == "WIN" and m["had_print"])
+        n_loss_print = sum(1 for m in movers if m["side"] == "LOSS" and m["had_print"])
     grade = {"winners_with_print": n_win_print, "losers_with_print": n_loss_print,
+             "print_lookup": print_lookup,
              "winners_in_candidates": sum(1 for m in movers if m["side"] == "WIN" and m["engine"]["candidate"]),
              "losers_in_candidates": sum(1 for m in movers if m["side"] == "LOSS" and m["engine"]["candidate"]),
              "candidates_right_way": sum(1 for m in movers if m["engine"]["candidate_right_way"]),
