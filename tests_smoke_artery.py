@@ -369,6 +369,62 @@ def _run_all() -> int:
     return 1 if _fails else 0
 
 
+def test_proof_4_the_sealed_WEIGHT_is_a_ceiling_not_a_suggestion():
+    """The seal proved which NAMES trade. It did not constrain HOW MUCH.
+
+    `sealed_notional` was written into the forecast's evidence and read by
+    nothing -- one grep hit, the line that writes it -- while the runner sized
+    from `sizing.PROFILES[risk_profile]`. hack4's profile is `maximum`, whose
+    per_thesis is 0.15, against a sealed 0.10. The runner could put half again
+    the book's weight into a name and every receipt would say the book was
+    followed.
+    """
+    from alpha.brains import tracker_portfolio as TP
+
+    cut, note = TP.clamp_to_sealed(0.15, {"sealed_notional": 0.10}, "long_shares")
+    check("proof4: an oversized fraction is CUT to the sealed weight", cut == 0.10, str(cut))
+    check("proof4: and says so", "CUT" in note and "ceiling" in note)
+
+    same, note2 = TP.clamp_to_sealed(0.04, {"sealed_notional": 0.10}, "long_shares")
+    check("proof4: a smaller fraction is left alone -- the clamp only reduces",
+          same == 0.04, str(same))
+    check("proof4: admission may still cut further", "within the sealed" in note2)
+
+    untouched, note3 = TP.clamp_to_sealed(0.15, {}, "long_call")
+    check("proof4: a non-sealed forecast is not touched by this clamp",
+          untouched == 0.15 and note3 == "")
+
+    # A 10% stock weight and 10% of equity spent on calls are not one risk.
+    for kind in ("long_call", "long_put", "bull_call_spread", "long_straddle"):
+        try:
+            TP.clamp_to_sealed(0.10, {"sealed_notional": 0.10}, kind)
+            check(f"proof4: {kind} is refused, not silently equated", False, "it returned")
+        except TP.SealedWeightRefusal as exc:
+            check(f"proof4: {kind} is refused, not silently equated",
+                  "SHARES-ONLY" in str(exc))
+    for kind in ("long_shares", "short_shares"):
+        check(f"proof4: {kind} expresses a sealed weight", kind in TP.SHARE_KINDS)
+
+
+def test_proof_5_the_runner_asks_about_the_sealed_names():
+    """A name can be sealed, the brain ready, and the runner never ASK -- the
+    universe was built from a hardcoded list + window universe + candidates
+    file, none of which reads the seal. The book would prove which names trade
+    and then trade none of them."""
+    import inspect
+
+    import scripts.run_pass as rp
+    src = inspect.getsource(rp)
+    check("proof5: run_pass injects the sealed holdings into its universe",
+          "sealed_holdings()" in src)
+    check("proof5: it is keyed off the brain being enabled, not a separate flag "
+          "that must be remembered",
+          'if "tracker_portfolio" in (args.brains' in src)
+    check("proof5: an unreadable sealed book REFUSES the pass rather than "
+          "quietly running without those names",
+          "could not be read" in src and "return 2" in src)
+
+
 # The __main__ guard stays at the BOTTOM: `_run_all` collects from globals() at
 # call time, so a test defined below it would never run while the suite still
 # printed ALL PASS. That happened once already, on 2026-08-31, to five checks.

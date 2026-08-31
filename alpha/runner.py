@@ -58,6 +58,7 @@ from datetime import datetime, timedelta, timezone
 from alpha import admission
 from alpha import book as book_mod
 from alpha import claims, concentration, config, crossbook, daybreak, drivers, ledger, recovery, refuted
+from alpha.brains import tracker_portfolio as _tracker_portfolio
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
 from alpha.data import chain as chain_mod
@@ -543,6 +544,23 @@ def evaluate(client: AlpacaPaper, forecast: Forecast, *, state: sizing.Tournamen
         if not verdict.approved:
             rejected.append((structure, verdict))
             continue
+        # THE SEALED WEIGHT IS A CEILING. Until 2026-08-31 the seal proved which
+        # NAMES traded and nothing constrained HOW MUCH: `sealed_notional` was
+        # written into evidence and read by nothing, while the sizer worked from
+        # the account's risk profile. hack4's profile allows 15% per thesis
+        # against a sealed 10%. This only ever REDUCES, and it refuses a
+        # structure that cannot express an equity weight honestly.
+        if verdict.approved and (forecast.evidence or {}).get("sealed_notional") is not None:
+            try:
+                capped, note = _tracker_portfolio.clamp_to_sealed(
+                    verdict.risk_fraction, forecast.evidence, structure.kind)
+            except _tracker_portfolio.SealedWeightRefusal as exc:
+                rejected.append((structure, sizing.SizingVerdict(
+                    False, 0.0, verdict.mdm_edge, str(exc))))
+                continue
+            if capped != verdict.risk_fraction:
+                verdict = replace(verdict, risk_fraction=capped,
+                                  reason=f"{verdict.reason} [sealed weight: {note}]")
         # THE GATE passed. Now THE RANKER: integrate the actual payoff over our
         # own forecast. A structure that cannot beat cash after the spread is
         # refused here, whatever its probability edge looked like.

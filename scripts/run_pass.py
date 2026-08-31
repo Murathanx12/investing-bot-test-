@@ -174,6 +174,33 @@ def main() -> int:
             logging.info("candidates from %s: +%d symbols (%s)", files[-1].name, len(extra), ",".join(extra[:12]))
         else:
             logging.warning("--candidates given but no state/candidates/*.json exists; universe unchanged")
+
+    # THE SEALED PORTFOLIO MUST BE ASKABLE. The universe was built from the
+    # hardcoded list, the window universe and the candidate file -- none of
+    # which reads the seal. So a name could be in `portfolios[<role>].holdings`,
+    # with `tracker_portfolio` enabled and the brain ready to answer for it, and
+    # the runner would never ASK, because the name was not in the universe. The
+    # book would have proved which names trade and then traded none of them.
+    #
+    # Injected whenever the brain is enabled -- not behind its own flag, because
+    # a flag that must be remembered is the same failure one step later.
+    if "tracker_portfolio" in (args.brains or ""):
+        try:
+            from alpha.brains import tracker_portfolio as _tp
+            sealed = _tp.sealed_holdings()
+            extra = [s_ for s_ in sealed["holdings"] if s_ not in universe_syms]
+            universe_syms += extra
+            logging.info("sealed portfolio %s (%s, sha %s): +%d names -> %s",
+                         sealed["book"], sealed["day"],
+                         str(sealed["content_sha256"])[:12], len(extra),
+                         ",".join(sorted(sealed["holdings"])))
+        except Exception as exc:                                    # noqa: BLE001
+            # REFUSE rather than trade a partial book. Silently running the
+            # other brains over a universe missing the sealed names would look
+            # like a normal session and grade as one.
+            logging.error("tracker_portfolio is enabled but its sealed portfolio "
+                          "could not be read: %s", exc)
+            return 2
     args.universe = universe_syms
     names = [b.strip() for b in args.brains.split(",") if b.strip()]
     unknown = [b for b in names if b not in brains.BRAINS]

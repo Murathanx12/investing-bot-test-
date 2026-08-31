@@ -218,3 +218,55 @@ def forecast(client, symbol: str, horizon_days: float, *, day: str | None = None
                              "alpha.tracker; a refresh after the seal cannot change today"),
         },
     )
+
+
+# --------------------------------------------------------------------------
+# ENFORCING THE SEALED WEIGHT (2026-08-31)
+# --------------------------------------------------------------------------
+#
+# The seal proved WHICH NAMES trade. It did not, until now, constrain HOW MUCH.
+# `sealed_notional` was written into the forecast's evidence and read by
+# nothing -- `grep sealed_notional` returned exactly one hit, the line that
+# writes it -- while the runner sized from `sizing.PROFILES[risk_profile]`.
+# hack4's profile is `maximum`, whose `per_thesis` is 0.15, against a sealed
+# 0.10: the runner could put HALF AGAIN the weight the book chose into a name
+# and every receipt would still say the book was followed.
+#
+# So the book's weight becomes a CEILING. The sizer and admission may cut it --
+# gross cap, opening range, daily-loss latch all still bind and all still only
+# reduce -- but nothing may exceed it.
+
+#: Structures whose notional means what the book meant by it. A 10% stock
+#: weight and 10% of equity spent on calls are not the same risk, and treating
+#: them alike is how a "10% position" becomes a total loss. Options get their
+#: own premium-risk semantics; they do not get the equity weight.
+SHARE_KINDS = frozenset({"long_shares", "short_shares"})
+
+
+class SealedWeightRefusal(Exception):
+    """This structure cannot express a sealed equity weight honestly."""
+
+
+def clamp_to_sealed(risk_fraction: float, forecast_evidence: dict,
+                    structure_kind: str) -> tuple[float, str]:
+    """Cut `risk_fraction` to the sealed weight. Never raises it.
+
+    Returns `(fraction, note)`. Raises `SealedWeightRefusal` for a non-share
+    structure, because there is no honest conversion from "6% of equity in the
+    stock" to a premium budget, and inventing one silently changes the mandate.
+    """
+    sealed = forecast_evidence.get("sealed_notional")
+    if sealed is None:
+        # Not a sealed-portfolio forecast: this clamp has no opinion.
+        return risk_fraction, ""
+    if structure_kind not in SHARE_KINDS:
+        raise SealedWeightRefusal(
+            f"{structure_kind} cannot express a sealed equity weight of "
+            f"{sealed:.1%}. The tracker books are SHARES-ONLY so the sealed "
+            f"notional keeps one meaning; express the same forecast as options "
+            f"on a book with premium-risk semantics instead.")
+    sealed = float(sealed)
+    if risk_fraction <= sealed + 1e-12:
+        return risk_fraction, (f"within the sealed {sealed:.1%}")
+    return sealed, (f"CUT from {risk_fraction:.1%} to the sealed {sealed:.1%} "
+                    f"-- the book's weight is a ceiling, not a suggestion")
