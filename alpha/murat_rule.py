@@ -156,7 +156,13 @@ def band_overlay(row: dict) -> dict | None:
         return None
     for lo, hi, monthly, ann, t, n in BAND_PRIOR["bands"]:
         if tr >= lo and (hi is None or tr < hi):
-            if close is not None and float(close) < BAND_PRIOR["min_price"]:
+            if close is None:
+                # A guard DERIVES its input or REFUSES: without the price the
+                # $2 condition cannot be verified, so the band has no opinion.
+                return {"band": f"ratio>={lo:g}", "applies": False,
+                        "basis": ("band prior WITHHELD: close unreadable, so the sub-$2 "
+                                  "condition cannot be verified -- panel prior kept")}
+            if float(close) < BAND_PRIOR["min_price"]:
                 return {"band": f"ratio>={lo:g}", "applies": False,
                         "basis": (f"band prior UNINFORMATIVE under ${BAND_PRIOR['min_price']:g} "
                                   "(S30b: sub-$2 cell t 0.39) -- no opinion, panel prior kept")}

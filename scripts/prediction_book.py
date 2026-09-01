@@ -398,6 +398,11 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
             "days_to_next_catalyst": t.get("days_to_catalyst"),
             # target_ratio is target/price; the tracker stores it as target/price - 1.
             "target_ratio": (1.0 + up) if up is not None else None,
+            # The band prior's $2 silence needs the price it is conditioned on.
+            # Discovered in a pre-seal replay (2026-09-01): without this field
+            # band_overlay could never verify the sub-$2 condition -- and a
+            # guard that cannot read its input must refuse, not pass.
+            "close": t.get("close"),
             "rating_counts_mean": t.get("consensus"),
             "tracker_status": t.get("status"),
             "coverage": t.get("coverage"),

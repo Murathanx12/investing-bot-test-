@@ -298,6 +298,10 @@ check("under $2 the band prior says NOTHING (panel prior kept, basis says why)",
 b_none = mr.score({**FIRES, "close": 10.0}, mr.evaluate(FIRES), prior)
 check("ratio 1.8 is outside every band: two-cell formula untouched",
       "claimed_abs_move" in b_none["exp_return_basis"] and b_none.get("upside_band") is None)
+b_blind = mr.score({**FIRES, "target_ratio": 6.0}, mr.evaluate({**FIRES, "target_ratio": 6.0}), prior)
+check("an unreadable close WITHHOLDS the band (derive or refuse)",
+      "WITHHELD" in b_blind["exp_return_basis"] and b_blind["exp_return"] is not None,
+      b_blind["exp_return_basis"][:70])
 
 
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAILED: ' + ', '.join(fails)}")
