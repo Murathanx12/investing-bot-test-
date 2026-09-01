@@ -1,3 +1,211 @@
+## SESSION 33 CLOSE (2026-09-01, Fable, written at 09:40 ET as Murat closes the PC)
+
+**The 10:01 ET entry pass runs ON RAILWAY after this laptop is off.** Verify it
+next session (item 1 below). What follows is the full close-out: done / issues
+/ findings / left / novel.
+
+### WHAT WE DID
+1. Validated everything: seal ffcc740921 committed+published+deployed; website
+   GREEN (status ok, zero degraded reasons); terminal suite 63/2,769 ALL PASS;
+   finance fast suite 6,054 passed / 14 skipped (matches baseline pair).
+2. **BAND_PRIOR v2 shipped** (f83bd14; receipt EXP-RETURN-XS-1, finance
+   b5d9569): the whole ratio line is banded, positives 44 -> 734/766, replayed
+   books hack3 10 @ 83% / hack4 5 @ 50% / hack6 15 @ 90%. First v2 seal is
+   2026-09-02 -- NOT YET BUILT (see LEFT #1).
+3. **Murat re-prioritized** ("those six SIMPLE features failed" is not "stock
+   information doesn't exist") and the comparative-truth-machine trio was
+   built the same session:
+   - `scripts/analyst_target_grades.py` (finance 98b59c4): 1,333,683
+     individual 12m targets graded on amaskcd identity.
+   - `scripts/time_machine_arena.py` (finance 98b59c4): monthly frozen dates
+     2015-2024, four eras, seven minds, four horizons, disagreement miner.
+   - `scripts/move_decomposition.py` (terminal 4a96dd5): market/sector/
+     company split per held name, industry-grained ETF map (SMH/XBI/KBE...).
+4. Open verification (partial -- PC closed before 10:01): hack1's three
+   completion orders FILLED at the bell (SPY 7 @ 762.08, QQQ, IWM) and the
+   anchor is flat again (overnight round-trip complete), equity $99,169.
+   hack6 streamed hundreds of clean PortfolioDeclined lines -- the sealed
+   0-name book being read and enforced, the designed outcome. hack3 and hack4
+   had STOPS FIRE on the red macro open (positions 4->2 and 3->1) -- see
+   NOVEL #3, this is Murat's horizon-contamination thesis happening live.
+
+### ISSUES FOUND (each cost time today; do not re-pay)
+- **Seal building is manual and nobody seals 09-02 while the laptop is off.**
+  The nightly Railway loop does NOT run prediction_book --seal.
+- The panel's `upside` is target/close MINUS 1; BAND_PRIOR keys on the RATIO.
+  First receipt run measured a region one band up and was discarded.
+- The laptop clock runs ~15 min fast; only `/v2/clock` tells trading truth.
+- Empty `$TMPDIR` still kills background redirects instantly (S30 trap).
+- merge_asof: nullable Int64 permno from ibcrsphist must be cast; the right
+  side must be globally sorted on the `on` key.
+- Finnhub sector labels are INDUSTRY-grained ("Biotechnology", "Banking");
+  the SPDR sector map alone leaves many names market-leg-only.
+- Ratio-1.5 boundary churn: 12 of 2,955 names crossed OUT of clause (a) on
+  +1..3.6% UP-moves in one day. Under v2 the boundary is a rank step, not a
+  cliff; hysteresis deprioritized.
+
+### FINDINGS (all in committed receipts)
+- **Within the buyable region, six stock features have NO rank** (FM |t|<1.5
+  over 143 months; in-sample ceiling t 2.25). Constants-per-band IS the
+  measured state of knowledge.
+- **Bands, uniform hygiene:** <1.5 +2.41%/yr t1.30 | 1.5..3 +5.74% t1.85 |
+  3..5 +16.55% t2.20 | >=5 -37.77% t-7.75.
+- **The engine differs from the street by EXCLUSION and that is the excess:**
+  street ratings +0.62%/yr t0.37; strong-buys -0.14%; top-target quintile
+  -7.51% t-2.09; AEGIS admissible +6.99% t2.16. Top upside decile implies
+  +1642%, realizes -33.3% median.
+- **Analyst BIAS persists (Spearman 0.376, deciles -2.8pp -> +80pp);
+  ACCURACY barely (0.087). Skill-weighting must be bias-first.** PIT bias
+  correction recovers ~5pp on target-chasing and leaves it negative.
+- **Arena eras:** AEGIS admissible positive at 1m in ALL FOUR eras
+  (+4.9/+8.4/+2.7/+4.0%/yr), decaying to +2.3% at 12m -> a monthly-refresh
+  signal, matching the book's cadence. Toxic-avoid holds everywhere
+  (-36..-41%/yr, t -7..-12).
+- **Disagreement miner first harvest:** 8,679 AEGIS-avoid/street-buy
+  name-months, median 12m -45.6% (the avoid was right); best-miss AXSM
+  2018-12 **+4,493%** -- the standing research queue.
+- Decomposition on 08-31: RZLV -2.69% = mkt -0.48% + sec +0.62% +
+  **company -2.83%** -- that drop was company-specific.
+- Market context: fund managers heavily long with AI-bubble as top concern;
+  MU/IBM/WDC swinging >25% intraday-to-weekly; 09-01 weakness macro-driven
+  (oil, yields).
+
+### WHAT IS LEFT (queue, P&L first)
+1. **Seal 2026-09-02 pre-open under v2 (MANUAL: refresh -> --backfill-prices
+   -> seal -> --publish -> commit/push -> fleet deploy).** Compare to the
+   replay (hack3 10 @ 83% / hack4 5 @ 50% / hack6 15 @ 90%) before
+   publishing. This is the single highest-priority action.
+2. Verify today's 10:01 pass ran on Railway: fills for hack3/hack4 vs seal
+   ffcc740921; whether stop-outs (LAES/LOVE/RZLT/+2 of hack4) were re-entered
+   by the pass; run `move_decomposition --day 2026-09-01` after the close and
+   attribute the stop-outs (macro or company?).
+3. Grade decision_outcomes days 1-2; the refused-name ledger prices the old
+   coherence floor's refusals -- the direct test of v2's admissions.
+4. Arena v2: add minds as data lands (13F institutional state, EPS revision
+   VELOCITY from ibes detail, insider Form 4); mine the AXSM-class best-miss
+   list into typed hypotheses.
+5. Wire AnalystSkill (bias-first) into CompanyState; test revision velocity
+   vs level.
+6. Holder provenance H2/H3 (GO, filer-level, s34 on mgrno) + the DealScan
+   lender join; H1 blocked pending EDGAR 13D/13G.
+7. Agree-cell tilt (+16.3 vs +5.5): pre-register rating>=4.1 as a rank bonus.
+8. Overnight: stock x regime x overnight in the replay; never a blanket rule.
+9. Wednesday plan for 09-04 11:00 ET judging (books liquidate 10:45 ET).
+10. Standing: ledger hash chain BROKEN since 25 Aug -- never repair silently;
+    arena graded-never-traded; no reseal of a live day, ever.
+
+### NOVEL IDEAS (new this session, unbuilt or partially built)
+1. **The comparative truth machine as a permanent instrument**: every
+   disagreement cell between minds is a research queue, not a scoreboard
+   entry. "Analysts BUY, AEGIS AVOID, stock +80%" opens a case file: which
+   input was missing, whose prior was wrong, what filing did we not read.
+2. **Two simultaneous beliefs per name** (Murat): a structural 6-12mo thesis
+   AND a tactical next-hours state, coexisting. The tactical layer may delay
+   entry, hedge with SPY/QQQ, or trim -- it may NEVER delete the candidate.
+3. **Stops should consult the decomposition** (hypothesis, pre-register
+   before building): today hack3/hack4 stops fired into a macro-driven open.
+   A stop keyed on the COMPANY component (or a stop that widens when the
+   move is market-beta) would cut company failures and survive macro
+   mornings. Worst-case arithmetic FIRST -- a decomposition-gated stop must
+   still bound the book's gap risk.
+4. **Bias-first analyst weighting**: subtract each analyst's own persistent
+   optimism before averaging targets; accuracy-weighting only with a
+   stronger conditional receipt (sector/horizon/regime cells).
+5. **Constants-per-band as an anti-overfit stance**: when the cross-section
+   is flat, publishing a constant with a t-stat is MORE honest than a
+   764-value ranking that implies knowledge that does not exist.
+6. **Revision VELOCITY over level** ($120->$135->$160->$190 from independent
+   skilled analysts in 60d is a different state than one stale $190).
+
+## SESSION 33 (2026-09-01, Fable, open) -- BAND PRIOR v2: THE PRIOR STOPS BEING THE GATE
+
+**RESULT IMPROVEMENT: positive exp_return 44 -> 734 of 766 candidates; hack6
+0 -> 15 names at 90% gross; hack3 33% -> 83%; hack4 at its full 50% intent
+(catalyst clause binds, by design). Applies from the NEXT seal; today's
+ffcc740921 is immutable.** Terminal f83bd14; receipt at finance b5d9569.
+Suite 63/2,769 ALL PASS.
+
+- **The GPT-review shrinkage proposal was ADJUDICATED, not adopted.** Receipt
+  EXP-RETURN-XS-1 (`scripts/exp_return_cross_section.py`, 434,212 name-months
+  2013-2024): six Fama-MacBeth tilts INSIDE the admissible region -- upside,
+  consensus, ret_12m, drawdown, coverage, liquidity -- every |t| < 1.5 across
+  143 months; even the full-sample in-sample ceiling is t 2.25. The
+  "decorative ranking" S33a measured was the data's honest verdict, so v2
+  keeps constants-per-band and instead bands the WHOLE ratio line (uniform
+  hygiene >=$2 / >=2 analysts / no split-year):
+  <1.5 +2.41%/yr t 1.30 | 1.5..3 +5.74% t 1.85 | 3..5 +16.55% t 2.20 |
+  >=5 -37.77% t -7.75. Two cells are labelled below-the-t-2-bar on the row.
+- **Murat's engine-vs-analysts-vs-reality backtest, same receipt:** analyst
+  ratings >=4.1 earn +0.62%/yr (t 0.37); strong-buys -0.14%; the top-target
+  quintile LOSES -7.51%/yr (t -2.09); the top upside decile implies +1642%
+  and realizes -10.5% mean / -33.3% median over 12m. The engine's admissible
+  region earns +6.99%/yr (t 2.16). **We differ from the street by EXCLUSION,
+  and the difference IS the excess.** Ratings DO add inside the region
+  (agree-cell +16.3%/yr t 1.88 vs engine-only +5.5% t 0.89) -- a mild tilt
+  candidate, never a gate. Analyst love does not rescue the toxic band
+  (-35.2% t -5.44).
+- **Honesty rows:** admissible-region by-year is NEGATIVE in 2015 (-19.1%)
+  and 2021 (-14.8%) -- risk-off years hit this structure; expect losing
+  years, not losing months (share of positive months 54-59%).
+- **The one-day-event worry, measured:** 12 of 2,955 names crossed OUT of
+  clause (a) between 08-31 and 09-01 on +1..3.6% UP-moves (price up -> ratio
+  down through 1.5); zero crossed into toxic on price alone. Under v2 the
+  1.5 boundary is a RANK STEP (+0.48%/mo -> +0.20%/mo), not a cliff, so
+  hysteresis is deprioritized.
+- **Units trap for the next reader:** the panel's `upside` is target/close
+  MINUS 1; BAND_PRIOR keys on target/close. The first receipt run measured a
+  region one band up and was discarded. Also: the laptop clock runs ~15 min
+  fast -- trust `/v2/clock` only.
+- Coverage>=2 and >=$2 are enforced INSIDE `band_overlay` (WITHHELD /
+  NOT MEASURED bases): a prior applied outside its measured region is a
+  guess wearing a receipt.
+- Seal building is STILL MANUAL pre-open: refresh -> --backfill-prices ->
+  seal -> --publish -> commit/push -> fleet deploy. The nightly loop does NOT
+  seal. Tomorrow's seal is the FIRST under v2 -- verify hack6 fills ~15
+  names and the gross figures match the replay before deploying.
+
+**MURAT'S RE-PRIORITIZATION (2026-09-01, after reviewing the receipt):**
+the receipt's correct reading is "those six SIMPLE features did not separate
+winners" -- NOT "stock-specific information does not exist". That strengthens
+the case for the hard sensors (analyst identity/skill, holders, lenders,
+causal events, revisions velocity). The next major build is the COMPARATIVE
+TRUTH MACHINE: Time-Machine Arena + market/sector/idio decomposition +
+analyst-skill benchmark. Structural thesis and tactical state must COEXIST
+(a 6-12mo BUY does not become DROP because the S&P fell one morning); the
+tactical layer decides timing/hedging, never thesis destruction. Do NOT
+reseal a live day retroactively -- that contaminates the experiment.
+
+**NEXT SESSION QUEUE (P&L first):**
+1. Build + seal 2026-09-02 pre-open under v2 (first v2 seal). Compare the
+   sealed books to this session's replay (hack3 10 @ 83%, hack4 5 @ 50%,
+   hack6 15 @ 90%); investigate any diff before publishing.
+2. Grade day 1+2: decision_outcomes rows started maturing; the refused-name
+   ledger now prices the coherence floor's old refusals -- the direct test of
+   whether v2 was right to admit them.
+3. TIME-MACHINE ARENA (finance `scripts/time_machine_arena.py`, first run
+   this session): read the receipt, mine the disagreement cells
+   (AEGIS-avoids/street-buys winners are the research queue), extend minds
+   (13F institutional state, EPS revision velocity) as data lands.
+4. ANALYST SKILL (finance `scripts/analyst_target_grades.py`): persistence
+   receipt decides whether per-analyst bias-correction / skill-weighting is
+   real. If bias persists, wire `AnalystSkill(analyst)` into CompanyState;
+   test REVISION VELOCITY (target path over 60d) vs level.
+5. MOVE DECOMPOSITION (terminal `scripts/move_decomposition.py`): run after
+   each close on the sealed holdings; company_component feeds the autopsy;
+   later, the tactical layer (delay entry / hedge / trim) keys on
+   market-vs-company decomposition, NEVER on raw red days.
+6. Holder provenance H2/H3 (GO, filer-level): per-manager entries/duration
+   from tr_13f.s34 on mgrno; the LENDER tie via dealscan.lendershares is the
+   differentiated join nobody has. H1 stays BLOCKED pending EDGAR 13D/13G.
+7. The agree-cell tilt (+16.3 vs +5.5): rating>=4.1 as a RANK bonus inside
+   the admissible region -- pre-register before evaluating.
+8. Overnight: test stock x regime x overnight in the replay (close->open vs
+   open->close alpha per name, conditioned on events/regime) -- never a
+   blanket buy-close-sell-open rule.
+9. Wednesday plan for 09-04 11:00 ET judging (books liquidate 10:45 ET).
+10. Standing: ledger hash chain BROKEN since 25 Aug (line 1203) -- do not
+    repair silently. arena stays graded-never-traded via _arena_daily_pass.
+
 ## SESSION 32 (2026-09-01, Fable, pre-open) -- THE SEAL AGREES WITH ITS CALIBRATION
 
 **RESULT IMPROVEMENT: the 09-01 seal (sha ffcc740921) is the first built under
