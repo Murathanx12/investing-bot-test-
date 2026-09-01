@@ -111,6 +111,62 @@ Z05 = 1.6449
 #: counts DATE BLOCKS.
 CONFIDENCE_FULL_BLOCKS = 12
 
+#: BAND-CONDITIONAL PRIOR (2026-09-01). The two-cell prior hands every name in
+#: a cell the SAME expected return -- a constant is barely a forecast, and it
+#: collapses exactly the structure the eleven-year panel measured: the upside
+#: BAND decides the sign. Numbers verbatim from receipt UPSIDE-BAND-DECON-1
+#: (aegis-finance `backend/data/optimus/tracker_backtest/
+#: upside_band_decontamination.json`, IBES+CRSP 2013-2024, 143 months,
+#: paired-vs-market; finance commit cb3b13a):
+#:
+#:   target_ratio >= 5   (+400%+ upside)   -25.91%/yr excess, t -4.43, n=54,310
+#:   3 <= target_ratio<5 (+200..400%)      +20.70%/yr excess, t +2.95, n=10,419
+#:   close < $2          UNINFORMATIVE     (t 0.39 in-cell) -> NO band opinion
+#:
+#: The monthly number (annualised/12) IS the 21-session exp_return for names
+#: the band covers; every other name keeps the panel's two-cell prior. This is
+#: the S30b verdict operationalised: the believable extreme target is the
+#: toxic one, the band below it is where the lost winners live, and below $2
+#: the history says nothing rather than "bad". These are HISTORICAL BASE
+#: RATES for calibration under PRODUCT_EXPERIMENT, not a claim of alpha.
+BAND_PRIOR = {
+    "receipt": "UPSIDE-BAND-DECON-1",
+    "source": "aegis-finance backend/data/optimus/tracker_backtest/upside_band_decontamination.json",
+    "window": "2013-2024 IBES+CRSP, 143 months, paired vs market",
+    "min_price": 2.0,
+    "bands": (
+        # (ratio_lo, ratio_hi, monthly_mean_excess, annualised, t_stat, name_months)
+        (5.0, None, -0.25910 / 12.0, -0.2591, -4.431, 54310),
+        (3.0, 5.0, +0.20700 / 12.0, +0.2070, +2.948, 10419),
+    ),
+}
+
+
+def band_overlay(row: dict) -> dict | None:
+    """The band prior's opinion on one row, or None where it has none.
+
+    None is three different silences, and the caller may not care which but
+    the basis string does: ratio outside every measured band; ratio unreadable;
+    price under $2 where the eleven-year cell is statistically UNINFORMATIVE
+    (t 0.39) -- "no opinion", never "historically bad".
+    """
+    tr = row.get("target_ratio")
+    close = row.get("close")
+    if tr is None:
+        return None
+    for lo, hi, monthly, ann, t, n in BAND_PRIOR["bands"]:
+        if tr >= lo and (hi is None or tr < hi):
+            if close is not None and float(close) < BAND_PRIOR["min_price"]:
+                return {"band": f"ratio>={lo:g}", "applies": False,
+                        "basis": (f"band prior UNINFORMATIVE under ${BAND_PRIOR['min_price']:g} "
+                                  "(S30b: sub-$2 cell t 0.39) -- no opinion, panel prior kept")}
+            return {"band": f"ratio {lo:g}..{hi if hi is not None else 'inf'}",
+                    "applies": True, "exp_return_monthly": monthly,
+                    "basis": (f"{BAND_PRIOR['receipt']}: {ann:+.1%}/yr excess "
+                              f"(t {t:+.2f}, n={n:,} name-months, {BAND_PRIOR['window']}) "
+                              f"/ 12 for the 21-session horizon")}
+    return None
+
 #: The frozen contract. Hashed into every sealed book that uses this generator,
 #: so a later edit to any threshold is visible in the diff AND in the seal.
 CONTRACT: dict[str, Any] = {
@@ -282,6 +338,17 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
         p_up, basis = 0.5, "NO MEASURABLE BASE RATE on the panel; 0.5 is ignorance, not a forecast"
 
     exp_return = (2.0 * p_up - 1.0) * claimed if claimed is not None else None
+    exp_basis = "(2*p_up - 1) x claimed_abs_move; p_up = 0.5 gives exactly zero"
+    band = band_overlay(row)
+    if band is not None and band.get("applies"):
+        # The band's eleven-year mean excess replaces the two-cell scale hack
+        # for the names it covers: the toxic +400%+ band goes NEGATIVE (and the
+        # long-book coherence floor then excludes it), the +200..400% band goes
+        # positive and is finally admissible on evidence rather than lost.
+        exp_return = band["exp_return_monthly"]
+        exp_basis = band["basis"]
+    elif band is not None:
+        exp_basis = f"{exp_basis}; {band['basis']}"
     downside = -Z05 * mag if mag is not None else None
 
     blocks = cell.get("n_blocks") or 0
@@ -298,7 +365,8 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
                                    f"sqrt({HORIZON_SESSIONS}/252), capped at "
                                    f"{CLAIM_ABS_MOVE_CAP:.0%}. A scale, not a forecast."),
         "exp_return": round(exp_return, 5) if exp_return is not None else None,
-        "exp_return_basis": "(2*p_up - 1) x claimed_abs_move; p_up = 0.5 gives exactly zero",
+        "exp_return_basis": exp_basis,
+        "upside_band": (band or {}).get("band"),
         "downside_5pct": round(downside, 5) if downside is not None else None,
         "downside_basis": f"-{Z05} x the same vol scale (5% normal quantile). Not a stop.",
         "confidence": round(conf, 3),

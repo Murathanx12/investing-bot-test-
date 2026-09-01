@@ -281,5 +281,24 @@ except brain.RuleDeclined as exc:
 
 brain.BOOKS, brain.SEED_BOOKS = _orig_books, _orig_seed
 
+print("\n-- the band prior: eleven years decide the SIGN, and $2 is a silence")
+b_toxic = mr.score({**FIRES, "target_ratio": 6.0, "close": 10.0}, mr.evaluate({**FIRES, "target_ratio": 6.0}), prior)
+check("+400%+ band at a readable price goes NEGATIVE (the S30b toxic cell)",
+      b_toxic["exp_return"] is not None and b_toxic["exp_return"] < 0, str(b_toxic["exp_return"]))
+check("and the basis names the receipt", "UPSIDE-BAND-DECON-1" in b_toxic["exp_return_basis"])
+check("and the band travels on the row", b_toxic.get("upside_band") == "ratio 5..inf", str(b_toxic.get("upside_band")))
+b_good = mr.score({**FIRES, "target_ratio": 4.0, "close": 10.0}, mr.evaluate({**FIRES, "target_ratio": 4.0}), prior)
+check("+200..400% band goes POSITIVE at the measured monthly excess",
+      abs(b_good["exp_return"] - 0.2070 / 12.0) < 1e-9, str(b_good["exp_return"]))
+b_cheap = mr.score({**FIRES, "target_ratio": 4.0, "close": 1.50}, mr.evaluate({**FIRES, "target_ratio": 4.0}), prior)
+check("under $2 the band prior says NOTHING (panel prior kept, basis says why)",
+      "UNINFORMATIVE" in b_cheap["exp_return_basis"]
+      and abs(b_cheap["exp_return"] - (2 * 0.55 - 1) * b_cheap["claimed_abs_move"]) < 1e-9,
+      b_cheap["exp_return_basis"][:80])
+b_none = mr.score({**FIRES, "close": 10.0}, mr.evaluate(FIRES), prior)
+check("ratio 1.8 is outside every band: two-cell formula untouched",
+      "claimed_abs_move" in b_none["exp_return_basis"] and b_none.get("upside_band") is None)
+
+
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAILED: ' + ', '.join(fails)}")
 raise SystemExit(1 if fails else 0)
