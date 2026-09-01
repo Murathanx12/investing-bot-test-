@@ -52,6 +52,24 @@ SECTOR_ETF = {
     "Utilities": "XLU",
     "Real Estate": "XLRE",
     "Communication Services": "XLC",
+    # Finnhub uses INDUSTRY-grained labels on most tracker rows; map the ones
+    # observed in the live day files (2026-09-01 histogram) to their sector
+    # ETF. SMH for semis specifically -- the XLK blend hides exactly the
+    # semi-vs-market split Murat's NVDA example is about.
+    "Biotechnology": "XBI",
+    "Pharmaceuticals": "XLV",
+    "Banking": "KBE",
+    "Insurance": "XLF",
+    "Semiconductors": "SMH",
+    "Electrical Equipment": "XLI",
+    "Machinery": "XLI",
+    "Aerospace & Defense": "XLI",
+    "Retail": "XRT",
+    "Media": "XLC",
+    "Hotels, Restaurants & Leisure": "XLY",
+    "Metals & Mining": "XME",
+    "Chemicals": "XLB",
+    "Consumer products": "XLP",
 }
 
 LOOKBACK_SESSIONS = 120
