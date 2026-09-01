@@ -122,7 +122,9 @@ def test_proof_2_the_brain_trades_exactly_what_was_sealed():
     check("proof2: the book's hash is carried onto the decision",
           got["content_sha256"] == SEALED["content_sha256"])
 
-    f = TP.forecast(None, "AAA", 21 / (5 / 7))
+    # day pinned explicitly: the default is TODAY, and a proof that reads
+    # today's live seal is red every morning before sealing (paid 2026-09-01).
+    f = TP.forecast(None, "AAA", 21 / (5 / 7), day="2026-08-31")
     check("proof2: a sealed name gets a forecast", f.symbol == "AAA" and f.sd > 0)
     check("proof2: the forecast carries the sealed weight as evidence",
           f.evidence["sealed_notional"] == 0.10)
@@ -135,7 +137,7 @@ def test_proof_2_the_brain_trades_exactly_what_was_sealed():
 
     for absent in ("MU", "NVDA", "CCC"):
         try:
-            TP.forecast(None, absent, 21 / (5 / 7))
+            TP.forecast(None, absent, 21 / (5 / 7), day="2026-08-31")
             check(f"proof2: {absent} is refused (not in the sealed book)", False,
                   "it returned a forecast")
         except TP.PortfolioDeclined as exc:

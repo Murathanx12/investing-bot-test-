@@ -1073,6 +1073,25 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
                 drop(f"below the ${p.min_dollar_volume / 1e6:.0f}m/day liquidity floor",
                      f"{r['symbol']}: ${dv / 1e6:.1f}m/day")
                 continue
+        # LONG-BOOK COHERENCE (2026-09-01). These books are long-only, and the
+        # runner's brain forecasts each name from the SAME sealed numbers -- so
+        # a name whose own calibrated exp_return is not positive forecasts DOWN
+        # and is refused at trade time, every time. Sealing it seals dead
+        # weight: on 2026-08-31 hack6 sealed 15/15 such names and correctly
+        # entered nothing, and RZLV (ranked #1 by upside x consensus) sat out
+        # the same way. This is the panel base rate speaking -- the rule-firing
+        # cell (high target ratio) MEASURES below 0.5 (the S30b toxicity band)
+        # -- and the book now agrees with its own calibration instead of
+        # arguing with it at the broker. The exclusion is counted, not silent.
+        exp_r = r.get("exp_return")
+        if exp_r is None:
+            drop("exp_return unreadable (the brain would refuse the numberless name)")
+            continue
+        if exp_r <= 0:
+            drop("exp_return not positive (own base rate says this cell loses; "
+                 "a long book cannot hold it)",
+                 f"{r['symbol']}: exp_return {exp_r:+.4f}")
+            continue
         if rank_value(r, p.rank) == float("-inf"):
             drop(f"no {p.rank} value")
             continue

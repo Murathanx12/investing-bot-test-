@@ -938,6 +938,33 @@ def test_the_books_are_analysis_and_the_only_bridge_to_an_order_is_named():
             f"to the runner. Update the connection map and this test.")
 
 
+
+def test_a_long_book_cannot_hold_a_name_its_own_numbers_call_negative():
+    """2026-09-01 coherence rule. On 08-31 hack6 sealed 15/15 negative-exp
+    names and correctly entered NOTHING (the brain forecasts each name from
+    the same sealed numbers, so exp_return<=0 -> direction down -> a long-only
+    book refuses, every time). The book now agrees with its own calibration at
+    SEAL time instead of arguing with it at the broker."""
+    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+
+    def eligible_row(sym, exp):
+        r = _row(symbol=sym, days_to_catalyst=10)
+        r["status"] = T.classify(r).status
+        r.update(exp_return=exp, downside_5pct=-0.10, confidence=0.9, sector="TECH")
+        return r
+
+    good, bad, none_ = eligible_row("GOOD", 0.02), eligible_row("BAD", -0.01), eligible_row("NONE", None)
+    none_.pop("exp_return")
+    port = T.build_portfolio([good, bad, none_], hack4)
+    assert [h["symbol"] for h in port["holdings"]] == ["GOOD"], port["holdings"]
+    reasons = port["excluded_by_reason"]
+    assert any("exp_return not positive" in r for r in reasons), reasons
+    assert any("exp_return unreadable" in r for r in reasons), reasons
+    # exactly zero is not positive either -- a coin flip is not a long thesis
+    port2 = T.build_portfolio([eligible_row("ZERO", 0.0)], hack4)
+    assert port2["n_selected"] == 0
+
+
 # The __main__ guard MUST stay at the very bottom. `_run_all` collects from
 # globals() at call time, so any test defined BELOW the guard is invisible to it:
 # on 2026-08-31 five new checks sat under it and run_tests.py counted 49 while
