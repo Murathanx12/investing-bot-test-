@@ -48,8 +48,17 @@ f5a4316..6ec9604, deployed to hack3/4/6 pre-open.
    verify WRDS s34/tfn + DealScan entitlements (TCP timed out 09-01 morning,
    NOT concluded), then H2/H3 (manager identity + holding-period fingerprint)
    on 13F panel history. Split passive (13G/index) from active (13D) FIRST.
-4. **arena_forward gap**: if last night's 17:45 ET pi_arena_daily still missed,
-   add it to the run_job allowlist (one line in optimus_ledger.py) and trigger.
+4. **arena_forward gap**: HANDLED differently than first queued -- Opus found
+   `_arena_daily` submits orders even when the decision pass RAISES (stale
+   intent), so the allowlist binds to `_arena_daily_pass` (decision half only;
+   a repaired day is a graded day, never a traded one). Finance 7f675a3.
+   WHY it was silent since 08-24 (sleep vs raise) is still undetermined.
+4a. **Attribution correction (294f189)**: the session-32 exclusion numbers
+   above are FIRST-FIRED attribution; marginally, the coherence floor is the
+   binding constraint on all three books (367 of hack3's 766; hack6's downside
+   cap buys back only 23) and exp_return is non-positive on 722/766 candidates
+   with three constants covering nearly all values -- the sharpest statement
+   yet of queue item 2.
 5. **News-universe lane** (--news-universe on ONE experimental account) and the
    DecisionCard remain the big V1 items after the above.
 6. Judging 09-04 11:00 ET: `--expiry 2026-09-04` books liquidate 10:45 ET that
