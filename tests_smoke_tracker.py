@@ -965,6 +965,85 @@ def test_a_long_book_cannot_hold_a_name_its_own_numbers_call_negative():
     assert port2["n_selected"] == 0
 
 
+def test_excluded_marginal_is_not_first_fired():
+    """The marginal funnel answers a question `excluded_by_reason` cannot.
+
+    The eligibility chain short-circuits, so a name is owned by the EARLIEST
+    rule it fails. That answers "what fired first", never "what would relaxing
+    this one rule buy" -- and on the 2026-09-01 seal the two disagreed about
+    why hack6 was empty (first-fired said the 20% downside cap, 541 names;
+    marginal said the coherence floor, and dropping the downside cap alone
+    would have yielded 23 names, not 541).
+
+    D is the whole point of this test: it fails BOTH rules, so it counts toward
+    `fails` twice and toward `fails_only` not at all. Relaxing either rule
+    alone does not buy D back.
+    """
+    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+
+    def row(sym, cat, exp):
+        r = _row(symbol=sym, days_to_catalyst=cat)
+        r["status"] = T.classify(r).status
+        r.update(exp_return=exp, downside_5pct=-0.10, confidence=0.9, sector="TECH")
+        return r
+
+    a = row("AAA", 10, 0.02)     # eligible
+    b = row("BBB", 90, 0.02)     # fails catalyst only
+    c = row("CCC", 10, -0.01)    # fails exp_return only
+    d = row("DDD", 90, -0.01)    # fails BOTH
+    port = T.build_portfolio([a, b, c, d], hack4)
+
+    cat_key = "catalyst beyond 30 calendar days"
+    exp_key = next(k for k in port["excluded_marginal"]["fails"]
+                   if k.startswith("exp_return not positive"))
+
+    assert port["eligible"] == 1, port["eligible"]
+    assert [h["symbol"] for h in port["holdings"]] == ["AAA"]
+
+    # FIRST-FIRED: D is attributed to the catalyst rule alone, because catalyst
+    # is checked before the coherence floor. This is the misleading view.
+    assert port["excluded_by_reason"][cat_key] == 2, port["excluded_by_reason"]
+    assert port["excluded_by_reason"][exp_key] == 1, port["excluded_by_reason"]
+
+    # MARGINAL: both rules fail two names each, and each buys back exactly one.
+    fails = port["excluded_marginal"]["fails"]
+    only = port["excluded_marginal"]["fails_only"]
+    assert fails[cat_key] == 2 and fails[exp_key] == 2, fails
+    assert only[cat_key] == 1 and only[exp_key] == 1, only
+
+    # `fails_only` can never exceed `fails`, and every excluded name is counted
+    # by at least one rule -- a funnel that loses names explains nothing.
+    for k, v in only.items():
+        assert v <= fails[k], (k, v, fails[k])
+    assert sum(port["excluded_by_reason"].values()) + port["eligible"] == 4
+
+
+def test_excluded_by_reason_survived_the_marginal_refactor():
+    """The refactor that added `excluded_marginal` must not have changed WHICH
+    names are selected or WHY they were dropped. One expression per rule, used
+    twice -- the detail strings are part of the contract, because a reader
+    diffing two seals across the change would otherwise see phantom churn."""
+    hack3 = next(x for x in T.PERSONALITIES if x.book == "hack3")
+
+    def row(sym, **kw):
+        r = _row(symbol=sym)
+        r["status"] = T.classify(r).status
+        r.update(exp_return=0.02, downside_5pct=-0.10, confidence=0.9, sector="TECH")
+        r.update(kw)
+        return r
+
+    winner = row("WIN", past_winner=True, past_winner_basis="+120% 12m")
+    unread = row("UNK", past_winner=None)
+    deep = row("DEEP", past_winner=False, downside_5pct=-0.55)
+    port = T.build_portfolio([winner, unread, deep], hack3)
+
+    assert "past winner" in port["excluded_by_reason"]
+    assert "past_winner unreadable (no 12-month history)" in port["excluded_by_reason"]
+    assert "downside above the 30% cap" in port["excluded_by_reason"]
+    # the example detail still travels with the reason
+    assert port["excluded_examples"]["past winner"].startswith("WIN:")
+
+
 # The __main__ guard MUST stay at the very bottom. `_run_all` collects from
 # globals() at call time, so any test defined BELOW the guard is invisible to it:
 # on 2026-08-31 five new checks sat under it and run_tests.py counted 49 while

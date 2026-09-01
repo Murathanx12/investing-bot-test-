@@ -979,6 +979,131 @@ def rank_value(row: dict, how: str) -> float:
     raise ValueError(f"unknown ranking {how!r}")
 
 
+def _eligibility_checks(p: Personality) -> list:
+    """Every eligibility rule as an INDEPENDENT test, IN CHAIN ORDER.
+
+    One expression per rule, used twice. The FIRST failure is what
+    `excluded_by_reason` reports -- the historical sequential attribution,
+    unchanged byte for byte. The FULL failure set is what `excluded_marginal`
+    reports. Writing the rules twice (once to filter, once to explain) is
+    exactly how an explanation drifts away from the filter it describes, so
+    these are the same objects and there is nothing to keep in sync.
+
+    Each check returns None to pass, or `(reason, detail)` to fail. Checks must
+    be TOTAL: the sequential chain never evaluated a rule after an earlier one
+    fired, and this evaluates all of them on every row, so a rule that raises
+    on data the chain used to skip would turn a report into a crash.
+    """
+    checks: list = []
+
+    if p.exclude_past_winners:
+        def _past_winner(r):
+            pw = r.get("past_winner")
+            if pw is True:
+                return ("past winner",
+                        f"{r['symbol']}: {r.get('past_winner_basis') or 'flagged'}")
+            if pw is None:
+                return ("past_winner unreadable (no 12-month history)", "")
+            return None
+        checks.append(_past_winner)
+
+    if p.max_downside is not None:
+        def _downside(r, cap=p.max_downside):
+            dn = r.get("downside_5pct")
+            if dn is None:
+                return ("downside unreadable", "")
+            if abs(dn) > cap + 1e-9:
+                return (f"downside above the {cap:.0%} cap", f"{r['symbol']}: {abs(dn):.0%}")
+            return None
+        checks.append(_downside)
+
+    if p.requires_catalyst:
+        def _catalyst(r):
+            cat = r.get("days_to_catalyst")
+            if cat is None:
+                return ("no readable catalyst", "")
+            if cat > CATALYST_MAX_CALENDAR_DAYS:
+                return (f"catalyst beyond {CATALYST_MAX_CALENDAR_DAYS} calendar days", "")
+            return None
+        checks.append(_catalyst)
+
+    if p.min_coverage_bucket:
+        def _cov_min(r, need=p.min_coverage_bucket):
+            # A GUARD DERIVES ITS INPUT OR REFUSES. Reading a Finnhub-panel
+            # count against a bucket calibrated on IBES `numrec` would let a
+            # one-analyst name in through a rule written to keep it out -- the
+            # count runs ~1.80x on that scale. Refuse, and say which.
+            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
+                return ("coverage on an uncalibrated scale",
+                        f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
+                        f"which {need} was not calibrated for")
+            br, nd = bucket_rank(r.get("coverage_bucket")), bucket_rank(need)
+            if br is None or nd is None or br < nd:
+                return (f"coverage below {need}", "")
+            return None
+        checks.append(_cov_min)
+
+    if p.max_coverage_bucket:
+        def _cov_max(r, top=p.max_coverage_bucket):
+            # Same calibration refusal as the floor: a ceiling read against a
+            # Finnhub count that runs ~1.80x the IBES scale would admit a
+            # 40-analyst name into a 4-25 book.
+            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
+                return ("coverage on an uncalibrated scale",
+                        f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
+                        f"which {top} was not calibrated for")
+            br, tp = bucket_rank(r.get("coverage_bucket")), bucket_rank(top)
+            if br is None or tp is None or br > tp:
+                return (f"coverage above {top}", "")
+            return None
+        checks.append(_cov_max)
+
+    if p.min_dollar_volume is not None:
+        def _liquidity(r, floor=p.min_dollar_volume):
+            # A GUARD DERIVES ITS INPUT OR REFUSES. An unreadable dollar volume
+            # is not a liquid name; passing it through on `or 0` would admit
+            # exactly the names the floor exists to keep out.
+            dv = r.get("median_dollar_volume")
+            if dv is None:
+                return ("dollar volume unreadable", "")
+            if dv < floor:
+                return (f"below the ${floor / 1e6:.0f}m/day liquidity floor",
+                        f"{r['symbol']}: ${dv / 1e6:.1f}m/day")
+            return None
+        checks.append(_liquidity)
+
+    def _coherence(r):
+        # LONG-BOOK COHERENCE (2026-09-01). These books are long-only, and the
+        # runner's brain forecasts each name from the SAME sealed numbers -- so
+        # a name whose own calibrated exp_return is not positive forecasts DOWN
+        # and is refused at trade time, every time. Sealing it seals dead
+        # weight: on 2026-08-31 hack6 sealed 15/15 such names and correctly
+        # entered nothing, and RZLV (ranked #1 by upside x consensus) sat out
+        # the same way. This is the panel base rate speaking -- the rule-firing
+        # cell (high target ratio) MEASURES below 0.5 (the S30b toxicity band)
+        # -- and the book now agrees with its own calibration instead of
+        # arguing with it at the broker. The exclusion is counted, not silent.
+        exp_r = r.get("exp_return")
+        if exp_r is None:
+            return ("exp_return unreadable (the brain would refuse the numberless name)", "")
+        if exp_r <= 0:
+            return ("exp_return not positive (own base rate says this cell loses; "
+                    "a long book cannot hold it)",
+                    f"{r['symbol']}: exp_return {exp_r:+.4f}")
+        return None
+    checks.append(_coherence)
+
+    def _rankable(r, how=p.rank):
+        try:
+            bad = rank_value(r, how) == float("-inf")
+        except Exception:                                        # noqa: BLE001
+            bad = True
+        return (f"no {how} value", "") if bad else None
+    checks.append(_rankable)
+
+    return checks
+
+
 def build_portfolio(rows: list[dict], p: Personality) -> dict:
     """Select and weight one book's holdings from the candidate list.
 
@@ -986,6 +1111,28 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
     only what it holds cannot be debugged: on 2026-08-30 the sealed book held
     one name and the interesting number was not MU, it was the 150 it passed
     over and why.
+
+    TWO attributions, because one of them answers a question it looks like it
+    answers and does not (2026-09-01):
+
+      `excluded_by_reason`  FIRST-FIRED. The chain short-circuits, so a name is
+                            owned by the earliest rule it fails. On the
+                            2026-09-01 seal this reads "hack4: 603 excluded by
+                            catalyst-beyond-30-days", which is true and does
+                            NOT mean the catalyst rule is what binds -- hack4
+                            simply has no past-winner or downside rule ahead of
+                            it. Sequential attribution answers "what fired
+                            first", never "what would relaxing X buy".
+      `excluded_marginal`   INDEPENDENT. `fails` counts every name that fails a
+                            rule at all; `fails_only` counts names that fail
+                            ONLY that rule -- the names that would become
+                            eligible if it alone were dropped, every other rule
+                            kept. That is the price of the rule, in
+                            opportunities, and it is the number to read when
+                            asking why capital is idle.
+
+    A rule with a large `fails` and a near-zero `fails_only` is redundant, not
+    binding: something else was already rejecting those names.
     """
     pool = candidates(rows)
     excluded: dict[str, int] = {}
@@ -1004,96 +1151,25 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
         if detail and reason not in examples:
             examples[reason] = detail
 
+    # ONE pass, TWO attributions. `checks` is the single expression of every
+    # eligibility rule (see `_eligibility_checks`); the first failure feeds the
+    # historical sequential report and the whole failure set feeds the marginal
+    # one. Nothing about SELECTION changes: the first-failure reason and its
+    # detail string are identical to the short-circuiting chain this replaced.
+    checks = _eligibility_checks(p)
+    marginal_fails: dict[str, int] = {}
+    marginal_only: dict[str, int] = {}
+
     eligible = []
     for r in pool:
-        # CLAUSE (f), where it now lives. `past_winner is None` means the
-        # twelve-month history was unreadable -- that is not a pass, and a book
-        # that excludes winners cannot verify this name is not one.
-        if p.exclude_past_winners:
-            pw = r.get("past_winner")
-            if pw is True:
-                drop("past winner", f"{r['symbol']}: {r.get('past_winner_basis') or 'flagged'}")
-                continue
-            if pw is None:
-                drop("past_winner unreadable (no 12-month history)")
-                continue
-        if p.max_downside is not None:
-            dn = r.get("downside_5pct")
-            if dn is None:
-                drop("downside unreadable")
-                continue
-            if abs(dn) > p.max_downside + 1e-9:
-                drop(f"downside above the {p.max_downside:.0%} cap",
-                     f"{r['symbol']}: {abs(dn):.0%}")
-                continue
-        if p.requires_catalyst:
-            cat = r.get("days_to_catalyst")
-            if cat is None:
-                drop("no readable catalyst")
-                continue
-            if cat > CATALYST_MAX_CALENDAR_DAYS:
-                drop(f"catalyst beyond {CATALYST_MAX_CALENDAR_DAYS} calendar days")
-                continue
-        if p.min_coverage_bucket:
-            # A GUARD DERIVES ITS INPUT OR REFUSES. Reading a Finnhub-panel
-            # count against a bucket calibrated on IBES `numrec` would let a
-            # one-analyst name in through a rule written to keep it out -- the
-            # count runs ~1.80x on that scale. Refuse, and say which.
-            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
-                drop("coverage on an uncalibrated scale",
-                     f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
-                     f"which {p.min_coverage_bucket} was not calibrated for")
-                continue
-            br, need = bucket_rank(r.get("coverage_bucket")), bucket_rank(p.min_coverage_bucket)
-            if br is None or need is None or br < need:
-                drop(f"coverage below {p.min_coverage_bucket}")
-                continue
-        if p.max_coverage_bucket:
-            # Same calibration refusal as the floor: a ceiling read against a
-            # Finnhub count that runs ~1.80x the IBES scale would admit a
-            # 40-analyst name into a 4-25 book.
-            if r.get("coverage_source") != COVERAGE_SOURCE_CALIBRATED:
-                drop("coverage on an uncalibrated scale",
-                     f"{r['symbol']}: {r.get('coverage_source') or 'unknown'} scale, "
-                     f"which {p.max_coverage_bucket} was not calibrated for")
-                continue
-            br, top = bucket_rank(r.get("coverage_bucket")), bucket_rank(p.max_coverage_bucket)
-            if br is None or top is None or br > top:
-                drop(f"coverage above {p.max_coverage_bucket}")
-                continue
-        if p.min_dollar_volume is not None:
-            # A GUARD DERIVES ITS INPUT OR REFUSES. An unreadable dollar volume
-            # is not a liquid name; passing it through on `or 0` would admit
-            # exactly the names the floor exists to keep out.
-            dv = r.get("median_dollar_volume")
-            if dv is None:
-                drop("dollar volume unreadable")
-                continue
-            if dv < p.min_dollar_volume:
-                drop(f"below the ${p.min_dollar_volume / 1e6:.0f}m/day liquidity floor",
-                     f"{r['symbol']}: ${dv / 1e6:.1f}m/day")
-                continue
-        # LONG-BOOK COHERENCE (2026-09-01). These books are long-only, and the
-        # runner's brain forecasts each name from the SAME sealed numbers -- so
-        # a name whose own calibrated exp_return is not positive forecasts DOWN
-        # and is refused at trade time, every time. Sealing it seals dead
-        # weight: on 2026-08-31 hack6 sealed 15/15 such names and correctly
-        # entered nothing, and RZLV (ranked #1 by upside x consensus) sat out
-        # the same way. This is the panel base rate speaking -- the rule-firing
-        # cell (high target ratio) MEASURES below 0.5 (the S30b toxicity band)
-        # -- and the book now agrees with its own calibration instead of
-        # arguing with it at the broker. The exclusion is counted, not silent.
-        exp_r = r.get("exp_return")
-        if exp_r is None:
-            drop("exp_return unreadable (the brain would refuse the numberless name)")
-            continue
-        if exp_r <= 0:
-            drop("exp_return not positive (own base rate says this cell loses; "
-                 "a long book cannot hold it)",
-                 f"{r['symbol']}: exp_return {exp_r:+.4f}")
-            continue
-        if rank_value(r, p.rank) == float("-inf"):
-            drop(f"no {p.rank} value")
+        failures = [f for f in (c(r) for c in checks) if f is not None]
+        for reason, _detail in failures:
+            marginal_fails[reason] = marginal_fails.get(reason, 0) + 1
+        if len(failures) == 1:
+            marginal_only[failures[0][0]] = marginal_only.get(failures[0][0], 0) + 1
+        if failures:
+            reason, detail = failures[0]
+            drop(reason, detail)
             continue
         eligible.append(r)
 
@@ -1151,6 +1227,17 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
         "holdings": picked,
         "candidate_pool": len(pool), "eligible": len(eligible),
         "excluded_by_reason": dict(sorted(excluded.items(), key=lambda kv: -kv[1])),
+        # THE PRICE OF EACH RULE, not the order they fired in. `fails_only` is
+        # the count of names that would become eligible if this rule alone were
+        # dropped -- read this one when asking why capital is idle.
+        "excluded_marginal": {
+            "note": ("`fails` = names failing this rule at all; `fails_only` = names "
+                     "failing ONLY this rule, i.e. what relaxing it alone would buy. "
+                     "`excluded_by_reason` above is first-fired attribution and cannot "
+                     "answer that question."),
+            "fails": dict(sorted(marginal_fails.items(), key=lambda kv: -kv[1])),
+            "fails_only": dict(sorted(marginal_only.items(), key=lambda kv: -kv[1])),
+        },
         "excluded_examples": examples,
         "sector_notional": {k: round(v, 4) for k, v in sorted(sector_notional.items())},
     }
