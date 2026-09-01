@@ -1,3 +1,37 @@
+## SESSION 32 (2026-09-01, Fable, pre-open) -- THE SEAL AGREES WITH ITS CALIBRATION
+
+**RESULT IMPROVEMENT: the 09-01 seal (sha ffcc740921) is the first built under
+the band-conditional prior + coherence floor.** Suite 63/2,762. Commits
+f5a4316..6ec9604, deployed to hack3/4/6 pre-open.
+
+- **Band prior (6aeeeef):** the 11-year receipt UPSIDE-BAND-DECON-1 decides the
+  SIGN of exp_return per upside band: ratio>=5 toxic (-25.9%/yr t -4.43) ->
+  excluded by the coherence floor; ratio 3..5 the lost-winners band (+20.7%/yr
+  t +2.95) -> admissible at +1.73%/mo; close<$2 SILENCE (t 0.39), and an
+  unreadable close WITHHOLDS the band (a guard derives or refuses).
+- **Today's books:** hack4 5/5 (RZLV re-admitted ON EVIDENCE via its band);
+  hack3 9/10 (six band names); hack6 EMPTY with 766 recorded reasons (541 over
+  its 20% downside cap, 151 negative-exp) -- a preservation book that finds
+  nothing both tame and positive holds cash. Panel prior INVERTED overnight
+  (firing 0.508 / uncond 0.462 vs yesterday's opposite) -- watch this: a prior
+  that flips daily is a thin-panel symptom, T-queue material.
+- **Telemetry (539569d):** chain-less names' stock quotes now recorded;
+  a missing decision quote is None, never an empty-sum $0 (the ABAT ~$9,900
+  phantom-slippage defect GPT flagged -- it was headed into training data).
+- **Write-back verified LIVE:** hack3's container wrote 10 rows (4 submitted /
+  6 refused) to /app/state/decision_outcomes/2026-08-31_hack3.jsonl at 16:01 ET.
+- **Observation universe REBUILT wide (queue item 3 DONE):** ~8,400 names down
+  to $20k/day (6,294 micro). Execute floor applies at load().
+- **Website repaired live (finance 717da13):** 42 past-due forecasts resolved,
+  NAV fresh on all 10 lanes, resolver got MTM-style catch-up retries, and
+  POST /api/optimus/run_job/{id} repairs a slept-through day on demand. Only
+  arena_forward's 8-day gap remains (its job fires 17:45 ET).
+- hack1: CLS partials expired (paper sim fills the closing auction thinly on
+  IEX -- NO MORE CLS ON PAPER); completion day-market orders queued for the
+  09:30 open (SPY x7, QQQ x2, IWM x7).
+- WRDS s34/DealScan entitlement check: TCP timeout -- CANNOT DETERMINE from
+  here today, queued, NOT concluded.
+
 ## SESSION 31 (2026-08-31, Fable, open -> ~10:30 ET) -- THE BOOKS TRADE; THE RUNNER STOPPED RE-ADJUDICATING THE SEAL
 
 **RESULT IMPROVEMENT: TWO SEALED TRACKER BOOKS HOLD LIVE POSITIONS.** First
