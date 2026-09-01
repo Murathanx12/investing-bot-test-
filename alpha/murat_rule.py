@@ -111,33 +111,44 @@ Z05 = 1.6449
 #: counts DATE BLOCKS.
 CONFIDENCE_FULL_BLOCKS = 12
 
-#: BAND-CONDITIONAL PRIOR (2026-09-01). The two-cell prior hands every name in
-#: a cell the SAME expected return -- a constant is barely a forecast, and it
-#: collapses exactly the structure the eleven-year panel measured: the upside
-#: BAND decides the sign. Numbers verbatim from receipt UPSIDE-BAND-DECON-1
-#: (aegis-finance `backend/data/optimus/tracker_backtest/
-#: upside_band_decontamination.json`, IBES+CRSP 2013-2024, 143 months,
-#: paired-vs-market; finance commit cb3b13a):
+#: BAND-CONDITIONAL PRIOR v2 (2026-09-01, second seal generation). v1 covered
+#: two bands from UPSIDE-BAND-DECON-1 and left every other name on the thin
+#: two-cell panel prior -- which S33 measured as the book's REAL gate: the
+#: coherence floor was non-positive on 722 of 766 names, 41 of the 44
+#: positives were two constants, and the panel cells FLIPPED SIGN overnight
+#: (S32), so admission itself was unstable. The GPT review proposed shrinking
+#: stock-specific evidence toward the category prior; receipt EXP-RETURN-XS-1
+#: adjudicated that proposal and found the stock-specific term is EMPTY on the
+#: measurable features (six Fama-MacBeth tilts inside the admissible region,
+#: every |t| < 1.5 across 143 months) while the BAND structure is monotone and
+#: strong. So v2 keeps the constant-per-band design -- the constant is not a
+#: placeholder, it is the measured state of knowledge -- and extends it to the
+#: WHOLE ratio line so every hygienic name gets a stable, receipt-backed sign:
 #:
-#:   target_ratio >= 5   (+400%+ upside)   -25.91%/yr excess, t -4.43, n=54,310
-#:   3 <= target_ratio<5 (+200..400%)      +20.70%/yr excess, t +2.95, n=10,419
-#:   close < $2          UNINFORMATIVE     (t 0.39 in-cell) -> NO band opinion
+#:   target_ratio >= 5    (+400%+)      -37.77%/yr excess  t -7.75  n=24,358
+#:   3 <= ratio < 5       (+200..400%)  +16.55%/yr excess  t +2.20  n= 5,888
+#:   1.5 <= ratio < 3     (+50..200%)   + 5.74%/yr excess  t +1.85  n=48,289
+#:   ratio < 1.5          (the rest)    + 2.41%/yr excess  t +1.30  n=285,173
 #:
-#: The monthly number (annualised/12) IS the 21-session exp_return for names
-#: the band covers; every other name keeps the panel's two-cell prior. This is
-#: the S30b verdict operationalised: the believable extreme target is the
-#: toxic one, the band below it is where the lost winners live, and below $2
-#: the history says nothing rather than "bad". These are HISTORICAL BASE
-#: RATES for calibration under PRODUCT_EXPERIMENT, not a claim of alpha.
+#: (exp_return_cross_section.json, IBES+CRSP 2013-2024, 143 months, paired vs
+#: market, hygiene >= $2 / >= 2 analysts / no split-year on every cell.) Two
+#: cells sit below the t 2 bar and say so on the row: PRODUCT_EXPERIMENT
+#: priors for calibration, not claims. The sub-$2 silence (S30b, t 0.39) and
+#: the coverage condition are enforced here because they are part of what was
+#: measured -- a prior applied outside its measured region is a guess wearing
+#: a receipt.
 BAND_PRIOR = {
-    "receipt": "UPSIDE-BAND-DECON-1",
-    "source": "aegis-finance backend/data/optimus/tracker_backtest/upside_band_decontamination.json",
-    "window": "2013-2024 IBES+CRSP, 143 months, paired vs market",
+    "receipt": "EXP-RETURN-XS-1",
+    "source": "aegis-finance backend/data/optimus/tracker_backtest/exp_return_cross_section.json",
+    "window": "2013-2024 IBES+CRSP, 143 months, paired vs market, hygienic cells",
     "min_price": 2.0,
+    "min_coverage": 2,
     "bands": (
         # (ratio_lo, ratio_hi, monthly_mean_excess, annualised, t_stat, name_months)
-        (5.0, None, -0.25910 / 12.0, -0.2591, -4.431, 54310),
-        (3.0, 5.0, +0.20700 / 12.0, +0.2070, +2.948, 10419),
+        (5.0, None, -0.37770 / 12.0, -0.3777, -7.745, 24358),
+        (3.0, 5.0, +0.16550 / 12.0, +0.1655, +2.201, 5888),
+        (1.5, 3.0, +0.05740 / 12.0, +0.0574, +1.847, 48289),
+        (0.0, 1.5, +0.02410 / 12.0, +0.0241, +1.304, 285173),
     ),
 }
 
@@ -145,32 +156,46 @@ BAND_PRIOR = {
 def band_overlay(row: dict) -> dict | None:
     """The band prior's opinion on one row, or None where it has none.
 
-    None is three different silences, and the caller may not care which but
-    the basis string does: ratio outside every measured band; ratio unreadable;
-    price under $2 where the eleven-year cell is statistically UNINFORMATIVE
-    (t 0.39) -- "no opinion", never "historically bad".
+    A None or a non-applying result is one of FOUR different silences, and the
+    basis string names which: ratio unreadable; close unreadable (the $2
+    condition cannot be verified -- derive or refuse); close under $2 where
+    the eleven-year cell is statistically UNINFORMATIVE (t 0.39) -- "no
+    opinion", never "historically bad"; coverage unreadable or under 2, where
+    the v2 cells were never measured (every cell conditioned on >= 2 analysts).
     """
     tr = row.get("target_ratio")
     close = row.get("close")
+    coverage = row.get("coverage")
     if tr is None:
         return None
     for lo, hi, monthly, ann, t, n in BAND_PRIOR["bands"]:
         if tr >= lo and (hi is None or tr < hi):
+            band_name = f"ratio {lo:g}..{hi if hi is not None else 'inf'}"
             if close is None:
                 # A guard DERIVES its input or REFUSES: without the price the
                 # $2 condition cannot be verified, so the band has no opinion.
-                return {"band": f"ratio>={lo:g}", "applies": False,
+                return {"band": band_name, "applies": False,
                         "basis": ("band prior WITHHELD: close unreadable, so the sub-$2 "
                                   "condition cannot be verified -- panel prior kept")}
             if float(close) < BAND_PRIOR["min_price"]:
-                return {"band": f"ratio>={lo:g}", "applies": False,
+                return {"band": band_name, "applies": False,
                         "basis": (f"band prior UNINFORMATIVE under ${BAND_PRIOR['min_price']:g} "
                                   "(S30b: sub-$2 cell t 0.39) -- no opinion, panel prior kept")}
-            return {"band": f"ratio {lo:g}..{hi if hi is not None else 'inf'}",
+            if coverage is None:
+                return {"band": band_name, "applies": False,
+                        "basis": ("band prior WITHHELD: coverage unreadable, so the >= 2 "
+                                  "analyst condition cannot be verified -- panel prior kept")}
+            if int(coverage) < BAND_PRIOR["min_coverage"]:
+                return {"band": band_name, "applies": False,
+                        "basis": (f"band prior NOT MEASURED under {BAND_PRIOR['min_coverage']} "
+                                  "analysts (every EXP-RETURN-XS-1 cell conditions on >= 2) "
+                                  "-- no opinion, panel prior kept")}
+            sub2 = " BELOW the t 2 bar: a PRODUCT_EXPERIMENT prior, not a claim." if abs(t) < 2 else ""
+            return {"band": band_name,
                     "applies": True, "exp_return_monthly": monthly,
                     "basis": (f"{BAND_PRIOR['receipt']}: {ann:+.1%}/yr excess "
                               f"(t {t:+.2f}, n={n:,} name-months, {BAND_PRIOR['window']}) "
-                              f"/ 12 for the 21-session horizon")}
+                              f"/ 12 for the 21-session horizon.{sub2}")}
     return None
 
 #: The frozen contract. Hashed into every sealed book that uses this generator,

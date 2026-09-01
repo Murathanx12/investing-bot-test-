@@ -281,27 +281,43 @@ except brain.RuleDeclined as exc:
 
 brain.BOOKS, brain.SEED_BOOKS = _orig_books, _orig_seed
 
-print("\n-- the band prior: eleven years decide the SIGN, and $2 is a silence")
-b_toxic = mr.score({**FIRES, "target_ratio": 6.0, "close": 10.0}, mr.evaluate({**FIRES, "target_ratio": 6.0}), prior)
+print("\n-- the band prior v2: eleven years decide the SIGN on the WHOLE ratio line")
+COVERED = {**FIRES, "close": 10.0, "coverage": 5}
+b_toxic = mr.score({**COVERED, "target_ratio": 6.0}, mr.evaluate({**COVERED, "target_ratio": 6.0}), prior)
 check("+400%+ band at a readable price goes NEGATIVE (the S30b toxic cell)",
       b_toxic["exp_return"] is not None and b_toxic["exp_return"] < 0, str(b_toxic["exp_return"]))
-check("and the basis names the receipt", "UPSIDE-BAND-DECON-1" in b_toxic["exp_return_basis"])
+check("and the basis names the receipt", "EXP-RETURN-XS-1" in b_toxic["exp_return_basis"])
 check("and the band travels on the row", b_toxic.get("upside_band") == "ratio 5..inf", str(b_toxic.get("upside_band")))
-b_good = mr.score({**FIRES, "target_ratio": 4.0, "close": 10.0}, mr.evaluate({**FIRES, "target_ratio": 4.0}), prior)
+b_good = mr.score({**COVERED, "target_ratio": 4.0}, mr.evaluate({**COVERED, "target_ratio": 4.0}), prior)
 check("+200..400% band goes POSITIVE at the measured monthly excess",
-      abs(b_good["exp_return"] - 0.2070 / 12.0) < 1e-9, str(b_good["exp_return"]))
-b_cheap = mr.score({**FIRES, "target_ratio": 4.0, "close": 1.50}, mr.evaluate({**FIRES, "target_ratio": 4.0}), prior)
+      abs(b_good["exp_return"] - 0.1655 / 12.0) < 5e-6, str(b_good["exp_return"]))
+b_mid = mr.score(COVERED, mr.evaluate(COVERED), prior)
+check("ratio 1.8 now has its OWN measured cell (+5.74%/yr / 12)",
+      abs(b_mid["exp_return"] - 0.0574 / 12.0) < 5e-6, str(b_mid["exp_return"]))
+check("and a sub-t-2 cell says so on the row",
+      "BELOW the t 2 bar" in b_mid["exp_return_basis"], b_mid["exp_return_basis"][-60:])
+b_rest = mr.score({**COVERED, "target_ratio": 1.2}, mr.evaluate({**COVERED, "target_ratio": 1.2}), prior)
+check("sub-1.5 gets the hygienic-market base rate, stable across days",
+      abs(b_rest["exp_return"] - 0.0241 / 12.0) < 5e-6, str(b_rest["exp_return"]))
+b_cheap = mr.score({**COVERED, "target_ratio": 4.0, "close": 1.50},
+                   mr.evaluate({**COVERED, "target_ratio": 4.0}), prior)
 check("under $2 the band prior says NOTHING (panel prior kept, basis says why)",
       "UNINFORMATIVE" in b_cheap["exp_return_basis"]
       and abs(b_cheap["exp_return"] - (2 * 0.55 - 1) * b_cheap["claimed_abs_move"]) < 1e-9,
       b_cheap["exp_return_basis"][:80])
-b_none = mr.score({**FIRES, "close": 10.0}, mr.evaluate(FIRES), prior)
-check("ratio 1.8 is outside every band: two-cell formula untouched",
-      "claimed_abs_move" in b_none["exp_return_basis"] and b_none.get("upside_band") is None)
-b_blind = mr.score({**FIRES, "target_ratio": 6.0}, mr.evaluate({**FIRES, "target_ratio": 6.0}), prior)
+b_blind = mr.score({**FIRES, "target_ratio": 6.0, "coverage": 5},
+                   mr.evaluate({**FIRES, "target_ratio": 6.0}), prior)
 check("an unreadable close WITHHOLDS the band (derive or refuse)",
       "WITHHELD" in b_blind["exp_return_basis"] and b_blind["exp_return"] is not None,
       b_blind["exp_return_basis"][:70])
+b_nocov = mr.score({**FIRES, "close": 10.0}, mr.evaluate(FIRES), prior)
+check("unreadable coverage WITHHOLDS the band (the >=2 condition is part of the receipt)",
+      "coverage unreadable" in b_nocov["exp_return_basis"], b_nocov["exp_return_basis"][:80])
+b_thin = mr.score({**FIRES, "close": 10.0, "coverage": 1}, mr.evaluate(FIRES), prior)
+check("a 1-analyst name is NOT MEASURED, never 'historically good'",
+      "NOT MEASURED" in b_thin["exp_return_basis"]
+      and abs(b_thin["exp_return"] - (2 * 0.55 - 1) * b_thin["claimed_abs_move"]) < 1e-9,
+      b_thin["exp_return_basis"][:80])
 
 
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAILED: ' + ', '.join(fails)}")
