@@ -1588,7 +1588,13 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         implied_move=structure.implied_move if structure else None,
         breakeven_move=structure.breakeven_move if structure else None,
         mdm_edge=verdict.mdm_edge if verdict else None,
-        quote_snapshot=_quote_snapshot(structure, snapshot) if (structure and snapshot) else {},
+        # `structure` alone gates this: _quote_snapshot has its own snapshot-None
+        # branch that records the STOCK quote for a chain-less name. The old
+        # `and snapshot` condition threw that record away, so ABAT/ALMU
+        # (2026-08-31, no listed options) landed with quote_snapshot={} and the
+        # fill audit priced their decision at $0 -- booking the entire fill as
+        # slippage in what is about to become training data.
+        quote_snapshot=_quote_snapshot(structure, snapshot) if structure else {},
         action=action,
         # An `intent` row is not a refusal; putting its reason in refusal_reason
         # would make every pre-POST row read as a decline in the dashboard's

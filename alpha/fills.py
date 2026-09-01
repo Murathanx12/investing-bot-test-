@@ -58,9 +58,11 @@ class FillAudit:
     submitted_at: str
     filled_at: str | None
     qty: int
-    decision_ask_per_unit: float
-    """Sum of executable asks per leg at decision time, in option points."""
-    decision_bid_per_unit: float
+    decision_ask_per_unit: float | None
+    """Sum of executable asks per leg at decision time, in option points.
+    None when any leg's decision quote was not recorded -- an unreadable
+    decision price is never zero (2026-09-01, the ABAT phantom-slippage fix)."""
+    decision_bid_per_unit: float | None
     limit_price: float | None
     fill_per_unit: float | None
     slippage_per_unit: float | None
@@ -91,10 +93,23 @@ def audit(client, decision: dict, *, now: datetime | None = None) -> FillAudit:
             o = decision["order"]
             struct_legs = [(o["symbol"], o["side"], 1)]
 
-    dec_ask = sum((legs_seen[s]["ask"] if side == "buy" else -legs_seen[s]["bid"]) * r
-                  for s, side, r in struct_legs if s in legs_seen)
-    dec_bid = sum((legs_seen[s]["bid"] if side == "buy" else -legs_seen[s]["ask"]) * r
-                  for s, side, r in struct_legs if s in legs_seen)
+    # A GUARD DERIVES ITS INPUT OR REFUSES. The old `if s in legs_seen` filter
+    # made a missing decision quote an EMPTY SUM: dec_ask = 0.0, and slippage
+    # then equalled the entire fill -- ABAT booked ~$9,900 of phantom slippage
+    # on 2026-08-31 because its snapshot was empty. An unreadable decision
+    # quote is None, never zero, and the audit says which leg was missing.
+    def _leg_ok(s, key):
+        return s in legs_seen and legs_seen[s].get(key) is not None
+    quotes_complete = all(_leg_ok(s, "ask" if side == "buy" else "bid")
+                          and _leg_ok(s, "bid" if side == "buy" else "ask")
+                          for s, side, _ in struct_legs) and bool(struct_legs)
+    if quotes_complete:
+        dec_ask = sum((legs_seen[s]["ask"] if side == "buy" else -legs_seen[s]["bid"]) * r
+                      for s, side, r in struct_legs)
+        dec_bid = sum((legs_seen[s]["bid"] if side == "buy" else -legs_seen[s]["ask"]) * r
+                      for s, side, r in struct_legs)
+    else:
+        dec_ask = dec_bid = None
 
     legs_out, fill = [], None
     venue_legs = order.get("legs") or [order]
@@ -115,14 +130,15 @@ def audit(client, decision: dict, *, now: datetime | None = None) -> FillAudit:
     edge = decision.get("mdm_edge")
     exp_edge = (edge * max_loss) if (edge is not None and max_loss) else None
 
-    slip = (fill - dec_ask) if fill is not None else None
+    slip = (fill - dec_ask) if (fill is not None and dec_ask is not None) else None
     mult = mult_of(struct_legs[0][0], decision["symbol"]) if struct_legs else MULT
     out = FillAudit(
         decision_id=decision["decision_id"], alpaca_order_id=decision["alpaca_order_id"],
         symbol=decision["symbol"], instrument=decision.get("instrument", ""),
         status=order.get("status", "?"), submitted_at=decision.get("ts_utc", ""),
         filled_at=order.get("filled_at"), qty=qty,
-        decision_ask_per_unit=round(dec_ask, 4), decision_bid_per_unit=round(dec_bid, 4),
+        decision_ask_per_unit=round(dec_ask, 4) if dec_ask is not None else None,
+        decision_bid_per_unit=round(dec_bid, 4) if dec_bid is not None else None,
         limit_price=float(order["limit_price"]) if order.get("limit_price") else None,
         fill_per_unit=round(fill, 4) if fill is not None else None,
         slippage_per_unit=round(slip, 4) if slip is not None else None,
