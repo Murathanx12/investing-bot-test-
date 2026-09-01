@@ -32,6 +32,30 @@ f5a4316..6ec9604, deployed to hack3/4/6 pre-open.
 - WRDS s34/DealScan entitlement check: TCP timeout -- CANNOT DETERMINE from
   here today, queued, NOT concluded.
 
+**NEXT SESSION QUEUE (for Opus and all -- P&L first):**
+1. **Verify the 09-01 open** (~10:01 ET pass): logs must show `sealed portfolio
+   <book> (2026-09-01, sha ffcc740921)` on hack3/hack4 + fills at the broker;
+   hack1's 3 completion orders (SPY x7, QQQ x2, IWM x7) fill at 09:30. hack6
+   correctly holds cash (766 recorded reasons). Then grade day 1: last night's
+   decision_outcomes files begin maturing 1-session returns tonight.
+2. **The flipping panel prior** (firing 0.508/uncond 0.462 today, roughly
+   inverted yesterday): a prior that flips daily is a thin-panel symptom. The
+   fix direction is the 11-year panel, not the 152-name one -- extend the
+   band-prior approach (receipt-based reference priors) to the firing/uncond
+   cells themselves, or grade the daily prior's stability first.
+3. **Holder provenance** (Murat's priority, aegis-finance
+   `docs/IDEA_2026-08-31_HOLDER_PROVENANCE_TO_THE_ROOTS.md`): start at §4 --
+   verify WRDS s34/tfn + DealScan entitlements (TCP timed out 09-01 morning,
+   NOT concluded), then H2/H3 (manager identity + holding-period fingerprint)
+   on 13F panel history. Split passive (13G/index) from active (13D) FIRST.
+4. **arena_forward gap**: if last night's 17:45 ET pi_arena_daily still missed,
+   add it to the run_job allowlist (one line in optimus_ledger.py) and trigger.
+5. **News-universe lane** (--news-universe on ONE experimental account) and the
+   DecisionCard remain the big V1 items after the above.
+6. Judging 09-04 11:00 ET: `--expiry 2026-09-04` books liquidate 10:45 ET that
+   morning. Plan Wednesday's session around it. Ledger hash chain: still broken
+   since 25 Aug, logged, never silently repaired.
+
 ## SESSION 31 (2026-08-31, Fable, open -> ~10:30 ET) -- THE BOOKS TRADE; THE RUNNER STOPPED RE-ADJUDICATING THE SEAL
 
 **RESULT IMPROVEMENT: TWO SEALED TRACKER BOOKS HOLD LIVE POSITIONS.** First
