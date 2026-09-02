@@ -88,12 +88,17 @@ def _book_for(day: str) -> dict | None:
     """
     for base in (BOOKS, SEED_BOOKS):
         cands = sorted(base.glob(f"{day}.json")) + sorted(base.glob(f"{day}.resealed_*.json"))
-        if not cands:
-            continue
-        try:
-            return json.loads(cands[-1].read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            continue
+        # NEWEST FIRST, then the next candidate (red-team R6, 2026-09-02): a
+        # torn resealed file used to `continue` past the whole ledger dir and
+        # silently fall through to the SEED book -- a stale book trading with
+        # every hash check green. The valid original beside the torn reseal is
+        # the right fallback, and the tear is said out loud.
+        for path in reversed(cands):
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as exc:
+                print(f"tracker_portfolio: unreadable book {path.name} ({exc}); "
+                      "trying the next candidate", flush=True)
     return None
 
 

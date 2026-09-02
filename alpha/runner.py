@@ -57,7 +57,7 @@ from datetime import datetime, timedelta, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import claims, concentration, config, crossbook, daybreak, drivers, entry_open, ledger, recovery, refuted
+from alpha import claims, concentration, config, crossbook, daybreak, drivers, entry_open, ledger, recovery, refusal_classes, refuted
 from alpha.brains import tracker_portfolio as _tracker_portfolio
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
@@ -945,6 +945,11 @@ def record_forecasts(forecasts: list[Forecast], *, note: str = "") -> int:
             signal_shape=f.signal_shape, instrument="forecast", thesis=f.rationale,
             predicted_move=f.centre, predicted_sd=f.sd, implied_move=None, breakeven_move=None,
             mdm_edge=None, quote_snapshot={}, action="forecast", refusal_reason=None,
+            # DELIBERATELY UNTYPED, and in its own ledger (`forecasts`). This row
+            # is the candidate ARRIVING, not finishing; typing it would put a
+            # disposition on a shadow record and double-count every candidate in
+            # any census of terminal states.
+            terminal_state=None,
             risk_fraction=0.0, max_loss_usd=0.0, order=None,
             outcome={"horizon_days": f.horizon_days, "conviction": f.conviction,
                      "claim": f.claim, "evidence": _compact(f.evidence), "note": note},
@@ -983,6 +988,23 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     is the byte-identical path every existing caller takes.
     """
     result = PassResult()
+    # EXPIRY DAY IS EXIT-ONLY (red-team R1, 2026-09-02). The 10:45 ET deadline
+    # liquidation flattens the book, and nothing on the entry side knew the
+    # deadline existed -- so the 11:00 pass re-bought the book it had just
+    # sold, ~9 round trips of 50-90%% gross on the one judged session. An
+    # entry on the expiry session is churn into the judged window by
+    # construction, before liquidation as well as after.
+    try:
+        from alpha import exits as _exits  # local, like in_opening_range: runner stays broker-light
+        _today_et = now_et or _exits.now_et()
+        if str(expiry)[:10] == _today_et.date().isoformat():
+            logger.warning("EXPIRY DAY: entries refused for the whole session "
+                           "(the 10:45 ET liquidation owns today; %d forecast(s) recorded)",
+                           len(forecasts))
+            record_forecasts(forecasts, note=f"expiry-day exit-only expiry={expiry}")
+            return result
+    except (TypeError, ValueError, AttributeError):
+        pass  # an unreadable clock must not stop an ordinary session's pass
     state = tournament_state(client, field_leader_estimate=field_leader_estimate)
     book = book_mod.read(client)
     risk = book.fraction
@@ -1278,6 +1300,14 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                              entry_style=entry_style)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
+    # E3: a gate whose sentence nobody typed leaves the pass as OTHER_TYPED. That
+    # is a valid terminal state and a SIGNAL -- so it is said out loud here, once
+    # per pass, rather than discovered three weeks later in a groupby.
+    _unmapped = refusal_classes.unmapped_report(5)
+    if _unmapped:
+        logger.warning("terminal_state OTHER_TYPED on %d distinct sentence(s) this process: %s",
+                       len(refusal_classes.UNMAPPED),
+                       "; ".join(f"{n}x {s[:60]}" for s, n in _unmapped))
     return result
 
 
@@ -1687,6 +1717,11 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         # would make every pre-POST row read as a decline in the dashboard's
         # refusal census.
         refusal_reason=None if action in ("submitted", "intent") else reason,
+        # E3: ONE typed state per record, derived here rather than parsed off a
+        # finished ledger, with the full sentence kept beside it. Unmapped prose
+        # becomes OTHER_TYPED and is COUNTED (`refusal_classes.UNMAPPED`), so a
+        # gate added without a type shows up as a number instead of dissolving.
+        terminal_state=refusal_classes.terminal_state(reason, action=action),
         risk_fraction=verdict.risk_fraction if verdict else 0.0,
         max_loss_usd=(structure.max_loss * contracts) if structure else 0.0,
         order=order,

@@ -192,24 +192,28 @@ check("fraction 1.0 changes nothing",
       entry_open.scaled_forecasts([f_full], 1.0)[0].evidence["sealed_notional"] == 0.10)
 
 EQ = 100_000.0
+# the one-shot markers persist in the ledger dir; a test that leaves its own
+# markers behind fails its own next run. Clean the synthetic days first.
+for _m in entry_open.state_dir().glob("2099-*_test.topup_offered.json"):
+    _m.unlink()
 half_on = [{"asset_class": "us_equity", "symbol": "ABAT", "qty": "27",
             "market_value": str(0.05 * EQ)}]
-room = entry_open.topup_headroom(halved, half_on, EQ)
+room = entry_open.topup_headroom(halved, half_on, EQ, day="2099-01-01", role="test")
 check("half on -> the top-up is the OTHER half, not a second full weight",
       abs(room.get("ABAT", 0.0) - 0.05) < 1e-9, str(room))
 full_on = [{"asset_class": "us_equity", "symbol": "ABAT", "qty": "55",
             "market_value": str(0.10 * EQ)}]
 check("already at the sealed weight -> no top-up at all",
-      entry_open.topup_headroom(halved, full_on, EQ) == {})
+      entry_open.topup_headroom(halved, full_on, EQ, day="2099-01-02", role="test") == {})
 nearly = [{"asset_class": "us_equity", "symbol": "ABAT", "qty": "54",
            "market_value": str(0.098 * EQ)}]
 check("a 2% sliver is not worth a second commission and a stop re-place",
-      entry_open.topup_headroom(halved, nearly, EQ) == {})
+      entry_open.topup_headroom(halved, nearly, EQ, day="2099-01-03", role="test") == {})
 check("a forecast with no sealed weight is never topped up",
-      entry_open.topup_headroom(
-          [Forecast("post_event_drift", "NVDA", 2.0, 0.01, 0.03, 1.0, "", None,
-                    {"last_close": 180.0}, claim="direction")], half_on, EQ) == {})
-check("zero/unknown equity tops up nothing", entry_open.topup_headroom(halved, half_on, 0.0) == {})
+      entry_open.topup_headroom([Forecast("post_event_drift", "NVDA", 2.0, 0.01, 0.03, 1.0, "", None,
+                    {"last_close": 180.0}, claim="direction")], half_on, EQ,
+                    day="2099-01-04", role="test") == {})
+check("zero/unknown equity tops up nothing", entry_open.topup_headroom(halved, half_on, 0.0, day="2099-01-05", role="test") == {})
 
 
 # ----------------------------------------------------- run_pass, end to end, offline
@@ -455,6 +459,18 @@ check("the grader says NO RECEIPT rather than inventing one",
 check("nothing here writes the sealed book",
       "prediction_book" not in Path("alpha/entry_open.py").read_text(encoding="utf-8").replace(
           "prediction_book_sync", ""))
+
+
+# ---- one-shot marker (red-team R5): a loser must not be re-topped ----------
+r1 = entry_open.topup_headroom(halved, half_on, EQ, day="2099-02-01", role="test")
+check("first offer on a fresh day admits the remainder", abs(r1.get("ABAT", 0.0) - 0.05) < 1e-9)
+dropped = [{"asset_class": "us_equity", "symbol": "ABAT", "qty": "27",
+            "market_value": str(0.03 * EQ)}]  # the position LOST value
+r2 = entry_open.topup_headroom(halved, dropped, EQ, day="2099-02-01", role="test")
+check("a losing position does NOT reopen headroom the same day (no martingale)",
+      r2 == {}, str(r2))
+r3 = entry_open.topup_headroom(halved, dropped, EQ, day="2099-02-02", role="test")
+check("  a NEW day offers again (the marker is daily, not permanent)", "ABAT" in r3)
 
 print("\n" + ("ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}"))
 raise SystemExit(1 if fails else 0)

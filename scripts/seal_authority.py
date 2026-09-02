@@ -18,7 +18,7 @@ import subprocess
 import sys
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, time as dtime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -37,6 +37,12 @@ def _day() -> str:
 
 def _weekday() -> bool:
     return datetime.now(ET).weekday() < 5
+
+
+def _in_session(now_t: dtime | None = None) -> bool:
+    """Weekday 09:25-16:05 ET: bars are in progress, sealing is forbidden."""
+    now_t = now_t or datetime.now(ET).time()
+    return _weekday() and dtime(9, 25) <= now_t < dtime(16, 5)
 
 
 def _book_path(day: str) -> Path | None:
@@ -84,6 +90,18 @@ def ensure_today() -> bool:
             print(f"SEAL AUTHORITY ready day={day} sha={note[:16]} file={existing.name}", flush=True)
             return True
         print(f"SEAL AUTHORITY refused invalid existing book {existing}: {note}", flush=True)
+        return False
+
+    # NEVER SEAL FROM AN IN-PROGRESS SESSION (red-team R2, 2026-09-02): the
+    # refresh fetches bars with no end bound, so a mid-morning restart would
+    # bake the 10:15 print into close/high_60d/realised_vol -- selection
+    # changing under the hash. The authority seals from CLOSED markets only;
+    # a book-less open-hours restart keeps the runners declining with
+    # reasons, which is the designed failure.
+    if _in_session():
+        print(f"SEAL AUTHORITY {day}: venue session in progress "
+              f"({datetime.now(ET):%H:%M} ET); refusing to refresh/seal from "
+              "in-progress bars", flush=True)
         return False
 
     # Attention first: a fresh 13D/13G subject must be in TODAY's refresh

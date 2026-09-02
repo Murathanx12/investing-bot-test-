@@ -91,6 +91,8 @@ with tempfile.TemporaryDirectory() as td:
         return True
 
     seal_authority._run = fake_run
+    seal_authority._in_session = lambda now_t=None: False  # the ordering proof must not depend on wall-clock ET
+
     if not seal_authority._weekday():
         check("seal_authority weekend short-circuit", seal_authority.ensure_today() is True)
         print("  NOTE  ordering proof needs a weekday; not asserted today")
@@ -108,6 +110,16 @@ with tempfile.TemporaryDirectory() as td:
         check("authority order is refresh -> backfill-prices -> seal",
               order == ["refresh", "backfill", "seal"], str(order))
     os.environ.pop("AAT_LEDGER_DIR", None)
+
+# ---- 3b: the authority never seals mid-session (red-team R2) ----------------
+from datetime import time as _dt
+from scripts import seal_authority as _sa
+import importlib as _il
+_sa = _il.reload(_sa)
+check("10:15 ET on a weekday is in-session (no sealing)",
+      _sa._in_session(_dt(10, 15)) == _sa._weekday())
+check("04:00 ET is out of session (sealing allowed)", _sa._in_session(_dt(4, 0)) is False)
+check("16:06 ET is out of session", _sa._in_session(_dt(16, 6)) is False)
 
 # ---- 4: the loop launches the sync ------------------------------------------
 loop_src = (ROOT / "scripts" / "agent_loop.py").read_text(encoding="utf-8")

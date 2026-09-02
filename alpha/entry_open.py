@@ -55,8 +55,14 @@ import json
 import logging
 import os
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
+
+#: Only the one-shot top-up marker derives a default day from this; every
+#: window predicate still takes its clock as an argument.
+ET = ZoneInfo("America/New_York")
 
 logger = logging.getLogger(__name__)
 
@@ -262,8 +268,13 @@ def scaled_forecasts(forecasts: list, fraction: float) -> list:
     return out
 
 
+def _topup_offered_path(day: str, role: str, *, ledger_dir: str | Path | None = None) -> Path:
+    return state_dir(ledger_dir) / f"{day}_{role}.topup_offered.json"
+
+
 def topup_headroom(forecasts: list, positions: list[dict[str, Any]],
-                   equity: float) -> dict[str, float]:
+                   equity: float, *, day: str | None = None, role: str | None = None,
+                   ledger_dir: str | Path | None = None) -> dict[str, float]:
     """{symbol: remaining sealed weight} for a STAGGERED book at the 10:01 pass.
 
     A book that put half its weight on at the auction is HELD in every one of
@@ -278,9 +289,25 @@ def topup_headroom(forecasts: list, positions: list[dict[str, Any]],
     is left alone. Once the top-up fills, the headroom is ~0 and the name is
     refused again by this same arithmetic -- so this cannot become the 30-minute
     re-buy loop the original guard was written to stop.
+
+    ONE-SHOT (red-team R5, 2026-09-02): the market-value arithmetic alone is a
+    MARTINGALE -- a losing position's mv falls, headroom reopens, and the pass
+    adds to the loser every 30 minutes (and can buy back into a partially
+    filled protective stop). So each symbol is OFFERED at most once per day,
+    persisted beside the auction marker. A refused offer degrades that name to
+    its auction half -- the harmless direction. Known residual: a partial stop
+    fill BEFORE the first offer can still be topped up once, bounded by the
+    sealed weight; passing open orders through the call site closes it later.
     """
     if not equity or equity <= 0:
         return {}
+    day = day or datetime.now(ET).date().isoformat()
+    role = role or os.getenv("AAT_ACCOUNT_ROLE", "unknown")
+    offered_path = _topup_offered_path(day, role, ledger_dir=ledger_dir)
+    try:
+        already = set(json.loads(offered_path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        already = set()
     held_usd: dict[str, float] = {}
     for pos in positions or []:
         if (pos.get("asset_class") or "us_equity") != "us_equity":
@@ -300,10 +327,24 @@ def topup_headroom(forecasts: list, positions: list[dict[str, Any]],
         if sealed is None:
             continue
         sym = str(f.symbol).upper()
+        if sym in already:
+            continue
         full = float((f.evidence or {}).get("sealed_notional_full") or sealed)
         room = full - held_usd.get(sym, 0.0) / float(equity)
         if room >= MIN_TOPUP_FRACTION_OF_SEALED * full and room > 0:
             out[sym] = room
+    if out:
+        try:
+            offered_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = offered_path.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(sorted(already | set(out))), encoding="utf-8")
+            os.replace(tmp, offered_path)
+        except OSError as exc:
+            # A marker that cannot persist must not enable the martingale it
+            # exists to stop: refuse the whole offer rather than re-offering
+            # every 30 minutes on a broken disk.
+            print(f"TOPUP marker unwritable ({exc}); offering nothing", flush=True)
+            return {}
     return out
 
 
