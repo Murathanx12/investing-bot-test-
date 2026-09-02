@@ -45,6 +45,8 @@ class Sweep:
         self.rows: list[tuple[str, str, str]] = []
 
     def add(self, status: str, name: str, note: str = "") -> None:
+        # A Windows cp1252 console must not crash on Railway's status glyphs.
+        note = note.encode("ascii", "replace").decode("ascii")
         self.rows.append((status, name, note))
         print(f"  {status}  {name}" + (f"  ({note})" if note else ""), flush=True)
 
@@ -167,13 +169,19 @@ def check_website(s: Sweep) -> None:
 
 
 def check_railway(s: Sweep) -> None:
+    import shutil
+    railway = shutil.which("railway") or shutil.which("railway.cmd")
+    if not railway:
+        s.add(CANNOT, "railway CLI", "not on PATH for this interpreter")
+        return
     services = [f"aat-loop-{r}" for r in ROLES] + ["seal-authority"]
     for svc in services:
         try:
-            subprocess.run(["railway", "service", svc], cwd=ROOT, capture_output=True,
+            subprocess.run([railway, "service", svc], cwd=ROOT, capture_output=True,
                            timeout=30, check=False)
-            r = subprocess.run(["railway", "status"], cwd=ROOT, capture_output=True,
-                               text=True, timeout=30, check=False)
+            r = subprocess.run([railway, "status"], cwd=ROOT, capture_output=True,
+                               text=True, encoding="utf-8", errors="replace",
+                               timeout=30, check=False)
             line = next((ln.strip() for ln in r.stdout.splitlines() if "status:" in ln), "")
             healthy = "Online" in line and "failed" not in line.lower()
             # seal-authority is allowed to be offline while it is shadow-only

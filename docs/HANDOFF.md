@@ -1,3 +1,10 @@
+> **SKIM LAYER (updated 2026-09-02) — read this block, then `docs/INDEX.md`, then the session below.**
+> 1. **Start at `docs/INDEX.md`** (TIER 0 = what this repo is + the four non-negotiables; the MAP answers "how does a day get sealed / how do orders happen / how do I check everything / what grades us / where are the receipts"). This file is a reverse-chronological DIARY, not authority.
+> 2. **Mandates:** six paper accounts — hack1 anchor · hack2 drift · hack3 thesis · hack4 predator · hack5 convexity · hack6 blend (`alpha/fleet.py`, table in `docs/FLEET_2026-08-28.md`). **Expiry `AAT_LOOP_EXPIRY=2026-09-04`: books liquidate 10:45 ET, judging 11:00 ET.**
+> 3. **Today's seal artery:** `2026-09-02` IS SEALED — `state/predictions/2026-09-02.json`, sha `6e69c0af80`, 806 considered / 11 claims, first book under BAND_PRIOR v2, committed as `c525618`. Books match the replay exactly: hack3 10 @ 8.3% · hack4 5 @ 10% · hack6 15 @ 6%. Still to verify by hand: `--publish` landed, and `fleet --deploy` stamped the running services.
+> 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
+> 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
+
 ## SESSION 33 CLOSE (2026-09-01, Fable, written at 09:40 ET as Murat closes the PC)
 
 **The 10:01 ET entry pass runs ON RAILWAY after this laptop is off.** Verify it

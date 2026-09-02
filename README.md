@@ -8,6 +8,25 @@
 > is a stock book. We measured which is which over 32 years of market history,
 > and the agent picks the instrument to match.
 
+**What this repo is, in three lines.** It is the EXECUTION brain of the AEGIS
+programme: six Alpaca **paper** accounts, each a declared mandate in
+`alpha/fleet.py`, running unattended as Railway services `aat-loop-<role>`.
+Each trading day is a **sealed book** (`state/predictions/<day>.json`) that the
+runner may cut but never raise; no sealed book means no trade. The strategy,
+canon and research live one repo over, in `../aegis-finance`.
+
+**AI agents: read [`docs/INDEX.md`](docs/INDEX.md) first** — TIER 0 is what this
+repo is plus the four non-negotiables, TIER 1 points at the live session queue,
+and the MAP answers "how does a day get sealed / how do orders happen / how do I
+check everything / what watches the market / what grades us / where are the
+receipts" with a verified file path on every line.
+
+**Session-start protocol:** `session_briefing()` + `aegis_verified_state()`
+(Optimus MCP) → `docs/INDEX.md` TIER 0 → the top block of
+[`docs/HANDOFF.md`](docs/HANDOFF.md) (its SKIM LAYER, then `WHAT IS LEFT`) →
+`brain_query` before proposing anything, because the idea may already have a
+corpse with receipts. Tests run ONLY via `python run_tests.py`.
+
 ---
 
 ## The idea in one picture
