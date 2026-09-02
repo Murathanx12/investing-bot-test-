@@ -5,6 +5,131 @@
 > 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
 > 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
 
+## SESSION 34 (2026-09-02, Fable + five Opus agents, ~12:00-17:00 HKT) — THE ARTERY IS UNATTENDED, AND THE MONTH GOT GRADED
+
+**RESULTS SCOREBOARD:** best forward paper book: unresolved at n=2 sessions
+(+1.29pp then −5.76pp vs market — the retro's verdict, not a claim). Seal
+2026-09-02 sha `6e69c0af` LIVE on hack3/hack4/hack6, matching the v2 replay
+exactly (10@83% / 5@50% / 15@90%, all positive exp_return). Independent
+selector count unchanged; the NEW measured facts: holder identity t 2.24 but
+~5bps (under costs), duration intuition INVERTED, own-history stake-size
+anomaly ADVERSE (−1.21pp/252s t −3.95). LLM spend ≈ $0.02 (one L2 scenario
+generation ×3). RESULT IMPROVEMENT: the fleet no longer needs this laptop.
+
+### WHAT WE DID (all committed & pushed; every number in a receipt)
+1. **P0 complete with the full receipt chain:** refresh (3,056 rows) →
+   backfill → seal `6e69c0af` → replay-match → publish (c525618) → house
+   `fleet --deploy` (BUILD_COMMIT stamped ×3) → runners log
+   `SEAL SYNC installed ... 6e69c0af` after hash-verify. Fill receipt lands
+   at the 10:01 ET pass unattended.
+2. **The unattended artery exists, twice over:** (a) any push auto-deploys
+   `seal-authority` (GitHub-connected; hack runners are NOT), whose seed copy
+   carries the published book — it validates and serves it; runners sync every
+   120s from `seal-authority.railway.internal:8080` with hash verification.
+   (b) If NO book was pushed by 00:00 ET, the authority seals SOLO — its
+   pipeline now runs ownership_watch → refresh → **--backfill-prices** →
+   seal (three gaps fixed: no launcher / no backfill / no yfinance;
+   `tests_smoke_seal_delivery`, 8 checks). First solo seal: 2026-09-03
+   00:00 ET — CHECK ITS LOG for `tgt=ok` (the in-container yfinance proof).
+3. **EDGAR 13D/13G watcher + attention watchlist** (9aec2ad, 69bba25): the
+   GPRO class of miss closed at the observation layer; live smoke captured
+   the actual Fischbach 13G; cap ranks TIERS (13D > 13G > amendments) after
+   the quarterly 13G/A flood was measured evicting originals in days.
+4. **fleet_health + flatten** (688a3bc + fixes): one command, 19/19 ALL
+   GREEN across venue, six accounts, seal, freshness, website, Railway;
+   go-to-zero backstop double-armed, dry-run default.
+5. **The month graded** (finance 0531d60, `RETRO_2026-09-02...`): see
+   FINDINGS. **Holder fingerprints H2/H3** on 74.7M position-quarters
+   (finance 62cd269). **Scenario lab** (a4eb8df): 19 declared-expectation
+   scenarios through the REAL decision path + DeepSeek-invented adversarial
+   set; 66 suites / 2,927 checks ALL PASS.
+6. **Docs skim layer** (84663e3 / finance 7efd5c8): docs/INDEX.md here,
+   skim header on this file, READMEs route agents to INDEX first.
+7. TRIAL-AGREE-CELL-TILT-1 pre-registered (Aegis module f3762ab, linter
+   PASS) — NOT in any seal yet.
+
+### ISSUES FOUND (do not re-pay)
+- Railway has TWO build paths: `railway up` honors railway.toml/DOCKERFILE;
+  GitHub/`redeploy --from-source` hit Railpack and fail ("no start command").
+  The 12:17 "Deploy failed" badges were exactly that. House deploy stands.
+- The seal-authority shares the fleet Finnhub key — a broken in-container
+  refresh BURNS the quota a laptop refresh needs. It short-circuits when a
+  valid book exists (by design), which caps the blast radius.
+- Railway's log viewer strips `key=value` tokens from printed lines.
+- Refresh pace: ~27 rows/min steady (yfinance-bound); first minutes look 4x
+  slower. Measure steady state before an ETA.
+- `run_tests` counts `^ok\s{2,}` lines only. cp1252 consoles crash on
+  Railway's glyphs (sanitize notes). npm shims need `shutil.which`.
+- hack6's −$9.3k predates the tracker era (08-28 legacy liquidation).
+  hack1's overnight anchor missed Sep1→Sep2 (automated pass refuses 100%).
+- Docker Desktop's 70GB `docker_data.vhdx`: untouched since MARCH, daemon
+  off, nothing uses it. Murat may delete it (Docker recreates empty).
+
+### FINDINGS (receipts in `aegis-finance/backend/data/optimus/tracker_backtest/`)
+- **RETRO:** RZLV −17.3% was held by hack4 while our own rule REFUSED it
+  (rank 576/766, claims:false); on 09-02 the dissent is 25/30 holdings.
+  149/150 extreme movers had no engine view; **127/127 were IN the tracker —
+  100% admission failure, 0% observation.** The attention watchlist's real
+  (unmeasured) value: 107 names OUTSIDE the tracker. v2 beat v1 both graded
+  sessions; band prior is an OPPORTUNITY-SET fix, not a risk fix. Book
+  market-beta 2.10. Counterfactual ledger mispriced: `mdm_floor` −$846k on
+  the one graded guard; 45% ungradeable rows counted as wins. Defects
+  RECORDED not repaired: VISN sign contradiction; 2 torn lines in the
+  hash-chained decisions.jsonl.
+- **HOLDERS:** identity real but thin (t 2.24, ~5bps/1sd); long-duration
+  filer's NEW position UNDERPERFORMS −0.96pp/63s t −4.16 (index-
+  reconstitution confound — 13D/G needed to see discretionary conviction);
+  a manager's own top-decile stake size is ADVERSE. Famous-filer durations
+  validate the panel (Vanguard 14q · Berkshire 7q · Renaissance 2q).
+- **TOP-N (b46c573):** regime-conditional; TOP1 loses even 1993-2024;
+  2000-2012 reverses everything. Leadership-regime SENSOR, never a rule.
+- **GPRO case (0f57cd0):** NOT ACTIONABLE (deal stub, R:R 0.17); celebrity
+  13G six-case base rate: D1 +14.7% median, D63 −4.1% (4/6 negative).
+- **SCENARIO LAB:** two engine findings — corpus-arm rows lack close/
+  coverage so v2 is WITHHELD there (producer split, pinned); ratio<1.5 cell
+  hands a below-price target the +2.41%/yr constant (status rules are the
+  only defence).
+
+### WHAT IS LEFT (adopted roadmap — Murat's review, amended by evidence)
+P0 (tonight, unattended; verify next session): 10:01 ET fills vs seal
+  `6e69c0af`; authority solo seal 00:00 ET 09-03 (`tgt=ok` in its log);
+  decision_writeback rows for 09-02.
+P1a **E1 price-the-dissent**: stamp each sealed holding with the generator's
+  `claims` verdict (a join); accrue held-and-claimed vs held-and-declined;
+  promote to a SIZE HAIRCUT only on evidence. (Retro E1.)
+P1b **E3 refusal attribution**: typed terminal state for every forecast
+  (the review's enum); mark the underlying when no chain exists; split win%
+  graded/ungraded; re-price `mdm_floor` after 80% coverage. (Retro E3.)
+P1c **ACTIVIST_13D**: teacher-library holds ZERO 13D events (starved
+  upstream, sentinel knew); feed it from the EDGAR watcher output;
+  min_price 5.0 must become an EXECUTION property. Website deploy AFTER
+  judging (09-04) — it is the submission surface.
+P1d Attention watchlist FORWARD clock started today; pre-register the
+  falsifier; fix `n_filings_out_of_window: 0` (a gate that cannot fire).
+P2a **E2 decomposition-gated stop**: shadow-log a company-component stop
+  beside the live stop (β 2.10 book; ABAT stopped on −0.5% company).
+  Worst-case dollars FIRST.
+P2b Hybrid learner exactly as reviewed: CompanyState training table accrues
+  NOW (state/company_state/ since 09-02); champion/challenger; shadow
+  portfolio; NN earns influence only past listed baselines. NOT before the
+  producer-split (scenario finding) is resolved — the training rows inherit it.
+P2c Leadership-regime sensor (pre-registered, PIT variables only).
+P2d Wednesday 09-04 plan: books liquidate 10:45 ET, judging 11:00 ET.
+P3 PotentialUniverse consolidation, holder anomaly v2 (13D/G-based),
+  lender-holder H5, human decision interface. Standing: ledger chain broken
+  since 25 Aug — logged, never silently repaired; arena graded-never-traded;
+  no reseal of a live day.
+
+### NOVEL (this session)
+1. The push itself is now a deploy artery (GitHub → authority → sync) — a
+   seal reaches the fleet with the laptop off in under 3 minutes.
+2. Declared-expectation scenario testing with an LLM that INVENTS but never
+   judges its own output; disagreements are leads, not failures.
+3. Tier-ranked attention caps: originals outrank amendments, or deadline
+   floods make a 45-day window a 5-day one.
+4. "Only matched differences are readable" — the EW/VW benchmark artefact
+   sign-flips every pooled holder number; applies to any panel this size.
+
 ## SESSION 33 CLOSE (2026-09-01, Fable, written at 09:40 ET as Murat closes the PC)
 
 **The 10:01 ET entry pass runs ON RAILWAY after this laptop is off.** Verify it
