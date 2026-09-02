@@ -61,7 +61,13 @@ log = logging.getLogger("loop")
 #: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
 #: for why this is the proportionate fix and venue-side structure stops are not.)
 TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.premarket_digest": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900, "scripts.decision_writeback": 600,
-              "scripts.fill_audit": 300}
+              "scripts.fill_audit": 300,
+              # The opening auction has a HARD venue deadline (09:28 ET). A pass
+              # that is still running at the cutoff has already failed, so the
+              # ceiling is short on purpose: 300s from a start no later than
+              # 09:20 leaves the marker claimed and the day declining to the
+              # 10:01 control, which is the harmless failure.
+              "scripts.open_auction": 300}
 
 
 def _market_open(client) -> bool:
@@ -254,6 +260,11 @@ def _cycle(client, args, last: dict) -> int:
         except Exception as exc:  # noqa: BLE001
             log.warning("prediction book sync failed: %s", exc)
         now = time.time()
+        # INITIALISED BEFORE THE TRY, not inside it. A BrokerRefusal below used to
+        # leave this name unbound while two later branches read it -- a latent
+        # NameError on exactly the cycle where the venue is unreachable. 1e9 is
+        # "not near an open", so every window that reads it declines.
+        mins_to_open = 1e9
         try:
             clock = client.clock()
             is_open = bool(clock.get("is_open"))
@@ -306,6 +317,33 @@ def _cycle(client, args, last: dict) -> int:
             # ranking rather than to whoever printed last. Shadow; places nothing.
             _run("scripts.premarket_digest", live=False)
             _run("scripts.dislocation_scan", "--max", "4", "--deep", "2", live=False); last["council"] = now
+        # -- THE OPENING AUCTION (2026-09-02, entry-timing tournament) --------
+        # Fires only when AAT_ENTRY_STYLE is set, the market is closed, and the
+        # open is 10-45 minutes away. Unset -> `should_run` returns False and
+        # this block is a dictionary lookup and a comparison, which is the whole
+        # of the control arm's exposure to it. `scripts.open_auction` re-derives
+        # every one of these conditions plus the marker and the book's hash, so
+        # running it by hand is safe and this gate is only a cheap pre-filter.
+        try:
+            from alpha import entry_open, exits as _exits
+
+            _style = entry_open.entry_style()
+            _ok, _why = entry_open.should_run(
+                style=_style, is_open=is_open, mins_to_open=mins_to_open,
+                day=_exits.session_day(),
+                role=(os.getenv("AAT_ACCOUNT_ROLE") or "").strip().lower() or None)
+            if _ok:
+                log.info("PRE-OPEN AUCTION PASS: %s", _why)
+                extra = ["--expiry", args.expiry]
+                if args.profile:
+                    extra += ["--profile", args.profile]
+                _run("scripts.open_auction", *extra, live=args.live)
+            elif _style is not None:
+                log.debug("no pre-open pass: %s", _why)
+        except Exception as exc:                                        # noqa: BLE001
+            # A misconfigured entry style must not kill the loop; it must be
+            # LOUD and leave the ordinary 10:01 pass untouched.
+            log.error("pre-open auction step skipped: %s", exc)
         if is_open and getattr(args, "manage_only", False) and now - last["entry"] >= 3600:
             # Say it OUT LOUD, hourly. A legacy book that silently stopped
             # entering looks exactly like a book whose entry pass is broken, and

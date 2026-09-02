@@ -92,6 +92,11 @@ FLEET: dict[str, Mandate] = {
         brains=("tracker_portfolio",), shadow=("post_event_drift",), profile="maximum", universe="window",
         allow_maximum=True, rank_objective="median", structure_kinds=("long_shares",),
         extra_args=("--window-universe",),
+        # ENTRY-TIMING TOURNAMENT (2026-09-02). Same sealed names, same sealed
+        # weights as hack3; the only variable is WHEN the weight goes on. hack4
+        # sends the whole book into the opening auction (`opg`, before 09:28 ET);
+        # hack3 is the untouched 10:01 control. Delete this one line to disarm.
+        env={"AAT_ENTRY_STYLE": "open_auction"},
         caveat="APPROVED 2026-08-31 (docs/DECISION_2026-08-31_HACK4_TRACKER_APPROVED.md): shares only, "
                "the sealed notional is a reduce-only ceiling, exact names from the sealed artifact. "
                "STATED PROPERTY, not an accident: profit_max has NO max_downside, so it selects "
@@ -111,6 +116,11 @@ FLEET: dict[str, Mandate] = {
         profile="aggressive", universe="window_plus_themes",
         rank_objective="median", structure_kinds=("long_shares",),
         extra_args=("--window-universe", "--council"),
+        # ENTRY-TIMING TOURNAMENT (2026-09-02): the STAGGERED arm. Half of each
+        # sealed weight into the opening auction, the remainder completed by the
+        # ordinary 10:01 pass (`entry_open.topup_headroom` admits the remainder
+        # and only the remainder). Delete this one line to disarm.
+        env={"AAT_ENTRY_STYLE": "staggered"},
         caveat="APPROVED by Murat 2026-08-31 ('make sure all the other paper accounts are also wired "
                "and not empty ... up to the engine'): the council blend moves to SHADOW (still fed by "
                "scripts.dislocation_scan --deep; a packet-less day now trades the sealed book instead "

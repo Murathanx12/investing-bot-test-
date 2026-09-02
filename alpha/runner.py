@@ -57,7 +57,7 @@ from datetime import datetime, timedelta, timezone
 
 from alpha import admission
 from alpha import book as book_mod
-from alpha import claims, concentration, config, crossbook, daybreak, drivers, ledger, recovery, refuted
+from alpha import claims, concentration, config, crossbook, daybreak, drivers, entry_open, ledger, recovery, refuted
 from alpha.brains import tracker_portfolio as _tracker_portfolio
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
@@ -832,14 +832,36 @@ SYNTHETIC_QUOTE_TOLERANCE = 0.005
 SYNTHETIC_HALF_SPREAD = 0.0005
 
 
-def build_order(structure: sizing.Structure, contracts: int) -> dict:
-    """Alpaca order payload. Single-leg or `mleg`, always a LIMIT, never market."""
+def build_order(structure: sizing.Structure, contracts: int, *,
+                entry_style: str | None = None) -> dict:
+    """Alpaca order payload. Single-leg or `mleg`, always a LIMIT, never market.
+
+    ...EXCEPT for an OPENING-AUCTION entry (`entry_style` set, 2026-09-02), which
+    is by definition `type=market, time_in_force=opg`: the auction has no book to
+    rest a limit in, and a limit with `opg` is a different instruction from the
+    one the tournament is testing. `entry_style=None` -- every caller that
+    existed before -- produces the byte-identical payload it always did.
+
+    `opg` is EQUITY ONLY here. An option or a pair routed into an auction is not
+    a thing this repo has evidence about, so it refuses rather than inventing a
+    convention mid-tournament.
+    """
     if contracts < 1:
         raise ValueError("refusing a zero-contract order")
+    if entry_style is not None and structure.kind not in _tracker_portfolio.SHARE_KINDS:
+        raise ValueError(
+            f"entry_style={entry_style!r} builds an opening-auction (opg) order and "
+            f"{structure.kind!r} is not a plain share structure. The tracker books are "
+            "shares-only; refusing to route an option or a pair into the auction.")
     if structure.kind == equity.PAIR_KIND:
         return build_pair_orders(structure, contracts)
     if structure.kind in equity.KINDS:
         symbol, side, _ratio = structure.legs[0]
+        if entry_style is not None:
+            return {
+                "symbol": symbol, "qty": str(contracts), "side": side,
+                "type": "market", "time_in_force": "opg",
+            }
         return {
             "symbol": symbol, "qty": str(contracts), "side": side,
             "type": "limit", "limit_price": f"{abs(structure.entry_cost):.2f}",
@@ -945,11 +967,20 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
              risk_profile: str | None = None, dry_run: bool = True,
              field_leader_estimate: float | None = None,
              shadow_brains: tuple[str, ...] = (),
-             now_et=None) -> PassResult:
+             now_et=None, entry_style: str | None = None,
+             seal_day: str | None = None) -> PassResult:
     """One full decision pass over forecasts from one or several brains.
 
     `shadow_brains` never execute regardless of ranking -- a brain earns its
     first live order by beating the others in shadow first.
+
+    `entry_style` (2026-09-02) is set ONLY by the pre-open opening-auction pass
+    (`scripts.open_auction`). It changes three things and nothing else: the
+    decision id becomes deterministic in (day, symbol, "opg") so a restart
+    cannot double-submit, the order body becomes `market`/`opg`, and the
+    opening-range refusal -- which cannot apply to an order sent before the
+    bell -- is recorded as bypassed instead of silently skipped. Default None
+    is the byte-identical path every existing caller takes.
     """
     result = PassResult()
     state = tournament_state(client, field_leader_estimate=field_leader_estimate)
@@ -1054,6 +1085,26 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     in_flight = open_order_underlyings(client)
     for sym, n in in_flight.items():
         held[sym] = held.get(sym, 0) + n
+    # -- STAGGERED TOP-UP (2026-09-02) ---------------------------------------
+    # A book that put HALF its sealed weight on at the opening auction is held in
+    # every one of those names by 10:01, and `already_held` below would refuse
+    # the second half for the rest of the day -- which turns "staggered" into
+    # "half-sized auction", a different experiment wearing the right label.
+    #
+    # `topup_headroom` admits ONLY the remainder, measured at the venue:
+    # sealed minus what is already on. When the style is unset (hack3, hack4 and
+    # every other book) it is an empty dict and the loop below is unchanged.
+    topup: dict[str, float] = {}
+    try:
+        _style_here = entry_open.entry_style()
+    except entry_open.EntryStyleRefusal as exc:
+        logger.error("%s", exc)
+        raise
+    if entry_style is None and entry_open.leaves_remainder(_style_here):
+        topup = entry_open.topup_headroom(forecasts, client.positions(), state.equity)
+        if topup:
+            logger.info("STAGGERED top-up: %s", ", ".join(
+                f"{s} {w:.2%} of equity still to buy" for s, w in sorted(topup.items())))
     today = datetime.now(timezone.utc).date().isoformat()
     reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
     reserve_total = sum(reserve_for.values())
@@ -1076,7 +1127,17 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
                         action="refused", reason=f"{symbol}: a protective stop closed this name earlier today; "
                                                  "no same-session re-entry -- tomorrow is a new decision")
             continue
-        if symbol in held:
+        if symbol in held and symbol.upper() in topup and symbol not in in_flight:
+            # The one exception, and it can only ever BUY LESS than the seal:
+            # the forecast's sealed weight is replaced by the measured headroom,
+            # so the sizer and `clamp_to_sealed` both cap at the remainder. When
+            # the top-up fills, the headroom is ~0 and this name falls back
+            # through `already_held` on the next pass by the same arithmetic.
+            room = topup[symbol.upper()]
+            group = [entry_open.with_sealed_notional(f, room) for f in group]
+            logger.info("%s: staggered top-up admitted at %.2f%% of equity (the auction "
+                        "leg is already on)", symbol, room * 100)
+        elif symbol in held:
             # ONE POSITION PER SYMBOL is a property of the BOOK, not of a pass.
             # Without this the loop re-buys the same straddle every thirty
             # minutes until the aggregate cap binds -- which it did on 25 Aug
@@ -1097,7 +1158,14 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         evaluated = []
         for forecast in group:
             result.considered += 1
-            decision_id = ledger.new_decision_id(forecast.symbol, forecast.brain)
+            # THE ID IS THE IDEMPOTENCY. `new_decision_id` collides only inside
+            # the same MINUTE, which is right for a pass that runs every thirty
+            # -- and wrong for a pre-open pass whose container may restart four
+            # minutes later and re-submit. An auction entry is one decision per
+            # (day, symbol), so its id says so and the venue rejects the replay.
+            decision_id = (entry_open.opg_decision_id(seal_day or _today, forecast.symbol)
+                           if entry_style is not None
+                           else ledger.new_decision_id(forecast.symbol, forecast.brain))
             try:
                 own_event = (forecast.evidence or {}).get("event_date")
                 reserve = reserve_total - reserve_for.get(own_event, 0.0)
@@ -1206,7 +1274,8 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
         committed = _execute(client, result, *champion, state, committed, dry_run=dry_run,
                              book=book, greeks=greeks, risk_profile=risk_profile,
                              reserved=reserve_for, n_risk=book_n_risk, printing=printing,
-                             gross=gross, now_et=now_et, cross=cross)
+                             gross=gross, now_et=now_et, cross=cross,
+                             entry_style=entry_style)
         if node is not None:
             node_committed[node] = node_committed.get(node, 0.0) + (committed - before)
     return result
@@ -1220,7 +1289,8 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
              n_risk: float | None = None,
              printing: set | None = None,
              gross: dict | None = None,
-             now_et=None, cross: dict | None = None) -> float:
+             now_et=None, cross: dict | None = None,
+             entry_style: str | None = None) -> float:
     """Size, build and (unless dry) send the champion. Returns updated `committed`.
 
     The aggregate ceiling binds WITHIN a pass: `committed` accumulates so six
@@ -1253,7 +1323,24 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
     n = contracts_for(structure, verdict.risk_fraction, state.equity)
     profile_key = (risk_profile or "").strip().lower()
     # -- OPENING RANGE (2026-08-29): no share entry 09:30-09:45 ET ------------
-    if structure.kind in equity_mod.KINDS and in_opening_range(now_et):
+    #
+    # An OPENING-AUCTION entry is sent before 09:28 and executes at the auction
+    # print, so this guard has nothing to bind on -- there is no first-fifteen-
+    # minutes range yet, and the fill is the print rather than a sweep through
+    # it. That is an argument, not a licence, so it is written onto the decision
+    # record as `entry_style` rather than skipped in silence: a reader of the
+    # ledger can see which rows never faced this gate and why.
+    if entry_style is not None:
+        verdict = replace(verdict, economics={
+            **(verdict.economics or {}),
+            "entry_style": entry_style,
+            "opening_range_gate": (
+                "BYPASSED: this order is sent pre-open with time_in_force=opg and fills at "
+                "the auction print. The 09:30-09:45 guard exists because sweeping the "
+                "opening RANGE is expensive; taking the auction PRINT is the alternative "
+                "being measured, not an evasion of the guard."),
+        })
+    if entry_style is None and structure.kind in equity_mod.KINDS and in_opening_range(now_et):
         result.refuse("opening_range")
         _record(decision_id, forecast, structure, verdict, snapshot, state,
                 action="refused", contracts=n,
@@ -1329,7 +1416,7 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
                         "ceiling becomes a suggestion."))
         return committed
 
-    built = build_order(structure, n)
+    built = build_order(structure, n, entry_style=entry_style)
     pair_orders = built if isinstance(built, list) else None
     order = pair_order_record(built) if pair_orders else built
     add = (structure.max_loss * n) / state.equity if state.equity else 0.0
