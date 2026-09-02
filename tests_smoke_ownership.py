@@ -454,6 +454,23 @@ with tempfile.TemporaryDirectory() as td:
           watch.days_to_sweep("2026-08-24", backfill=0) == ["2026-08-24"])
 os.environ.pop("AAT_LEDGER_DIR", None)
 
+# ---- the cap ranks TIERS, not recency alone (2026-09-02) --------------------
+# Measured at full scale: 1,585 symbols qualified over 45 days vs a 200 cap,
+# and the quarterly 13G/A amendment flood (1,615 filings on 2026-08-14) would
+# have evicted GPRO's ORIGINAL 13G within days. An original outranks any
+# amendment; recency orders only within a tier.
+flood = [row(f"AM{i:03d}", "2026-08-30", f"am{i}", form="SC 13G/A") for i in range(30)]
+old_original = row("GPRO", "2026-08-01", "orig1", form="SC 13G")
+wl = own.build_watchlist(flood + [old_original], as_of=AS_OF, cap=10)
+kept_syms = wl["symbols"]
+check("an old ORIGINAL 13G survives a cap flooded with fresh 13G/A",
+      "GPRO" in kept_syms, f"kept={kept_syms[:4]}...")
+check("  and ranks FIRST despite being 29 days older", kept_syms[0] == "GPRO")
+d_row = row("ACTV", "2026-08-05", "d1", form="SC 13D")
+wl2 = own.build_watchlist(flood + [old_original, d_row], as_of=AS_OF, cap=10)
+check("  an original 13D outranks the original 13G",
+      wl2["symbols"][:2] == ["ACTV", "GPRO"])
+
 check("NOTHING in this suite touched the network", not _net_calls, str(_net_calls))
 
 print()

@@ -535,6 +535,14 @@ def read_recorded(*, since: str | None = None) -> list[dict[str, Any]]:
 
 # ------------------------------------------------------- the attention watchlist
 
+#: Cap ranking: an ORIGINAL filing is a new fact; an amendment is bookkeeping.
+_FORM_TIERS = {"SC 13D": 0, "SC 13G": 1, "SC 13D/A": 2, "SC 13G/A": 3}
+
+
+def _form_tier(form: Any) -> int:
+    return _FORM_TIERS.get(str(form or "").strip().upper(), 4)
+
+
 def build_watchlist(records: Iterable[dict[str, Any]], *, as_of: str,
                     days: int = WATCHLIST_DAYS, cap: int = WATCHLIST_MAX) -> dict[str, Any]:
     """PURE. The subject tickers of the last `days` of filings, newest first, capped.
@@ -562,7 +570,10 @@ def build_watchlist(records: Iterable[dict[str, Any]], *, as_of: str,
             "filer_name": (r.get("filer_names") or [None])[0] or (
                 r.get("index_companies") or [None])[0],
             "accessions": [],
+            "rank_tier": _form_tier(r.get("form_normalised") or r.get("form")),
         })
+        e["rank_tier"] = min(e["rank_tier"],
+                             _form_tier(r.get("form_normalised") or r.get("form")))
         e["first_seen"] = min(e["first_seen"], filed)
         if filed >= e["last_seen"]:
             e["last_seen"] = filed
@@ -573,7 +584,15 @@ def build_watchlist(records: Iterable[dict[str, Any]], *, as_of: str,
         acc = str(r.get("accession") or "")
         if acc and acc not in e["accessions"]:
             e["accessions"].append(acc)
-    ordered = sorted(entries.values(), key=lambda e: (e["last_seen"], e["symbol"]), reverse=True)
+    # Recency alone makes the 45-day window an effective 5-day one: the
+    # quarterly 13G/A deadline floods (~1,600 filings on 2026-08-14 vs ~50 on
+    # an ordinary day) age every original filing out of a 200 cap in days --
+    # GPRO's original 13G would have been evicted by passive amendments. So the
+    # cap ranks TIERS first (original 13D, then original 13G, then amendments),
+    # newest first inside a tier.
+    ordered = sorted(entries.values(),
+                     key=lambda e: (-e["rank_tier"], e["last_seen"], e["symbol"]),
+                     reverse=True)
     kept = ordered[:cap]
     return {
         "schema": WATCHLIST_SCHEMA,
