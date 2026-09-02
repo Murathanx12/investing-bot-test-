@@ -243,6 +243,16 @@ def main() -> int:
 def _cycle(client, args, last: dict) -> int:
     """One pass of the schedule. Returns the consecutive-error count (0 = fine)."""
     if True:
+        # Central-seal artery (2026-09-02): install today's sealed book from the
+        # authority when AAT_PREDICTION_BOOK_BASE_URL is set; exact no-op when it
+        # is not. Cheap (validates the local file first), and a delivery failure
+        # must never kill the loop -- the runner then declines with reasons, which
+        # is the fail-closed contract tracker_portfolio already enforces.
+        try:
+            from scripts import prediction_book_sync
+            prediction_book_sync.sync_once()
+        except Exception as exc:  # noqa: BLE001
+            log.warning("prediction book sync failed: %s", exc)
         now = time.time()
         try:
             clock = client.clock()

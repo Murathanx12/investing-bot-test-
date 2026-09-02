@@ -88,6 +88,10 @@ def ensure_today() -> bool:
 
     if not _run([sys.executable, "-m", "scripts.tracker", "--refresh", "--day", day]):
         return False
+    # refresh does NOT derive realised_vol_20d; without this step hack3/hack6
+    # seal EMPTY (S30, 2026-08-31). The order is refresh -> backfill -> seal.
+    if not _run([sys.executable, "-m", "scripts.tracker", "--backfill-prices", "--day", day]):
+        return False
     if not _run([sys.executable, "-m", "scripts.prediction_book", "--seal", "--universe", "tracker", "--day", day]):
         return False
     path = _book_path(day)

@@ -12,3 +12,7 @@ alpaca-py>=0.33.0
 # which is the way an undeclared import stays invisible until the one build that
 # does not have it.
 numpy>=1.26
+# seal-authority runs `scripts.tracker --refresh` IN-CONTAINER since 2026-09-02;
+# tracker.fetch_targets imports yfinance lazily, so a container without it fetches
+# 3,059 rows of tgt=error:ModuleNotFoundError -- a whole refresh with no targets.
+yfinance>=0.2.40
