@@ -29,6 +29,21 @@ which is exactly what happened on its first run. This writes each row the
 moment it is complete, and `--refresh` resumes by skipping symbols already in
 today's file. A long capture that writes once has no partial credit.
 
+THE ATTENTION UNION (2026-09-02)
+================================
+The refresh universe is `universe.load()` UNION the ownership attention
+watchlist (`state/research/ownership/attention_watchlist.json`, written by
+`scripts/ownership_watch.py`). The screen has a $2 price floor and a $3m/day
+execute floor; GPRO on 2026-08-20 had an 8.5% Schedule 13G filed against it and
+cleared neither, so AEGIS never held a row for it and could not have had an
+opinion. MISS TYPE: NOT OBSERVED.
+
+Unioned names carry `universe_source: "ownership_attention"` (screened names
+carry `"screen"`) and their `median_dollar_volume` is derived from this run's
+own bars, marked `median_dollar_volume_source: "refresh_bars_60d"`. Nothing
+about being on the watchlist scores a name, ranks it or authorises a dollar of
+it: `universe.execution_authority` still decides that from the liquidity.
+
 A 429 READS AS ABSENCE
 ======================
 A rate-limited name is not a name without analysts. Every fetch retries with
@@ -44,6 +59,7 @@ import argparse
 import contextlib
 import json
 import os
+import statistics as st
 import sys
 import time
 import urllib.error
@@ -54,6 +70,8 @@ from pathlib import Path
 
 from alpha import config, tracker, universe
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
+from alpha.sources import edgar_ownership
+from alpha.sources.http import SourceRefusal
 
 ROOT = Path(__file__).resolve().parent.parent
 STORE = Path(os.getenv("AAT_LEDGER_DIR") or (ROOT / "state")) / "tracker"
@@ -309,6 +327,84 @@ def stopped_symbols() -> set[str]:
     return out
 
 
+# ------------------------------------------------------- the attention union
+
+def _median_dollar_volume(bars: list[dict], *, window: int = 60) -> float | None:
+    """Median close*volume over the last `window` sessions, or None.
+
+    The SAME derivation `alpha/universe.py:build` runs, on the SAME bars this
+    refresh already fetched -- not a second convention. An attention name has no
+    universe record to copy the number from, and leaving it null would hand
+    `universe.execution_authority` an UNKNOWN, which authorises nothing. Fewer
+    than 20 sessions returns None: a five-day IPO has no median worth the name.
+    """
+    dv = [float(b.get("c") or 0.0) * float(b.get("v") or 0.0)
+          for b in bars[-window:] if b.get("c")]
+    if len(dv) < 20:
+        return None
+    return float(st.median(dv))
+
+
+def _attention_union(client, by_symbol: dict) -> tuple[list[str], dict]:
+    """Names the SCREEN never saw, unioned in from the ownership attention watchlist.
+
+    `state/research/ownership/attention_watchlist.json` (written by
+    `scripts/ownership_watch.py`) holds the subject tickers of the last 45 days
+    of Schedule 13D/13G filings. GPRO on 2026-08-20 is why: an 8.5% 13G, and the
+    name was below the universe's $2 price floor, so AEGIS could not have had an
+    opinion. MISS TYPE: NOT OBSERVED.
+
+    Two refusals, both loud and neither fatal to the refresh:
+
+      * NO WATCHLIST is normal -- the file is new. [] and a one-line note.
+      * NO VENUE ASSET RECORD means we cannot say whether a name is tradable or
+        shortable, and `tracker.apply_status` reads a falsy `tradable` as DROP.
+        Rather than write a claim we cannot support, the union is SKIPPED for
+        the run and the skip is printed. The filing stays recorded either way;
+        the observation is deferred by a day, not lost.
+    """
+    try:
+        wl = edgar_ownership.attention_symbols()
+    except (SourceRefusal, OSError) as exc:
+        print(f"WARNING: attention watchlist unreadable ({exc}); "
+              f"refreshing the screened universe only")
+        return [], {}
+    if not wl:
+        print("attention watchlist: absent or empty (nothing to union)")
+        return [], {}
+    want = {s for s in wl if s not in by_symbol}
+    if not want:
+        print(f"attention watchlist: {len(wl)} symbols, all already in the screened universe")
+        return [], {}
+    try:
+        assets = {a["symbol"]: a for a in client.assets()
+                  if a.get("symbol") in want and a.get("tradable")
+                  and a.get("status") == "active"}
+    except BrokerRefusal as exc:
+        print(f"WARNING: venue asset list unavailable ({exc}). "
+              f"SKIPPING the attention union of {len(want)} names: tradability cannot "
+              f"be derived, and a guessed `tradable` reads as a DROP tomorrow")
+        return [], {}
+    # The screened universe drops ETF-like names (`if not m.etf_like`); a 13G
+    # against a closed-end fund or a trust is common and would otherwise walk in
+    # through the side door and be refreshed as if it were a company.
+    etfs = sorted(s for s, a in assets.items() if universe.looks_like_etf(a.get("name")))
+    for s in etfs:
+        assets.pop(s)
+    extra = sorted(assets)
+    missing = sorted(want - set(extra) - set(etfs))
+    print(f"attention watchlist: {len(wl)} symbols, {len(want)} outside the screen, "
+          f"{len(extra)} tradable at the venue -> {', '.join(extra[:15])}"
+          f"{' ...' if len(extra) > 15 else ''}")
+    if etfs:
+        print(f"  ETF-like, excluded exactly as the screen excludes them: "
+              f"{', '.join(etfs[:15])}{' ...' if len(etfs) > 15 else ''}")
+    if missing:
+        print(f"  not listed/tradable at the venue, not added: {', '.join(missing[:15])}"
+              f"{' ...' if len(missing) > 15 else ''}")
+    return extra, assets
+
+
 # ------------------------------------------------------------------- the refresh
 
 def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) -> int:
@@ -335,6 +431,13 @@ def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) ->
     symbols = [m.symbol for m in members]
     by_symbol = {m.symbol: m for m in members}
 
+    # THE ATTENTION UNION (2026-09-02). Added AFTER `--limit` on purpose: a fast
+    # slice may skip 2,700 screened names, but the point of an attention name is
+    # that it would otherwise never be observed at all.
+    client = AlpacaPaper()
+    attention_extra, attention_assets = _attention_union(client, by_symbol)
+    symbols += attention_extra
+
     done = {r["symbol"] for r in load_day(day)}
     todo = [s for s in symbols if s not in done]
     print(f"universe {len(symbols)} non-ETF names | already captured today {len(done)} "
@@ -348,7 +451,6 @@ def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) ->
               f"(cache now {len(profiles)})")
 
     print("fetching bars in bulk ...")
-    client = AlpacaPaper()
     bars: dict[str, list[dict]] = {}
     for i in range(0, len(symbols), 200):
         try:
@@ -370,10 +472,21 @@ def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) ->
     try:
         for i, sym in enumerate(todo, 1):
             counters["asked"] += 1
-            m = by_symbol[sym]
-            px = tracker.price_stats(bars.get(sym) or [])
+            m = by_symbol.get(sym)
+            sym_bars = bars.get(sym) or []
+            px = tracker.price_stats(sym_bars)
             if not px.get("close"):
                 counters["no_bars"] += 1
+            # A screened name copies its liquidity from the universe snapshot;
+            # an attention name has no snapshot, so it is derived from these
+            # very bars. The row says which, because the same column filled two
+            # ways with no provenance is how a number stops meaning anything.
+            asset = attention_assets.get(sym) or {}
+            if m is not None:
+                mdv, mdv_src = m.median_dollar_volume, "universe_snapshot"
+            else:
+                mdv = _median_dollar_volume(sym_bars)
+                mdv_src = "refresh_bars_60d" if mdv is not None else None
 
             rec, status = _finnhub("stock/recommendation", key, symbol=sym)
             time.sleep(FINNHUB_SLEEP_S)
@@ -420,9 +533,17 @@ def refresh(*, limit: int | None, skip_targets: bool, day: str | None = None) ->
                 "market_cap_usd": (profiles.get(sym) or {}).get("market_cap_usd"),
                 "days_to_catalyst": cats.get(sym),
                 "days_to_catalyst_units": "calendar_days",
-                "dv_bucket": m.dv_bucket, "exchange": m.exchange,
-                "median_dollar_volume": m.median_dollar_volume,
-                "tradable": True, "shortable": m.shortable,
+                "dv_bucket": (m.dv_bucket if m is not None else
+                              (universe.dv_bucket(mdv) if mdv is not None else None)),
+                "exchange": m.exchange if m is not None else asset.get("exchange"),
+                "median_dollar_volume": mdv,
+                "median_dollar_volume_source": mdv_src,
+                "tradable": True,
+                "shortable": (m.shortable if m is not None else bool(asset.get("shortable"))),
+                # WHY THIS NAME IS HERE. `screen` cleared universe.load()'s price
+                # and $3m/day floors; `ownership_attention` did not and is here
+                # because a 13D/13G named it in the last 45 days.
+                "universe_source": "screen" if m is not None else "ownership_attention",
             }
             fh.write(json.dumps(row) + "\n")
             fh.flush()
