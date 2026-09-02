@@ -5,6 +5,103 @@
 > 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
 > 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
 
+## SESSION 35 (2026-09-02 evening HK / pre-open ET, Fable + eight Opus agents) — THE LEARNER EXISTS, THE TOURNAMENT IS ARMED, THE RED TEAM DREW BLOOD
+
+**RESULTS SCOREBOARD:** no new fills yet (open pending; tournament armed).
+NEW measured facts: learner OOS IC .095 t 8.2 with a clean null but money
+t 1.49 over twelve arms (ordering real, money unproven); ML adds ZERO inside
+the engine's 3-5 band and earns IC .137 at no_opinion — **the skill lives
+where the engine is silent**; the prior's IC hits t 34.5 at 12m (BAND_PRIOR
+is a 12-month object on a 1-month clock); 4x leverage on this book is a
+7-8.4-beta construction risking −$57-60k/overnight — the ONE risk-reducing
+rung is SAFEST@2x intraday. Two CRITICAL engine bugs fixed hours before they
+could fire. LLM spend ≈ $0.03. RESULT IMPROVEMENT: the engine now has a
+learning organ, an adversary, and a tournament.
+
+### LIVE FOR TODAY'S OPEN (all deployed, BUILD_COMMIT 9be7f71 ×3)
+- Seal `6e69c0af` (unchanged). ENTRY-TIMING TOURNAMENT: hack3 = 10:01
+  control (bit-identical path, pinned); hack4 = full book at the opening
+  auction (opg before 09:28 ET — venue acceptance PROVEN with a real
+  submitted+canceled 1-share order); hack6 = half at auction, one-shot
+  top-up at 10:01. Failure direction is always the control.
+  `scripts/entry_timing_grade.py --day D` prices the tournament after close.
+- Venue behavior learned: a buy 403s ("wash trade") while a protective
+  stop-sell rests on the same symbol. Cannot bite the tournament (held names
+  refuse already_held pre-submission) but constrains future re-entry designs.
+
+### RED-TEAM (docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md, 20 findings)
+FIXED same session (terminal 9be7f71, all pinned):
+- **R1 CRITICAL:** judging-day re-buy — the 10:45 ET liquidation was
+  re-bought every 30 min for the rest of the judged session; run_pass now
+  refuses ALL entries when expiry == today (test's stub venue raises on any
+  touch).
+- **R2 CRITICAL:** seal_authority now refuses to refresh/seal 09:25-16:05
+  ET (bars have no end bound; a mid-session reseal changed selection under
+  the hash).
+- **R5 HIGH (was live on hack6 for today):** the staggered top-up was a
+  MARTINGALE (mv falls → headroom reopens → add to losers every 30 min, and
+  buy back into a partially filled stop). One-shot per-day-per-symbol offer
+  marker; unwritable marker → offer nothing.
+- **R6 HIGH:** a torn resealed book silently fell through to the stale SEED
+  book with every hash green; candidates now walk newest-first.
+STANDING (post-judging queue, failure directions conservative):
+- R3: the widened stops are INERT — equity.stop_hit hardcodes 3% while
+  protect rests 6-8%; effective stop is the tighter 3%.
+- R8: clamp_to_sealed compares a risk fraction to a notional weight —
+  always passes.
+- R10: execution_authority has ZERO production callers (S30's "closed"
+  proof pinned the function, not a call site).
+- R4: stopped_today cannot see a close_position (same-session re-entry).
+- Leverage lab's find: tracker `market_cap_usd` is MIXED-CURRENCY on ADRs
+  (SKHY in KRW ranks #1); 126/3,056 rows fail an implied-share-count guard.
+- Wave-2's find: tracker coverage falls back to the Finnhub count (1.80x the
+  yfinance scale min_coverage=2 was calibrated on) — `coverage_source` now
+  on every row; changing the read changes admissions → seal-review decision.
+
+### THE LEARNER (finance 6c52680: learner/ package, receipts, shadow book)
+Walk-forward 2016-2024 (107 OOS months, net 10bps/side), torch MLP + LightGBM
++ ridge in raw AND engine-residual arms vs baselines + shuffled null (flat).
+Read `tracker_backtest/learner_v1.json` before quoting ANY number: the 8.52x
+champion TW is a max over 12 draws; pre-declared paired t is 1.49; top decile
+median is NEGATIVE (right tail carries it). The roadmap-changing part:
+within-band the learner adds nothing and the prior ranks BACKWARDS; at 12m
+the prior is overwhelming. Follow-ons queued: (a) run the monthly book on
+12m-aligned admission or re-measure band constants at 1m (ties to
+TRIAL-BAND-IS-BETA-1 and BAND-YEAR-STATIONARITY-1, both pre-registered);
+(b) champion/challenger cadence + daily shadow seal (scripts/
+learner_shadow_seal.py) — grade it beside the variant books.
+
+### ALSO SHIPPED
+- E1 dissent stamps on every sealed holding + writeback (hack3 10/10
+  DECLINED by the generator today; hack4 5/5 claimed) — the four
+  held/claimed populations accrue from tonight.
+- E3: 17-state typed terminal refusals at write time; win% split
+  graded/ungraded (never 100%-on-$0 again).
+- Producer split repaired via one canonical rule_row(); corpus arm carries
+  close + explicit coverage=None.
+- Leverage ladder + 8 variant shadow books sealed daily
+  (state/variant_books/), graded by variant_grade; SAFEST@2x intraday is
+  the only deployment-raising risk-lowering rung — needs its own sealed
+  contract, post-judging.
+- Hypothesis harvest: 17 typed candidates
+  (docs/HYPOTHESES_2026-09-02_HARVEST.md); top 3 PRE-REGISTERED with linter
+  PASS (BAND-IS-BETA-1, BIAS-CORRECTED-BAND-1, RANK-VS-EXPRETURN-1).
+
+### QUEUE (next session, in order)
+1. Grade the tournament: entry_timing_grade + fills vs seal; compare arms.
+2. Verify the authority's first SOLO seal (00:00 ET 09-03): its log must
+   show tgt=ok; runners must sync the new sha.
+3. WEDNESDAY 09-04: books liquidate 10:45 ET, judging 11:00 ET. R1 is fixed;
+   verify the expiry-day pass logs "EXPIRY DAY: entries refused" and nothing
+   re-buys after liquidation.
+4. Adjudicate the horizon mismatch (learner finding × the two band preregs).
+5. Post-judging fix train: R3/R8/R10/R4, mixed-currency market cap,
+   coverage-scale read, ACTIVIST_13D feed, SAFEST@2x contract,
+   PotentialUniverse, DecisionArtifact bridge.
+6. Standing: ledger chain broken since 25 Aug (2 torn lines now also
+   recorded) — never silently repaired; no reseal of a live day; arena
+   graded-never-traded.
+
 ## SESSION 34 (2026-09-02, Fable + five Opus agents, ~12:00-17:00 HKT) — THE ARTERY IS UNATTENDED, AND THE MONTH GOT GRADED
 
 **RESULTS SCOREBOARD:** best forward paper book: unresolved at n=2 sessions
