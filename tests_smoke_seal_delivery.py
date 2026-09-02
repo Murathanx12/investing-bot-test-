@@ -27,7 +27,8 @@ ROOT = Path(__file__).resolve().parent
 
 
 def check(name: str, ok: bool, note: str = "") -> None:
-    print(f"  {'PASS' if ok else 'FAIL'}  {name}" + (f"  ({note})" if note else ""))
+    # `ok` with two trailing spaces is what run_tests.py's _OK regex counts.
+    print(f"  {'ok ' if ok else 'FAIL'}  {name}" + (f"  ({note})" if note else ""))
     if not ok:
         _fails.append(name)
 
