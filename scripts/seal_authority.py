@@ -86,6 +86,10 @@ def ensure_today() -> bool:
         print(f"SEAL AUTHORITY refused invalid existing book {existing}: {note}", flush=True)
         return False
 
+    # Attention first: a fresh 13D/13G subject must be in TODAY's refresh
+    # universe. A watcher failure must not block the seal -- the union is
+    # optional-by-design (tracker warns and continues on a missing watchlist).
+    _run([sys.executable, "-m", "scripts.ownership_watch"])
     if not _run([sys.executable, "-m", "scripts.tracker", "--refresh", "--day", day]):
         return False
     # refresh does NOT derive realised_vol_20d; without this step hack3/hack6
