@@ -22,20 +22,28 @@ strings, because a generator that needs the network cannot be a unit test.
 
 WHEN THE ENGINE AND THE EXPECTATION DISAGREE
 ============================================
-The engine is not edited to make a scenario pass. Two scenarios currently
-disagree and both are adjudicated in writing in the lab; this suite prints them
-loudly on every run and stays green, because a permanent red line beside seventeen
-real checks teaches the reader to skim red lines. What it will NOT tolerate is a
-disagreement that nobody has written down: an unadjudicated mismatch fails.
+The engine is not edited to make a scenario pass. One scenario currently
+disagrees and it is adjudicated in writing in the lab; this suite prints it
+loudly on every run and stays green, because a permanent red line beside
+seventeen real checks teaches the reader to skim red lines. What it will NOT
+tolerate is a disagreement that nobody has written down: an unadjudicated
+mismatch fails.
 
   L1-08  EXPECTATION WAS WRONG. On the tracker path `target_ratio` is derived
          from `close`, so a missing close makes the RATIO unreadable first and
          the band answers NO_OPINION -- WITHHELD_CLOSE is unreachable there.
-  L1-18  ENGINE DISAGREES. The two producers of a rule row do not agree on the
-         fields the band prior reads: `prediction_book.build()` (the corpus arm,
-         and the CLI default) ships neither `close` nor `coverage`, so
-         BAND-CONDITIONAL PRIOR v2 is WITHHELD on every corpus name while it
-         applies on every tracker name. Recorded, not repaired.
+  L1-18  WAS "ENGINE DISAGREES", REPAIRED 2026-09-02. The two producers of a
+         rule row did not agree on the fields the band prior reads:
+         `prediction_book.build()` (the corpus arm, and the CLI default) shipped
+         neither `close` nor `coverage`, so BAND-CONDITIONAL PRIOR v2 was
+         WITHHELD on every corpus name while it applied on every tracker name --
+         two arms of a live A/B, not running the same scorer. Both producers now
+         build through ONE `rule_row`, which REFUSES a caller that leaves a
+         canonical field unstated. The corpus arm carries `close` from the same
+         bars that priced its ratio, and an EXPLICIT `coverage=None` because its
+         only analyst count is on a scale 1.80x the one the prior was measured
+         on. v2 still withholds there -- now as stated data-absence rather than
+         as a key nobody wrote. The pin below asserts the repair.
 
 It also writes nothing. `evaluate_scenarios` is pure; only the lab's `main()`
 appends to `state/scenario_lab/`, and one check below proves this suite left
@@ -59,6 +67,7 @@ def check(name: str, cond: bool, detail: str = "") -> None:
 
 from alpha import murat_rule as mr            # noqa: E402
 from alpha import tracker as tr               # noqa: E402
+from scripts import prediction_book as pb     # noqa: E402
 from scripts import scenario_lab as lab       # noqa: E402
 
 
@@ -82,15 +91,19 @@ check("the frozen prior is labelled as the lab's own, not as a measurement",
       "FROZEN BY THE SCENARIO LAB" in lab.FROZEN_PRIOR["lab_note"])
 
 print("\n-- the reshape is the SHIPPING reshape, not a lab convenience")
-# `_rule_row` is a transcription of `prediction_book.tracker_rows`. If they ever
-# diverge the lab is exercising a path that does not ship, and every result above
-# becomes a statement about the lab.
+# `_rule_row` WAS a transcription of `prediction_book.tracker_rows`, kept in sync
+# by hand. On 2026-09-02 it became a call to the shipping builder itself, so
+# "the lab exercises a path that does not ship" is no longer possible by
+# construction -- which is stronger than the check that used to pin it, and the
+# check is therefore about the shipping shape rather than about the copy.
 _ship = {"symbol", "realised_vol_20d", "drawdown_from_60d_high", "days_to_next_catalyst",
          "target_ratio", "close", "rating_counts_mean", "coverage", "coverage_bucket",
          "past_winner", "sector", "ret_12m"}
 check("the lab's tracker->rule reshape carries the shipping field list",
-      lab.tracker_row_keys() == _ship, str(sorted(_ship ^ lab.tracker_row_keys())))
+      _ship <= lab.tracker_row_keys(), str(sorted(_ship - lab.tracker_row_keys())))
 check("the band prior's own inputs are on it", {"close", "coverage"} <= lab.tracker_row_keys())
+check("and it IS the shipping builder, not a copy of it",
+      lab.tracker_row_keys() == set(pb.rule_row_from_tracker({"symbol": "ZZ", "upside": 1.0})))
 
 print("\n-- nineteen invented companies through the real decision stack")
 _before = lab.RUNS.stat().st_size if lab.RUNS.exists() else None
@@ -125,15 +138,56 @@ check("no engine EXCEPTION on any synthetic row",
 check("running the canon writes NOTHING (only the lab's main() logs)",
       _before == _after, f"{_before} -> {_after}")
 
-print("\n-- the two findings, pinned so they cannot be lost by being fixed elsewhere")
-# Pinned as OBSERVATIONS. If someone repairs the corpus producer these two flip
-# and the adjudication above must be revisited -- which is the point of pinning
-# them: a finding that quietly stops being true is a finding nobody re-reads.
+print("\n-- L1-18: the producer split, REPAIRED 2026-09-02, and pinned repaired")
+# THIS PIN WAS WRITTEN TO FAIL WHEN THE SPLIT WAS REPAIRED SILENTLY, and that is
+# what it did. It is rewritten rather than deleted, because the reason it flipped
+# is a DECISION and the decision belongs beside the assertion:
+#
+#   a close and an analyst count are fundamentally observable for any US-listed
+#   name, so a producer that omits them is a SCHEMA gap and never a data gap.
+#
+# `close` on the corpus arm now comes from `features.last_close` on the SAME bars
+# and day that priced its `target_ratio`. `coverage` is an EXPLICIT None: the
+# corpus arm's only available analyst count is Finnhub's panel total, a median
+# 1.80x the yfinance/IBES scale `BAND_PRIOR["min_coverage"]` was measured on, and
+# reading one against the other is the error that had hack6 admitting
+# 1-2-analyst names while believing it required four. So v2 still WITHHOLDS on
+# corpus names -- now for a stated reason, on a field that is present.
 _parity = lab.producer_parity()
-check("FINDING: the corpus rule row still omits the band prior's inputs",
-      _parity["band_inputs_missing_from_corpus_row"] == ["close", "coverage"],
+check("REPAIRED: both producers carry the band prior's inputs",
+      _parity["band_inputs_missing_from_corpus_row"] == []
+      and _parity["band_inputs_missing_from_tracker_row"] == [],
       str(_parity["band_inputs_missing_from_corpus_row"]))
-check("FINDING: a corpus-shaped row WITHHOLDS the band even deep in the toxic cell",
+check("REPAIRED: both producers state every canonical field",
+      _parity["canonical_fields_missing_from_corpus_row"] == []
+      and _parity["canonical_fields_missing_from_tracker_row"] == [],
+      str(_parity["canonical_fields_missing_from_corpus_row"]))
+check("and both go through ONE builder, so the split cannot silently reopen",
+      _parity["corpus_producer_uses_canonical_builder"]
+      and _parity["tracker_producer_uses_canonical_builder"])
+# The mechanism, not the outcome: a producer that forgets a canonical field gets
+# a loud refusal rather than a row the band prior quietly withholds on.
+try:
+    pb.rule_row(symbol="ZZ", target_ratio=2.0, close=20.0)
+    _refused = ""
+except ValueError as _exc:
+    _refused = str(_exc)
+check("rule_row REFUSES a producer that leaves a canonical field unstated",
+      "REFUSES" in _refused and "coverage" in _refused, _refused[:120])
+check("an explicit coverage=None is ACCEPTED -- a null is a statement",
+      pb.rule_row(**{k: None for k in pb.RULE_ROW_FIELDS})["coverage"] is None)
+# The corpus arm's honest silence, end to end: present field, no opinion.
+_corpus_row = pb.rule_row_from_features(
+    "ZZQ", {"target_ratio": 6.0, "realised_vol_20d": 0.40}, close=20.0)
+check("a corpus row now carries its close, so the $2 condition is verifiable",
+      _corpus_row["close"] == 20.0)
+check("and its coverage is a STATED None, which v2 maps to WITHHELD_COVERAGE",
+      "coverage" in _corpus_row and _corpus_row["coverage"] is None
+      and lab._band_label(mr.band_overlay(_corpus_row)) == "WITHHELD_COVERAGE",
+      lab._band_label(mr.band_overlay(_corpus_row)))
+
+print("\n-- WITHHELD_CLOSE is still the contract for a row with no readable price")
+check("FINDING: a row with no readable close WITHHOLDS the band even in the toxic cell",
       lab.rule_row_disposition({"symbol": "ZZP", "target_ratio": 6.0,
                                 "realised_vol_20d": 0.40})["band"] == "WITHHELD_CLOSE")
 check("and the same row WITH a close gets the toxic band's negative number",

@@ -179,28 +179,16 @@ def _sign(x: float | None) -> str:
 def _rule_row(t: dict) -> dict:
     """The tracker row reshaped into what the rule reads.
 
-    Copied field-for-field from `prediction_book.tracker_rows`, including the
-    `close` line that was added on 2026-09-01 when a pre-seal replay found the
-    band prior could not verify its own sub-$2 condition without it. If those
-    two ever diverge, the lab is testing a path that does not ship -- so the
-    mapping is written once, here, in the same order and with the same comment.
+    THIS USED TO BE A TRANSCRIPTION of `prediction_book.tracker_rows`, kept in
+    sync by hand and by comment. On 2026-09-02 the engine grew a single
+    canonical builder (`prediction_book.rule_row_from_tracker` ->
+    `prediction_book.rule_row`) precisely because hand-synced copies of a row
+    shape are what produced L1-18, so the lab now CALLS it. A lab that keeps its
+    own copy of the thing it is auditing can only ever audit its own copy.
     """
-    up = t.get("upside")
-    return {
-        "symbol": t["symbol"],
-        "realised_vol_20d": t.get("realised_vol_20d"),
-        "drawdown_from_60d_high": t.get("drawdown_60d"),
-        "days_to_next_catalyst": t.get("days_to_catalyst"),
-        # target_ratio is target/price; the tracker stores it as target/price - 1.
-        "target_ratio": (1.0 + up) if up is not None else None,
-        "close": t.get("close"),
-        "rating_counts_mean": t.get("consensus"),
-        "coverage": t.get("coverage"),
-        "coverage_bucket": t.get("coverage_bucket"),
-        "past_winner": t.get("past_winner"),
-        "sector": t.get("sector"),
-        "ret_12m": t.get("ret_12m"),
-    }
+    from scripts import prediction_book as _pb
+
+    return _pb.rule_row_from_tracker(t)
 
 
 def _first_failure(row: dict, p: _tracker.Personality) -> str | None:
@@ -292,13 +280,14 @@ def rule_row_disposition(rr: dict) -> dict:
     }
 
 
-def corpus_row_keys() -> set[str]:
-    """The field list `prediction_book.build()` puts on a corpus-path rule row.
+def _calls_the_canonical_builder(fn_name: str) -> bool:
+    """Does `prediction_book.<fn_name>` reach the ONE canonical row builder?
 
-    Read out of the SOURCE with `ast`, not copied here, because a copy is a
-    second thing to keep in sync and the whole finding below is what happens
-    when two producers of the same row drift apart. If the shape it expects is
-    gone it REFUSES -- a parity check that silently finds nothing would report
+    Read out of the SOURCE with `ast`, not inferred from the output, because the
+    output is what a second copy would also produce. A producer that stops going
+    through `rule_row` has reopened L1-18 no matter how right its keys look on
+    the day, so THAT is what is checked. It refuses rather than guessing if the
+    function is gone -- a parity check that silently finds nothing would report
     parity, which is the opposite of what it saw.
     """
     import ast
@@ -306,48 +295,58 @@ def corpus_row_keys() -> set[str]:
     src = (ROOT / "scripts" / "prediction_book.py").read_text(encoding="utf-8")
     tree = ast.parse(src)
     fn = next((n for n in ast.walk(tree)
-               if isinstance(n, ast.FunctionDef) and n.name == "build"), None)
+               if isinstance(n, ast.FunctionDef) and n.name == fn_name), None)
     if fn is None:
-        raise LabRefusal("scripts/prediction_book.py has no `build` -- the parity check "
-                         "cannot find the corpus row producer and refuses to report parity.")
-    found: list[set[str]] = []
-    for node in ast.walk(fn):
-        # `rows.append({...})` SPECIFICALLY. A first cut matched any `.append`
-        # with a "symbol" key and picked up `predictions.append` as well, then
-        # refused because it had found two. Refusing was right; the fix is to
-        # name the list, not to relax the count.
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "append"
-                and isinstance(node.func.value, ast.Name) and node.func.value.id == "rows"
-                and node.args and isinstance(node.args[0], ast.Dict)):
-            keys = {k.value for k in node.args[0].keys
-                    if isinstance(k, ast.Constant) and isinstance(k.value, str)}
-            if "symbol" in keys:
-                found.append(keys)
-    if len(found) != 1:
-        raise LabRefusal(f"expected exactly one `rows.append({{...}})` inside "
-                         f"`prediction_book.build`, found {len(found)}. The producer moved; "
-                         f"the parity check refuses rather than guessing.")
-    return found[0]
+        raise LabRefusal(f"scripts/prediction_book.py has no `{fn_name}` -- the parity check "
+                         f"cannot find that row producer and refuses to report parity.")
+    wanted = {"rule_row", "rule_row_from_tracker", "rule_row_from_features"}
+    return any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in wanted
+               for n in ast.walk(fn))
+
+
+def corpus_row_keys() -> set[str]:
+    """The field list the CORPUS producer puts on a rule row.
+
+    Taken by CALLING `prediction_book.rule_row_from_features` -- the function
+    `build()` uses -- rather than by reading a dict literal out of `build`. The
+    literal is gone: both producers now go through one builder, and
+    `_calls_the_canonical_builder` is what proves `build` still does.
+    """
+    from scripts import prediction_book as _pb
+
+    return set(_pb.rule_row_from_features("ZZ", {}, close=None))
 
 
 def tracker_row_keys() -> set[str]:
-    """The field list the TRACKER path puts on a rule row -- from the lab's own copy.
-
-    `_rule_row` is a byte-for-byte transcription of `prediction_book.tracker_rows`,
-    so this is the tracker producer's shape as the lab reproduces it.
-    """
+    """The field list the TRACKER producer puts on a rule row."""
     return set(_rule_row({"symbol": "ZZ", "upside": 1.0}))
 
 
 def producer_parity() -> dict:
-    """Do the two rule-row producers agree on the fields the band prior reads?"""
+    """Do the two rule-row producers agree on the fields the band prior reads?
+
+    REPAIRED 2026-09-02 (was: ENGINE_DISAGREES). The decision was made by
+    CONSTRUCTION, not by preference: a close and an analyst count are
+    fundamentally observable for any US-listed name, so a producer that omits
+    them is a schema gap, not a data gap. The corpus arm now carries `close`
+    from `features.last_close` on the same bars that priced its `target_ratio`,
+    and an EXPLICIT `coverage=None` -- because its only available analyst count
+    is Finnhub's panel total, which is 1.80x the scale `BAND_PRIOR` was measured
+    on and therefore cannot answer the >= 2 condition. v2 still WITHHOLDS on
+    corpus names, and now it withholds for a reason that is on the row.
+    """
+    from scripts import prediction_book as _pb
+
     corpus, tracker = corpus_row_keys(), tracker_row_keys()
     needed = {"close", "coverage"}
     return {
         "corpus_row_keys": sorted(corpus),
         "band_inputs_missing_from_corpus_row": sorted(needed - corpus),
         "band_inputs_missing_from_tracker_row": sorted(needed - tracker),
+        "canonical_fields_missing_from_corpus_row": sorted(set(_pb.RULE_ROW_FIELDS) - corpus),
+        "canonical_fields_missing_from_tracker_row": sorted(set(_pb.RULE_ROW_FIELDS) - tracker),
+        "corpus_producer_uses_canonical_builder": _calls_the_canonical_builder("build"),
+        "tracker_producer_uses_canonical_builder": _calls_the_canonical_builder("tracker_rows"),
     }
 
 
@@ -532,7 +531,10 @@ CANON: list[dict] = [
             "is derived from the close, so a missing close makes the ratio unreadable FIRST "
             "and the band returns NO_OPINION. WITHHELD_CLOSE is unreachable here. Kept "
             "standing as the record that the expectation was declared before the run. "
-            "See L1-17/L1-18 for where it IS reachable."),
+            "See L1-17 for where it IS reachable -- a row whose close is genuinely "
+            "unreadable while its ratio came from somewhere else. (It USED to be "
+            "reachable through the corpus producer as well; that split was repaired "
+            "on 2026-09-02, see L1-18.)"),
     },
     {
         "id": "L1-09-negative-exp-coherence-floor",
@@ -628,12 +630,17 @@ CANON: list[dict] = [
     {
         "id": "L1-17-corpus-shape-withholds-the-band",
         "kind": "rule_row",
-        "why": ("WHERE WITHHELD_CLOSE ACTUALLY FIRES. `prediction_book.build()` -- the CORPUS "
-                "arm, and the CLI default -- assembles a rule row with `target_ratio` but "
-                "without `close`. That is precisely the shape the band prior must refuse."),
-        # The corpus producer's exact field list, with a ratio deep in the toxic
-        # band. On the tracker path this row would score -37.77%/yr and be
-        # thrown out; here the band declines to look.
+        "why": ("WHERE WITHHELD_CLOSE ACTUALLY FIRES. A row carrying `target_ratio` and no "
+                "readable `close` is precisely the shape the band prior must refuse -- it "
+                "cannot verify its own sub-$2 condition, and a guard that cannot read its "
+                "input refuses rather than passes. This WAS the corpus producer's shape "
+                "until 2026-09-02 (L1-18); the producer is repaired and the BEHAVIOUR is "
+                "still the contract, so the scenario stays and now stands on its own. A "
+                "close that is genuinely unreadable -- a halted name, a fresh listing -- "
+                "reaches the scorer looking exactly like this."),
+        # A ratio deep in the toxic band with no price beside it. On a row WITH
+        # a close this scores -37.77%/yr and is thrown out; here the band
+        # declines to look at all, which is a different answer and must be.
         "rule_row": {"symbol": "ZZTESTH", "realised_vol_20d": 0.40,
                      "drawdown_from_60d_high": -0.2857, "days_to_next_catalyst": 10,
                      "target_ratio": 6.0, "rating_counts_mean": 4.67},
@@ -642,23 +649,42 @@ CANON: list[dict] = [
     {
         "id": "L1-18-producer-parity",
         "kind": "producer_parity",
-        "why": ("THE FINDING L1-08 UNCOVERED. Two functions build a rule row -- "
-                "`tracker_rows()` and `build()` -- and the band prior reads `close` and "
+        "why": ("THE FINDING L1-08 UNCOVERED, AND ITS REPAIR. Two functions build a rule row "
+                "-- `tracker_rows()` and `build()` -- and the band prior reads `close` and "
                 "`coverage` off it. Both producers must carry both, or the prior is silently "
                 "OFF for one arm of a live A/B."),
+        # REPAIRED 2026-09-02, and this pin was REWRITTEN rather than deleted.
+        #
+        # It was authored to FAIL if anyone repaired the split quietly, which is
+        # exactly what it just did its job on. The decision that closed it was
+        # made by CONSTRUCTION, not by preference: a close and an analyst count
+        # are fundamentally observable for any US-listed name (bars exist;
+        # coverage may be genuinely zero or genuinely unknown), so a producer
+        # that omits them is a SCHEMA gap and never a data gap.
+        #
+        #   * `close` -- the corpus arm now reads it from `features.last_close`
+        #     on the SAME bars and the SAME day that priced its `target_ratio`.
+        #     One reading, not two.
+        #   * `coverage` -- an EXPLICIT None. The corpus arm's only available
+        #     analyst count is Finnhub's recommendation-panel total, a MEDIAN
+        #     1.80x yfinance's `numberOfAnalystOpinions` (n=56 stratified), and
+        #     `BAND_PRIOR["min_coverage"] = 2` was measured on IBES `numrec`,
+        #     which is what the yfinance field means. Reading one against the
+        #     other is the error that had hack6 admitting 1-2-analyst names
+        #     while believing it required four. So v2 is STILL withheld on every
+        #     corpus name -- and the difference is that it is now withheld for a
+        #     stated reason on a field that is present, instead of by a key that
+        #     was never in the dict.
+        #
+        # Both producers now build through ONE function (`rule_row`), which
+        # REFUSES a caller that leaves a canonical field unstated, so the split
+        # cannot silently reopen the next time a field is added.
         "expected": {"band_inputs_missing_from_corpus_row": [],
-                     "band_inputs_missing_from_tracker_row": []},
-        "verdict": "ENGINE_DISAGREES",
-        "known_disagreement": (
-            "LIVE ASYMMETRY, recorded not repaired. `tracker_rows()` gained `close` on "
-            "2026-09-01 after a pre-seal replay found the band prior could not verify its own "
-            "sub-$2 condition; the fix landed on ONE of the two producers. "
-            "`prediction_book.build()` -- the corpus arm, and `--universe`'s DEFAULT -- still "
-            "ships neither `close` nor `coverage`, so BAND-CONDITIONAL PRIOR v2 is WITHHELD on "
-            "every corpus name while it applies on every tracker name. The two arms are "
-            "therefore not running the same scorer. Not fixed here: this lab does not edit the "
-            "engine, and which arm is correct is a decision about the experiment, not a "
-            "typo. Owner: the next seal review."),
+                     "band_inputs_missing_from_tracker_row": [],
+                     "canonical_fields_missing_from_corpus_row": [],
+                     "canonical_fields_missing_from_tracker_row": [],
+                     "corpus_producer_uses_canonical_builder": True,
+                     "tracker_producer_uses_canonical_builder": True},
     },
     {
         "id": "L1-19-target-below-price-still-scores-positive",

@@ -95,6 +95,18 @@ class Decision:
     refusal nobody can price is a claim of prudence rather than a measurement of
     one -- see `alpha/counterfactual.py`."""
 
+    terminal_state: str | None = None
+    """ONE of `alpha.refusal_classes.TERMINAL_STATES`, derived AT WRITE TIME from
+    `action` + `refusal_reason` and recorded beside the full prose.
+
+    Every candidate that enters a pass finishes in exactly one of them. The
+    sentence is what a human reads; this is what a groupby reads, and until it
+    existed a pass that refused 100% of its candidates could only be summarised
+    by hand. Appended LAST so every existing positional construction of a
+    `Decision` keeps meaning what it meant. `None` means the row predates the
+    field -- old rows stay readable and are never back-filled, because a type
+    inferred later is not the type the gate actually assigned."""
+
 
 def _path(name: str = "decisions") -> Path:
     LEDGER_DIR.mkdir(parents=True, exist_ok=True)

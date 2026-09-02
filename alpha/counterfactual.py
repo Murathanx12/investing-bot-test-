@@ -129,6 +129,19 @@ class Mark:
     def return_on_risk(self) -> float:
         return self.pnl_usd / self.risk_budget_usd if self.risk_budget_usd > 0 else 0.0
 
+    @property
+    def graded(self) -> bool:
+        """Was this world actually PRICED, or is its `pnl_usd = 0.0` an absence?
+
+        `unmarkable` (no quotable chain) and `null` (the hold-cash world) both
+        carry exactly 0.0, and both used to count toward `n` and `win%`. That is
+        how `daily_latch` came to report **312 wins out of 312 on $0.00 saved and
+        $0.00 cost** -- a 100% win rate that measures nothing, on 45.4% of the
+        ledger. Only a `chain` mark is evidence; everything else is a row we have
+        not graded yet, and the difference has to be visible in every summary
+        line or the ungraded rows quietly become the result."""
+        return self.mark_source == "chain"
+
 
 class Unmarkable(RuntimeError):
     """A world that cannot be priced. Recorded as unmarkable, never as zero."""
@@ -337,6 +350,17 @@ def report(marks: list[Mark]) -> dict[str, Any]:
                            "pnl_usd": round(best.pnl_usd, 2), "action": best.action},
         "worst_available": {"kind": worst.kind, "symbol": worst.symbol,
                             "pnl_usd": round(worst.pnl_usd, 2), "action": worst.action},
+        # GRADED AND UNGRADED, NEVER POOLED. `refused` above is chain-marked by
+        # construction (the null is excluded and `usable` bars `unmarkable`), so
+        # every count derived from it is already a graded count -- but a reader
+        # could not SEE that, and the refused worlds we could not price were
+        # simply absent from the table rather than reported as unpriced. Both
+        # numbers are printed now: an ungraded row is not a win, and it is also
+        # not a zero.
+        "refused_graded": len(refused),
+        "refused_ungraded": sum(1 for m in marks
+                                if m.action == "refused" and not m.graded
+                                and m.mark_source != "null"),
         "false_refusals": sum(1 for m in refused if m.pnl_usd > 0),
         "saved_losses": sum(1 for m in refused if m.pnl_usd < 0),
         "median_elapsed_hours": round(
@@ -428,7 +452,13 @@ def record_marks(marks: list[Mark], *, name: str = "counterfactual") -> int:
             risk_fraction=0.0,
             max_loss_usd=m.risk_budget_usd,
             order=None,
+            # `graded` on the OUTCOME, beside the number it qualifies. It was
+            # derivable from `quote_snapshot.mark_source` all along and no
+            # summary derived it, so it is written explicitly: a reader who
+            # sums `pnl_usd` must not have to know which of three mark sources
+            # means "we priced this" (retro 2026-09-02 §3c).
             outcome={"pnl_usd": m.pnl_usd, "return_on_risk": m.return_on_risk,
+                     "graded": m.graded, "mark_source": m.mark_source,
                      **m.detail},
         ), name=name)
         written += 1

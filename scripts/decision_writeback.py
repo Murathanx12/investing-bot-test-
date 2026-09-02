@@ -55,7 +55,21 @@ OUT_DIR = Path(os.getenv("AAT_LEDGER_DIR", Path(__file__).resolve().parent.paren
 # Ledger fields copied onto the execution block, when present on the row.
 _EXEC_FIELDS = ("alpaca_order_id", "risk_fraction", "max_loss_usd", "instrument")
 # Sealed-holding fields copied onto the decision row, when present.
-_SEAL_FIELDS = ("notional", "exp_return", "downside_5pct", "confidence", "rank_value", "sector", "numbers_source")
+#
+# The last six are E1's stamp (`prediction_book.generator_stamp`): the per-name
+# generator's verdict on a name the BOOK's selector chose. They travel here so
+# the four populations -- held+claimed vs held+declined, each graded and
+# ungraded -- fall out of this file as horizons mature, with no join to the
+# sealed book required. A book sealed before 2026-09-02 carries none of them
+# and simply contributes no rows to the split; absence is not False.
+_SEAL_FIELDS = ("notional", "exp_return", "downside_5pct", "confidence", "rank_value", "sector",
+                "numbers_source", "generator", "generator_claimed", "generator_score",
+                "generator_rank", "generator_failed_clauses", "dissent")
+
+#: The stamp fields repeated onto every GRADE row. A grade is the unit E1
+#: actually averages, and requiring a reader to join it back to its decision row
+#: to learn whether the generator agreed is how a population gets mis-counted.
+_GRADE_STAMP = ("generator_claimed", "dissent")
 
 
 def rows_for(rows: list[dict], *, day: str, role: str, brain: str = "tracker_portfolio") -> list[dict]:
@@ -131,6 +145,11 @@ def grade_rows(decisions: list[dict], closes_by_symbol: dict[str, list[tuple[str
             continue
         i0 = idx[day]
         basis = series[i0][1]
+        # E1's stamp, carried from the sealed holding onto every grade of it.
+        # `.get` twice over: a decision row written before the stamp existed has
+        # no `sealed` key for it, and the field is then absent rather than False.
+        stamp = {k: (d.get("sealed") or {})[k]
+                 for k in _GRADE_STAMP if k in (d.get("sealed") or {})}
         for h in HORIZONS:
             j = i0 + h
             if j >= len(series):
@@ -141,6 +160,7 @@ def grade_rows(decisions: list[dict], closes_by_symbol: dict[str, list[tuple[str
                         "graded_day": then_day, "graded_close": close,
                         "ret": (close / basis) - 1.0 if basis else None,
                         "executed": d["execution"]["action"] in ("submitted", "filled"),
+                        **stamp,
                         "written_at_utc": now})
     return out
 
@@ -223,9 +243,14 @@ def main() -> int:
         acted = sum(1 for r in rows if r["execution"]["action"] == "submitted")
         refused = sum(1 for r in rows if r["execution"]["action"] == "refused")
         never = sum(1 for r in rows if r["execution"]["action"] == "never_reached")
+        dissent = sum(1 for r in rows if (r["sealed"].get("dissent") is True))
+        unstamped = sum(1 for r in rows if "generator_claimed" not in r["sealed"])
         print(f"decision_writeback: {sealed['day']} {sealed['book']} -- "
               f"{len(rows)} sealed decisions (submitted={acted} refused={refused} "
               f"never_reached={never}), {wrote} new rows -> {path}")
+        print(f"decision_writeback: E1 dissent -- {dissent} of {len(rows)} held names were "
+              f"DECLINED by the generator; {unstamped} carry no verdict "
+              f"({'sealed before the stamp existed' if unstamped else 'all stamped'})")
 
     # -- grade matured horizons ----------------------------------------------
     if args.grade:

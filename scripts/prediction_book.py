@@ -255,6 +255,138 @@ def rule_prior(*, refresh: bool = False) -> dict:
     return prior
 
 
+# ------------------------------------------------- ONE rule row, two producers
+
+#: Every field `murat_rule.evaluate`, `murat_rule.score` and
+#: `murat_rule.band_overlay` read off a rule row. Both producers must state all
+#: of them -- as a value or as an explicit None.
+#:
+#: WHY THIS LIST EXISTS AT ALL (scenario lab L1-18, repaired 2026-09-02)
+#: =====================================================================
+#: Two functions in this file build a rule row: `tracker_rows()` for the whole
+#: market, `build()` for the corpus panel. On 2026-09-01 a pre-seal replay found
+#: that BAND-CONDITIONAL PRIOR v2 could not verify its own sub-$2 condition
+#: without `close`, and the fix landed on ONE of the two. From then on v2 APPLIED
+#: on every tracker name and was WITHHELD on every corpus name -- the two arms of
+#: a live A/B were not running the same scorer, and nothing said so.
+#:
+#: The repair is not "add the field to the other function", which reopens the
+#: moment somebody adds a third field. It is this: one builder, and it REFUSES a
+#: producer that leaves a canonical field unstated. `coverage=None` written
+#: deliberately is honest data-absence, which v2 already maps to WITHHELD; a
+#: `coverage` key that was never in the dict is SCHEMA-absence wearing the same
+#: answer, and the two must not print alike.
+RULE_ROW_FIELDS: tuple[str, ...] = (
+    "symbol",
+    "target_ratio",              # clause (a), and the band prior's band
+    "close",                     # the band prior's $2 condition
+    "coverage",                  # the band prior's >= 2 analyst condition
+    "coverage_source",           # WHICH analyst count -- the scales differ by 1.80x
+    "rating_counts_mean",        # clause (b)
+    "days_to_next_catalyst",     # clause (d)
+    "drawdown_from_60d_high",    # clause (e)
+    "realised_vol_20d",          # every magnitude the scorer publishes
+)
+
+#: The corpus arm has NO calibrated analyst count, and says so instead of
+#: guessing. Its only available count is Finnhub's recommendation-panel total,
+#: which ran a MEDIAN 1.80x yfinance's `numberOfAnalystOpinions` on a 56-name
+#: stratified sample (`alpha/tracker.COVERAGE_SOURCE_CALIBRATED`) -- and
+#: `BAND_PRIOR["min_coverage"] = 2` was measured on IBES `numrec`, which is the
+#: quantity yfinance's field means. Reading the Finnhub count against that bar
+#: is the error that had hack6 admitting 1-2-analyst names while believing it
+#: had required four. `alpha/tracker.py` already states the rule: a book whose
+#: rule names a bucket must REFUSE the wrong scale rather than read it. So the
+#: corpus row carries an explicit None and the band prior WITHHOLDS -- for a
+#: stated reason, on a field that is present.
+CORPUS_COVERAGE_ABSENT = None
+
+
+def rule_row(**fields) -> dict:
+    """The canonical rule row. Both producers build through here, or neither does.
+
+    Every name in `RULE_ROW_FIELDS` must be passed -- a None is a statement, a
+    missing key is a bug -- and anything else passed rides along as the
+    producer's own extras. Refusing loudly is the whole mechanism: a third
+    producer, or a fourth canonical field, cannot reopen the split silently.
+    """
+    missing = [k for k in RULE_ROW_FIELDS if k not in fields]
+    if missing:
+        raise ValueError(
+            f"rule_row REFUSES: {missing} unstated. Every field the rule and the band prior "
+            f"read must be present on the row, as a value or as an explicit None -- a missing "
+            f"key and a null read identically at the scorer and do not mean the same thing. "
+            f"This is the L1-18 split: pass `{missing[0]}=None` if it is genuinely unavailable.")
+    row = {k: fields.pop(k) for k in RULE_ROW_FIELDS}
+    row.update(fields)
+    return row
+
+
+def rule_row_from_tracker(t: dict) -> dict:
+    """The TRACKER producer's rule row: whole-market, one row per candidate."""
+    up = t.get("upside")
+    return rule_row(
+        symbol=t["symbol"],
+        # target_ratio is target/price; the tracker stores it as target/price - 1.
+        target_ratio=(1.0 + up) if up is not None else None,
+        # The band prior's $2 silence needs the price it is conditioned on.
+        # Discovered in a pre-seal replay (2026-09-01): without this field
+        # band_overlay could never verify the sub-$2 condition -- and a guard
+        # that cannot read its input must refuse, not pass.
+        close=t.get("close"),
+        coverage=t.get("coverage"),
+        coverage_source=t.get("coverage_source"),
+        rating_counts_mean=t.get("consensus"),
+        days_to_next_catalyst=t.get("days_to_catalyst"),
+        drawdown_from_60d_high=t.get("drawdown_60d"),
+        realised_vol_20d=t.get("realised_vol_20d"),
+        # -- the tracker producer's own extras ------------------------------
+        # Present so downstream shapes match, and NEVER scored: EVENT_COUNTS_V1
+        # does not run on this universe (see `tracker_rows`).
+        features={k: 0.0 for k in SIGNALS},
+        score=None,
+        n_items_20d=None,
+        tracker_status=t.get("status"),
+        coverage_bucket=t.get("coverage_bucket"),
+        past_winner=t.get("past_winner"),
+        sector=t.get("sector"),
+        ret_12m=t.get("ret_12m"),
+    )
+
+
+def rule_row_from_features(symbol: str, f: dict, *, close: float | None) -> dict:
+    """The CORPUS producer's rule row, from one `features.daily_features` row.
+
+    `close` comes from `features.last_close` on the SAME bars and the SAME day
+    that priced `target_ratio` -- not from a second expression, and not from a
+    fresher quote. A ratio and the price it is a ratio TO must come from one
+    reading or the band prior is banding a number nobody computed.
+    """
+    counts = f.get("event_type_counts_20d") or {}
+    return rule_row(
+        symbol=symbol,
+        target_ratio=f.get("target_ratio"),
+        close=close,
+        # Stated, not omitted. See CORPUS_COVERAGE_ABSENT.
+        coverage=CORPUS_COVERAGE_ABSENT,
+        coverage_source=None,
+        rating_counts_mean=f.get("rating_counts_mean"),
+        days_to_next_catalyst=f.get("days_to_next_catalyst"),
+        drawdown_from_60d_high=f.get("drawdown_from_60d_high"),
+        realised_vol_20d=f.get("realised_vol_20d"),
+        # -- the corpus producer's own extras -------------------------------
+        features={k: float(counts.get(k.replace("ev_", "").replace("_20d", ""), 0) or 0)
+                  for k in SIGNALS},
+        score=None,                      # filled by the cross-sectional rank in `build`
+        n_items_20d=f.get("n_items_20d"),
+        # The Finnhub panel total when it was read, RECORDED AND NOT USED: it is
+        # on the uncalibrated scale, so it cannot answer the band prior's
+        # >= 2-analyst condition. Recorded so "we had a number and declined to
+        # read it" is checkable rather than a claim.
+        coverage_uncalibrated=f.get("rating_coverage"),
+    )
+
+
 def _ratings_for(symbols: list[str]) -> dict[str, dict]:
     """Same-day consensus ratings, fetched ONLY for names that already pass the
     price clauses.
@@ -296,7 +428,11 @@ def rule_predictions(rows: list[dict], prior: dict, driver_of: dict[str, str]) -
     for r in rows:
         if r["symbol"] in ratings:
             got, _cov = features.rating_from_panel(ratings[r["symbol"]])
-            r = {**r, "rating_counts_mean": got}
+            # `_cov` is the Finnhub PANEL total, not an analyst count on the
+            # scale the band prior was measured on (1.80x, n=56 stratified). It
+            # is recorded and NOT written to `coverage`: a book whose rule names
+            # a bucket refuses the wrong scale rather than reading it.
+            r = {**r, "rating_counts_mean": got, "coverage_uncalibrated": _cov}
         v = murat_rule.evaluate(r)
         s = murat_rule.score(r, v, prior)
         out.append({
@@ -384,33 +520,11 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
     hist = _tracker.apply_status(trows, prev_by_symbol=prev)
     cands = _tracker.candidates(trows)
 
-    rows = []
-    for t in cands:
-        up = t.get("upside")
-        rows.append({
-            "symbol": t["symbol"],
-            # Present so downstream shapes match, and NEVER scored: see above.
-            "features": {k: 0.0 for k in SIGNALS},
-            "score": None,
-            "realised_vol_20d": t.get("realised_vol_20d"),
-            "n_items_20d": None,
-            "drawdown_from_60d_high": t.get("drawdown_60d"),
-            "days_to_next_catalyst": t.get("days_to_catalyst"),
-            # target_ratio is target/price; the tracker stores it as target/price - 1.
-            "target_ratio": (1.0 + up) if up is not None else None,
-            # The band prior's $2 silence needs the price it is conditioned on.
-            # Discovered in a pre-seal replay (2026-09-01): without this field
-            # band_overlay could never verify the sub-$2 condition -- and a
-            # guard that cannot read its input must refuse, not pass.
-            "close": t.get("close"),
-            "rating_counts_mean": t.get("consensus"),
-            "tracker_status": t.get("status"),
-            "coverage": t.get("coverage"),
-            "coverage_bucket": t.get("coverage_bucket"),
-            "past_winner": t.get("past_winner"),
-            "sector": t.get("sector"),
-            "ret_12m": t.get("ret_12m"),
-        })
+    # ONE builder, both producers (`rule_row_from_tracker` -> `rule_row`). The
+    # mapping used to live inline here and the corpus arm had its own copy; that
+    # is how `close` reached one producer of two and BAND_PRIOR v2 ran on one arm
+    # of a live A/B. See RULE_ROW_FIELDS.
+    rows = [rule_row_from_tracker(t) for t in cands]
     prov = {
         "source": "tracker", "tracker_day": day, "previous_day": prev_day,
         "tracker_freshness": fresh,
@@ -483,7 +597,74 @@ def _source_versions() -> dict:
     }
 
 
-def _portfolio_block(port: dict, p, driver_of: dict[str, str]) -> dict:
+#: E1 -- PRICE THE DISSENT (retro 2026-09-02 §5, motivated by §2 Miss #1).
+#:
+#: RZLV lost -17.30% on 2026-09-01 at 10% of hack4 while its own row in the very
+#: same sealed file read `claims: false`, `rank: 576` of 766, failing `b_rating`
+#: by 0.017. On the 09-02 seal the disagreement is the NORM, not the edge case:
+#: 25 of 30 hack3+hack6 holdings are names `murat_rule_v1` explicitly declined.
+#: The selector ranks on `upside_x_consensus`; the generator answers a different
+#: question; nobody was writing down that they disagreed.
+#:
+#: This is a JOIN, NOT A GATE. Both numbers were already in the same JSON --
+#: `predictions[]` carried the verdict, `portfolios[book]["holdings"][]` carried
+#: the weight, and no key tied them together. Stamping the verdict onto the
+#: holding at seal time costs one dict merge, changes NOTHING about selection
+#: (it runs strictly after `build_portfolio` has returned), and makes the four
+#: populations -- held+claimed, held+declined, and their unheld complements --
+#: fall out of `state/decision_outcomes/` automatically as grades mature.
+#:
+#: `34f08ca` decided deliberately that the runner expresses a sealed weight and
+#: does not re-adjudicate it; dissent is RECORDED, not enforced. This stamp is
+#: the recording. Promoting it to a size haircut needs 21 sessions and the
+#: pre-registered decision rule in the retro, and is not licensed here.
+DISSENT_UNKNOWN = (
+    "NO VERDICT: the generator produced no row for this symbol in this seal, so "
+    "`generator_claimed` is UNKNOWN and not False. A held name whose verdict was "
+    "never computed is a different fact from one the rule declined, and collapsing "
+    "the two would put un-adjudicated names into the `dissent` population.")
+
+
+def generator_stamp(pred: dict | None) -> dict:
+    """The generator's verdict on ONE symbol, as sealed onto its holding.
+
+    `pred` is the `murat_rule_v1` prediction row for the symbol, or None when
+    the generator never scored it. Pure, and never raises: a stamp that could
+    fail would take the whole seal down for a bookkeeping field.
+
+    `generator_score` is the generator's OWN ranking expression
+    (`exp_return - |downside_5pct|`, `murat_rule.rank_key`) -- the number the
+    rule sorts on, so a reader can see how far down the generator's own order
+    the selector reached. `rank_key` returns -inf for a row missing either
+    input; that is recorded as None rather than as `-Infinity`, which is not
+    JSON and would break every strict reader of a sealed book.
+    """
+    if not pred:
+        return {"generator": RULE_GENERATOR, "generator_claimed": None,
+                "generator_score": None, "generator_rank": None,
+                "generator_failed_clauses": None, "dissent": None,
+                "dissent_basis": DISSENT_UNKNOWN}
+    claimed = bool(pred.get("claims"))
+    key = murat_rule.rank_key(pred)
+    return {
+        "generator": pred.get("generator") or RULE_GENERATOR,
+        "generator_claimed": claimed,
+        "generator_score": round(key, 6) if math.isfinite(key) else None,
+        "generator_rank": pred.get("rank"),
+        "generator_failed_clauses": list(pred.get("failed_clauses") or []),
+        # SELECTED BUT NOT CLAIMED. Recorded, never enforced -- see above.
+        "dissent": not claimed,
+        "dissent_basis": (
+            "the generator CLAIMED this name and the selector held it: agreement"
+            if claimed else
+            "DISSENT: held by the book's selector, declined by murat_rule_v1"
+            + (f" on {', '.join(pred.get('failed_clauses') or []) or 'no failed clause'}"
+               f" (rank {pred.get('rank')})")),
+    }
+
+
+def _portfolio_block(port: dict, p, driver_of: dict[str, str],
+                     verdicts: dict[str, dict] | None = None) -> dict:
     """One book's sealed block from an already-built portfolio (§1a, brief g).
 
     Three derived fields beyond the holdings, so the seal answers "is this one
@@ -499,12 +680,17 @@ def _portfolio_block(port: dict, p, driver_of: dict[str, str]) -> dict:
       `determinable: False` WITH THE REASON, never a silently absent bound --
       a guard derives its inputs or refuses (CLAUDE.md, monday_gate lesson).
     """
+    verdicts = verdicts or {}
     holdings = [{"symbol": h["symbol"], "notional": h["notional"],
                  "sector": h["sector"], "rank_value": h["rank_value"],
                  "exp_return": h["exp_return"],
                  "downside_5pct": h["downside_5pct"],
                  "confidence": h["confidence"],
-                 "numbers_source": h["numbers_source"]}
+                 "numbers_source": h["numbers_source"],
+                 # E1: the generator's verdict, joined at seal time. Stamped
+                 # AFTER `build_portfolio` returned, so it cannot influence
+                 # which names are here or at what weight.
+                 **generator_stamp(verdicts.get(h["symbol"]))}
                 for h in port["holdings"]]
     derived_gross = round(sum(abs(float(h["notional"] or 0.0)) for h in holdings), 4)
     try:
@@ -544,6 +730,20 @@ def _portfolio_block(port: dict, p, driver_of: dict[str, str]) -> dict:
                 driver_of).items())},
         "derived_gross": derived_gross,
         "worst_case": wc,
+        # E1's census for THIS book, so "how much of what we hold does our own
+        # generator decline?" is one field rather than a join a reader has to
+        # write. `unknown` is its own bucket and is never folded into either
+        # side -- see DISSENT_UNKNOWN.
+        "generator_dissent": {
+            "held": len(holdings),
+            "claimed": sum(1 for h in holdings if h["generator_claimed"] is True),
+            "declined": sum(1 for h in holdings if h["generator_claimed"] is False),
+            "unknown": sum(1 for h in holdings if h["generator_claimed"] is None),
+            "note": ("RECORDED, NOT ENFORCED (34f08ca): the runner expresses a sealed "
+                     "weight and does not re-adjudicate the seal. E1 accrues "
+                     "held+claimed vs held+declined forward; promotion to a size "
+                     "haircut needs 21 sessions and the pre-registered rule."),
+        },
     }
 
 
@@ -599,7 +799,7 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
     portfolios = {}
     for p in _tracker.PERSONALITIES:
         portfolios[p.book] = _portfolio_block(_tracker.build_portfolio(cands, p),
-                                              p, driver_of)
+                                              p, driver_of, _pred_by_symbol)
 
     payload = {
         "schema": "prediction-book-3",
@@ -697,20 +897,14 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None,
         # today -- so one shared bound filtered every catalyst out and
         # `days_to_next_catalyst` was None for every name in the book. See
         # `features.daily_features` for why two clocks need two bounds.
-        f = features.daily_features(sym, as_of_bar or day, crows, bars=bars.get(sym),
+        f_day = as_of_bar or day
+        f = features.daily_features(sym, f_day, crows, bars=bars.get(sym),
                                     future_known_by=seal_utc)
-        counts = f.get("event_type_counts_20d") or {}
-        rows.append({
-            "symbol": sym,
-            "features": {k: float(counts.get(k.replace("ev_", "").replace("_20d", ""), 0) or 0)
-                         for k in SIGNALS},
-            "realised_vol_20d": f.get("realised_vol_20d"),
-            "n_items_20d": f.get("n_items_20d"),
-            "drawdown_from_60d_high": f.get("drawdown_from_60d_high"),
-            "days_to_next_catalyst": f.get("days_to_next_catalyst"),
-            "target_ratio": f.get("target_ratio"),
-            "rating_counts_mean": f.get("rating_counts_mean"),
-        })
+        # ONE builder, both producers. `close` is read off the SAME bars and the
+        # SAME day `daily_features` priced `target_ratio` against, so the band
+        # prior bands a ratio and a price that were read together.
+        rows.append(rule_row_from_features(
+            sym, f, close=features.last_close(bars.get(sym), f_day)))
 
     # Cross-sectional score. Ranked per feature, then IC-weighted.
     universe_note = ""

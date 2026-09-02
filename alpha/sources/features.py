@@ -511,6 +511,29 @@ def _bars_upto(bars: Sequence[dict] | None, day: str) -> list[dict]:
     return [b for b in bars if str(b.get("t") or "")[:10] <= d]
 
 
+def last_close(bars: Sequence[dict] | None, day: str) -> float | None:
+    """The close for `day`, or None. THE price the corpus path prices against.
+
+    The last bar must BE `day`: a stale last bar would report yesterday's close
+    under today's date, and `target_ratio` is a ratio TO this number -- a target
+    divided by the wrong close is not a mildly wrong ratio, it is a different
+    quantity (S30b: a stale target across a split printed a 42% CAGR market).
+
+    Factored out of `daily_features` on 2026-09-02 rather than copied, because
+    `prediction_book.build()` now has to carry the same close onto its rule row
+    so BAND-CONDITIONAL PRIOR v2 can verify its own sub-$2 condition. Two copies
+    of this expression is exactly how the two rule-row producers drifted apart
+    in the first place (scenario lab L1-18).
+    """
+    hist = _bars_upto(bars, day)
+    if not hist:
+        return None
+    last = hist[-1]
+    if str(last.get("t") or "")[:10] != str(day)[:10] or not last.get("c"):
+        return None
+    return float(last["c"])
+
+
 def price_context(bars: Sequence[dict] | None, day: str) -> dict[str, float | None]:
     """The five price fields from Alpaca daily bars ending on `day` (inclusive).
 
@@ -651,8 +674,7 @@ def daily_features(symbol: str, day: str, corpus_rows: Sequence[dict],
         pnl = analyst_targets.panel(sym, as_of=day_end(day).isoformat(), rows=news90)
         f["n_target_notes_90d"] = len(pnl.targets)
         f["n_target_firms_90d"] = pnl.n_firms
-        hist = _bars_upto(bars, day)
-        close = float(hist[-1]["c"]) if hist and str(hist[-1].get("t"))[:10] == day and hist[-1].get("c") else None
+        close = last_close(bars, day)
         if pnl.n_firms >= analyst_targets.MIN_FIRMS and close:
             f["target_ratio"] = pnl.upside_ratio(close)
     f["rating_counts_mean"], f["rating_coverage"] = rating_from_panel(rating_rec)
