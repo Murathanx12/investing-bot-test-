@@ -37,6 +37,31 @@ is its best clock), and v1's P(beat)=0.494 was ABOVE the 0.458 base rate.
   DIFFERENT sha mid-day (R2's back door). Push AFTER 16:05 ET, or first
   prove the authority's books survive a redeploy.
 
+### CORRECTED AT 09-03's AFTERNOON -- THE STARVATION WAS HACK4-ONLY, AND A SECOND GAP SURFACED
+
+The block below OVERSTATED the scope, written before the 10:01 declines
+printed the books' contents. Venue-verified reality:
+- hack4: book EMPTY (0 names) -- the catalyst-starvation diagnosis below
+  stands, for hack4 alone (`requires_catalyst=True`).
+- hack3: book sealed TEN names (ASPI DAKT ELDN IMRX INVA IVA KDK LENZ MOMO
+  RELX) -- NOT starved. hack6: FIFTEEN names -- NOT starved; the
+  coverage-calibration suspicion below is WITHDRAWN (hack6 sealed and
+  TRADED its book: MAZE/NAMS/NKTR/RARE entered or resized, risk=8
+  already_held=7 at the last pass).
+- THE NEW PUZZLE (night-watch item): hack3 ENTERED NONE of its ten sealed
+  names and ended the day holding only LAES+TNXP, NEITHER of which is in
+  its book. Its pass printed "refusals by class: none" while declining
+  only non-book symbols -- consistent with the sealed names never
+  appearing in the runner's forecast universe at all (the S30
+  reachability shape: the artifact was right and nothing could read it).
+  Verify against the runner's forecast universe source before assuming.
+- NEW DEFECT (post-judging fix train): hack6's BUR protective-stop
+  placement is refused every pass with HTTP 422 "client_order_id must be
+  unique" -- a deterministic stop id collides with an earlier BUR stop, so
+  the position (x15, ~$65) rests UNPROTECTED and the refusal repeats
+  forever. Trivial dollars, bad class: any re-entered name's stop can
+  collide. The id needs a per-placement discriminator.
+
 ### FOUND AT 09-03's OPEN -- THE SOLO SEAL IS INFORMATIONALLY STARVED (P0 post-judging)
 
 The authority's first solo book (4fdc008f) is VALID and EMPTY where it
