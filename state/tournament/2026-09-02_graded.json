@@ -1,0 +1,40 @@
+{
+  "schema": "entry-timing-grade-1",
+  "day": "2026-09-02",
+  "seal_sha256": "6e69c0af80a7ad5f2ccc9760dfbcb7069c0344d69e26f2603e1423e380dd6857",
+  "graded_at_utc": "2026-09-03T06:15:00Z",
+  "graded_from": "venue order history (GET /v2/orders closed, per role) -- the Railway-volume receipts are not reachable from the laptop; entry_timing_grade's receipt path returned NO RECEIPT locally and that is a tooling gap, not a missing tournament",
+  "arms": {
+    "hack3_control": {
+      "style": null,
+      "verdict": "ran as the unchanged 10:01 control",
+      "fills_1001_et": ["IVA 1542@4.85", "TNXP 537@13.88"],
+      "day_pnl_pct": 1.19
+    },
+    "hack4_open_auction": {
+      "style": "open_auction",
+      "verdict": "arm ran and correctly submitted NOTHING: 4 of 5 sealed names already held, FPS risk-refused. Zero auction information from this arm today.",
+      "opg_submitted": 0,
+      "day_pnl_pct": 1.20
+    },
+    "hack6_staggered": {
+      "style": "staggered",
+      "verdict": "15 opg market-on-open orders submitted 08:45 ET; 13 of 15 EXPIRED with ZERO fill; 2 partial (MLYS 61/106, BUR 15/644). The arm then degraded to full-size 10:01 limit buys as designed.",
+      "opg_submitted": 15,
+      "opg_zero_fill": 13,
+      "opg_partial": {"MLYS": "61/106 @26.00", "BUR": "15/644 @4.23"},
+      "day_pnl_pct": 0.76
+    }
+  },
+  "findings": [
+    "F1 VENUE: Alpaca PAPER does not meaningfully fill tif=opg market-on-open orders -- 13/15 expired untouched, including liquid names (GRAB 788sh, HDB 118sh). Same venue-simulation shape as the S32 tif=cls partial-fill lesson. The entry-timing tournament CANNOT be decided on this venue for auction fills; the venue-acceptance proof (submit+cancel pending_new) proved acceptance, not fill simulation.",
+    "F2 CHURN (R3/R4 live, measured in dollars): same-session stop/close -> re-buy cycles on all three books. hack3 TNXP: bought 537@13.88 10:00 ET, closed 13.40 11:38 ET (-3.5%), re-bought 551@13.53 13:04 ET. hack4 ABAT: closed 3766@2.72 09:41 ET, re-bought 3615@2.75 10:01 ET. hack6 MLYS cycled three times (26.69->27.37->27.487->28.16 buy/sell alternation). Sells carry venue-generated client ids = close_position path, exactly R4's blind spot (stopped_today cannot see close_position).",
+    "F3 the churn arm lagged: hack6 (most cycles) +0.76% vs +1.19/+1.20 on the calmer books -- one day, not evidence, but the direction matches the cost story."
+  ],
+  "consequences": [
+    "C1: do not grade the auction arms as an alpha comparison; grade F1 as the tournament's RESULT (the venue cannot express auction entries on paper).",
+    "C2: R4 (re-entry guard blind to close_position) moves UP the post-judging fix train -- it is measured now, not theoretical.",
+    "C3: judging morning 09-04 is protected by R1 (run_pass refuses all entries when expiry==today; scripts/open_auction routes through run_pass)."
+  ],
+  "day_pnl": {"hack3": "+1062 (+1.19%)", "hack4": "+1186 (+1.20%)", "hack6": "+686 (+0.76%)"}
+}

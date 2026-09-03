@@ -106,10 +106,11 @@ def check_seal(s: Sweep) -> None:
     except Exception as exc:  # noqa: BLE001
         s.add(CANNOT, "prediction_book importable", str(exc))
         return
+    missing: list[str] = []
     for label, path in (("local seal", ROOT / "state" / "predictions" / f"{day}.json"),
                         ("published seal", ROOT / "docs" / "seed" / "predictions" / f"{day}.json")):
         if not path.exists():
-            s.add(FAIL, f"{label} {day}", "MISSING -- runners will (correctly) decline everything")
+            missing.append(label)
             continue
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -123,6 +124,40 @@ def check_seal(s: Sweep) -> None:
                 s.add(OK, f"{label} {day}", f"sha {actual[:10]} books {books}")
         except (OSError, ValueError) as exc:
             s.add(FAIL, f"{label} {day}", str(exc)[:90])
+    if len(missing) == 2:
+        # Neither laptop copy exists. Since 2026-09-03 that is the NORMAL state
+        # of an unattended morning: the authority solo-seals at ~00:00 ET onto
+        # its own volume and the laptop never sees a file. FAILing here made
+        # this a gate that cannot go green (the 2026-08 monday_gate lesson), so
+        # the check now DERIVES the solo seal from the authority's own log or
+        # refuses with CANNOT -- it no longer reads laptop absence as fleet
+        # absence.
+        import shutil
+        railway = shutil.which("railway") or shutil.which("railway.cmd")
+        if not railway:
+            s.add(CANNOT, f"sealed book {day}",
+                  "no laptop copy and no railway CLI -- authority may have solo-sealed")
+            return
+        try:
+            subprocess.run([railway, "service", "seal-authority"], cwd=ROOT,
+                           capture_output=True, timeout=30, check=False)
+            r = subprocess.run([railway, "logs", "--service", "seal-authority"],
+                               cwd=ROOT, capture_output=True, text=True,
+                               encoding="utf-8", errors="replace", timeout=60, check=False)
+            sealed = [ln for ln in (r.stdout or "").splitlines()
+                      if f"SEAL AUTHORITY SEALED day={day}" in ln or
+                      (f"SEAL AUTHORITY ready day={day}" in ln)]
+            if sealed:
+                s.add(OK, f"sealed book {day}",
+                      "SOLO seal on authority: " + sealed[-1].split("SEAL AUTHORITY ")[-1][:70])
+            else:
+                s.add(FAIL, f"sealed book {day}",
+                      "no laptop copy AND no authority seal line -- runners will decline everything")
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            s.add(CANNOT, f"sealed book {day}", f"authority log unreadable: {str(exc)[:60]}")
+    elif missing:
+        s.add(FAIL, f"{missing[0]} {day}",
+              "MISSING while its sibling exists -- the publish/seal pair is torn")
 
 
 def check_freshness(s: Sweep) -> None:
