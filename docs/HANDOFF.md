@@ -37,6 +37,40 @@ is its best clock), and v1's P(beat)=0.494 was ABOVE the 0.458 base rate.
   DIFFERENT sha mid-day (R2's back door). Push AFTER 16:05 ET, or first
   prove the authority's books survive a redeploy.
 
+### FOUND AT 09-03's OPEN -- THE SOLO SEAL IS INFORMATIONALLY STARVED (P0 post-judging)
+
+The authority's first solo book (4fdc008f) is VALID and EMPTY where it
+matters: `portfolios[hack4]` = 0 names (proven by the runner's
+PortfolioDeclined x hundreds), and no book entered anything at 10:01.
+Root cause, receipt in the authority's own seal log: `UNREADABLE
+d_catalyst x810` -- `days_to_catalyst` derives from the observation CORPUS
+(`state/corpus/observations/*.jsonl` via `alpha/sources/features.daily_features`),
+which is a LAPTOP-side artifact that has never existed on the authority's
+volume. hack4 `requires_catalyst=True` -> all 810 fail "no readable
+catalyst" -> empty. hack6's coverage-calibration refusal (S35 fix) is the
+same class of suspect (`coverage_source != calibrated` on a
+Finnhub-counted refresh); per-book truth is in the sealed book's
+`excluded_by_reason` -- read it before fixing.
+
+CONSEQUENCE MEASURED: an empty-but-valid book is treated by the exit pass
+as "sell what dropped out", so a DATA GAP became a SELL decision -- hack3
+4->2 positions, hack4 4->2, hack6 7->5 on the morning of 09-03; remaining
+positions held with stops (exit passes report checked=2 closed=0 held=2).
+Safe, fail-closed, but the fleet sat ~15-30% deployed on competition eve.
+
+FIX DIRECTION (post-judging, in order):
+1. UNREADABLE must not become an implicit SELL: when a clause is
+   unreadable for the WHOLE universe (a data gap, not a market), the seal
+   should either carry yesterday's holdings forward with a declared
+   staleness flag, or mark the book DEGRADED so the exit pass holds
+   rather than trims. Decide attended; both are seal-semantics changes.
+2. Feed the authority: ship the corpus (or its generator + sources) into
+   the image/volume, and give the solo refresh a calibrated coverage
+   source, so a solo seal has the same information a laptop seal has.
+3. fleet_health: add a check "today's book has >0 holdings per enabled
+   book, else WARN with excluded_by_reason top-3" -- an empty book must be
+   loud the minute it is sealed, not at the open.
+
 ### WEDNESDAY 09-04 (judging 11:00 ET) -- the whole checklist
 1. Books liquidate 10:45 ET. R1 is pinned: run_pass refuses ALL entries
    when expiry == today, and scripts/open_auction routes THROUGH run_pass.
