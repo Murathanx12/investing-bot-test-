@@ -135,6 +135,25 @@ class AlpacaPaper:
     def clock(self) -> dict[str, Any]:
         return self._request("GET", "/v2/clock")
 
+    def calendar(self, *, start: str, end: str) -> list[dict[str, Any]]:
+        """The venue's own trading calendar (dates with `open`/`close` in ET).
+
+        This is the ONE authority on "was <day> a session" and "has it closed".
+        The machine runs UTC+8 and the scheduler runs ET; deriving session
+        completeness from either local clock is the two-clocks trap, and a
+        hardcoded 16:00 close is wrong on every half-day. Read-only GET."""
+        return self._request("GET", "/v2/calendar", params={"start": start, "end": end}) or []
+
+    def portfolio_history(self, *, period: str = "1M", timeframe: str = "1D") -> dict[str, Any]:
+        """The account's own daily equity series, from the venue.
+
+        `equity`/`last_equity` on /v2/account only describe TODAY; any report
+        about a past session needs the venue's history, not a local file that
+        might have slept through a day. Read-only GET; returns the raw payload
+        (`timestamp` epoch-seconds and `equity` arrays, parallel)."""
+        return self._request("GET", "/v2/account/portfolio/history",
+                             params={"period": period, "timeframe": timeframe}) or {}
+
     def assets(self, *, status: str = "active", asset_class: str = "us_equity") -> list[dict[str, Any]]:
         """Every asset the venue lists -- the raw material of a universe that is
         not "the names with good option chains"."""
