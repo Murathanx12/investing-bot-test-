@@ -1,0 +1,110 @@
+{
+ "generated_utc": "2026-09-03T13:55:53+00:00",
+ "scope": "READ-ONLY scoreboard: six hackathon paper accounts vs SPY over the competition window. Genesis $100,000 per account frozen 2026-08-28 pre-open (state/genesis_hack*.json). SPY window: first Alpaca daily bar on/after 2026-08-28 close to latest close, same venue data. This is a benchmark-regret receipt in the GPT-review sense (2026-09-03): every account's return minus SPY's, so cash drag and kickoff losses are visible as a NUMBER, not a mood.",
+ "spy": {
+  "start_date": "2026-08-28",
+  "start_close": 769.28,
+  "end_date": "2026-09-03",
+  "end_close": 769.79,
+  "return_pct": 0.066
+ },
+ "accounts": {
+  "hack1": {
+   "equity_now": 99168.87,
+   "cash_now": 99168.87,
+   "pnl_vs_genesis_usd": -831.13,
+   "pnl_vs_genesis_pct": -0.831,
+   "benchmark_regret_pp": -0.897,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 99250.36,
+    "2026-09-01": 99250.91,
+    "2026-09-02": 99168.87,
+    "2026-09-03": 99168.87
+   },
+   "n_fills_since_0827": 15
+  },
+  "hack2": {
+   "equity_now": 99238.52,
+   "cash_now": 99238.52,
+   "pnl_vs_genesis_usd": -761.48,
+   "pnl_vs_genesis_pct": -0.761,
+   "benchmark_regret_pp": -0.828,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 99238.52,
+    "2026-09-01": 99238.52,
+    "2026-09-02": 99238.52,
+    "2026-09-03": 99238.52
+   },
+   "n_fills_since_0827": 6
+  },
+  "hack3": {
+   "equity_now": 90654.84,
+   "cash_now": 75848.59,
+   "pnl_vs_genesis_usd": -9345.16,
+   "pnl_vs_genesis_pct": -9.345,
+   "benchmark_regret_pp": -9.411,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 91107.45,
+    "2026-09-01": 90511.36,
+    "2026-09-02": 89511.82,
+    "2026-09-03": 90289.92
+   },
+   "n_fills_since_0827": 100
+  },
+  "hack4": {
+   "equity_now": 99843.16,
+   "cash_now": 70143.65,
+   "pnl_vs_genesis_usd": -156.84,
+   "pnl_vs_genesis_pct": -0.157,
+   "benchmark_regret_pp": -0.223,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 99079.7,
+    "2026-09-01": 99614.34,
+    "2026-09-02": 98434.73,
+    "2026-09-03": 99600.87
+   },
+   "n_fills_since_0827": 83
+  },
+  "hack5": {
+   "equity_now": 91745.33,
+   "cash_now": 86145.33,
+   "pnl_vs_genesis_usd": -8254.67,
+   "pnl_vs_genesis_pct": -8.255,
+   "benchmark_regret_pp": -8.321,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 91758.81,
+    "2026-09-01": 90270.81,
+    "2026-09-02": 90695.33,
+    "2026-09-03": 91675.33
+   },
+   "n_fills_since_0827": 10
+  },
+  "hack6": {
+   "equity_now": 91293.43,
+   "cash_now": 63774.15,
+   "pnl_vs_genesis_usd": -8706.57,
+   "pnl_vs_genesis_pct": -8.707,
+   "benchmark_regret_pp": -8.773,
+   "daily_equity": {
+    "2026-08-27": 100000.0,
+    "2026-08-28": 100000.0,
+    "2026-08-29": 90706.04,
+    "2026-09-01": 90706.04,
+    "2026-09-02": 90706.04,
+    "2026-09-03": 91340.87
+   },
+   "n_fills_since_0827": 100
+  }
+ },
+ "attribution_note": "Fill-history attribution (account activities, 2026-08-27 onward): the deep losses (hack3 -9.3%, hack5 -8.3%, hack6 -8.7%) are almost entirely 2026-08-28 13:32-14:11 UTC \u2014 the kickoff-morning basket entries stopped out en masse at ~-$750/name (uniform across names = market/beta stop cascade, the S20/S34 leverage-x-stop lesson, since fixed). hack5's hole is same-morning short-dated calls that decayed/expired. hack4 is the only book with POSITIVE realized P&L (+$2,027: NVDA put spread +$1,368, ABAT churn +$798, RZLV +$296). Since 2026-08-31 the fleet is flat-to-up."
+}
