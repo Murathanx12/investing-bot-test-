@@ -1,9 +1,64 @@
 > **SKIM LAYER (updated 2026-09-02) — read this block, then `docs/INDEX.md`, then the session below.**
 > 1. **Start at `docs/INDEX.md`** (TIER 0 = what this repo is + the four non-negotiables; the MAP answers "how does a day get sealed / how do orders happen / how do I check everything / what grades us / where are the receipts"). This file is a reverse-chronological DIARY, not authority.
 > 2. **Mandates:** six paper accounts — hack1 anchor · hack2 drift · hack3 thesis · hack4 predator · hack5 convexity · hack6 blend (`alpha/fleet.py`, table in `docs/FLEET_2026-08-28.md`). **Expiry `AAT_LOOP_EXPIRY=2026-09-04`: books liquidate 10:45 ET, judging 11:00 ET.**
-> 3. **Today's seal artery:** `2026-09-02` IS SEALED — `state/predictions/2026-09-02.json`, sha `6e69c0af80`, 806 considered / 11 claims, first book under BAND_PRIOR v2, committed as `c525618`. Books match the replay exactly: hack3 10 @ 8.3% · hack4 5 @ 10% · hack6 15 @ 6%. Still to verify by hand: `--publish` landed, and `fleet --deploy` stamped the running services.
+> 3. **Seal artery (updated 09-03):** the authority now SOLO-SEALS unattended (09-03 sha `4fdc008f12d3b769`, tgt=ok x3129, runners installed); the laptop is optional. Previous laptop seal `2026-09-02` sha `6e69c0af80` IS SEALED — `state/predictions/2026-09-02.json`, sha `6e69c0af80`, 806 considered / 11 claims, first book under BAND_PRIOR v2, committed as `c525618`. Books match the replay exactly: hack3 10 @ 8.3% · hack4 5 @ 10% · hack6 15 @ 6%. Still to verify by hand: `--publish` landed, and `fleet --deploy` stamped the running services.
 > 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
 > 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
+
+## SESSION 36 (2026-09-03 daytime HK / overnight-to-preopen ET, Fable + eight Opus agents) -- THE GATE, THE CLOCK, AND THE NULL
+
+**RESULTS SCOREBOARD:** first full tournament day GRADED FROM THE VENUE
+(`state/tournament/2026-09-02_graded.json`): hack3 +1.19% / hack4 +1.20% /
+hack6 +0.76%. The tournament's RESULT is a venue fact: **Alpaca paper does
+not fill tif=opg** -- 13/15 of hack6's auction orders expired untouched
+(2 partial), same class as the tif=cls lesson; hack4's arm correctly had
+nothing to submit (4/5 already held). R3/R4 stop->re-buy churn is now
+MEASURED (TNXP -3.5% stop then re-bought 90 min later; hack6 cycled MLYS
+3x and lagged). The authority's FIRST SOLO SEAL worked end to end: 09-03
+sha `4fdc008f12d3b769`, tgt=ok on all 3,129 names, every runner
+hash-verified + installed after correctly 404-waiting. The fleet no longer
+needs any laptop. RESULT IMPROVEMENT: on the finance side the eight-agent
+wave re-adjudicated the band prior and shipped a calibrated learner --
+read `../aegis-finance/docs/SESSION_2026-09-03_SCOREBOARD_AND_ROADMAP_ADDENDUM.md`
+BEFORE quoting any S35 headline: **"BAND_PRIOR is a 12-month object" is
+REFUTED** (overlap artifact; the band is an EXCLUSION rule and 21 sessions
+is its best clock), and v1's P(beat)=0.494 was ABOVE the 0.458 base rate.
+
+### THIS SESSION, HERE
+- `eb7de9f`: tournament receipt + `fleet_health.check_seal` now DERIVES the
+  solo seal from the authority's log (the old laptop-file check was a gate
+  that could not go green on an unattended morning). Sweep after the fix:
+  everything green except the website DEGRADED, which was root-caused and
+  repaired on the finance side (NAV freshness restored live; "15 past due"
+  was a clock false-positive).
+- Suite 71 suites / 3,235 checks ALL PASS.
+- NOT pushed on purpose: a push redeploys seal-authority and today's solo
+  book lives on the authority's disk -- a pre-close redeploy could reseal a
+  DIFFERENT sha mid-day (R2's back door). Push AFTER 16:05 ET, or first
+  prove the authority's books survive a redeploy.
+
+### WEDNESDAY 09-04 (judging 11:00 ET) -- the whole checklist
+1. Books liquidate 10:45 ET. R1 is pinned: run_pass refuses ALL entries
+   when expiry == today, and scripts/open_auction routes THROUGH run_pass.
+   Verify in runner logs: "EXPIRY DAY: entries refused", and zero re-buys
+   after liquidation.
+2. The 08:45 ET auction step on hack4/hack6 will also hit R1 on 09-04.
+   Today (09-03) it runs one more ordinary tournament day -- fine, failure
+   direction is the control.
+3. Post-judging fleet fix train (ordered): R4 re-entry guard (now measured
+   in dollars) -> R3 stop width -> R8 clamp units -> R10 execution_authority
+   caller -> disarm the opg tournament arms (venue cannot express them;
+   delete one env line each in alpha/fleet.py) -> mixed-currency market cap
+   -> coverage-scale read -> SAFEST@2x sealed contract.
+4. Alpaca INDEX OPTIONS went live 09-03 (SPX/SPXW/VIX/VIXW/DJX/XSP,
+   cash-settled, no early assignment) -- post-judging design space for the
+   hedged-book family; check paper support first.
+
+### STANDING
+Ledger hash chain broken since 25 Aug (+2 torn lines) -- never silently
+repaired. No reseal of a live day. Arena graded-never-traded. Finance
+mirror/arena Alpaca keys are REVOKED at the venue (hack1-6 keys are FINE);
+minting new ones is attended.
 
 ## SESSION 35 (2026-09-02 evening HK / pre-open ET, Fable + eight Opus agents) — THE LEARNER EXISTS, THE TOURNAMENT IS ARMED, THE RED TEAM DREW BLOOD
 
