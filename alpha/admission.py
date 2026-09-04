@@ -187,6 +187,15 @@ def book_n_risk(book: book_mod.BookRisk, client, *, days: int = 60) -> float | N
         return None
 
 
+#: THE FLOOR A NAKED SHORT MUST CLEAR (2026-09-05). A short share has no
+#: ceiling on its loss, so the stop IS the risk and the claimed move has to be
+#: worth it. All five PANW shorts of 2026-09-03/04 cleared every other gate in
+#: this file at 0.13-0.18:1. Long structures record the same ratio and are not
+#: bound by it -- a blanket 3:1 refuses 100% of what every book here selects,
+#: which is a finding about the books and not a risk control.
+NAKED_SHORT_MIN_EDGE_OVER_STOP = 3.0
+
+
 def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, *,
           equity: float, aggregate_cap: float, committed_usd: float = 0.0,
           own_event: str | None = None, reserved_events: dict[str, float] | None = None,
@@ -197,7 +206,10 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
           gross_cap: float | None = None, gross_usd: float | None = None,
           add_notional_usd: float = 0.0, committed_notional_usd: float = 0.0,
           driver: str | None = None, driver_cap: float | None = None,
-          driver_gross_usd: float = 0.0, driver_note: str = "") -> Admission:
+          driver_gross_usd: float = 0.0, driver_note: str = "",
+          expected_edge_usd: float | None = None, stop_loss_usd: float | None = None,
+          min_edge_over_stop: float | None = None,
+          is_naked_short: bool = False, may_short: bool | None = None) -> Admission:
     """Admit or refuse `contracts` units of `structure` on the POST-trade book.
 
     `per_underlying_cap` defaults to 15% and the runner raises it to the
@@ -206,6 +218,25 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
     the 25 Aug failure -- and not on a first order the profile already permits."""
     if equity <= 0:
         return Admission(False, "no equity to admit against", {})
+    # -- THE MANDATE BINDS ON SIDE (2026-09-05, FINDING_2026-09-05_THE_MEGA11) --
+    #
+    # `Mandate.tier` was declarative: nothing outside the fleet table read it,
+    # and `equity.shares()` admits `short_shares` for any book whose
+    # `structure_kinds` is empty -- which is hack1's and hack2's setting. So a
+    # SAFE anchor book opened five unhedged PANW shorts, a structure that books
+    # `max_loss = spot x 0.05` while labelling itself "UNBOUNDED (short share,
+    # no ceiling)". The label and the number disagreed and the number sized it.
+    #
+    # Scope: a NAKED short only. The declared hedged expression
+    # (`pair_short_vs_iwm`, the pead contract's "down side traded only as a pair
+    # with IWM") is not touched -- it is the structure the measurement was made
+    # in, and refusing it would close the one honest short this fleet has.
+    if is_naked_short and may_short is False:
+        return Admission(False, (
+            "MANDATE: this book has not declared `allow_short`, and an unhedged short share has "
+            "no ceiling on its loss. On 2026-09-03/04 two SAFE-tier books opened five of these by "
+            "omission (-$725). The hedged pair expression is unaffected; a book that is meant to "
+            "run naked shorts says so in `alpha/fleet.py`."), {"is_naked_short": True, "may_short": False})
     add = structure.max_loss * contracts
     first_leg = structure.legs[0][0] if structure.legs else structure.symbol
     sym = structure.symbol if book_mod.is_share(first_leg) else book_mod.decode_occ(first_leg)[0]
@@ -222,6 +253,51 @@ def admit(book: book_mod.BookRisk, structure: sizing.Structure, contracts: int, 
         "min_free_frac": MIN_FREE_FRACTION, "per_underlying_cap": per_underlying_cap,
         "reserved_expression": is_reserved_expression,
     }
+    # -- THE EDGE HAS TO BE WORTH THE STOP (2026-09-05) ------------------------
+    #
+    # All five PANW shorts claimed a move worth $92-128 against a 3% stop worth
+    # $700+ -- 0.13:1 to 0.18:1 -- and every risk gate in this file passed them,
+    # because none of them put those two numbers side by side. The ratio is the
+    # claimed move over the stop width (`|centre| x notional` over
+    # `stop_fraction x notional`), which is exactly the arithmetic in the
+    # finding, and it is the trade's reward-to-risk before any question about
+    # the signal is asked.
+    #
+    # ALWAYS MEASURED, ENFORCED ONLY WHERE A MANDATE SAYS SO
+    # (`contract.min_edge_over_stop`). Enforcing 3:1 on every book refuses 100%
+    # of what the tracker books select -- their own sealed `exp_return` is 1-3%
+    # against a 6-8% stop -- which would empty the accounts rather than protect
+    # them. Recording it on every admission is what makes that a census instead
+    # of an opinion.
+    # A NAKED SHORT IS BOUND BY THIS FLOOR WHETHER OR NOT ITS BOOK DECLARED ONE.
+    # It is the structure whose loss has no ceiling except the stop, so "is the
+    # claimed move worth the stop?" is the whole question about it.
+    floor = min_edge_over_stop
+    if floor is None and is_naked_short:
+        floor = NAKED_SHORT_MIN_EDGE_OVER_STOP
+    if expected_edge_usd is not None and stop_loss_usd is not None and stop_loss_usd > 0:
+        ratio = float(expected_edge_usd) / float(stop_loss_usd)
+        m["edge_over_stop"] = round(ratio, 3)
+        m["expected_edge_usd"] = round(float(expected_edge_usd), 2)
+        m["stop_loss_usd"] = round(float(stop_loss_usd), 2)
+        if floor is not None:
+            m["min_edge_over_stop"] = floor
+            if ratio < floor:
+                return Admission(False, (
+                    f"EDGE vs STOP: a claimed move worth ${float(expected_edge_usd):,.0f} against a "
+                    f"stop worth ${float(stop_loss_usd):,.0f} -- {ratio:.2f}:1, below the "
+                    f"{floor:g}:1 floor in force for this order. The five PANW shorts of "
+                    "2026-09-03/04 were 0.13-0.18:1 and negative-EV before any question about the "
+                    "signal."), m)
+    elif floor is not None:
+        # A guard derives its inputs or refuses -- but only where it binds.
+        m["edge_over_stop"] = "CANNOT DETERMINE"
+        return Admission(False, (
+            f"EDGE vs STOP: a {floor:g}:1 floor is in force and the claimed "
+            f"move or the stop could not be measured in dollars (edge={expected_edge_usd!r}, "
+            f"stop={stop_loss_usd!r}). Refused rather than assumed favourable."), m)
+    else:
+        m["edge_over_stop"] = "CANNOT DETERMINE"
     # -- GROSS NOTIONAL (2026-08-29) -------------------------------------------
     # The risk caps above sum WORST CASES; nothing here bounded the sum of
     # NOTIONAL, so a 3% stop on 300% gross cost -9% on 28 Aug. A book whose

@@ -241,6 +241,58 @@ def why_idle(payload: dict | None, day: str) -> dict:
 
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# ENTRY AUTHORITY -- armed or disarmed, and by WHAT (2026-09-05)
+# --------------------------------------------------------------------------
+
+def entry_authority(role: str, *, now=None) -> dict:
+    """Whether this book may OPEN a position right now, and what stops it.
+
+    WHY THIS IS A REPORT AND NOT AN ASSERTION
+    =========================================
+    Between 2026-09-04 and 2026-09-08 the fleet held nothing, and the reason was
+    a stack of four independent disarms -- a mandate flag, a Railway
+    `--manage-only` argument, a deleted `AAT_ENTRY_STYLE`, and a deadline
+    predicate that fired every morning. Each was deliberate; nothing printed
+    them together, so "why are the accounts empty?" cost a session to answer.
+
+    Two of the four live in RAILWAY VARIABLES, which this process cannot read.
+    They are reported as CANNOT DETERMINE with the command that answers them,
+    never guessed -- a guard that invents its inputs is worse than one that
+    refuses (CLAUDE.md, the monday_gate lesson).
+    """
+    from alpha import exits as _exits, fleet as _fleet
+
+    m = _fleet.FLEET.get(role)
+    env = _fleet.env_for(m) if m else {}
+    local_args = os.getenv("AAT_LOOP_ARGS", "")
+    declared_args = env.get("AAT_LOOP_ARGS", "")
+    blockers = []
+    if m is None:
+        blockers.append(f"role {role!r} is not one of the six declared mandates")
+    else:
+        if m.manage_only:
+            blockers.append("Mandate.manage_only=True (declared in alpha/fleet.py)")
+        if "--manage-only" in declared_args:
+            blockers.append("--manage-only in the mandate's own loop args")
+    if "--manage-only" in local_args:
+        blockers.append("--manage-only in this process's AAT_LOOP_ARGS")
+    dl = config.deadline_utc()
+    if _exits.deadline_liquidation_due(dl, now=now):
+        blockers.append(f"past {_exits.LIQUIDATE_BY_ET:%H:%M} ET on the mandate end date "
+                        f"{dl[:10]} -- the exit pass is liquidating on sight")
+    return {
+        "role": role,
+        "armed": not blockers,
+        "binding": blockers[0] if blockers else None,
+        "blockers": blockers,
+        "mandate_end_utc": dl,
+        "entry_style_declared": env.get("AAT_ENTRY_STYLE"),
+        "railway": ("CANNOT DETERMINE from here: the live AAT_LOOP_ARGS and AAT_ENTRY_STYLE are "
+                    f"Railway variables. `railway variables --service aat-loop-{role}` answers it."),
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--role", action="append", help="limit to these roles")
@@ -300,6 +352,20 @@ def main() -> int:
             if missing:
                 print(f"{'':<8} sealed but NOT held: {', '.join(missing)}  "
                       f"({len(sealed_syms) - len(missing)}/{len(sealed_syms)} expressed)")
+
+    print("\nENTRY AUTHORITY -- may this book OPEN a position?\n")
+    print(f"{'role':<8} {'entries':<10} binding constraint")
+    print("-" * 106)
+    for role in roles:
+        ea = entry_authority(role)
+        report["roles"][role]["entry_authority"] = ea
+        print(f"{role:<8} {'ARMED' if ea['armed'] else 'DISARMED':<10} "
+              f"{ea['binding'] or 'nothing -- this book may enter'}")
+        for extra in ea["blockers"][1:]:
+            print(f"{'':<19}also: {extra}")
+    print(f"\n  mandate end (liquidation date): {config.deadline_utc()}")
+    print("  Two disarms live in RAILWAY VARIABLES and are invisible from here:")
+    print("  `railway variables --service aat-loop-<role> | grep -E 'LOOP_ARGS|ENTRY_STYLE'`")
 
     print("\nACTUAL is measured; INTENT is k x notional_each -- EMERGENT, no book declares\n"
           "a utilization target; CEILING is sizing.gross_cap. There is no FLOOR anywhere:\n"

@@ -393,3 +393,21 @@ COMPETITION = {
     "source": "https://lablab.ai/ai-hackathons/alpaca-ai-trading-agents-hackathon",
     "snapshot_date": "2026-08-25",
 }
+
+
+def deadline_utc() -> str:
+    """The DATED LIQUIDATION this fleet is currently under.
+
+    `COMPETITION` is a historical record of the hackathon and does not move --
+    it is quoted in receipts. What moves is the mandate: after judging closed on
+    2026-09-04 the books keep trading, so the deadline they liquidate on is now
+    a mandate end date, set per service by `AAT_MANDATE_END_UTC`
+    (`alpha/fleet.py` ships 2027-12-31).
+
+    Default = the competition deadline, so nothing changes for a caller that has
+    not set the variable: local runs, tests and the historical receipts all read
+    exactly what they read before. `exits.deadline_liquidation_due` fires only ON
+    that date, so a deadline in the past is inert rather than a daily 10:45
+    liquidation -- which is what it silently was until 2026-09-05.
+    """
+    return (os.getenv("AAT_MANDATE_END_UTC") or "").strip() or COMPETITION["deadline_utc"]

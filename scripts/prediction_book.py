@@ -62,6 +62,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from alpha import config, drivers, murat_rule
+from alpha import contract as contract_mod
 from alpha import tracker as _tracker
 from alpha import exits as _exits
 from alpha.sources import corpus, features
@@ -663,8 +664,60 @@ def generator_stamp(pred: dict | None) -> dict:
     }
 
 
+def _equity_basis(book: str) -> tuple[float, str]:
+    """The dollars a risk budget is expressed against, and where that came from.
+
+    The seal is equity-agnostic by design -- weights are fractions -- but a
+    contract's `risk_budget_usd` has to be a number of dollars or it cannot be
+    compared with an expected edge in dollars, which is the whole point of the
+    2026-09-05 guard. The genesis file is the right basis: it is the frozen
+    starting equity of THIS role, it is already tamper-evident, and it does not
+    move under the book while the book is being graded.
+    """
+    from pathlib import Path
+
+    for path in (Path(f"state/genesis_{book}.json"), ROOT / "state" / f"genesis_{book}.json"):
+        try:
+            eq = float(json.loads(path.read_text(encoding="utf-8")).get("starting_equity") or 0.0)
+        except (OSError, ValueError, AttributeError):
+            continue
+        if eq > 0:
+            return eq, f"genesis_{book}.json starting_equity"
+    eq = float(config.COMPETITION["required_starting_equity"])
+    return eq, ("NO genesis file for this role: fell back to the declared starting equity "
+                f"{eq:,.0f}. The budget is a RATIO of that, so a book whose real equity has "
+                "drifted carries a proportionally wrong dollar figure -- stated, not hidden.")
+
+
+def _contract_block(p, port: dict, wc: dict, *, day: str) -> dict:
+    """The strategy contract this book seals for today (`alpha/contract.py`).
+
+    WHY IT IS IN THE SEAL AND NOT IN A SIDE FILE
+    ============================================
+    Because it must be inside `content_sha256`. A contract that can be edited
+    after the book traded grades nothing -- the same argument that put the
+    holdings here. `alpha/exits.py` reads it back off the ENTRY LEDGER ROW, so
+    the terms that govern a live position are the terms that were sealed when
+    it opened, and a re-seal cannot re-write the deal on a position already on.
+    """
+    equity_basis, basis_note = _equity_basis(p.book)
+    stop = float(wc.get("stop_fraction") or 0.0) if wc.get("determinable") else 0.0
+    per_name = float(port.get("max_notional_each") or 0.0)
+    k = contract_mod.for_book(
+        p.book, day=day,
+        risk_budget_usd=max(0.01, per_name * stop * equity_basis),
+        profile=wc.get("profile"))
+    out = k.as_dict()
+    out["risk_budget_frac_of_equity"] = round(per_name * stop, 6)
+    out["risk_budget_basis"] = basis_note
+    out["equity_basis_usd"] = equity_basis
+    out["stop_fraction"] = stop or None
+    return out
+
+
 def _portfolio_block(port: dict, p, driver_of: dict[str, str],
-                     verdicts: dict[str, dict] | None = None) -> dict:
+                     verdicts: dict[str, dict] | None = None,
+                     day: str | None = None) -> dict:
     """One book's sealed block from an already-built portfolio (§1a, brief g).
 
     Three derived fields beyond the holdings, so the seal answers "is this one
@@ -702,8 +755,21 @@ def _portfolio_block(port: dict, p, driver_of: dict[str, str],
         wc["determinable"] = True
     except (Exception, SystemExit) as exc:  # _limits_for REFUSES via SystemExit
         wc = {"determinable": False, "reason": f"{type(exc).__name__}: {exc}"}
+    # THE CONTRACT, and then the same fields ON EVERY HOLDING (2026-09-05).
+    #
+    # Duplicated deliberately. `exits.py` judges ONE position at a time and gets
+    # its contract from that position's own entry row; a reader auditing why a
+    # name was held for eleven sessions should not have to join back to a block
+    # header to find out what it promised. The stamp is a copy of the block's
+    # contract, written after `build_portfolio` returned, and it cannot change
+    # which names are here or at what weight.
+    contract = _contract_block(p, port, wc, day=day or _exits.session_day())
+    _stamp = {k: contract[k] for k in contract_mod.REQUIRED_FIELDS}
+    for h in holdings:
+        h.update(_stamp)
     return {
         "book": p.book, "personality": p.name, "ranking": p.rank,
+        "contract": contract,
         "k_target": port["k_target"], "n_selected": port["n_selected"],
         "max_notional_each": port["max_notional_each"],
         "rank_distinct_values": port["rank_distinct_values"],
@@ -799,7 +865,7 @@ def _build_from_tracker(*, now: datetime, seal_utc: str, day: str) -> dict:
     portfolios = {}
     for p in _tracker.PERSONALITIES:
         portfolios[p.book] = _portfolio_block(_tracker.build_portfolio(cands, p),
-                                              p, driver_of, _pred_by_symbol)
+                                              p, driver_of, _pred_by_symbol, day=day)
 
     payload = {
         "schema": "prediction-book-3",
@@ -1026,7 +1092,41 @@ def build(*, now: datetime | None = None, universe: list[str] | None = None,
     return payload
 
 
+def check_contracts(book: dict) -> list[str]:
+    """Every contract problem in this book, as prose. Empty list = sealable.
+
+    A BOOK WITHOUT A CONTRACT MAY NOT BE SEALED (2026-09-05)
+    =======================================================
+    The `PRODUCT_EXPERIMENT` licence drops the significance gate, the MDE and
+    the preregistration. What it does not drop is a frozen strategy contract
+    BEFORE the first decision. Until tonight that was true of the two accounts
+    `scripts/contract.py` froze by hand and of nothing else: the tracker books
+    sealed holdings with no declared horizon, no minimum hold and no risk
+    budget, and `exits.py` filled the gap with a -3%/+2.5% rule nobody chose.
+
+    Checked here, at the seal, because that is the last moment before the book
+    becomes tradable and the first moment every number exists.
+    """
+    bad: list[str] = []
+    for name, port in sorted((book.get("portfolios") or {}).items()):
+        bad += contract_mod.validate(port.get("contract"), where=f"portfolios[{name}].contract")
+        missing = [h.get("symbol") for h in (port.get("holdings") or [])
+                   if any(h.get(f) is None for f in contract_mod.REQUIRED_FIELDS)]
+        if missing:
+            bad.append(f"portfolios[{name}]: {len(missing)} holding(s) carry no contract stamp "
+                       f"({', '.join(str(s) for s in missing[:5])}"
+                       f"{'...' if len(missing) > 5 else ''}).")
+    return bad
+
+
 def seal(book: dict) -> Path:
+    bad = check_contracts(book)
+    if bad:
+        raise contract_mod.ContractRefusal(
+            "REFUSING TO SEAL: this book's portfolios do not carry a usable strategy contract, "
+            "and a book that trades without one has no declared horizon, no minimum hold and no "
+            "risk budget -- which is how 60% of the fleet's round trips finished in the session "
+            "they opened. Problems:\n  - " + "\n  - ".join(bad))
     BOOKS.mkdir(parents=True, exist_ok=True)
     path = BOOKS / f"{book['day']}.json"
     if path.exists():

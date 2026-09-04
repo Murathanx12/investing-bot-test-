@@ -144,18 +144,24 @@ ledger.record(ledger.Decision(
     signal_shape=None, instrument="forecast", thesis="", predicted_move=0.0, predicted_sd=0.03, implied_move=None,
     breakeven_move=None, mdm_edge=None, quote_snapshot={}, action="forecast", refusal_reason=None, risk_fraction=0.0,
     max_loss_usd=0.0, order=None, outcome={"horizon_days": 3.0, "evidence": {}}), name="forecasts")
+#: THE DEADLINE MUST BE RELATIVE TOO (2026-09-05). This block runs against the
+#: REAL clock, and the deadline was hard-coded to the contest date -- so from
+#: 10:45 ET on 2026-09-04 the deadline verdict (urgency "immediate") outranked
+#: the arbiter override and this suite failed with no code change, exactly the
+#: failure the comment thirty lines above warns about for the event date.
+_FUTURE_DEADLINE = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat().replace("+00:00", "Z")
 os.environ["AAT_ACCOUNT_ROLE"] = "dev"
 os.environ["AAT_ARBITER"] = "advise"
 exits.ARBITER_RECORD_EVERY_S = 0.0
 exits.datetime = datetime  # ensure the module clock is the real one
-s = exits.manage(FakeClient(), deadline_utc="2026-09-04T15:00:00Z", dry_run=False)
+s = exits.manage(FakeClient(), deadline_utc=_FUTURE_DEADLINE, dry_run=False)
 rows = ledger.read_all()
 arb = [r for r in rows if r["brain"] == "arbiter"]
 check("advise: the arbiter wrote a verdict row", arb and arb[-1]["action"] == "arbiter_hold", arb[-1]["action"] if arb else "none")
 check("advise: the leg stop still fired on the short leg (-167% of credit)", f"NVDA{EXP}C00222500" in closed, str(closed))
 closed.clear()
 os.environ["AAT_ARBITER"] = "act"
-s = exits.manage(FakeClient(), deadline_utc="2026-09-04T15:00:00Z", dry_run=False)
+s = exits.manage(FakeClient(), deadline_utc=_FUTURE_DEADLINE, dry_run=False)
 check("act: event pending -> the leg stop is overridden, nothing closed", not closed and any(a[0] == "override_hold" for a in s["actions"]), str(closed))
 os.environ["AAT_ARBITER"] = "advise"
 del os.environ["AAT_ACCOUNT_ROLE"]

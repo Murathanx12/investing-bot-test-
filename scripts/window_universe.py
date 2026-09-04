@@ -192,8 +192,11 @@ def main() -> int:
 
     kickoff = datetime.fromisoformat(
         config.COMPETITION["kickoff_utc"].replace("Z", "+00:00")).date()
+    # The MANDATE's end, not the hackathon's: with the contest deadline in the
+    # past every print would be TOO_LATE and the window universe would be empty
+    # -- a silent starvation of exactly the books that trade events.
     deadline = datetime.fromisoformat(
-        config.COMPETITION["deadline_utc"].replace("Z", "+00:00")).date()
+        config.deadline_utc().replace("Z", "+00:00")).date()
 
     rows = plan(kickoff=kickoff, deadline=deadline)
     print(f"WINDOW UNIVERSE  kickoff {kickoff}  deadline {deadline} "

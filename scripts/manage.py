@@ -42,7 +42,7 @@ def main() -> int:
                  et.strftime("%Y-%m-%d %H:%M"), exits.LIQUIDATE_BY_ET.strftime("%H:%M"))
 
     summary = exits.manage(
-        client, deadline_utc=config.COMPETITION["deadline_utc"], dry_run=not args.live
+        client, deadline_utc=config.deadline_utc(), dry_run=not args.live
     )
     ok, msg = ledger.verify_chain()
     logging.info("checked=%d closed=%d held=%d errors=%d | ledger: %s",

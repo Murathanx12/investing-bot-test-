@@ -271,7 +271,9 @@ check("stop -3% -> close", exits.evaluate({**base, "unrealized_plpc": "-0.031"},
 check("target +2.5% -> close", exits.evaluate({**base, "unrealized_plpc": "0.026"}, deadline_utc=dl, now=now, rows=rows).close)
 last_day_late = datetime(2026, 8, 31, 19, 50, tzinfo=timezone.utc)   # Mon 15:50 ET, session 2 of 2
 v_h = exits.evaluate(base, deadline_utc=dl, now=last_day_late, rows=rows)
-check("last session past 15:45 ET -> horizon spent, close", v_h.close and "drift window spent" in v_h.reason, v_h.reason[:80])
+check("last session past 15:45 ET -> horizon spent, close",
+      v_h.close and v_h.code in ("HORIZON_SPENT", "EXPLICIT_EVENT_STRATEGY_EXIT"),
+      f"{v_h.code}: {v_h.reason[:80]}")
 last_day_early = datetime(2026, 8, 31, 14, 0, tzinfo=timezone.utc)   # Mon 10:00 ET
 check("last session, morning -> still holding", not exits.evaluate(base, deadline_utc=dl, now=last_day_early, rows=rows).close)
 check("orphan shares with no row -> flattened", exits.evaluate(base, deadline_utc=dl, now=now, rows=[]).close)

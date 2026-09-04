@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
+from datetime import date, timedelta
 from pathlib import Path
 
 SEED_DIR = Path(__file__).resolve().parent.parent / "docs" / "seed"
@@ -71,6 +72,22 @@ class Mandate:
     of the risk a book may take, not whether the loop may originate it, and
     conflating the two would silently disarm any future SAFE book that is meant
     to trade."""
+    allow_short: bool = False
+    """May this book open a SHORT side at all (shares or short premium)?
+
+    `tier` WAS DECLARATIVE ONLY, AND IT COST $725 (2026-09-03/04).
+    `Mandate.tier` was read nowhere outside this module's own table-printing,
+    so a SAFE anchor book opened five unhedged PANW shorts -- a structure whose
+    theoretical loss is unbounded -- by OMISSION rather than by design, and the
+    only enforcement anywhere in the repo was a test asserting SAFE roles do not
+    run a gated profile. `alpha/admission.py` now refuses a short-side structure
+    on a book that has not declared this flag, and `may_short()` below is the
+    single place that answers the question.
+
+    Declared per role rather than inferred from `tier`, for the same reason
+    `manage_only` is: a future SAFE book that is MEANT to run a hedged short
+    should say so in one line rather than be silently disarmed by its tier.
+    """
     caveat: str = ""
     extra_args: tuple[str, ...] = ()
     env: dict = field(default_factory=dict)
@@ -155,7 +172,17 @@ COMMON_ENV = {
     "AAT_OPTIONS_FEED": "indicative",
     "AAT_STOCK_FEED": "iex",
     "AAT_LEDGER_DIR": "/app/state",
-    "AAT_LOOP_EXPIRY": "2026-09-04",
+    #: THE MANDATE END, and the fleet's dated liquidation (`config.deadline_utc`).
+    #: Moved out from the hackathon deadline on 2026-09-05: judging closed on
+    #: 09-04 and the books keep trading, so a 09-04 deadline would have been a
+    #: 10:45 ET liquidation every morning for ever (`exits.deadline_liquidation_due`).
+    #: A future contest sets this back to the contest date -- one variable.
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z",
+    #: Fallback only. `expiry_for(m)` decides per role: a share-only book has no
+    #: option to expire and takes the mandate end; an options book takes the
+    #: next monthly expiry at least two weeks out, DERIVED from today so it
+    #: cannot go stale in the file the way a hardcoded date does.
+    "AAT_LOOP_EXPIRY": "2027-12-31",
 }
 SECRETS = ("AAT_DEEPSEEK_API_KEY", "AAT_FINNHUB_API_KEY", "AAT_FRED_API_KEY", "AAT_NVIDIA_API_KEY", "AAT_HF_TOKEN")
 
@@ -240,6 +267,7 @@ def env_for(m: Mandate) -> dict[str, str]:
         e["AAT_STRUCTURE_KINDS"] = ",".join(m.structure_kinds)
     if m.allow_maximum:
         e["AAT_ALLOW_MAXIMUM"] = "1"
+    e["AAT_LOOP_EXPIRY"] = expiry_for(m)
     rest = loop_args(m)
     # the brains/shadow/profile are carried by their own variables; the remainder is AAT_LOOP_ARGS
     tail = []
@@ -255,6 +283,43 @@ def env_for(m: Mandate) -> dict[str, str]:
     e["AAT_LOOP_ARGS"] = " ".join(tail)
     e.update(m.env)
     return e
+
+
+def may_short(role: str | None) -> bool:
+    """May this role open a short-side structure? Unknown role -> NO.
+
+    An unknown role is refused rather than permitted: the fleet is six declared
+    books, and a process whose `AAT_ACCOUNT_ROLE` does not name one of them has
+    no mandate at all, let alone a mandate to be short.
+    """
+    m = FLEET.get((role or "").strip().lower())
+    return bool(m and m.allow_short)
+
+
+def expiry_for(m: Mandate, *, today: date | None = None) -> str:
+    """The `--expiry` this mandate runs with (YYYY-MM-DD).
+
+    A SHARE-ONLY book has no option to expire, and its horizon now comes from
+    its strategy contract rather than from this flag (`alpha/contract.py`), so
+    it takes the mandate end. An options book takes the next monthly expiry at
+    least fourteen days out -- DERIVED from the date this is called on, because
+    a literal expiry in a config file is correct until the day it passes and
+    then silently wrong (CLAUDE.md, the fixture lesson).
+    """
+    if m.structure_kinds and all(k.endswith("_shares") for k in m.structure_kinds):
+        return COMMON_ENV["AAT_LOOP_EXPIRY"]
+    d = (today or date.today()) + timedelta(days=14)
+    #: third Friday of d's month, or of the next month when that is already past
+    for month_offset in (0, 1, 2):
+        y, mo = divmod((d.month - 1) + month_offset, 12)
+        first = date(d.year + y, mo + 1, 1)
+        fridays = [first + timedelta(days=i) for i in range(31)
+                   if (first + timedelta(days=i)).month == first.month
+                   and (first + timedelta(days=i)).weekday() == 4]
+        third = fridays[2]
+        if third >= d:
+            return third.isoformat()
+    return d.isoformat()
 
 
 def env_template() -> str:

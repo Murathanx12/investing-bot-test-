@@ -58,6 +58,7 @@ from datetime import datetime, timedelta, timezone
 from alpha import admission
 from alpha import book as book_mod
 from alpha import claims, concentration, config, crossbook, daybreak, drivers, entry_open, ledger, recovery, refusal_classes, refuted
+from alpha import fleet as _fleet
 from alpha.brains import tracker_portfolio as _tracker_portfolio
 from alpha.brains.base import Forecast
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
@@ -68,7 +69,10 @@ from alpha.engine import equity as equity_mod
 logger = logging.getLogger(__name__)
 
 KICKOFF = datetime.fromisoformat(config.COMPETITION["kickoff_utc"].replace("Z", "+00:00"))
-DEADLINE = datetime.fromisoformat(config.COMPETITION["deadline_utc"].replace("Z", "+00:00"))
+#: The dated liquidation in force (`config.deadline_utc`): the competition
+#: deadline unless `AAT_MANDATE_END_UTC` names a later mandate end. Read at
+#: import, as every Railway service sets its variables before the process starts.
+DEADLINE = datetime.fromisoformat(config.deadline_utc().replace("Z", "+00:00"))
 
 #: How far past the judging deadline an expiry may sit. 0.0 = it may not.
 #:
@@ -116,6 +120,26 @@ def check_expiry_against_deadline(expiry: str, *, slack_days: float = MAX_EXPIRY
 #: Printed in the refusal above. Kept as text so this module does not import
 #: `exits` (which imports the broker) merely to format a message.
 LIQUIDATE_BY_ET_TEXT = "10:45"
+
+def _edge_floor_for_role() -> float | None:
+    """This book's declared edge:stop floor, or None where it is recorded only.
+
+    Read from `alpha/contract.py` rather than from a constant here, so the one
+    place a book's terms are written is the place that answers this.
+    """
+    from alpha import contract as _contract
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower()
+    return _contract.defaults_for(role).get("min_edge_over_stop") if role else None
+
+
+#: THE EDGE MUST BE WORTH THE STOP (2026-09-05). An order whose expected edge in
+#: dollars is less than this multiple of its own stop is refused before any
+#: question about the signal is asked. The five PANW shorts of 2026-09-03/04
+#: carried $92-128 of edge against a $700+ stop -- 1:8 against -- and every risk
+#: gate in this file passed them, because none of them compared those two
+#: numbers. 3:1 is the floor Fable proposed and Murat approved on 2026-09-05;
+#: it is a MANDATE constant, not a measured one, and it is stated as such.
+MIN_EDGE_OVER_STOP = 3.0
 
 #: EVENT CLUSTER RISK. NVDA, AVGO and SMH structures that all exist because of
 #: one NVDA print are ONE bet wearing three tickers. Position risk is capped per
@@ -1136,6 +1160,25 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     except Exception as exc:                                            # noqa: BLE001
         stopped = set()
         logger.warning("stopped_today unreadable (%s); re-entry guard is OFF this pass", exc)
+    # EVERY EXIT, NOT ONLY THE ONES THE VENUE STOPPED (2026-09-05).
+    #
+    # `stopped_today` reads the venue's CLOSED ORDERS, which sees a protective
+    # stop that filled and does NOT see a position `exits.manage` closed with a
+    # `close_position` DELETE -- the ordinary path for a horizon exit, a target
+    # and a deadline. So the guard covered one exit route out of four, and the
+    # loop could re-buy at 10:35 a name it had itself sold at 10:31. Union with
+    # today's own ledger closes the gap, and it is the LEDGER rather than the
+    # venue because that is the record we control and the one the counterfactual
+    # grades against.
+    try:
+        exited = exits_closed_today(rows_today=None)
+        if exited:
+            logger.info("re-entry guard: %d name(s) already exited today by this book (%s)",
+                        len(exited), ", ".join(sorted(exited)[:8]))
+        stopped = set(stopped) | exited
+    except Exception as exc:                                            # noqa: BLE001
+        logger.warning("today's exits unreadable (%s); the re-entry guard sees venue stops only",
+                       exc)
     for symbol, group in by_symbol.items():
         if symbol in stopped and symbol not in held:
             # A stop that fired is the book's most recent OPINION on this name;
@@ -1427,6 +1470,20 @@ def _execute(client, result: PassResult, decision_id: str, forecast: Forecast,
             gross_usd=(gross or {}).get("usd"),
             add_notional_usd=add_notional,
             committed_notional_usd=float((gross or {}).get("committed") or 0.0),
+            # THE TWO NUMBERS THE BOOK ALREADY HELD AND NEVER COMPARED.
+            # `mdm_edge x committed max loss` is the dollar expectation the
+            # sizer thought it had (the same expression `alpha/fills.py` audits
+            # after the fact); the stop is the profile width on this order's
+            # notional. Both exist here; nothing had put them side by side.
+            # The CLAIMED MOVE in dollars against the STOP in dollars -- the
+            # finding's own arithmetic: PANW 48 x $328.90 x 0.72% = $114 of
+            # claimed move against 3% x $15,787 = $474 of stop. Both numbers
+            # exist on every order and nothing had compared them.
+            expected_edge_usd=abs(float(forecast.centre or 0.0)) * abs(add_notional),
+            stop_loss_usd=abs(add_notional) * equity_mod.stop_fraction(risk_profile),
+            min_edge_over_stop=_edge_floor_for_role(),
+            is_naked_short=(structure.kind == "short_shares"),
+            may_short=_fleet.may_short(os.getenv("AAT_ACCOUNT_ROLE")),
             **_driver_args(gross, forecast.symbol, risk_profile))
         verdict = replace(verdict, economics={**(verdict.economics or {}), "admission": adm.metrics})
         if not adm.ok:
@@ -1688,6 +1745,104 @@ def _expiry_of_legs(structure: sizing.Structure) -> str:
     return _decode_occ(structure.legs[0][0])[2]
 
 
+def exits_closed_today(*, rows_today=None, role: str | None = None,
+                       now: datetime | None = None) -> set[str]:
+    """Symbols this account CLOSED today (ET) through the exit pass.
+
+    Reads the ledger rather than the venue: `brain == "exit"` and
+    `action == "closed"`, this account's role, this ET session. The venue-side
+    companion is `protect.stopped_today`, which sees only filled protective
+    stops; the union of the two is every way a name can have left the book
+    today, and re-buying a name we sold ninety seconds ago is churn with a fee
+    whichever route it left by.
+    """
+    from alpha import exits as _exits_mod
+
+    day = _exits_mod.session_day(now)
+    r = (role or os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower()) or None
+    rows = rows_today if rows_today is not None else ledger.read_all()
+    out: set[str] = set()
+    for row in rows:
+        if row.get("brain") != "exit" or row.get("action") != "closed":
+            continue
+        if row.get("account_role") not in (r, None):
+            continue
+        ts = _parse_ts(row.get("ts_utc"))
+        # An undated row is SKIPPED, not assumed to be today: `session_day(None)`
+        # means "now", so treating an unparseable timestamp as today's would let
+        # one corrupt row block a symbol from re-entry for ever.
+        if ts is None or _exits_mod.session_day(ts) != day:
+            continue
+        sym = str(row.get("symbol") or "")
+        if sym:
+            out.add(sym)
+    return out
+
+
+def _parse_ts(ts: str | None) -> datetime | None:
+    try:
+        t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def contract_for(forecast: Forecast, structure, contracts: int) -> dict:
+    """The strategy contract this decision is taken under, for the ledger row.
+
+    THE ENTRY ROW IS WHERE `exits.py` READS IT BACK. A contract stored only in
+    today's seal would let tomorrow's re-seal silently re-write the terms of a
+    position already open; a contract on the row travels with the position and
+    is frozen the moment the order is written.
+
+    Order: the SEALED contract for this book when the sealed selector chose the
+    name (the terms the book published), otherwise this role's declared default
+    (`alpha/contract.py`). `risk_budget_usd` is overwritten in both cases with
+    THIS order's actual committed risk, which is the number a later edge-vs-stop
+    audit has to compare against -- the seal's version is a per-name estimate
+    against a frozen equity, and the order's is what was really put up.
+    """
+    from alpha import contract as contract_mod
+
+    role = os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None
+    risk = float(structure.max_loss * contracts) if (structure and contracts) else 0.0
+    sealed = None
+    if forecast.brain == _tracker_portfolio.BRAIN:
+        try:
+            h = (_tracker_portfolio.sealed_holdings().get("holdings") or {}).get(forecast.symbol)
+            if isinstance(h, dict) and not contract_mod.validate(
+                    {f: h.get(f) for f in contract_mod.REQUIRED_FIELDS}):
+                sealed = {f: h.get(f) for f in contract_mod.REQUIRED_FIELDS}
+                sealed["book"] = role
+        except Exception as exc:                                        # noqa: BLE001
+            logger.debug("no sealed contract for %s (%s); falling back to the role default",
+                         forecast.symbol, exc)
+    if sealed is not None:
+        if risk > 0:
+            sealed["risk_budget_usd"] = round(risk, 2)
+        sealed["source"] = "sealed_book"
+        return sealed
+    from alpha import exits as _exits_mod
+    # AN EVENT BOOK'S HORIZON IS THE FORECAST'S HORIZON. For the tracker books
+    # the contract horizon is a DECLARED property of the thesis (21 sessions)
+    # and the forecast is scaled to it; for an event book the thesis IS "+1..+N
+    # sessions after this print", so the number the brain just forecast is the
+    # honest term of the contract. Only when the brain declares nothing does the
+    # role default apply.
+    horizon = None
+    if role not in contract_mod.TRACKER_BOOKS:
+        try:
+            h = float(forecast.horizon_days or 0.0)
+            horizon = int(math.ceil(h)) if h >= 1 else None
+        except (TypeError, ValueError):
+            horizon = None
+    k = contract_mod.for_book(role or "", day=_exits_mod.session_day(),
+                              risk_budget_usd=max(0.01, risk),
+                              profile=os.getenv("AAT_RISK_PROFILE") or None,
+                              expected_horizon_sessions=horizon)
+    return k.as_dict()
+
+
 def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             state: sizing.TournamentState, *, action: str, reason: str,
             order: dict | None = None, contracts: int = 0,
@@ -1740,6 +1895,10 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
             "event_node": event_node(forecast),
             "economics": verdict.economics if verdict else None,
             "horizon_days": forecast.horizon_days,
+            # THE CONTRACT THIS POSITION IS HELD UNDER (2026-09-05). `exits.py`
+            # reads it back off this row, so the terms that govern a live
+            # position are the terms that were frozen when it opened.
+            "contract": contract_for(forecast, structure, contracts),
             # So a later reader -- the arbiter, the counterfactual -- can tell
             # WHICH width this row was gated at without re-deriving it.
             "claim": forecast.claim,

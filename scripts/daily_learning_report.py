@@ -310,6 +310,75 @@ def refusal_day_summary(rows: list[dict], day: str) -> dict:
 # (d) SHADOW
 # ---------------------------------------------------------------------------
 
+def holding_discipline(rows: list[dict], day: str) -> dict:
+    """Did the books HOLD, and when they did not, under which typed reason.
+
+    THE QUESTION THAT TOOK A MONTH TO ASK (S39, 2026-09-04)
+    ======================================================
+    60% of this fleet's round trips finished in the session they opened, on
+    books whose sealed thesis is a 21-session drift. Nothing in any report said
+    so: exits carried PROSE, and prose does not aggregate. `ExitVerdict.code`
+    now writes one of `alpha.contract.EXIT_REASONS` onto every exit row, and
+    this section is the `group by` that makes the churn visible the morning
+    after rather than the month after.
+
+    Read it as: HORIZON_SPENT and PROFIT_TARGET are the book working. Anything
+    else in quantity is the EXIT RULE trading, not the thesis.
+    """
+    from alpha import contract as _contract
+
+    by_reason: dict[str, int] = {}
+    untyped = 0
+    same_session = 0
+    exits_today = 0
+    entries = {}
+    for r in rows:
+        if r.get("action") == "submitted" and r.get("symbol"):
+            entries.setdefault(str(r["symbol"]), _et_date(r.get("ts_utc")))
+        if r.get("brain") != "exit" or r.get("action") != "closed":
+            continue
+        if _et_date(r.get("ts_utc")) != day:
+            continue
+        exits_today += 1
+        code = ((r.get("outcome") or {}).get("exit_reason") or "").strip()
+        if not code:
+            untyped += 1
+            code = "UNTYPED (row written before 2026-09-05)"
+        by_reason[code] = by_reason.get(code, 0) + 1
+        if entries.get(str(r.get("symbol"))) == day:
+            same_session += 1
+    if not exits_today:
+        return {"status": "ok", "n_exits": 0,
+                "reading": "no exits today -- with entries armed, that is a book holding."}
+    return {
+        "status": "ok",
+        "n_exits": exits_today,
+        "same_session_round_trips": same_session,
+        "same_session_pct": round(100.0 * same_session / exits_today, 1),
+        "by_reason": dict(sorted(by_reason.items(), key=lambda kv: -kv[1])),
+        "untyped": untyped,
+        "enum": list(_contract.EXIT_REASONS),
+        "reading": ("HORIZON_SPENT / PROFIT_TARGET = the thesis finishing. HARD_RISK_LIMIT in "
+                    "quantity = the stop is inside the noise. Anything closing before a book's "
+                    "`min_normal_hold_sessions` should be a typed emergency and rare; if it is "
+                    "not, the exit rule is the strategy."),
+    }
+
+
+def entry_authority_rows(roles: list[str]) -> dict:
+    """Armed or disarmed, per role, and the BINDING constraint. Shared with
+    `scripts/utilization.py` so the two pages cannot disagree about it."""
+    from scripts.utilization import entry_authority
+
+    out = {}
+    for role in roles:
+        try:
+            out[role] = entry_authority(role)
+        except Exception as exc:                                  # noqa: BLE001
+            out[role] = {"role": role, "armed": None, "binding": f"CANNOT DETERMINE: {exc}"}
+    return out
+
+
 def shadow_dir() -> Path:
     """Where the finance repo's `learner/shadow.py` writes its day files.
     Its own OUT_DIR is `<finance repo>/backend/data/optimus/learner`; the two
@@ -403,6 +472,24 @@ def write_receipt(report: dict) -> Path:
 # ---------------------------------------------------------------------------
 # Live assembly (everything above is pure and offline-testable)
 # ---------------------------------------------------------------------------
+
+def _load_decision_rows() -> list[dict]:
+    """The decisions ledger, read as JSONL. The hash chain has been torn since
+    25 Aug and is REPORTED, not repaired (see LEDGER_TEAR_FACT); a torn chain
+    does not stop us counting exit reasons, it stops us claiming the count is
+    tamper-evident, and that distinction is the whole point of saying so."""
+    path = _state_dir() / "decisions.jsonl"
+    rows: list[dict] = []
+    if not path.exists():
+        return rows
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows
+
 
 def _load_counterfactual_rows() -> list[dict]:
     path = _state_dir() / "counterfactual.jsonl"
@@ -518,6 +605,8 @@ def build_report(day: str | None = None) -> dict:
         "seal_sha256": (payload or {}).get("content_sha256"),
         "roles": roles_out,
         "refusal_regret": refusal_day_summary(_load_counterfactual_rows(), day),
+        "holding_discipline": holding_discipline(_load_decision_rows(), day),
+        "entry_authority": entry_authority_rows(list(ROLES)),
         "shadow": shadow_section(shadow_dir() / f"shadow_book_{day}.json"),
         "watchlist": watchlist_events(tracker_symbols(day),
                                       tracker_symbols(p) if p else None, day, p),
@@ -600,6 +689,27 @@ def render(report: dict) -> str:
                      f"{b['saved_usd']:>9,.0f}{b['cost_usd']:>9,.0f}  "
                      f"{', '.join(b['symbols'][:4])}")
     L.append(f"    {LEDGER_TEAR_FACT}")
+
+    L.append("")
+    hd = report.get("holding_discipline") or {}
+    L.append("(c2) HOLDING DISCIPLINE  (did the books hold, and under which typed reason)")
+    if hd.get("n_exits"):
+        L.append(f"    {hd['n_exits']} exit(s); {hd['same_session_round_trips']} were opened the "
+                 f"SAME SESSION ({hd['same_session_pct']:.0f}%)")
+        for code, n in (hd.get("by_reason") or {}).items():
+            L.append(f"      {code:<34}{n:>4}")
+        if hd.get("untyped"):
+            L.append(f"    {hd['untyped']} row(s) carry no typed reason (written before 2026-09-05)")
+    else:
+        L.append(f"    {hd.get('reading', 'no exits')}")
+
+    L.append("")
+    L.append("(c3) ENTRY AUTHORITY  (may each book OPEN a position, and what stops it)")
+    for role, ea in (report.get("entry_authority") or {}).items():
+        state = "ARMED" if ea.get("armed") else ("DISARMED" if ea.get("armed") is False else CANNOT)
+        L.append(f"    {role:<7}{state:<10}{ea.get('binding') or 'nothing -- this book may enter'}")
+    L.append("    two disarms are RAILWAY VARIABLES, invisible from here: "
+             "`railway variables --service aat-loop-<role>`")
 
     L.append("")
     sh = report["shadow"]

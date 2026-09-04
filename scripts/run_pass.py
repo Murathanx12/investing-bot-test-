@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 
 from alpha import (brains, config, exits, genesis, human, ledger,
@@ -329,7 +330,7 @@ def main() -> int:
     # did not trade is visible in the ledger as a decision. An entry pass that
     # silently produced nothing reads exactly like a quiet market, and this repo
     # has paid twice for an absence that read as a decision.
-    _deadline_utc = config.COMPETITION["deadline_utc"]
+    _deadline_utc = config.deadline_utc()
     if not args.allow_entry_past_deadline and exits.deadline_liquidation_due(_deadline_utc):
         reason = (
             f"{refusal_classes.PAST_LIQUIDATION_DEADLINE}: past "
@@ -415,13 +416,33 @@ def main() -> int:
         return 2
     horizon = args.horizon
     if horizon is None:
-        from datetime import datetime, timezone
-        from alpha.engine.structures import _days as _sessions_to
+        # THE HORIZON COMES FROM THE BOOK, NOT FROM `--expiry` (2026-09-05).
+        #
+        # `--expiry` is an OPTION expiry that happened to double as the forecast
+        # horizon, so the tracker books -- which hold shares and have no option
+        # at all -- were asked for "however many sessions are left in the
+        # contest window". A 21-session revision thesis was forecast at 4
+        # sessions on the Monday and 1 on the Thursday, and the exit pass then
+        # closed on that same number. The strategy contract states the horizon
+        # (`alpha/contract.py`: 21 for the tracker books, 3 for the event
+        # books); `--horizon` still overrides, and the expiry-derived value
+        # remains the fallback for a process with no declared role.
+        from alpha import contract as _contract
+        role = (args.role or os.environ.get("AAT_ACCOUNT_ROLE") or "").strip().lower()
+        declared = _contract.defaults_for(role).get("expected_horizon_sessions") if role else None
+        if role and declared:
+            horizon = float(declared)
+            logging.info("horizon from the strategy contract for role %s: %.0f trading sessions",
+                         role, horizon)
+        else:
+            from datetime import datetime, timezone
+            from alpha.engine.structures import _days as _sessions_to
 
-        class _Now:                       # _days only reads .fetched_at
-            fetched_at = datetime.now(timezone.utc)
-        horizon = _sessions_to(_Now(), args.expiry)
-        logging.info("horizon derived from expiry %s: %.2f trading sessions", args.expiry, horizon)
+            class _Now:                   # _days only reads .fetched_at
+                fetched_at = datetime.now(timezone.utc)
+            horizon = _sessions_to(_Now(), args.expiry)
+            logging.info("no role declared, so the horizon falls back to the expiry %s: "
+                         "%.2f trading sessions", args.expiry, horizon)
     if horizon <= 0:
         logging.error("horizon resolved to %.2f sessions; refusing to forecast a zero-length window", horizon)
         return 2

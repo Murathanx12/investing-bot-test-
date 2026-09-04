@@ -34,6 +34,24 @@ Five reasons to close, checked in this order, most binding first:
 5. **THESIS INVALIDATION.** The forecast that opened the position no longer
    holds. Rare, and deliberately requires a real reversal rather than a wobble.
 
+AMENDED 2026-09-05: SHARES ARE CLOSED BY THEIR CONTRACT, NOT BY THIS LIST
+=========================================================================
+The five reasons above are the OPTION rules and they stand. A share position is
+now judged against the strategy contract its book sealed (`alpha/contract.py`):
+an expected horizon, a minimum normal hold, a thesis expiry, a risk budget and
+a typed list of reasons that may close it early. Before the minimum hold, only
+one of those typed reasons may close it -- and "the price moved 3%" is not one.
+
+The measurement that forced this: **60% of the fleet's round trips finished in
+the same session they opened**, on books whose sealed thesis is a 21-session
+revision drift (S39). Every number those books produced graded the exit rule.
+
+Two constants left with it. The flat 3% stop is replaced by the book's PROFILE
+width -- the same number `alpha/protect.py` places at the venue, so the exit
+pass no longer pre-empts the stop the position was sized against. The +2.5%
+profit target is now a per-contract field, and the tracker books declare NONE:
+collecting 2.5% of a 21-session thesis is collecting a day of noise.
+
 WHAT IS DELIBERATELY NOT HERE
 =============================
 A trailing stop. Over a five-session window with 1-4 day options, gamma makes
@@ -46,6 +64,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta, timezone
 
@@ -85,6 +104,12 @@ class ExitVerdict:
     close: bool
     reason: str
     urgency: str = "normal"      # "normal" | "immediate"
+    #: The TYPED reason, from `alpha.contract.EXIT_REASONS`. Prose is for a
+    #: human reading one row; this is for counting nine hundred of them. A book
+    #: that never held anything is diagnosed by `group by exit_reason`, not by
+    #: reading nine hundred sentences -- which is how "60% of round trips closed
+    #: in the same session" took until S39 to be noticed.
+    code: str = "HELD"
 
 
 def now_et() -> datetime:
@@ -112,10 +137,33 @@ def session_day(now: datetime | None = None) -> str:
 
 
 def deadline_liquidation_due(deadline_utc: str, *, now: datetime | None = None) -> bool:
-    """True once we are inside the final session and past `LIQUIDATE_BY_ET`."""
+    """True on the deadline's OWN ET date, past `LIQUIDATE_BY_ET`. Not after it.
+
+    THE PREDICATE IS `==`, NOT `>=`, AND THAT IS THE WHOLE POINT
+    ===========================================================
+    Until 2026-09-05 this read `current.date() < deadline.date() -> False`, so
+    from the deadline date ONWARDS it returned True at 10:45 ET every single
+    day, for ever. During the contest that was invisible: the deadline was in
+    the future and the loop was killed after it. It became live the moment
+    entries were re-armed on a fleet whose `AAT_LOOP_EXPIRY` had passed --
+    every book would have been liquidated at 10:45 each morning, and (with the
+    entry pass gated on this same predicate, `fd0c75b`) refused every entry for
+    the rest of the day. A book that is flattened daily cannot hold anything
+    for the ten sessions its contract now promises.
+
+    The cost of `==` is stated rather than hidden: if the loop is DOWN on the
+    deadline date, nothing liquidates and positions carry past it. That is
+    acceptable here and would not be for a contest -- the fleet's expiry is now
+    2027-12-31 (`alpha/fleet.py`), so this branch is a mandate end-date, not a
+    judging cut. A real contest re-arms the old behaviour by setting the expiry
+    to the contest date, which is exactly one variable.
+
+    Both sides are compared in ET. The old code compared a UTC date against an
+    ET date, which is a one-day error for four hours a day.
+    """
     deadline = datetime.fromisoformat(deadline_utc.replace("Z", "+00:00"))
     current = now or datetime.now(timezone.utc)
-    if current.date() < (deadline + ET_OFFSET).date():
+    if (current + ET_OFFSET).date() != (deadline + ET_OFFSET).date():
         return False
     return (current + ET_OFFSET).time() >= LIQUIDATE_BY_ET
 
@@ -170,34 +218,80 @@ def _entry_row_for_shares(symbol: str, rows: list[dict] | None) -> dict | None:
 
 def _evaluate_shares(position: dict, *, plpc: float, et: datetime,
                      rows: list[dict] | None) -> ExitVerdict:
-    from alpha.engine import equity
+    """Close this share position, and under which clause of its own contract.
+
+    THE ORDER IS THE CONTRACT'S ORDER, AND IT IS NOT THE OLD ONE
+    ===========================================================
+    Until 2026-09-05 this function closed at -3% or +2.5% before it had looked
+    at a single thing the book declared, and its "horizon" was the forecast's
+    `horizon_days` -- which for the tracker books was *sessions left in the
+    competition window*. Both are gone. What survives is the risk limit, at the
+    profile width the book was actually sized against, because a book that may
+    not stop out is not safer.
+
+    1. `HARD_RISK_LIMIT` -- the stop, always legal, at `contract.stop_fraction()`.
+    2. `EXECUTION_CORRECTION` -- we hold something no ledger row declared.
+    3. before `min_normal_hold_sessions`: HOLD. This is the whole fix.
+    4. `THESIS_EXPIRED` / `HORIZON_SPENT` / `PROFIT_TARGET` -- normal exits.
+    """
+    from alpha import contract as contract_mod
 
     symbol = position.get("symbol", "")
-    if equity.stop_hit(plpc):
-        return ExitVerdict(True, (
-            f"shares at {plpc:+.2%} against the declared {-equity.STOP_FRACTION:.0%} stop. "
-            "This is the number the book was charged at; past it the position is an "
-            "undeclared bet."))
-    if equity.target_hit(plpc):
-        return ExitVerdict(True, (
-            f"shares at {plpc:+.2%} against a +{equity.PROFIT_TARGET:.1%} target -- about twice "
-            "the measured three-day drift. Beyond it the tercile split says the move stops "
-            "continuing; collected."))
     row = _entry_row_for_shares(symbol, rows)
+    k = contract_mod.resolve(row, day=et.date().isoformat(),
+                             profile=os.environ.get("AAT_RISK_PROFILE") or None)
+    stop_frac = k.stop_fraction()
+    src = "" if k.source == "ledger" else f" [contract source: {k.source}]"
+
+    # 1. THE STOP. At the PROFILE width -- the number `alpha/protect.py` places
+    #    at the venue and the number the position was sized against. The flat 3%
+    #    this used to charge pre-empted an 8% venue stop on the basket books and
+    #    sat 0.52 sigma out on PANW (FINDING_2026-09-05 3a).
+    if plpc <= -stop_frac:
+        return ExitVerdict(True, (
+            f"HARD_RISK_LIMIT: shares at {plpc:+.2%} against the {stop_frac:.0%} stop declared for "
+            f"profile {k.profile or 'default'!r}. This is the width the position was sized at; past "
+            f"it the position is an undeclared bet.{src}"), code="HARD_RISK_LIMIT")
+
+    # 2. A position nothing declared. Not a thesis, so no hold protects it.
     if row is None:
         return ExitVerdict(True, (
-            "shares with NO ledger row in this account: nothing declared a horizon or a stop "
-            "for them. Flattened rather than carried as an unexplained position."))
-    horizon = float(((row.get("outcome") or {}).get("horizon_days")) or 1.0)
+            "EXECUTION_CORRECTION: shares with NO ledger row in this account -- nothing declared a "
+            "horizon, a stop or a contract for them. Flattened rather than carried as an "
+            "unexplained position."), code="EXECUTION_CORRECTION")
+
     elapsed = _sessions_since(row.get("ts_utc") or "", et.date())
-    last_session = elapsed >= math.ceil(horizon) - 1
-    if elapsed >= math.ceil(horizon) or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+    horizon = int(k.expected_horizon_sessions)
+    hold = int(k.min_normal_hold_sessions)
+
+    # 3. THE MINIMUM HOLD. Everything below this line is a NORMAL exit and is
+    #    illegal before it. The emergency reasons are all above.
+    if elapsed < hold:
+        return ExitVerdict(False, (
+            f"HELD under contract: session {elapsed + 1} of a {horizon}-session thesis, minimum "
+            f"normal hold {hold}. {plpc:+.2%} unrealised is inside the {stop_frac:.0%} stop, and a "
+            f"price wiggle is not one of {list(k.emergency_exit_reasons)}.{src}"), code="HELD")
+
+    # 4. NORMAL EXITS.
+    if k.expired(et.date()):
         return ExitVerdict(True, (
-            f"drift window spent: {elapsed} session(s) since entry against a {horizon:.0f}-session "
-            "horizon. The mechanism was measured over +1..+3 and has no opinion after that."))
+            f"THESIS_EXPIRED: past the declared thesis expiry {k.thesis_expiry} "
+            f"({elapsed} session(s) held). The idea is stale whether or not it moved.{src}"),
+            code="THESIS_EXPIRED")
+    if k.profit_target_frac is not None and plpc >= k.profit_target_frac:
+        return ExitVerdict(True, (
+            f"PROFIT_TARGET: shares at {plpc:+.2%} against this book's declared "
+            f"+{k.profit_target_frac:.1%}, after the {hold}-session minimum hold.{src}"),
+            code="PROFIT_TARGET")
+    last_session = elapsed >= horizon - 1
+    if elapsed >= horizon or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+        code = "EXPLICIT_EVENT_STRATEGY_EXIT" if hold == 0 else "HORIZON_SPENT"
+        return ExitVerdict(True, (
+            f"{code}: {elapsed} session(s) since entry against the contract's {horizon}-session "
+            f"horizon. The mechanism has no opinion after that.{src}"), code=code)
     return ExitVerdict(False, (
-        f"shares {plpc:+.2%}, session {elapsed + 1} of {math.ceil(horizon)} in the drift window, "
-        "inside stop and target. Holding."))
+        f"HELD: shares {plpc:+.2%}, session {elapsed + 1} of {horizon}, past the {hold}-session "
+        f"minimum hold, inside the {stop_frac:.0%} stop.{src}"), code="HELD")
 
 
 PAIR_KIND = "pair_short_vs_iwm"
@@ -271,33 +365,46 @@ def pair_plpc(pr: dict) -> float:
 
 
 def _evaluate_pair(pr: dict, *, et: datetime) -> ExitVerdict:
-    """Stop, target and horizon on the JOINT P&L; both legs leave together."""
-    from alpha.engine import equity
+    """Stop, target and horizon on the JOINT P&L, under the pair's own contract;
+    both legs leave together."""
+    from alpha import contract as contract_mod
 
     plpc = pair_plpc(pr)
     if pr["hedge_pos"] is None:
         return ExitVerdict(True, (
-            "pair with its HEDGE LEG GONE: an unhedged short is the structure this brain refuses "
-            "to hold (simple-return short is worth nothing). Flattening the short leg."), urgency="immediate")
-    if equity.stop_hit(plpc):
-        return ExitVerdict(True, (
-            f"pair at {plpc:+.2%} joint against the declared {-equity.STOP_FRACTION:.0%} stop. "
-            "This is the number the book was charged at; past it the position is an undeclared bet."))
-    if equity.target_hit(plpc):
-        return ExitVerdict(True, (
-            f"pair at {plpc:+.2%} joint against a +{equity.PROFIT_TARGET:.1%} target -- several times "
-            "the measured three-session hedged drift. Collected."))
+            "EXECUTION_CORRECTION: pair with its HEDGE LEG GONE. An unhedged short is the structure "
+            "this brain refuses to hold (simple-return short is worth nothing). Flattening the short "
+            "leg."), urgency="immediate", code="EXECUTION_CORRECTION")
     row = pr["row"]
-    horizon = float(((row.get("outcome") or {}).get("horizon_days")) or 1.0)
-    elapsed = _sessions_since(row.get("ts_utc") or "", et.date())
-    last_session = elapsed >= math.ceil(horizon) - 1
-    if elapsed >= math.ceil(horizon) or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+    k = contract_mod.resolve(row, day=et.date().isoformat(),
+                             profile=os.environ.get("AAT_RISK_PROFILE") or None)
+    stop_frac = k.stop_fraction()
+    src = "" if k.source == "ledger" else f" [contract source: {k.source}]"
+    if plpc <= -stop_frac:
         return ExitVerdict(True, (
-            f"drift window spent: {elapsed} session(s) since entry against a {horizon:.0f}-session "
-            "horizon. The pair was measured over +1..+3 and has no opinion after that."))
+            f"HARD_RISK_LIMIT: pair at {plpc:+.2%} joint against the {stop_frac:.0%} stop declared "
+            f"for profile {k.profile or 'default'!r}.{src}"), code="HARD_RISK_LIMIT")
+    elapsed = _sessions_since(row.get("ts_utc") or "", et.date())
+    horizon = int(k.expected_horizon_sessions)
+    hold = int(k.min_normal_hold_sessions)
+    if elapsed < hold:
+        return ExitVerdict(False, (
+            f"HELD under contract: pair {plpc:+.2%} joint, session {elapsed + 1} of {horizon}, "
+            f"minimum normal hold {hold}.{src}"), code="HELD")
+    if k.profit_target_frac is not None and plpc >= k.profit_target_frac:
+        return ExitVerdict(True, (
+            f"PROFIT_TARGET: pair at {plpc:+.2%} joint against this book's declared "
+            f"+{k.profit_target_frac:.1%}.{src}"), code="PROFIT_TARGET")
+    last_session = elapsed >= horizon - 1
+    if elapsed >= horizon or (last_session and et.time() >= SHARES_HORIZON_EXIT_ET):
+        code = "EXPLICIT_EVENT_STRATEGY_EXIT" if hold == 0 else "HORIZON_SPENT"
+        return ExitVerdict(True, (
+            f"{code}: {elapsed} session(s) since entry against the contract's {horizon}-session "
+            f"horizon. The pair was measured over that window and has no opinion after it.{src}"),
+            code=code)
     return ExitVerdict(False, (
-        f"pair {plpc:+.2%} joint, session {elapsed + 1} of {math.ceil(horizon)} in the drift window, "
-        "inside stop and target. Holding both legs."))
+        f"HELD: pair {plpc:+.2%} joint, session {elapsed + 1} of {horizon}, inside the "
+        f"{stop_frac:.0%} stop. Holding both legs.{src}"), code="HELD")
 
 
 def close_pair_hedge(client, pr: dict, reason: str, summary: dict, *, dry_run: bool,
@@ -351,22 +458,22 @@ def evaluate(position: dict, *, deadline_utc: str, now: datetime | None = None,
             f"deadline liquidation: past {LIQUIDATE_BY_ET.strftime('%H:%M')} ET on judging "
             "day. A position open at the cut is scored at whatever mark the venue carries, "
             "which for a wide option is not a price anyone would pay."
-        ), urgency="immediate")
+        ), urgency="immediate", code="DEADLINE")
 
     # 2. Never hold through an expiry.
     expiry = _expiry_of(symbol)
     if expiry is not None:
         days_left = (expiry - et.date()).days
         if days_left < 0:
-            return ExitVerdict(True, "contract has expired; flattening the residue.",
-                               urgency="immediate")
+            return ExitVerdict(True, "DEADLINE: the option contract has expired; flattening the "
+                               "residue.", urgency="immediate", code="DEADLINE")
         if days_left == 0 and et.time() >= CLOSE_BEFORE_EXPIRY_ET:
             return ExitVerdict(True, (
                 "expiry session and past "
                 f"{CLOSE_BEFORE_EXPIRY_ET.strftime('%H:%M')} ET. ITM contracts auto-exercise "
                 "at $0.01, which converts a small premium position into a large stock "
                 "position overnight with no decision taken."
-            ), urgency="immediate")
+            ), urgency="immediate", code="DEADLINE")
 
     if cost <= 0:
         return ExitVerdict(False, "no cost basis yet; nothing to judge against.")
@@ -540,11 +647,15 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
         pr = pair_by_short.get(symbol)
         verdict = evaluate(position, deadline_utc=deadline_utc, rows=rows, pair=pr)
         if symbol in arbiter_close and not verdict.close:
-            verdict = ExitVerdict(True, "arbiter CLOSE: remaining edge below the close cost (act mode)")
+            verdict = ExitVerdict(True, (
+                "THESIS_INVALIDATED: arbiter CLOSE -- the remaining edge is below the cost of "
+                "closing (act mode). A typed reason, so it may pre-empt a contract's minimum "
+                "hold; a price wiggle may not."), code="THESIS_INVALIDATED")
         elif verdict.close and verdict.urgency != "immediate" and leg_action.get(symbol) == "HOLD_EVENT_PENDING":
             logger.info("arbiter overrides leg stop on %s: event pending -- %s", symbol, verdict.reason[:80])
             summary["actions"].append(("override_hold", symbol, verdict.reason))
-            verdict = ExitVerdict(False, "arbiter HOLD: event pending; a pre-event mark is not the thesis")
+            verdict = ExitVerdict(False, "arbiter HOLD: event pending; a pre-event mark is not the thesis",
+                                  code="HELD")
         if not verdict.close:
             summary["held"] += 1
             logger.debug("hold %s: %s", symbol, verdict.reason)
@@ -583,7 +694,32 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
             summary["errors"] += 1
             summary["actions"].append(("error", symbol, str(exc)))
             logger.warning("close failed %s: %s", symbol, exc)
-            _record_exit(decision_id, position, verdict, action="close_failed", error=str(exc))
+            # A ONE-SIDED GUARD LEAVES THE POSITION NAKED (2026-09-05).
+            #
+            # The cancel above reasons carefully about *cancel fails => do not
+            # close*. Nothing said what to do when the CLOSE fails after the
+            # cancel succeeded, so the position carried on with no protective
+            # stop until the next pass placed one -- on 2026-09-04 that was a
+            # 76-minute unbounded short on hack2, and it contained the spike
+            # that would have filled the cancelled stop. It paid that once,
+            # which is exactly why it would never otherwise be found.
+            #
+            # Re-placing is best-effort and never masks the close failure: the
+            # error stands, the row still says `close_failed`, and the outcome
+            # of the re-place is recorded beside it.
+            replaced = "not attempted"
+            try:
+                res = protect.ensure(client, [position], dry_run=False, exclude_qty=reserved)
+                replaced = f"re-placed ({res.get('placed')} order(s))"
+                summary["actions"].append(("stop_replaced", symbol, replaced))
+                logger.info("re-placed the protective stop on %s after the close failed", symbol)
+            except (BrokerRefusal, Exception) as exc2:                   # noqa: BLE001
+                replaced = f"RE-PLACE FAILED: {type(exc2).__name__}: {exc2}"
+                summary["actions"].append(("stop_replace_failed", symbol, replaced))
+                logger.error("%s is UNPROTECTED: close failed and the stop could not be "
+                             "re-placed (%s)", symbol, exc2)
+            _record_exit(decision_id, position, verdict, action="close_failed",
+                         error=f"{exc}; protective stop {replaced}")
             continue
         if pr is not None:
             # BOTH LEGS LEAVE. The short is gone; its hedge follows by the
@@ -619,7 +755,7 @@ def _record_exit(decision_id: str, position: dict, verdict: ExitVerdict, *,
         risk_fraction=0.0,
         max_loss_usd=0.0,
         order=None,
-        outcome={"urgency": verdict.urgency},
+        outcome={"urgency": verdict.urgency, "exit_reason": verdict.code},
     ))
 
 
