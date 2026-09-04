@@ -129,6 +129,23 @@ python -m scripts.daily_learning_report        # section (c2) HOLDING DISCIPLINE
 (c2) prints the exit-reason census and the same-session round-trip percentage.
 A morning with zero exits and armed entries is a book holding a thesis.
 
+## 6b. One thing that will look like a bug and is not
+
+A **local** dry pass with the fleet's new expiry refuses:
+
+```
+REFUSED: expiry 2027-12-31 is after the mandate end 2026-09-04 ...
+```
+
+That is correct. The mandate end is the variable `AAT_MANDATE_END_UTC`, which
+`fleet --deploy` sets on every Railway service (2027-12-31) and which a bare
+local shell does not have — so the local default falls back to the old contest
+deadline. To reproduce the live configuration locally:
+
+```bash
+AAT_MANDATE_END_UTC=2027-12-31T15:00:00Z python -m scripts.run_pass --expiry 2027-12-31 --dry-run ...
+```
+
 ## 7. If something is wrong — how to stop, cleanly
 
 ```bash

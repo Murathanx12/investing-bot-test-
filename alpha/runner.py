@@ -110,11 +110,14 @@ def check_expiry_against_deadline(expiry: str, *, slack_days: float = MAX_EXPIRY
     latest = dl + timedelta(days=slack_days)
     if exp.date() > latest.date():
         raise ExpiryPastDeadline(
-            f"expiry {expiry} is after the judging deadline {dl.date()} "
-            f"(slack {slack_days:g}d). A structure that outlives the judged window has to be "
+            f"expiry {expiry} is after the mandate end {dl.date()} "
+            f"(slack {slack_days:g}d). A structure that outlives the mandate has to be "
             f"SOLD at {LIQUIDATE_BY_ET_TEXT} ET on the final morning, into whatever spread "
             "exists then, for a thesis that never got to complete. Choose an expiry inside "
-            "the window, or pass --allow-expiry-past-deadline and say why in the handoff.")
+            "the window, or pass --allow-expiry-past-deadline and say why in the handoff. "
+            "IF YOU ARE RUNNING LOCALLY and the fleet's expiry looks far away: the mandate "
+            "end is `AAT_MANDATE_END_UTC` (the Railway services carry 2027-12-31; a shell "
+            "without it falls back to the 2026-09-04 contest deadline, and refuses here).")
 
 
 #: Printed in the refusal above. Kept as text so this module does not import

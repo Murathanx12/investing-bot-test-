@@ -113,7 +113,10 @@ check("an expiry inside the window is allowed", expiry_ok("2026-08-28") is None)
 check("the deadline day itself is allowed", expiry_ok("2026-09-04") is None,
       "an option expiring the morning of judging is liquidated at 10:45, which is fine")
 check("one day past the deadline is REFUSED",
-      (r := expiry_ok("2026-09-05")) is not None and "after the judging deadline" in r, str(r))
+      # "the judging deadline" became "the mandate end" on 2026-09-05: the
+      # contest closed and the books keep trading, so the date this refuses
+      # against is now `AAT_MANDATE_END_UTC` and the message says so.
+      (r := expiry_ok("2026-09-05")) is not None and "after the mandate end" in r, str(r))
 check("  and the refusal says what it will COST, not merely that it is disallowed",
       r is not None and "10:45" in r and "spread exists" in r)
 check("  and it names the override rather than being absolute",
