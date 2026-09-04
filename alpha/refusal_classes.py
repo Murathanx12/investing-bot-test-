@@ -30,6 +30,14 @@ PATTERNS: tuple[tuple[str, str], ...] = (
     # inflated the biggest bucket in the table with rows of a different kind.
     # The wrapper is the class; the gate it quotes is the SUB-class.
     ("NO_STRUCTURE_CLEARED", r"structures enumerated at .* none cleared the gates"),
+    # -- THE SESSION IS OVER FOR NEW RISK -------------------------------------
+    # A refusal of the whole PASS, decided before any candidate exists. Matched
+    # on the LITERAL TOKEN the gate emits, not on its prose: `exits` writes
+    # "deadline liquidation: past 10:45 ET on judging day" on rows that CLOSE
+    # positions, and a prose pattern would re-label those historical exit rows
+    # as entry refusals -- rewriting finished tables to gain a label.
+    # SECOND, never first: NO_STRUCTURE_CLEARED owns position 0 (473 rows).
+    ("PAST_LIQUIDATION_DEADLINE", r"PAST_LIQUIDATION_DEADLINE"),
     # -- the 2026-08-29 Monday-safety gates -----------------------------------
     ("GROSS_NOTIONAL", r"^GROSS:|ADMISSION: GROSS:"),
     ("DRIVER_CONCENTRATION", r"^DRIVER:|ADMISSION: DRIVER:"),
@@ -81,6 +89,8 @@ BOOK_STATE_CLASSES = frozenset({
     "PER_NAME_CONCENTRATION", "TOMORROWS_OPTIONALITY", "THETA_BURN", "DELTA_STRESS",
     "DAILY_LOSS_LATCH", "AGGREGATE_RISK", "CAPITAL_ROUNDS_TO_ZERO", "ALREADY_HELD",
     "BOOK_UNBOUNDED", "EVENT_NODE_CAP", "DRAWDOWN_UNKNOWN",
+    # The session, not the candidate: no idea was evaluated when this fired.
+    "PAST_LIQUIDATION_DEADLINE",
 })
 
 #: The ranker preferring a SIBLING structure on the same forecast, or preferring
@@ -192,10 +202,17 @@ TERMINAL_STATES: tuple[str, ...] = (
 OTHER_TYPED = "OTHER_TYPED"
 ADMITTED = "ADMITTED"
 
+#: The class the ENTRY pass writes once the exit pass is liquidating on sight.
+#: Named here so the gate and the classifier cannot drift apart by a typo.
+PAST_LIQUIDATION_DEADLINE = "PAST_LIQUIDATION_DEADLINE"
+
 #: Post-hoc class -> terminal state. The mapping is REUSED rather than
 #: reimplemented: two pattern tables for one vocabulary is how the tracker's
 #: `close` fix landed on one producer of two (L1-18).
 CLASS_TO_TERMINAL: dict[str, str] = {
+    # The pass had no authority to open risk at all -- a MANDATE limit on the
+    # session, not a judgement about any candidate.
+    "PAST_LIQUIDATION_DEADLINE": "MANDATE",
     "NO_STRUCTURE_CLEARED": "STRUCTURE",
     "GROSS_NOTIONAL": "GROSS",
     "DRIVER_CONCENTRATION": "CONCENTRATION",

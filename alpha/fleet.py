@@ -55,6 +55,22 @@ class Mandate:
     rank_objective: str | None = None   # None -> tournament mode decides; "mean" | "median"
     structure_kinds: tuple[str, ...] = ()   # () = every kind the engine enumerates
     allow_maximum: bool = False
+    manage_only: bool = False
+    """This book may NOT open positions from the loop: exits, stops, fills,
+    marking and the counterfactual continue, and the book can only get smaller.
+
+    A MANDATE THAT LIVES ONLY IN PROSE IS NOT A MANDATE. hack1's `caveat` has
+    said "the loop only manages exits and the +1-open drift" since the fleet was
+    written, and nothing read it -- so on 2026-09-03 the SAFE anchor book shorted
+    PANW and lost $475, and on 2026-09-04 it left a working short at 11:01 ET.
+    `--manage-only` already existed in `scripts.agent_loop`; the defect was that
+    no mandate could ask for it. This field is that ask, and `loop_args` emits
+    it, so the declaration and the command line cannot disagree.
+
+    Declared per role rather than inferred from `tier`: SAFE describes the SIZE
+    of the risk a book may take, not whether the loop may originate it, and
+    conflating the two would silently disarm any future SAFE book that is meant
+    to trade."""
     caveat: str = ""
     extra_args: tuple[str, ...] = ()
     env: dict = field(default_factory=dict)
@@ -66,7 +82,8 @@ FLEET: dict[str, Mandate] = {
         question="Does the attended book (SPY/QQQ/IWM shares + one ATM index call at 5%) hold +0.3% median over five sessions?",
         brains=("post_event_drift",), profile="conservative", universe="index",
         fixed_symbols=("SPY", "QQQ", "IWM", "NVDA", "AVGO", "PANW"), rank_objective="median",
-        caveat="Entered by hand via scripts.competition_book after 15:45 ET; the loop only manages exits and the +1-open drift on the index-linked printers."),
+        manage_only=True,
+        caveat="Entered by hand via scripts.competition_book after 15:45 ET; the loop only manages exits and the +1-open drift on the index-linked printers. ENFORCED by manage_only=True since 2026-09-04 -- it was prose alone until then, and the book shorted PANW twice against it."),
     "hack2": Mandate(
         role="hack2", tier="SAFE", label="DRIFT: measured edge only",
         question="Does the one brain with a positive live counterfactual (+1-open post-print drift, +1.08%, t 2.82) pay at aggressive size?",
@@ -198,6 +215,11 @@ def universe_for(m: Mandate) -> list[str] | None:
 def loop_args(m: Mandate) -> list[str]:
     """The `scripts.agent_loop` flags this mandate prescribes (after --expiry/--live)."""
     args = ["--brains", ",".join(m.brains), "--profile", m.profile]
+    # Before `extra_args` and before `--universe`: `--universe` takes nargs="*"
+    # and must stay LAST, or argparse folds the following flag into the symbol
+    # list on any Python that does not recognise it as an option string.
+    if m.manage_only:
+        args += ["--manage-only"]
     if m.shadow:
         args += ["--shadow", ",".join(m.shadow)]
     args += list(m.extra_args)

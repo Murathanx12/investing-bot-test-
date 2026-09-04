@@ -17,7 +17,8 @@ import argparse
 import logging
 import sys
 
-from alpha import brains, config, genesis, human, ledger, runner, sentinels
+from alpha import (brains, config, exits, genesis, human, ledger,
+                   refusal_classes, runner, sentinels)
 from alpha.broker.alpaca import AlpacaPaper
 
 #: Starting universe. Liquid, optionable, spanning several volatility regimes.
@@ -185,6 +186,40 @@ def inject_sealed_portfolio(universe_syms: list[str], brains: str | None,
                                f"portfolio could not be read: {exc}")
 
 
+def _record_deadline_refusal(reason: str) -> None:
+    """One typed ledger row for a pass that refused to enter at all.
+
+    Written at PASS scope, not per candidate: no candidate was evaluated, so
+    attributing the refusal to a symbol would invent a decision that was never
+    made. `symbol` is the sentinel `-` and `brain` names the gate, so the row
+    groups cleanly and never contaminates a per-name recall count.
+
+    NEVER RAISES. This is bookkeeping on a control path; a failure to record the
+    refusal must not turn a refusal into a crash whose exit code some caller
+    reads as something else.
+    """
+    from datetime import datetime, timezone
+    try:
+        ledger.record(ledger.Decision(
+            decision_id=ledger.new_decision_id("-", "deadline_gate"),
+            ts_utc=datetime.now(timezone.utc).isoformat(),
+            symbol="-",
+            brain="deadline_gate",
+            signal_shape=None,
+            instrument="none",
+            thesis="entry pass refused before any candidate was evaluated",
+            predicted_move=None, predicted_sd=None, implied_move=None,
+            breakeven_move=None, mdm_edge=None, quote_snapshot={},
+            action="refused",
+            refusal_reason=reason,
+            terminal_state=refusal_classes.terminal_state(reason, action="refused"),
+            risk_fraction=0.0, max_loss_usd=0.0, order=None,
+            account_role=config.role(),
+        ))
+    except Exception as exc:                                        # noqa: BLE001
+        logging.error("could not record the deadline refusal (the refusal STANDS): %s", exc)
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--expiry", required=True, help="YYYY-MM-DD")
@@ -204,6 +239,11 @@ def main() -> int:
     p.add_argument("--allow-expiry-past-deadline", action="store_true",
                    help=("permit an expiry after the judging deadline. It will be liquidated "
                          "at 10:45 ET on the final morning at whatever the spread is."))
+    p.add_argument("--allow-entry-past-deadline", action="store_true",
+                   help=("permit NEW positions after the liquidation deadline. Attended "
+                         "override only: the exit pass liquidates on sight past "
+                         "`exits.LIQUIDATE_BY_ET`, so an entry taken after it is round-tripped "
+                         "for the spread within minutes. See the churn incident of 2026-09-04."))
     p.add_argument("--no-sentinels", action="store_true",
                    help=("skip the sanity sentinels. They withdraw NEW-POSITION authority "
                          "from a brain that is one-sided against the chain on >90%% of its "
@@ -266,6 +306,43 @@ def main() -> int:
     except runner.ExpiryPastDeadline as exc:
         logging.error("REFUSED: %s", exc)
         return 2
+
+    # -- NO NEW RISK ONCE THE EXIT PASS IS LIQUIDATING ON SIGHT ---------------
+    # THE ASYMMETRY THAT COST REAL MONEY (2026-09-04, hack1 and hack2).
+    #
+    # `exits.deadline_liquidation_due` made the EXIT pass liquidate everything
+    # past `LIQUIDATE_BY_ET` (10:45 ET) on judging day. Nothing said the same to
+    # the ENTRY pass, so the loop kept entering on its ordinary 30-minute
+    # cadence and the very next exit pass -- five minutes later, or immediately,
+    # because `agent_loop` runs exits straight after entries -- closed what had
+    # just been opened. hack2 sold 74 PANW at 11:03:39 ET and bought it back at
+    # 11:03:44 ET: five seconds of exposure, two spreads, for a thesis that was
+    # never allowed to complete. hack1 left a working short at 11:01:32 ET on a
+    # book whose mandate is SAFE.
+    #
+    # A ONE-SIDED GUARD CATCHES HALF THE ERROR. The deadline is a property of
+    # the SESSION, not of the position, so both passes must read it from the
+    # same predicate and the same constant -- which is why this calls
+    # `exits.deadline_liquidation_due` rather than re-deriving 10:45 here.
+    #
+    # This is a REFUSAL, not a skip: it writes one typed row so the pass that
+    # did not trade is visible in the ledger as a decision. An entry pass that
+    # silently produced nothing reads exactly like a quiet market, and this repo
+    # has paid twice for an absence that read as a decision.
+    _deadline_utc = config.COMPETITION["deadline_utc"]
+    if not args.allow_entry_past_deadline and exits.deadline_liquidation_due(_deadline_utc):
+        reason = (
+            f"{refusal_classes.PAST_LIQUIDATION_DEADLINE}: past "
+            f"{exits.LIQUIDATE_BY_ET.strftime('%H:%M')} ET on judging day "
+            f"({_deadline_utc}). The exit pass liquidates every open position on "
+            "sight from this minute, so a new position would be round-tripped for "
+            "the spread within one cycle. Entry authority is withdrawn for the rest "
+            "of the session; exits, stops, fills and marking continue. Override with "
+            "--allow-entry-past-deadline."
+        )
+        logging.error("REFUSED: %s", reason)
+        _record_deadline_refusal(reason)
+        return 3
 
     universe_syms = list(args.universe)
     if args.window_universe:
