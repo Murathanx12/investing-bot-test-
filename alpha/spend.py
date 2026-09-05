@@ -49,6 +49,32 @@ from alpha.sources.http import SourceRefusal, post_json
 
 LEDGER = Path(__file__).resolve().parent.parent / "state" / "llm_spend.jsonl"
 
+
+def ledger_path() -> Path:
+    """Where the spend ledger is written and read, resolved AT CALL TIME.
+
+    IN PRODUCTION THIS IS UNCHANGED, deliberately: `state/llm_spend.jsonl`, the
+    same absolute path it has always been. Moving a budget gate's input is how
+    `spent_usd()` once read absence as $0.00 and re-authorised $30 that had
+    already been spent (feedback: "a docs move disarmed a budget gate"), so this
+    function does NOT follow `AAT_LEDGER_DIR` the way the decisions ledger does.
+
+    UNDER `AAT_TEST_MODE` it is redirected to `AAT_LEDGER_DIR`. Measured
+    2026-09-05: two ordinary `python run_tests.py` runs appended rows with
+    `caller: "tests.smoke"` to the REAL spend ledger -- fictional usage inside
+    the file that decides whether a real LLM call is affordable. The venue guard
+    lives at the socket for the same reason this lives here: only the process's
+    own environment can stop a child, and a suite that plants a fake row is
+    indistinguishable afterwards from a call that happened.
+    """
+    import os
+
+    if os.getenv("AAT_TEST_MODE", "").strip().lower() in ("1", "true", "yes"):
+        base = os.getenv("AAT_LEDGER_DIR")
+        if base:
+            return Path(base) / "llm_spend.jsonl"
+    return LEDGER
+
 #: A justification shorter than this is a label, not a reason.
 MIN_CHARS = 30
 
@@ -101,8 +127,9 @@ def record(caller: str, why: str, *, usage: dict[str, Any] | None = None,
         "note": note,
     }
     try:
-        LEDGER.parent.mkdir(parents=True, exist_ok=True)
-        with LEDGER.open("a", encoding="utf-8") as fh:
+        _led = ledger_path()
+        _led.parent.mkdir(parents=True, exist_ok=True)
+        with _led.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(row) + "\n")
     except OSError:
         pass  # a ledger that cannot be written must not cancel work already paid for
@@ -123,10 +150,11 @@ def llm_post(url: str, body: Any, *, why: str, caller: str,
 
 def summary(limit: int | None = None) -> dict[str, Any]:
     """What the money was asked to decide, by caller."""
-    if not LEDGER.exists():
+    _led = ledger_path()
+    if not _led.exists():
         return {"calls": 0, "by_caller": {}, "note": "no paid calls recorded"}
     rows = [json.loads(line) for line in
-            LEDGER.read_text(encoding="utf-8").splitlines() if line.strip()]
+            _led.read_text(encoding="utf-8").splitlines() if line.strip()]
     rows = rows[-limit:] if limit else rows
     by: dict[str, dict[str, Any]] = {}
     for r in rows:
