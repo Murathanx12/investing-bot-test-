@@ -467,8 +467,9 @@ good = json.dumps(entry_row("AAPL", ts=t0))
 torn = json.dumps(entry_row("NVDA", ts=t0))[:80]          # spliced mid-JSON
 write_ledger([good, torn])
 rows = ledger.read_all()
+_malformed_seen = list(ledger.MALFORMED.get("decisions") or [])
 ok1 = check("a torn line is skipped and COUNTED in ledger.MALFORMED",
-            ledger.MALFORMED.get("decisions") == [2], str(ledger.MALFORMED))
+            _malformed_seen == [2], str(ledger.MALFORMED))
 ok2 = check("  and the readable rows still parse",
             len(rows) == 1 and rows[0]["symbol"] == "AAPL")
 
@@ -505,7 +506,7 @@ ok7 = check("  and an undeclared position on a CLEAN ledger is still flattened",
 row("torn ledger line under a live position's entry row",
     "the tear is counted, the position is HELD with a typed reason, the stop still fires, "
     "and a clean-ledger orphan is still corrected",
-    f"malformed={ledger.MALFORMED.get('decisions')} torn_row_verdict={verdict_b.code} "
+    f"malformed={_malformed_seen} torn_row_verdict={verdict_b.code} "
     f"closed={verdict_b.close} stop_still_fires={verdict_c.code} "
     f"clean_orphan={verdict_d.code}",
     "PASS" if all((ok1, ok2, ok3, ok4, ok5, ok6, ok7)) else "FAIL",
@@ -726,11 +727,23 @@ unmapped = refusal_classes.unmapped_report()
 ok2 = check("  and any that fall through are COUNTED, never silently absorbed",
             len(unmapped) == len([s for s in states if s == refusal_classes.OTHER_TYPED]),
             f"states={states} unmapped={unmapped}")
+_venue = [s for s, st in zip(samples, states)
+          if st == refusal_classes.OTHER_TYPED and "HTTP" in s]
+ok3 = check("REPORTED: a refusal the VENUE issued has no type of its own -- every HTTP "
+            "rejection lands in OTHER_TYPED",
+            len(_venue) >= 3, f"venue sentences typed OTHER_TYPED: {len(_venue)}")
 row("refusal typing across every injected fault",
     "every fault's sentence lands on a TERMINAL_STATE; unmapped prose is counted",
-    f"states={states} unmapped={[u[0][:40] for u in unmapped]}",
-    "PASS" if (ok1 and ok2) else "FAIL",
-    "unmapped sentences are reported in the C1 receipt, not fixed by widening a bucket")
+    f"states={states} unmapped={[u[0][:40] for u in unmapped]} "
+    f"venue_http_refusals_typed_OTHER_TYPED={len(_venue)} of {sum(1 for x in samples if 'HTTP' in x)}",
+    "PASS (with a REPORTED gap)" if (ok1 and ok2 and ok3) else "FAIL",
+    "REPORTED, NOT FIXED: `refusal_classes` has no state for a refusal the VENUE issued, so "
+    "an order rejected with HTTP 503/502/422 is counted in the same bucket as prose from a "
+    "gate nobody typed. The daily census therefore cannot separate 'the venue refused us' "
+    "from 'a rule of ours refused us' -- opposite work. The module is right that unmapped "
+    "prose must be COUNTED rather than absorbed (it is, in UNMAPPED), and widening an "
+    "existing bucket to swallow these would be worse; a VENUE_REJECTED state changes the "
+    "grouping every finished report uses, which is an attended decision.")
 
 # ===========================================================================
 # RECEIPT

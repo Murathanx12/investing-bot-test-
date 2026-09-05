@@ -2,21 +2,21 @@
   "item": "C1",
   "lane": "C",
   "lab": "labor_day_lab_2026-09-07",
-  "ts_utc": "2026-09-05T15:23:20.395422+00:00",
+  "ts_utc": "2026-09-05T15:37:13.334928+00:00",
   "argv": [
     "tests_smoke_labor_faults.py"
   ],
-  "git_commit": "00100d88f2dbb6e09f218cb490f395f4cae68e57",
+  "git_commit": "1034c29747444ba9da8245fe78def549d1a0a729",
   "config": {
     "AAT_ACCOUNT_ROLE": "dev",
     "AAT_RISK_PROFILE": "aggressive",
-    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b",
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc",
     "network": "no venue client is constructed; the only broker in this suite is its own MockVenue. The socket block belongs to run_tests.py."
   },
   "inputs_opened": [
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\decisions.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\protective_stops.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\predictions"
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\decisions.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\protective_stops.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\predictions"
   ],
   "modules_under_test": [
     "alpha.runner",
@@ -28,7 +28,7 @@
     "alpha.refusal_classes",
     "alpha.fleet"
   ],
-  "checks_run": 52,
+  "checks_run": 53,
   "checks_failed": 0,
   "failed": [],
   "table": [
@@ -77,7 +77,7 @@
     {
       "fault": "torn ledger line under a live position's entry row",
       "expected": "the tear is counted, the position is HELD with a typed reason, the stop still fires, and a clean-ledger orphan is still corrected",
-      "observed": "malformed=None torn_row_verdict=HELD closed=False stop_still_fires=HARD_RISK_LIMIT clean_orphan=EXECUTION_CORRECTION",
+      "observed": "malformed=[2] torn_row_verdict=HELD closed=False stop_still_fires=HARD_RISK_LIMIT clean_orphan=EXECUTION_CORRECTION",
       "verdict": "PASS",
       "fix": "FIXED: exits._evaluate_shares refuses EXECUTION_CORRECTION while ledger.MALFORMED is non-empty"
     },
@@ -126,9 +126,9 @@
     {
       "fault": "refusal typing across every injected fault",
       "expected": "every fault's sentence lands on a TERMINAL_STATE; unmapped prose is counted",
-      "observed": "states=['OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'DATA_MISSING', 'OPENING_RANGE'] unmapped=['POST /v#/orders -> HTTP #: {\"message\":\"s', 'DELETE /v#/positions/NVDA -> HTTP #: bad', 'POST /v#/orders -> HTTP #: {\"code\":#,\"me', 'the sealed book for ### carries no `port']",
-      "verdict": "PASS",
-      "fix": "unmapped sentences are reported in the C1 receipt, not fixed by widening a bucket"
+      "observed": "states=['OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'DATA_MISSING', 'OPENING_RANGE'] unmapped=['POST /v#/orders -> HTTP #: {\"message\":\"s', 'DELETE /v#/positions/NVDA -> HTTP #: bad', 'POST /v#/orders -> HTTP #: {\"code\":#,\"me', 'the sealed book for ### carries no `port'] venue_http_refusals_typed_OTHER_TYPED=3 of 3",
+      "verdict": "PASS (with a REPORTED gap)",
+      "fix": "REPORTED, NOT FIXED: `refusal_classes` has no state for a refusal the VENUE issued, so an order rejected with HTTP 503/502/422 is counted in the same bucket as prose from a gate nobody typed. The daily census therefore cannot separate 'the venue refused us' from 'a rule of ours refused us' -- opposite work. The module is right that unmapped prose must be COUNTED rather than absorbed (it is, in UNMAPPED), and widening an existing bucket to swallow these would be worse; a VENUE_REJECTED state changes the grouping every finished report uses, which is an attended decision."
     }
   ]
 }
