@@ -1,4 +1,6 @@
-# RUNBOOK — Monday 2026-09-08 — re-arm the fleet under contracts
+# RUNBOOK — Tuesday 2026-09-08 — re-arm the fleet under contracts
+
+> **Day correction (Fable, 2026-09-06):** 2026-09-08 is a TUESDAY. Monday 2026-09-07 is Labor Day; US markets are closed. Every "Monday" below means the first trading day, Tuesday 09-08.
 
 **For Murat, before the open. Fifteen minutes, seven steps, one decision.**
 Everything below is attended: no session flips a live flag on its own.
