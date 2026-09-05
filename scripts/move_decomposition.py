@@ -110,13 +110,17 @@ def decompose(day: str, symbols: list[str] | None) -> dict:
 
     etfs = sorted({e for e in (SECTOR_ETF.get(sectors.get(s) or "") for s in symbols) if e})
     start = (datetime.fromisoformat(day) - timedelta(days=int(LOOKBACK_SESSIONS * 1.7))).date().isoformat()
-    bars = b.stock_bars_multi(symbols + etfs + ["SPY"], start=start)
+    # ONE SPY close source: symbol, tape and the bar -> {date: close} rule all
+    # come from `alpha.spy`, so this script and the daily learning report cannot
+    # quote two different SPY closes for the same session.
+    from alpha import spy as _spy
 
-    series: dict[str, dict[str, float]] = {}
-    for sym, rows in bars.items():
-        series[sym] = {r["t"][:10]: float(r["c"]) for r in rows if r.get("c")}
+    bars = b.stock_bars_multi(symbols + etfs + [_spy.SYMBOL], start=start, feed=_spy.FEED)
 
-    spy = series.get("SPY") or {}
+    series: dict[str, dict[str, float]] = {
+        sym: _spy.closes_from_bars(rows) for sym, rows in bars.items()}
+
+    spy = series.get(_spy.SYMBOL) or {}
     days_all = sorted(d for d in spy if d <= day)
     if day not in spy:
         raise SystemExit(f"REFUSED: no SPY bar for {day} yet -- run after the close.")

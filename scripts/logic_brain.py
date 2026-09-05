@@ -293,16 +293,19 @@ def grade(day: str | None, horizon: int) -> int:
         return 1
     from alpha.broker.alpaca import AlpacaPaper
     from alpha.broker.base import BrokerRefusal
-    syms = sorted({r["symbol"] for r in rows} | {"SPY"})
+    # ONE SPY close source: the benchmark symbol and its TAPE are named by
+    # `alpha.spy`, not by whichever default this helper happens to carry.
+    from alpha import spy as _spy
+    syms = sorted({r["symbol"] for r in rows} | {_spy.SYMBOL})
     client = AlpacaPaper()
     bars = {}
     for i in range(0, len(syms), 200):
         try:
             bars.update(client.stock_bars_multi(syms[i:i + 200], start=day,
-                                                timeframe="1Day"))
+                                                timeframe="1Day", feed=_spy.FEED))
         except BrokerRefusal as exc:
             print(f"  bar batch {i}: {exc}")
-    spy = bars.get("SPY") or []
+    spy = bars.get(_spy.SYMBOL) or []
     if len(spy) <= horizon:
         print(f"REFUSED: only {len(spy)} SPY sessions since {day}; {horizon + 1} are "
               f"needed. A grade computed on a shorter window is a different horizon "
@@ -319,7 +322,7 @@ def grade(day: str | None, horizon: int) -> int:
             return None
         return (b / a - 1.0) - (sb / sa - 1.0)
 
-    outcomes = {s: v for s in syms if s != "SPY" and (v := rel(s)) is not None}
+    outcomes = {s: v for s in syms if s != _spy.SYMBOL and (v := rel(s)) is not None}
     g = LB.grade(rows, outcomes)
     print(f"LOGIC BRAIN GRADE  {day}  horizon {horizon} sessions  "
           f"({len(outcomes)} names resolved)")

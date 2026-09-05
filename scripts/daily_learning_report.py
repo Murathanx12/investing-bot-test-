@@ -22,9 +22,19 @@ THE HOUSE RULES IT OBEYS
   `state/learning_report/<day>.json`. Every headline number on the console is
   in the receipt -- `corr = 0.516` once lived in prose only and turned out to
   be a filtered subset nobody had named.
-* A SECTION DERIVES ITS INPUTS OR REFUSES. A day with no counterfactual rows
-  prints CANNOT DETERMINE with the missing input NAMED, never a quiet zero --
-  a permanent unexplained red line teaches readers to skim (monday_gate, 2026-08).
+* A SECTION DERIVES ITS INPUTS OR REFUSES, **AND NAMES WHOSE FAULT IT IS**
+  (B3, 2026-09-05). Every refusal carries `cause`: `PLUMBING` (our own wiring
+  did not deliver an input that exists -- a dead job, an unset path) or
+  `NO_DATA_YET` (the input genuinely does not exist, which is a CORRECT refusal
+  and stays). The header prints the census of both, because a permanent red
+  line teaches readers to skim whichever kind it is, and the two need opposite
+  responses: fix the first, leave the second alone.
+* ONE SPY CLOSE SOURCE: `alpha/spy.py`, on the SIP tape. This page used
+  `client.stock_bars` (feed = `config.stock_feed()`) while `move_decomposition`
+  and `logic_brain` used `stock_bars_multi` (feed = sip). Measured on the
+  2026-09-04 page: the two tapes gave SPY genesis closes of 769.28 and 769.35,
+  a 0.01pp difference in every role's benchmark regret. Small, and exactly the
+  kind of unnamed disagreement nobody can adjudicate later.
 * FAILURES ARE COLLECTED, NEVER FATAL. One unreachable account must not
   collapse the page (fleet_health's contract, Murat 2026-09-02).
 * THE DAY IS DERIVED, NEVER ASSUMED. Default is the most recent COMPLETED
@@ -52,10 +62,14 @@ WHAT EACH SECTION MEANS
                   ungraded world contributes its COUNT and nothing else
                   (the daily_latch 312/312-on-$0.00 lesson, retro 2026-09-02).
 (d) SHADOW        the finance repo's shadow book for the day, if it wrote one.
-                  `status: REFUSED` is a FINDING and its reasons are printed;
-                  a missing file is only reported, because that repo's nightly
-                  job owes us nothing.
-(e) WATCHLIST     tracker entrants and dropouts vs the prior tracker day.
+                  `status: REFUSED` is a FINDING and its reasons are printed.
+                  A missing DIRECTORY is PLUMBING and names `AEGIS_SHADOW_DIR`;
+                  a present directory missing this one day is NO_DATA_YET and
+                  says which day IS the newest, because that repo's nightly job
+                  owes us nothing.
+(e) WATCHLIST     tracker entrants and dropouts vs the prior tracker day, out of
+                  `AAT_TRACKER_DIR` (default `<ledger dir>/tracker`). A missing
+                  directory and a missing day are separate refusals.
 """
 
 from __future__ import annotations
@@ -67,12 +81,40 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from alpha import spy as _spy
 from alpha.exits import ET_OFFSET
 
 ROOT = Path(__file__).resolve().parent.parent
 #: The six competition accounts, in fleet order (fleet_health's ROLES).
 ROLES = ("hack1", "hack2", "hack3", "hack4", "hack5", "hack6")
 CANNOT = "CANNOT DETERMINE"
+
+# ---------------------------------------------------------------------------
+# THE TWO KINDS OF "CANNOT DETERMINE" (B3, 2026-09-05)
+# ---------------------------------------------------------------------------
+# They were the same red line until tonight, and they are not the same fact.
+#
+#   PLUMBING   -- OUR wiring did not deliver an input that exists. A job that
+#                 stopped writing, a path nobody set, an env var missing. This
+#                 is a BUG with an owner and a command, and it must not be read
+#                 as evidence about the market.
+#   NO_DATA    -- the input genuinely does not exist yet: the day has no rows
+#                 because nothing happened, or the producer legitimately owes us
+#                 nothing. This is a CORRECT REFUSAL and it stays.
+#
+# "A gate that cannot go green is a broken gate" cuts both ways: a permanent red
+# line that is actually a correct refusal teaches the reader to skim, and a
+# permanent red line that is actually our own dead job teaches them to skim
+# harder. Every refusal below carries `cause`, and the page prints it.
+CAUSE_PLUMBING = "PLUMBING"
+CAUSE_NO_DATA = "NO_DATA_YET"
+
+
+def _cannot(why: str, cause: str, **extra) -> dict:
+    """A refusal that names WHOSE fault it is. `fix` is the command, when there is one."""
+    return {"status": CANNOT, "cause": cause, "why": why, **extra}
+
+
 #: Reported as a standing fact wherever this page reads beside the decisions
 #: ledger. Do not repair it here; do not stop printing it until it is resolved
 #: by an attended investigation.
@@ -131,45 +173,51 @@ def most_recent_completed_session(now_utc: datetime, calendar_days: list[dict]) 
 # ---------------------------------------------------------------------------
 
 def spy_window(bars: list[dict], genesis_day: str, day: str) -> dict:
-    """SPY over the competition window, the benchmark_regret receipt's own
-    convention: first daily bar on/after the genesis kickoff date, to the
-    report day's close. Also the day's own return, for the day-P&L column.
-    Daily bars are stamped 04:00Z, which IS the ET date -- read t[:10]."""
-    seq = sorted((str(b.get("t") or "")[:10], b.get("c")) for b in bars
-                 if b.get("c") is not None and str(b.get("t") or "")[:10])
-    start = next(((d, c) for d, c in seq if d >= genesis_day), None)
-    upto = [(d, c) for d, c in seq if d <= day]
-    if not start or not upto:
-        return {"status": CANNOT,
-                "why": f"no SPY bar on/after {genesis_day} or on/before {day}"}
-    end_d, end_c = upto[-1]
-    if end_d != day:
-        return {"status": CANNOT,
-                "why": f"no SPY bar FOR {day} (latest at/under it is {end_d}) -- "
-                       f"was {day} a session?"}
-    prev = upto[-2] if len(upto) >= 2 else None
-    out = {"status": "ok", "start_date": start[0], "start_close": start[1],
-           "end_date": end_d, "end_close": end_c,
-           "return_pct": round((end_c / start[1] - 1) * 100, 3)}
-    if prev:
-        out["prev_date"], out["prev_close"] = prev
-        out["day_return_pct"] = round((end_c / prev[1] - 1) * 100, 3)
-    return out
+    """SPY over the competition window -- ONE implementation, in `alpha.spy`.
+
+    This wrapper exists only so callers that already hold a bar list keep
+    working; the convention (first bar on/after genesis, refuse if the day has
+    no bar) and the FEED now live in exactly one file. Before tonight four
+    modules read SPY closes and two of them were on different tapes.
+    """
+    return _spy.window(_spy.closes_from_bars(bars), genesis_day=genesis_day, day=day)
 
 
 def scoreboard_row(role: str, genesis: dict | None, history: dict[str, float],
-                   day: str, spy: dict) -> dict:
+                   day: str, spy: dict, *, live_equity: float | None = None,
+                   live_equity_day: str | None = None) -> dict:
     """One role's line. Every number that cannot be derived says so by NAME --
-    a dash in a scoreboard is a number someone will assume."""
+    a dash in a scoreboard is a number someone will assume.
+
+    THE LIVE-EQUITY FALLBACK (B3, 2026-09-05). `portfolio_history` is the venue's
+    own daily series and it does not always carry the newest session: on
+    2026-09-04 it lagged the account by a session on three roles, and the whole
+    scoreboard printed CANNOT DETERMINE beside a venue that would have answered
+    `GET /v2/account` instantly. That was OUR plumbing, not missing data. So:
+    when the history has no row for `day` AND `day` is the session the live
+    account is reporting, the live equity is used and the row SAYS SO in
+    `equity_source`. It is never used for an older day -- `GET /v2/account` is
+    today's number, and stamping it onto last Tuesday would be a fabrication.
+    """
     row: dict = {"role": role}
     eq = history.get(day)
+    source = "portfolio_history 1D"
+    if eq is None and live_equity is not None and live_equity_day == day:
+        eq, source = float(live_equity), "LIVE account equity (portfolio_history had no row)"
     if eq is None:
         row["status"] = CANNOT
+        # live equity READ and for another day => the day itself has no row: honest.
+        # live equity NOT read at all => we never asked the venue: our plumbing.
+        row["cause"] = CAUSE_NO_DATA if live_equity is not None else CAUSE_PLUMBING
         row["why"] = (f"portfolio history has no equity for {day} "
-                      f"(days present: {sorted(history)[-3:] if history else 'none'})")
+                      f"(days present: {sorted(history)[-3:] if history else 'none'})"
+                      + (f"; the live account reports {live_equity_day}, not {day}, so its "
+                         "equity is NOT stamped onto this day"
+                         if live_equity is not None else ""))
         return row
     row["status"] = "ok"
     row["equity"] = round(eq, 2)
+    row["equity_source"] = source
     prior = [d for d in history if d < day]
     if prior:
         prev_d = max(prior)
@@ -203,7 +251,8 @@ def _is_stop(order: dict) -> bool:
     return "stop" in str(order.get("order_type") or order.get("type") or "").lower()
 
 
-def books_vs_fills(portfolio: dict | None, orders: list[dict], day: str) -> dict:
+def books_vs_fills(portfolio: dict | None, orders: list[dict], day: str,
+                   *, seal_exists: bool = True) -> dict:
     """The sealed intent against the venue's account of the day.
 
     `portfolio` is one role's block from the sealed prediction book (the same
@@ -228,8 +277,22 @@ def books_vs_fills(portfolio: dict | None, orders: list[dict], day: str) -> dict
                  "expired": expired, "canceled": canceled, "stopped": stopped}
     if portfolio is None:
         out["status"] = "no sealed portfolio"
-        out["why"] = ("this role has no block in the day's seal -- normal for "
-                      "non-tracker books; its fills above are still the day's fact")
+        # TWO DIFFERENT FACTS, and reading them as one was a real mis-report: on
+        # 2026-09-04 every role including the three TRACKER books printed
+        # "normal for non-tracker books" when the truth was that NO seal existed
+        # for the day at all. A sentence that is right for hack1 and wrong for
+        # hack4 is worse than a refusal.
+        if not seal_exists:
+            out["cause"] = CAUSE_PLUMBING
+            out["why"] = (f"there is NO sealed book for {day} in state/predictions or "
+                          f"docs/seed/predictions -- nothing was sealed that day, for any "
+                          f"role. The fills above are still the day's fact.")
+            out["fix"] = "python -m scripts.prediction_book --seal --universe tracker"
+        else:
+            out["cause"] = CAUSE_NO_DATA
+            out["why"] = ("a seal EXISTS for this day and this role has no block in it -- "
+                          "normal for non-tracker books; its fills above are still the "
+                          "day's fact")
         return out
     sealed = [str(h.get("symbol")) for h in (portfolio.get("holdings") or [])]
     out.update({
@@ -247,7 +310,8 @@ def books_vs_fills(portfolio: dict | None, orders: list[dict], day: str) -> dict
 # (c) REFUSAL REGRET, one day
 # ---------------------------------------------------------------------------
 
-def refusal_day_summary(rows: list[dict], day: str) -> dict:
+def refusal_day_summary(rows: list[dict], day: str, *,
+                        marker_last_day: str | None = None) -> dict:
     """The day's refusals from the counterfactual ledger, by guard.
 
     Reuses the standing machinery rather than re-deriving it:
@@ -274,11 +338,30 @@ def refusal_day_summary(rows: list[dict], day: str) -> dict:
         last[str(r.get("decision_id"))] = (reason, pnl, str(r.get("symbol")), is_graded(r))
 
     if not last:
-        return {"status": CANNOT,
-                "why": (f"no refused counterfactual rows dated {day} (ET) in "
-                        f"state/counterfactual.jsonl -- either nothing was refused, the "
-                        f"marker did not run, or the day is older than the ledger; this "
-                        f"section cannot tell those apart and will not pretend to")}
+        # THE MARKER'S OWN CLOCK DECIDES WHICH SILENCE THIS IS (B3, 2026-09-05).
+        # Until tonight this returned one CANNOT DETERMINE for three different
+        # facts and said it could not tell them apart. It can: the newest row in
+        # the ledger dates the marker. On 2026-09-05 that row was 2026-08-28 --
+        # the counterfactual pass had not run for eight days, and the page was
+        # reporting that as "either nothing was refused or ...". It was neither.
+        if marker_last_day is None:
+            return _cannot(
+                f"state/counterfactual.jsonl has NO readable rows at all, so the "
+                f"counterfactual marker has never run against this ledger directory "
+                f"({_state_dir()}). Nothing about {day} follows from this.",
+                CAUSE_PLUMBING, fix="python -m scripts.counterfactual --record")
+        if marker_last_day < day:
+            return _cannot(
+                f"the counterfactual marker last wrote {marker_last_day}, which is BEFORE "
+                f"{day}. This is our own job not running, not a day on which nothing was "
+                f"refused -- do not read it as evidence either way.",
+                CAUSE_PLUMBING, marker_last_day=marker_last_day,
+                fix="python -m scripts.counterfactual --record")
+        return {"status": "ok", "n_refused_decisions": 0, "n_graded": 0, "n_ungraded": 0,
+                "by_guard": {}, "marker_last_day": marker_last_day,
+                "ledger_note": LEDGER_TEAR_FACT,
+                "reading": (f"the marker ran through {marker_last_day} and recorded NO refusal "
+                            f"dated {day}. That is a fact about the day, not a gap in the page.")}
 
     by: dict[str, dict] = {}
     for reason, pnl, sym, graded in last.values():
@@ -379,27 +462,66 @@ def entry_authority_rows(roles: list[str]) -> dict:
     return out
 
 
+#: Where the finance repo's learner writes, relative to a repo root. One string,
+#: so the search below and any documentation of it cannot drift apart.
+_SHADOW_SUFFIX = ("backend", "data", "optimus", "learner")
+
+
 def shadow_dir() -> Path:
     """Where the finance repo's `learner/shadow.py` writes its day files.
-    Its own OUT_DIR is `<finance repo>/backend/data/optimus/learner`; the two
-    repos are siblings on this machine, and AEGIS_SHADOW_DIR overrides for any
-    machine where they are not."""
+
+    ORDER, AND WHY IT IS A SEARCH AND NOT A GUESS (B3, 2026-09-05):
+
+    1. `AEGIS_SHADOW_DIR`, when set. Explicit beats derived, always.
+    2. the sibling checkout `../aegis-finance/backend/data/optimus/learner`.
+    3. the same suffix under `../Aegis-Finance` -- Windows is case-insensitive
+       but a mounted volume, a WSL path or a rename is not, and a benchmark
+       section that reads "not present" because of a capital F is exactly the
+       silent-plumbing failure this whole exercise is about.
+
+    Returns the FIRST path that exists; if none does, the sibling default, so
+    the caller can report the path it looked for by name.
+    """
     env = os.getenv("AEGIS_SHADOW_DIR")
     if env:
         return Path(env)
-    return ROOT.parent / "aegis-finance" / "backend" / "data" / "optimus" / "learner"
+    default = ROOT.parent.joinpath("aegis-finance", *_SHADOW_SUFFIX)
+    for cand in (default, ROOT.parent.joinpath("Aegis-Finance", *_SHADOW_SUFFIX)):
+        if cand.exists():
+            return cand
+    return default
 
 
 def shadow_section(path: Path) -> dict:
     """One shadow book file, taken at its word. REFUSED is a finding: the
     shadow's whole design is that it refuses rather than median-imputes a
-    third of its model's inputs, so its reasons are the payload."""
+    third of its model's inputs, so its reasons are the payload.
+
+    A MISSING FILE IS TWO DIFFERENT FACTS and this now separates them: a
+    missing DIRECTORY is our path wiring (PLUMBING, and it names the env var);
+    a present directory whose other day-files exist but not this one is the
+    finance repo's nightly not having run for this day (NO_DATA_YET), and it
+    names the newest day that IS there so a reader can see how far behind it is.
+    """
     if not path.exists():
-        return {"status": "not present",
-                "path": str(path),
-                "note": ("the finance repo's nightly shadow did not write this day "
-                         "(or writes elsewhere -- set AEGIS_SHADOW_DIR). Not an error "
-                         "in THIS repo; the shadow owes the terminal nothing.")}
+        parent = path.parent
+        if not parent.exists():
+            return _cannot(
+                f"the shadow directory {parent} does not exist, so this section has no "
+                f"input at all. Set AEGIS_SHADOW_DIR to the finance repo's "
+                f"{'/'.join(_SHADOW_SUFFIX)}.",
+                CAUSE_PLUMBING, path=str(path),
+                fix="set AEGIS_SHADOW_DIR=<aegis-finance>/backend/data/optimus/learner")
+        days = sorted(p.stem.replace("shadow_book_", "")
+                      for p in parent.glob("shadow_book_*.json"))
+        return {"status": "not present", "cause": CAUSE_NO_DATA, "path": str(path),
+                "dir_exists": True, "n_day_files": len(days),
+                "latest_day_present": days[-1] if days else None,
+                "note": (f"the directory is there and holds {len(days)} shadow day-file(s)"
+                         + (f" (newest {days[-1]})" if days else "")
+                         + f", but none for this day. The finance repo's nightly did not "
+                           f"write it; that repo owes the terminal nothing, and this is a "
+                           f"correct refusal rather than a broken path.")}
     try:
         book = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -421,8 +543,21 @@ def shadow_section(path: Path) -> dict:
 # (e) WATCHLIST EVENTS
 # ---------------------------------------------------------------------------
 
+def tracker_dir() -> Path:
+    """Where the nightly tracker refresh writes `<day>.jsonl`.
+
+    `AAT_TRACKER_DIR` overrides; otherwise `<ledger dir>/tracker`, and the
+    ledger dir is `AAT_LEDGER_DIR` (the Railway volume) or `state/`. Wired as
+    its own function -- and its own env var -- because the seal authority runs
+    with a mounted volume where `state/` is NOT the tracker's home, and the
+    watchlist section reporting an empty diff there would be a silent zero.
+    """
+    env = os.getenv("AAT_TRACKER_DIR")
+    return Path(env) if env else (_state_dir() / "tracker")
+
+
 def tracker_symbols(day: str) -> set[str] | None:
-    path = _state_dir() / "tracker" / f"{day}.jsonl"
+    path = tracker_dir() / f"{day}.jsonl"
     if not path.exists():
         return None
     syms: set[str] = set()
@@ -435,19 +570,42 @@ def tracker_symbols(day: str) -> set[str] | None:
     return syms
 
 
+def tracker_days() -> list[str]:
+    d = tracker_dir()
+    return sorted(p.stem for p in d.glob("2*.jsonl")) if d.exists() else []
+
+
 def prior_tracker_day(day: str) -> str | None:
-    days = sorted(p.stem for p in (_state_dir() / "tracker").glob("2*.jsonl")
-                  if p.stem < day)
+    days = [x for x in tracker_days() if x < day]
     return days[-1] if days else None
 
 
 def watchlist_events(day_syms: set[str] | None, prev_syms: set[str] | None,
                      day: str, prev_day: str | None) -> dict:
     if day_syms is None:
-        return {"status": CANNOT, "why": f"state/tracker/{day}.jsonl does not exist"}
+        d = tracker_dir()
+        if not d.exists():
+            return _cannot(
+                f"the tracker directory {d} does not exist. Set AAT_TRACKER_DIR (or "
+                f"AAT_LEDGER_DIR) to wherever the nightly refresh writes.",
+                CAUSE_PLUMBING, tracker_dir=str(d),
+                fix="python -m scripts.tracker --refresh")
+        present = tracker_days()
+        if not present:
+            return _cannot(
+                f"the tracker directory {d} exists and holds NO day files at all -- the "
+                f"nightly refresh has never written here.",
+                CAUSE_PLUMBING, tracker_dir=str(d),
+                fix="python -m scripts.tracker --refresh")
+        return _cannot(
+            f"{d / (day + '.jsonl')} does not exist; the refresh's newest day is "
+            f"{present[-1]}. The tracker did not run for {day}.",
+            CAUSE_PLUMBING if present[-1] < day else CAUSE_NO_DATA,
+            tracker_dir=str(d), latest_day_present=present[-1],
+            fix="python -m scripts.tracker --refresh")
     if prev_day is None or prev_syms is None:
-        return {"status": CANNOT, "n_watchlist": len(day_syms),
-                "why": f"no earlier tracker day file before {day} to diff against"}
+        return _cannot(f"no earlier tracker day file before {day} to diff against",
+                       CAUSE_NO_DATA, n_watchlist=len(day_syms))
     entrants = sorted(day_syms - prev_syms)
     dropouts = sorted(prev_syms - day_syms)
     return {"status": "ok", "vs_day": prev_day, "n_watchlist": len(day_syms),
@@ -491,18 +649,39 @@ def _load_decision_rows() -> list[dict]:
     return rows
 
 
+#: How much of the counterfactual ledger to read. It is APPEND-ONLY and on this
+#: machine it is 1.07 GB; a page that reports one session does not need 1.07 GB
+#: of history, and reading it all made the report take minutes and allocate the
+#: whole file. 64 MB is thousands of marks -- comfortably more than any single
+#: day -- and the first (probably truncated) line is discarded, which is why the
+#: seek is not a correctness risk.
+_CF_TAIL_BYTES = 64 * 1024 * 1024
+
+
 def _load_counterfactual_rows() -> list[dict]:
     path = _state_dir() / "counterfactual.jsonl"
     rows: list[dict] = []
     if not path.exists():
         return rows
-    with path.open(encoding="utf-8") as fh:
-        for line in fh:
+    size = path.stat().st_size
+    with path.open("rb") as fh:
+        if size > _CF_TAIL_BYTES:
+            fh.seek(size - _CF_TAIL_BYTES)
+            fh.readline()          # discard the partial line the seek landed in
+        for raw in fh:
             try:
-                rows.append(json.loads(line))
-            except json.JSONDecodeError:
+                rows.append(json.loads(raw.decode("utf-8", "replace")))
+            except (json.JSONDecodeError, UnicodeDecodeError):
                 continue
     return rows
+
+
+def marker_last_day(rows: list[dict]) -> str | None:
+    """The newest ET day the counterfactual marker wrote. This is what turns
+    "no rows for this day" from an unresolvable silence into either 'the job is
+    dead' or 'nothing was refused'."""
+    days = [d for d in (_et_date(r.get("ts_utc")) for r in rows) if d]
+    return max(days) if days else None
 
 
 def _genesis(role: str) -> dict | None:
@@ -562,17 +741,23 @@ def build_report(day: str | None = None) -> dict:
     genesis_any = next((g for g in (_genesis(r) for r in ROLES) if g), None)
     kickoff = str(((genesis_any or {}).get("competition") or {}).get("kickoff_utc")
                   or "")[:10]
-    spy: dict = {"status": CANNOT, "why": "venue unreachable for SPY bars"}
+    spy: dict = _cannot("venue unreachable for SPY bars", CAUSE_PLUMBING)
     if client0 is not None and kickoff:
         try:
             bars_start = (datetime.fromisoformat(kickoff) - timedelta(days=10)).date().isoformat()
-            raw = client0.stock_bars("SPY", start=bars_start)
-            spy = spy_window((raw.get("bars") or {}).get("SPY") or [], kickoff, day)
+            # ONE SPY close source for the whole repo (alpha/spy.py), on the SIP
+            # tape. `client.stock_bars` sent `config.stock_feed()`, which is not
+            # necessarily the tape `move_decomposition` and `logic_brain` read.
+            closes = _spy.daily_closes(client0, start=bars_start)
+            spy = _spy.window(closes, genesis_day=kickoff, day=day)
+            if spy.get("status") == CANNOT:
+                spy["cause"] = CAUSE_NO_DATA
             spy["genesis_kickoff_date"] = kickoff
         except BrokerRefusal as exc:
-            spy = {"status": CANNOT, "why": str(exc)[:120]}
+            spy = _cannot(str(exc)[:120], CAUSE_PLUMBING)
     elif not kickoff:
-        spy = {"status": CANNOT, "why": "no genesis file names the kickoff date"}
+        spy = _cannot("no genesis file names the kickoff date "
+                      f"({_state_dir()}/genesis_<role>.json)", CAUSE_PLUMBING)
 
     # -- the sealed book, via utilization's reader (state/ then docs/seed/)
     from scripts.utilization import sealed_book
@@ -584,17 +769,31 @@ def build_report(day: str | None = None) -> dict:
         try:
             client = AlpacaPaper(role)
             hist = _history_by_day(client)
-            entry["scoreboard"] = scoreboard_row(role, _genesis(role), hist, day, spy)
+            # THE LIVE-EQUITY FALLBACK. Read once per role, used only when the
+            # 1D history has no row for `day` AND the account's own session day
+            # IS `day`. `_session_day` is the venue clock, not this machine's.
+            live_eq, live_day = None, None
+            try:
+                acct = client.account()
+                live_eq = float(acct.get("equity")) if acct.get("equity") is not None else None
+                from alpha import exits as _exits
+                live_day = str(_exits.session_day())
+            except Exception as exc:                              # noqa: BLE001
+                notes.append(f"{role}: live equity unavailable: {str(exc)[:60]}")
+            entry["scoreboard"] = scoreboard_row(role, _genesis(role), hist, day, spy,
+                                                 live_equity=live_eq, live_equity_day=live_day)
             orders = client.orders(status="all", limit=500)
             port = ((payload or {}).get("portfolios") or {}).get(role)
-            entry["books_vs_fills"] = books_vs_fills(port, orders, day)
+            entry["books_vs_fills"] = books_vs_fills(port, orders, day,
+                                                     seal_exists=payload is not None)
         except Exception as exc:                                  # noqa: BLE001
-            entry["scoreboard"] = {"role": role, "status": CANNOT,
-                                   "why": f"venue: {str(exc)[:100]}"}
-            entry["books_vs_fills"] = {"status": CANNOT, "why": "venue unreachable"}
+            entry["scoreboard"] = dict(_cannot(f"venue: {str(exc)[:100]}", CAUSE_PLUMBING),
+                                       role=role)
+            entry["books_vs_fills"] = _cannot("venue unreachable", CAUSE_PLUMBING)
         roles_out[role] = entry
 
     p = prior_tracker_day(day)
+    cf_rows = _load_counterfactual_rows()
     report = {
         "artefact": "DAILY_LEARNING_REPORT",
         "day": day,
@@ -604,13 +803,16 @@ def build_report(day: str | None = None) -> dict:
         "spy": spy,
         "seal_sha256": (payload or {}).get("content_sha256"),
         "roles": roles_out,
-        "refusal_regret": refusal_day_summary(_load_counterfactual_rows(), day),
+        "refusal_regret": refusal_day_summary(cf_rows, day,
+                                              marker_last_day=marker_last_day(cf_rows)),
         "holding_discipline": holding_discipline(_load_decision_rows(), day),
         "entry_authority": entry_authority_rows(list(ROLES)),
         "shadow": shadow_section(shadow_dir() / f"shadow_book_{day}.json"),
         "watchlist": watchlist_events(tracker_symbols(day),
                                       tracker_symbols(p) if p else None, day, p),
     }
+    # Assembled LAST: it reads every other section's `cause`.
+    report["refusal_census"] = refusal_census(report)
     return report
 
 
@@ -622,17 +824,67 @@ def _fmt(v, spec=",.0f", dash="--"):
     return format(v, spec) if isinstance(v, (int, float)) else dash
 
 
+def _refusal(sec: dict | None, label: str = CANNOT) -> str:
+    """One refusal line that says WHOSE fault it is, and the command if we own it."""
+    sec = sec or {}
+    cause = sec.get("cause")
+    tag = {CAUSE_PLUMBING: "OUR PLUMBING", CAUSE_NO_DATA: "no data yet"}.get(cause, "cause not stated")
+    fix = f"   fix: {sec['fix']}" if sec.get("fix") else ""
+    return f"{label} [{tag}]: {sec.get('why')}{fix}"
+
+
+def refusal_census(report: dict) -> dict:
+    """Every refusal on the page, split by cause. THE HEADLINE OF THIS BUILD:
+    a reader must be able to see at a glance how many red lines are our own
+    dead wiring and how many are the honest absence of data."""
+    plumbing: list[str] = []
+    honest: list[str] = []
+    unstated: list[str] = []
+
+    def take(name: str, sec) -> None:
+        if not isinstance(sec, dict):
+            return
+        st = str(sec.get("status") or "")
+        if st in ("ok", ""):
+            return
+        c = sec.get("cause")
+        (plumbing if c == CAUSE_PLUMBING else honest if c == CAUSE_NO_DATA
+         else unstated).append(name)
+
+    for k in ("spy", "refusal_regret", "holding_discipline", "shadow", "watchlist"):
+        take(k, report.get(k))
+    for role, e in (report.get("roles") or {}).items():
+        take(f"{role}.scoreboard", (e or {}).get("scoreboard"))
+        take(f"{role}.books_vs_fills", (e or {}).get("books_vs_fills"))
+    for role, ea in (report.get("entry_authority") or {}).items():
+        if (ea or {}).get("armed") is None:
+            plumbing.append(f"{role}.entry_authority")
+    return {"plumbing": plumbing, "no_data_yet": honest, "cause_unstated": unstated,
+            "reading": ("PLUMBING lines are OUR bugs and each names a command. "
+                        "NO_DATA_YET lines are correct refusals and are meant to stay. "
+                        "A line under cause_unstated is a section that has not been "
+                        "taught the difference -- treat it as unfinished, not as green.")}
+
+
 def render(report: dict) -> str:
     L: list[str] = []
     day, spy = report["day"], report["spy"]
     L.append(f"DAILY LEARNING REPORT  {day}   (generated {report['generated_utc']}Z, read-only)")
+    cen = report.get("refusal_census") or {}
+    if cen:
+        L.append(f"REFUSALS: {len(cen.get('plumbing') or [])} OUR PLUMBING "
+                 f"{sorted(cen.get('plumbing') or []) or ''} | "
+                 f"{len(cen.get('no_data_yet') or [])} no data yet "
+                 f"{sorted(cen.get('no_data_yet') or []) or ''}"
+                 + (f" | {len(cen['cause_unstated'])} CAUSE NOT STATED "
+                    f"{sorted(cen['cause_unstated'])}" if cen.get("cause_unstated") else ""))
     if spy.get("status") == "ok":
         L.append(f"SPY since genesis {spy.get('genesis_kickoff_date')}: "
                  f"{spy['start_close']} -> {spy['end_close']} = {spy['return_pct']:+.3f}%"
                  + (f"   day: {spy['day_return_pct']:+.3f}%"
                     if spy.get("day_return_pct") is not None else ""))
     else:
-        L.append(f"SPY window: {CANNOT} -- {spy.get('why')}")
+        L.append("SPY window: " + _refusal(spy))
 
     L.append("")
     L.append("(a) SCOREBOARD" + (f"   seal {str(report.get('seal_sha256'))[:12]}"
@@ -643,7 +895,7 @@ def render(report: dict) -> str:
     for role, e in report["roles"].items():
         s = e["scoreboard"]
         if s.get("status") != "ok":
-            L.append(f"    {role:<7}{CANNOT}: {s.get('why')}")
+            L.append(f"    {role:<7}" + _refusal(s))
             continue
         L.append(f"    {role:<7}{s['equity']:>11,.0f}{_fmt(s.get('day_pnl_usd'), '+,.0f'):>10}"
                  f"{_fmt(s.get('pnl_vs_genesis_usd'), '+,.0f'):>12}"
@@ -654,13 +906,13 @@ def render(report: dict) -> str:
     for role, e in report["roles"].items():
         b = e["books_vs_fills"]
         if b.get("status") == CANNOT:
-            L.append(f"    {role:<7}{CANNOT}: {b.get('why')}")
+            L.append(f"    {role:<7}" + _refusal(b))
         elif b.get("status") == "no sealed portfolio":
             extra = ""
             if b.get("filled_buys") or b.get("filled_sells"):
                 extra = f"; fills anyway: buys {b['filled_buys']} sells {b['filled_sells']}"
-            L.append(f"    {role:<7}no sealed book (normal for non-tracker roles); "
-                     f"{b['n_orders_day']} orders{extra}")
+            tag = "NO SEAL FOR THE DAY" if b.get("cause") == CAUSE_PLUMBING else "not in the seal"
+            L.append(f"    {role:<7}{tag}; {b['n_orders_day']} orders{extra}")
         else:
             L.append(f"    {role:<7}admitted {b.get('admitted')}  "
                      f"filled {len(b['sealed_filled'])}/{len(b['sealed_symbols'])}  "
@@ -677,7 +929,7 @@ def render(report: dict) -> str:
     rr = report["refusal_regret"]
     L.append("(c) REFUSAL REGRET  (this day's refused decisions, by guard)")
     if rr.get("status") != "ok":
-        L.append(f"    {CANNOT}: {rr.get('why')}")
+        L.append("    " + _refusal(rr))
     else:
         L.append(f"    {rr['n_refused_decisions']} refused decisions -- "
                  f"{rr['n_graded']} graded, {rr['n_ungraded']} ungraded "
@@ -716,12 +968,13 @@ def render(report: dict) -> str:
     L.append("(d) SHADOW  (the finance repo's learner book for this day)")
     if sh["status"] == "not present":
         L.append(f"    not present at {sh['path']}")
+        L.append(f"    [no data yet] {sh.get('note')}")
     elif str(sh["status"]).upper() == "REFUSED":
         L.append("    REFUSED -- a finding, not an outage. Reasons:")
         for r in sh.get("refusal_reasons") or ["(none recorded in the file)"]:
             L.append(f"      - {r}")
     elif sh["status"] == CANNOT:
-        L.append(f"    {CANNOT}: {sh.get('why')}")
+        L.append("    " + _refusal(sh))
     else:
         L.append(f"    {sh.get('model')} / {sh.get('arm')}  k={sh.get('k')}  "
                  f"picks: {', '.join(sh.get('symbols') or [])}")
@@ -730,7 +983,7 @@ def render(report: dict) -> str:
     w = report["watchlist"]
     L.append("(e) WATCHLIST EVENTS  (tracker day file vs the prior one)")
     if w.get("status") != "ok":
-        L.append(f"    {CANNOT}: {w.get('why')}"
+        L.append("    " + _refusal(w)
                  + (f"  ({w['n_watchlist']} names on {day})" if w.get("n_watchlist") else ""))
     else:
         L.append(f"    {w['n_watchlist']} names ({w['n_prev']} on {w['vs_day']}): "

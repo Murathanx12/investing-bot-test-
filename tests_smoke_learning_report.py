@@ -268,6 +268,130 @@ for name in ("calendar", "portfolio_history"):
     check(f"{name} issues only GETs", '"GET"' in body_src and '"POST"' not in body_src
           and '"DELETE"' not in body_src)
 
+
+# ===========================================================================
+# B3 (2026-09-05): every CANNOT DETERMINE names its CAUSE, and there is exactly
+# ONE SPY close source. These are the checks that stop the two regressions:
+# a red line nobody can attribute, and a second module quoting SPY off a
+# different tape.
+# ===========================================================================
+print("\n-- ONE SPY close source (alpha/spy.py), on a NAMED tape")
+from alpha import spy as _spy
+
+check("the tape is stated, not inherited from a helper's default", _spy.FEED == "sip")
+check("closes_from_bars reads t[:10] as the ET session date",
+      _spy.closes_from_bars([{"t": f"{D1}T04:00:00Z", "c": 1.5}]) == {D1: 1.5})
+check("a bar with no close is SKIPPED, never defaulted to zero",
+      _spy.closes_from_bars([{"t": f"{D1}T04:00:00Z"}, {"t": f"{D2}T04:00:00Z", "c": 2.0}])
+      == {D2: 2.0})
+_w = _spy.window({D1: 100.0, D2: 110.0}, genesis_day=D1, day=D2)
+check("alpha.spy.window names itself as the source", _w.get("source", "").startswith("alpha.spy"))
+check("dlr.spy_window DELEGATES to alpha.spy (same source string)",
+      dlr.spy_window([{"t": f"{D1}T04:00:00Z", "c": 100.0},
+                      {"t": f"{D2}T04:00:00Z", "c": 110.0}],
+                     genesis_day=D1, day=D2).get("source") == _w.get("source"))
+_dlr_src = Path("scripts/daily_learning_report.py").read_text(encoding="utf-8")
+check("the report no longer fetches SPY bars itself",
+      'stock_bars("SPY"' not in _dlr_src and "stock_bars('SPY'" not in _dlr_src)
+for _mod in ("scripts/move_decomposition.py", "scripts/logic_brain.py"):
+    _src = Path(_mod).read_text(encoding="utf-8")
+    check(f"{_mod} takes its SPY symbol and tape from alpha.spy",
+          "from alpha import spy as _spy" in _src and "_spy.FEED" in _src)
+
+print("\n-- the live-equity fallback: used for TODAY, never stamped onto an older day")
+_row = dlr.scoreboard_row("hack9", GEN, {D1: 100000.0}, D2, SPY_OK,
+                          live_equity=99000.0, live_equity_day=D2)
+check("history missing the day + live account ON the day -> live equity is used",
+      _row["status"] == "ok" and _row["equity"] == 99000.0, str(_row))
+check("and the row SAYS the number came from the live account",
+      "LIVE account" in _row.get("equity_source", ""), str(_row.get("equity_source")))
+_row2 = dlr.scoreboard_row("hack9", GEN, {D1: 100000.0}, D2, SPY_OK,
+                           live_equity=99000.0, live_equity_day=D1)
+check("live equity for ANOTHER day is refused, not stamped on",
+      _row2["status"] == dlr.CANNOT and _row2["cause"] == dlr.CAUSE_NO_DATA, str(_row2))
+_row3 = dlr.scoreboard_row("hack9", GEN, {D1: 100000.0}, D2, SPY_OK)
+check("no live equity read at all -> PLUMBING, because we never asked the venue",
+      _row3["cause"] == dlr.CAUSE_PLUMBING, str(_row3))
+check("a history hit still records its source",
+      dlr.scoreboard_row("hack9", GEN, HIST, D2, SPY_OK)["equity_source"]
+      == "portfolio_history 1D")
+
+print("\n-- refusal regret: a dead marker and an empty day are DIFFERENT facts")
+_stale = dlr.refusal_day_summary([], D2, marker_last_day=D0)
+check("marker last wrote before the day -> PLUMBING, with the command",
+      _stale["cause"] == dlr.CAUSE_PLUMBING and "counterfactual --record" in _stale["fix"],
+      str(_stale))
+check("and it says outright that this is not evidence either way",
+      "not a day on which nothing was refused" in _stale["why"])
+_fresh = dlr.refusal_day_summary([], D2, marker_last_day=D2)
+check("marker current + no refusals -> status ok with an explicit ZERO, not a refusal",
+      _fresh["status"] == "ok" and _fresh["n_refused_decisions"] == 0, str(_fresh))
+_never = dlr.refusal_day_summary([], D2, marker_last_day=None)
+check("marker never ran at all -> PLUMBING, naming the ledger directory",
+      _never["cause"] == dlr.CAUSE_PLUMBING and "never run" in _never["why"], str(_never))
+check("marker_last_day is the NEWEST ET day in the rows",
+      dlr.marker_last_day([{"ts_utc": f"{D0}T15:00:00+00:00"},
+                           {"ts_utc": f"{D1}T15:00:00+00:00"}]) == D1)
+
+print("\n-- shadow and tracker: a missing PATH and a missing DAY are different")
+with tempfile.TemporaryDirectory() as td:
+    _sd = Path(td) / "learner"
+    _missing = dlr.shadow_section(_sd / f"shadow_book_{D2}.json")
+    check("no shadow DIRECTORY -> PLUMBING, naming AEGIS_SHADOW_DIR",
+          _missing["cause"] == dlr.CAUSE_PLUMBING and "AEGIS_SHADOW_DIR" in _missing["why"],
+          str(_missing))
+    _sd.mkdir(parents=True)
+    (_sd / f"shadow_book_{D1}.json").write_text("{}", encoding="utf-8")
+    _absent = dlr.shadow_section(_sd / f"shadow_book_{D2}.json")
+    check("directory present, this day absent -> NO_DATA_YET naming the newest day",
+          _absent["cause"] == dlr.CAUSE_NO_DATA and _absent["latest_day_present"] == D1,
+          str(_absent))
+
+    os.environ["AAT_TRACKER_DIR"] = str(Path(td) / "nope")
+    try:
+        _wl = dlr.watchlist_events(None, None, D2, None)
+        check("no tracker DIRECTORY -> PLUMBING with the refresh command",
+              _wl["cause"] == dlr.CAUSE_PLUMBING and "--refresh" in _wl["fix"], str(_wl))
+        _t = Path(td) / "tracker"
+        _t.mkdir()
+        os.environ["AAT_TRACKER_DIR"] = str(_t)
+        _wl2 = dlr.watchlist_events(None, None, D2, None)
+        check("tracker directory with NO day files at all -> PLUMBING",
+              _wl2["cause"] == dlr.CAUSE_PLUMBING and "NO day files" in _wl2["why"], str(_wl2))
+        (_t / f"{D1}.jsonl").write_text('{"symbol": "AAA"}' + "\n", encoding="utf-8")
+        check("tracker_symbols reads out of AAT_TRACKER_DIR", dlr.tracker_symbols(D1) == {"AAA"})
+        _wl3 = dlr.watchlist_events(None, None, D2, None)
+        check("day file missing while an OLDER one exists -> the newest present is NAMED",
+              _wl3["latest_day_present"] == D1, str(_wl3))
+    finally:
+        os.environ.pop("AAT_TRACKER_DIR", None)
+
+print("\n-- books vs fills: 'no seal at all' is not 'not a tracker book'")
+_none = dlr.books_vs_fills(None, [], D2, seal_exists=False)
+check("no seal for the day -> PLUMBING, with the seal command",
+      _none["cause"] == dlr.CAUSE_PLUMBING and "prediction_book --seal" in _none["fix"],
+      str(_none))
+_absent_role = dlr.books_vs_fills(None, [], D2, seal_exists=True)
+check("a seal exists and this role is not in it -> NO_DATA_YET",
+      _absent_role["cause"] == dlr.CAUSE_NO_DATA, str(_absent_role))
+
+print("\n-- the census: how many red lines are OURS")
+_cen = dlr.refusal_census({
+    "spy": {"status": "ok"},
+    "refusal_regret": _stale,
+    "shadow": _absent,
+    "watchlist": {"status": dlr.CANNOT, "why": "no cause set here"},
+    "roles": {"hack9": {"scoreboard": _row3, "books_vs_fills": _none}},
+    "entry_authority": {"hack9": {"armed": None, "binding": "CANNOT DETERMINE: x"}},
+})
+check("plumbing lines are counted and named",
+      set(_cen["plumbing"]) == {"refusal_regret", "hack9.scoreboard",
+                                "hack9.books_vs_fills", "hack9.entry_authority"},
+      str(_cen["plumbing"]))
+check("honest 'no data yet' lines are counted separately", _cen["no_data_yet"] == ["shadow"])
+check("a section that states NO cause is flagged as unfinished, not as green",
+      _cen["cause_unstated"] == ["watchlist"], str(_cen))
+
 print(f"\n{'ALL PASS' if not fails else 'FAILED: ' + ', '.join(fails)}")
 if __name__ == "__main__":
     raise SystemExit(1 if fails else 0)
