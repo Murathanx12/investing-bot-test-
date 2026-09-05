@@ -1,0 +1,201 @@
+{
+ "item": "LABOR_DAY_LAB_2026-09-07 / lane B / B2",
+ "title": "fantasy stress exams \u2014 monotonicity under one flipped fact",
+ "licence": "PRODUCT_EXPERIMENT",
+ "mode": "RANK_ONLY \u2014 no return labels exist for this exam",
+ "generated_at_utc": "2026-09-05T15:14:35+00:00",
+ "argv": [
+  "C:\\Users\\mrthn\\aegis-alpha-terminal\\scripts\\labor_b2_fantasy_exams.py",
+  "--dry-run",
+  "--pairs",
+  "2",
+  "--canaries",
+  "1"
+ ],
+ "git_commit": "00100d88f2dbb6e09f218cb490f395f4cae68e57",
+ "python": "3.12.10",
+ "dry_run": true,
+ "config": {
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "n_pairs": 2,
+  "n_canaries": 1,
+  "cap_usd": 5.0,
+  "seed": 20260907,
+  "max_tokens": 400,
+  "temperature": 0.1,
+  "canary_tolerance": 0.05
+ },
+ "exam": {
+  "entity_map_sha256": "8f187ace49963af0ae363650c499f5a3ec0b91bdb8a81b0206296255d5c8d124",
+  "era": "2051-01",
+  "n_pairs": 2,
+  "n_canaries": 1,
+  "seed": 20260907,
+  "map_note": "names come from alpha.transpose.build_entity_map \u2014 sealed, deterministic, never shown to the model",
+  "brief_note": "briefs are written in CODE from a template. A model that writes its own exam writes an easy one."
+ },
+ "why_this_call_can_change_a_decision": "Decides whether the LLM decider may be given any role in ranking names at all: if its p_up does not move the economically correct way when one causal fact flips in an otherwise identical fictional brief, we refuse to let it rank or size anything and the ranking stays numerical. A high monotonicity share with a low canary rate promotes it to a scored arm in the entry tournament; a low share kills that lane this week.",
+ "prompt_carries_no_numeric_bound": "S28: a bound stated IN THE PROMPT is an anchor \u2014 11 of 13 answers came back at exactly the bound. The system prompt names units and no limits.",
+ "system_prompt": "You are a securities analyst. You are given a brief about one company and you must state a short-horizon view. Think about the mechanism: what the described fact does to revenue, costs, financing and risk over the next month. Answer with one JSON object and nothing else, with these keys: p_up_21d (a probability that the stock is higher in 21 trading sessions), exp_return (the expected return over those 21 sessions, as a decimal fraction, negative for a loss), downside_5pct (the return at the 5th percentile of your outcome distribution, as a decimal fraction), confidence (how much you trust your own estimate, as a fraction), and reason (one sentence).",
+ "summary": {
+  "pairs_graded": 2,
+  "monotonicity_share_p_up": 1.0,
+  "monotonicity_share_exp_return": 1.0,
+  "monotonicity_share_downside": 1.0,
+  "share_all_three_agree": 1.0,
+  "mean_abs_move_p_up": 0.37,
+  "mean_signed_move_p_up": 0.37,
+  "mean_abs_move_exp_return": 0.074,
+  "canaries_graded": 1,
+  "canary_rate": 0.0,
+  "canary_tolerance": 0.05,
+  "canary_reading": "the share of causally IRRELEVANT pairs on which the forecast still moved more than 0.05 of probability. It is the rate at which the decider manufactures a view out of nothing, and it is what says whether a high monotonicity share means anything.",
+  "by_family": {
+   "fda": {
+    "n": 1,
+    "correct": 1,
+    "mean_abs_d_p_up": 0.37,
+    "share_correct": 1.0
+   },
+   "sanction": {
+    "n": 1,
+    "correct": 1,
+    "mean_abs_d_p_up": 0.37,
+    "share_correct": 1.0
+   }
+  },
+  "counts_note": {
+   "p_up": 2,
+   "exp_return": 2,
+   "downside": 2,
+   "all_three": 2
+  }
+ },
+ "pairs": [
+  {
+   "pair_id": "PAIR-000",
+   "family": "fda",
+   "is_canary": false,
+   "p_up_good": 0.68,
+   "p_up_bad": 0.31,
+   "d_p_up": 0.37,
+   "d_exp_return": 0.074,
+   "d_downside": 0.037,
+   "p_up_moves_correctly": true,
+   "exp_return_moves_correctly": true,
+   "downside_moves_correctly": true,
+   "all_three_agree": true,
+   "reason_good": "stub",
+   "reason_bad": "stub"
+  },
+  {
+   "pair_id": "PAIR-001",
+   "family": "sanction",
+   "is_canary": false,
+   "p_up_good": 0.68,
+   "p_up_bad": 0.31,
+   "d_p_up": 0.37,
+   "d_exp_return": 0.074,
+   "d_downside": 0.037,
+   "p_up_moves_correctly": true,
+   "exp_return_moves_correctly": true,
+   "downside_moves_correctly": true,
+   "all_three_agree": true,
+   "reason_good": "stub",
+   "reason_bad": "stub"
+  },
+  {
+   "pair_id": "CANARY-002",
+   "family": "canary_irrelevant",
+   "is_canary": true,
+   "p_up_good": 0.5,
+   "p_up_bad": 0.5,
+   "d_p_up": 0.0,
+   "d_exp_return": 0.0,
+   "d_downside": 0.0,
+   "p_up_moves_correctly": false,
+   "exp_return_moves_correctly": false,
+   "downside_moves_correctly": true,
+   "all_three_agree": false,
+   "canary_moved": false,
+   "reason_good": "stub",
+   "reason_bad": "stub"
+  }
+ ],
+ "refusals": [],
+ "stopped_at_pair": null,
+ "spend": {
+  "calls": 6,
+  "usd_from_tokens": 0.0,
+  "usd_to_the_cent": 0.0,
+  "cap_usd": 5.0,
+  "price_per_mtok": {
+   "in": 0.169413,
+   "out": 1.284835,
+   "source": "aegis-finance backend/config.LLM_PRICE_PER_MTOK, derived from the provider balance 2026-09-05"
+  },
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "balance_usd_before": null,
+  "balance_usd_after": null,
+  "balance_delta_usd": null,
+  "balance_note": "the provider's balance is the economic truth; the token figure is OUR telemetry and has disagreed before"
+ },
+ "calls": [
+  {
+   "pair_id": "PAIR-000",
+   "leg": "bad",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  },
+  {
+   "pair_id": "PAIR-000",
+   "leg": "good",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  },
+  {
+   "pair_id": "PAIR-001",
+   "leg": "bad",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  },
+  {
+   "pair_id": "PAIR-001",
+   "leg": "good",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  },
+  {
+   "pair_id": "CANARY-002",
+   "leg": "good",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  },
+  {
+   "pair_id": "CANARY-002",
+   "leg": "bad",
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "latency_s": 0.0,
+   "usd": 0.0,
+   "model": "stub"
+  }
+ ]
+}

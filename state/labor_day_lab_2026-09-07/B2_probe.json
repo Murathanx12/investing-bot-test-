@@ -1,0 +1,129 @@
+{
+ "item": "LABOR_DAY_LAB_2026-09-07 / lane B / B2",
+ "title": "fantasy stress exams \u2014 monotonicity under one flipped fact",
+ "licence": "PRODUCT_EXPERIMENT",
+ "mode": "RANK_ONLY \u2014 no return labels exist for this exam",
+ "generated_at_utc": "2026-09-05T15:15:24+00:00",
+ "argv": [
+  "C:\\Users\\mrthn\\aegis-alpha-terminal\\scripts\\labor_b2_fantasy_exams.py",
+  "--pairs",
+  "1",
+  "--canaries",
+  "0",
+  "--cap",
+  "0.50",
+  "--out",
+  "state/labor_day_lab_2026-09-07/B2_probe.json"
+ ],
+ "git_commit": "00100d88f2dbb6e09f218cb490f395f4cae68e57",
+ "python": "3.12.10",
+ "dry_run": false,
+ "config": {
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "n_pairs": 1,
+  "n_canaries": 0,
+  "cap_usd": 0.5,
+  "seed": 20260907,
+  "max_tokens": 400,
+  "temperature": 0.1,
+  "canary_tolerance": 0.05
+ },
+ "exam": {
+  "entity_map_sha256": "c69e0a8bcf047f3267b81dd99889d6c930bd4eae079ceaf0c08198ba30e1ae59",
+  "era": "2051-01",
+  "n_pairs": 1,
+  "n_canaries": 0,
+  "seed": 20260907,
+  "map_note": "names come from alpha.transpose.build_entity_map \u2014 sealed, deterministic, never shown to the model",
+  "brief_note": "briefs are written in CODE from a template. A model that writes its own exam writes an easy one."
+ },
+ "why_this_call_can_change_a_decision": "Decides whether the LLM decider may be given any role in ranking names at all: if its p_up does not move the economically correct way when one causal fact flips in an otherwise identical fictional brief, we refuse to let it rank or size anything and the ranking stays numerical. A high monotonicity share with a low canary rate promotes it to a scored arm in the entry tournament; a low share kills that lane this week.",
+ "prompt_carries_no_numeric_bound": "S28: a bound stated IN THE PROMPT is an anchor \u2014 11 of 13 answers came back at exactly the bound. The system prompt names units and no limits.",
+ "system_prompt": "You are a securities analyst. You are given a brief about one company and you must state a short-horizon view. Think about the mechanism: what the described fact does to revenue, costs, financing and risk over the next month. Answer with one JSON object and nothing else, with these keys: p_up_21d (a probability that the stock is higher in 21 trading sessions), exp_return (the expected return over those 21 sessions, as a decimal fraction, negative for a loss), downside_5pct (the return at the 5th percentile of your outcome distribution, as a decimal fraction), confidence (how much you trust your own estimate, as a fraction), and reason (one sentence).",
+ "summary": {
+  "pairs_graded": 1,
+  "monotonicity_share_p_up": 1.0,
+  "monotonicity_share_exp_return": 1.0,
+  "monotonicity_share_downside": 1.0,
+  "share_all_three_agree": 1.0,
+  "mean_abs_move_p_up": 0.5,
+  "mean_signed_move_p_up": 0.5,
+  "mean_abs_move_exp_return": 0.17,
+  "canaries_graded": 0,
+  "canary_rate": null,
+  "canary_tolerance": 0.05,
+  "canary_reading": "the share of causally IRRELEVANT pairs on which the forecast still moved more than 0.05 of probability. It is the rate at which the decider manufactures a view out of nothing, and it is what says whether a high monotonicity share means anything.",
+  "by_family": {
+   "fda": {
+    "n": 1,
+    "correct": 1,
+    "mean_abs_d_p_up": 0.5,
+    "share_correct": 1.0
+   }
+  },
+  "counts_note": {
+   "p_up": 1,
+   "exp_return": 1,
+   "downside": 1,
+   "all_three": 1
+  }
+ },
+ "pairs": [
+  {
+   "pair_id": "PAIR-000",
+   "family": "fda",
+   "is_canary": false,
+   "p_up_good": 0.65,
+   "p_up_bad": 0.15,
+   "d_p_up": 0.5,
+   "d_exp_return": 0.17,
+   "d_downside": 0.15,
+   "p_up_moves_correctly": true,
+   "exp_return_moves_correctly": true,
+   "downside_moves_correctly": true,
+   "all_three_agree": true,
+   "reason_good": "Regulatory approval removes a major overhang, likely boosting revenue prospects and investor sentiment, though high volatility and leverage temper the upside.",
+   "reason_bad": "Regulatory rejection of the lead product severely impairs revenue prospects and increases risk, likely causing a sharp sell-off and negative returns over the next month."
+  }
+ ],
+ "refusals": [],
+ "stopped_at_pair": null,
+ "spend": {
+  "calls": 2,
+  "usd_from_tokens": 0.000317,
+  "usd_to_the_cent": 0.01,
+  "cap_usd": 0.5,
+  "price_per_mtok": {
+   "in": 0.169413,
+   "out": 1.284835,
+   "source": "aegis-finance backend/config.LLM_PRICE_PER_MTOK, derived from the provider balance 2026-09-05"
+  },
+  "prompt_tokens": 642,
+  "completion_tokens": 162,
+  "balance_usd_before": 9.37,
+  "balance_usd_after": 9.37,
+  "balance_delta_usd": 0.0,
+  "balance_note": "the provider's balance is the economic truth; the token figure is OUR telemetry and has disagreed before"
+ },
+ "calls": [
+  {
+   "pair_id": "PAIR-000",
+   "leg": "bad",
+   "prompt_tokens": 322,
+   "completion_tokens": 83,
+   "latency_s": 0.97,
+   "usd": 0.000161,
+   "model": "deepseek-chat"
+  },
+  {
+   "pair_id": "PAIR-000",
+   "leg": "good",
+   "prompt_tokens": 320,
+   "completion_tokens": 79,
+   "latency_s": 1.08,
+   "usd": 0.000156,
+   "model": "deepseek-chat"
+  }
+ ]
+}
