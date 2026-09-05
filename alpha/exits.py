@@ -254,7 +254,33 @@ def _evaluate_shares(position: dict, *, plpc: float, et: datetime,
             f"it the position is an undeclared bet.{src}"), code="HARD_RISK_LIMIT")
 
     # 2. A position nothing declared. Not a thesis, so no hold protects it.
+    #
+    # A DATA GAP IS NOT A SELL SIGNAL (2026-09-07, Labor Day lab C1-7)
+    # ================================================================
+    # This clause reads "no row" as "nothing declared this position". That is
+    # only true if the ledger could be read. `ledger.read_all` SKIPS a line it
+    # cannot parse and records it in `ledger.MALFORMED` -- and nothing read that
+    # counter, so a single spliced line (the 25 Aug two-writer damage is exactly
+    # this shape, and the chain has carried it since) under a healthy position's
+    # entry row turned a bookkeeping tear into a MARKET SELL at whatever the
+    # book was worth that minute.
+    #
+    # The stop above is untouched and deliberately so: `HARD_RISK_LIMIT` is
+    # computed from the VENUE's own unrealised P&L and needs no local file to be
+    # true, so a torn ledger can never trap a losing position. What is withheld
+    # is only the DISCRETIONARY flatten, and it is withheld with a typed reason
+    # a `group by` can find rather than by falling through to HELD.
     if row is None:
+        torn = list(ledger.MALFORMED.get("decisions") or [])
+        if torn:
+            return ExitVerdict(False, (
+                f"DATA_ERROR: no entry row for {symbol} in this account, and the decisions "
+                f"ledger has {len(torn)} torn/unreadable line(s) (first at line {torn[0]}). "
+                f"'No row' is therefore not evidence that nothing declared this position -- "
+                f"it is evidence the record is damaged. HELD: a data gap is not a sell signal, "
+                f"and the {stop_frac:.0%} stop above is unaffected because it is computed from "
+                f"the venue's own P&L. Repair the read (do NOT rewrite the chain) and re-run."),
+                code="HELD")
         return ExitVerdict(True, (
             "EXECUTION_CORRECTION: shares with NO ledger row in this account -- nothing declared a "
             "horizon, a stop or a contract for them. Flattened rather than carried as an "
@@ -710,9 +736,22 @@ def manage(client: AlpacaPaper, *, deadline_utc: str, dry_run: bool = True) -> d
             replaced = "not attempted"
             try:
                 res = protect.ensure(client, [position], dry_run=False, exclude_qty=reserved)
-                replaced = f"re-placed ({res.get('placed')} order(s))"
-                summary["actions"].append(("stop_replaced", symbol, replaced))
-                logger.info("re-placed the protective stop on %s after the close failed", symbol)
+                # `ensure` DOES NOT RAISE ON A REFUSED STOP (2026-09-07, lab C1-10).
+                # It catches the venue's BrokerRefusal, appends it to `refused`
+                # and returns normally -- so the old code stamped
+                # "stop_replaced ... re-placed ([] order(s))" and moved on while
+                # the position stood naked. A halted name refuses BOTH the close
+                # and the stop, which is exactly the state that must be loud.
+                if res.get("placed") or res.get("kept"):
+                    replaced = f"re-placed ({res.get('placed') or res.get('kept')})"
+                    summary["actions"].append(("stop_replaced", symbol, replaced))
+                    logger.info("re-placed the protective stop on %s after the close failed", symbol)
+                else:
+                    replaced = (f"RE-PLACE PLACED NOTHING: refused={res.get('refused')} "
+                                f"-- {symbol} is UNPROTECTED")
+                    summary["actions"].append(("stop_replace_failed", symbol, replaced))
+                    logger.error("%s is UNPROTECTED: close failed and the stop re-place "
+                                 "placed no order (%s)", symbol, res.get("refused"))
             except (BrokerRefusal, Exception) as exc2:                   # noqa: BLE001
                 replaced = f"RE-PLACE FAILED: {type(exc2).__name__}: {exc2}"
                 summary["actions"].append(("stop_replace_failed", symbol, replaced))

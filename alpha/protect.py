@@ -70,14 +70,60 @@ _LIVE_STATES = frozenset({"new", "accepted", "held", "pending_new", "accepted_fo
                           "pending_replace", "suspended"})
 
 
-def stop_client_order_id(symbol: str, qty: int, stop_price: float) -> str:
+def stop_client_order_id(symbol: str, qty: int, stop_price: float,
+                         *, now: datetime | None = None) -> str:
     """Deterministic in the inputs, so a re-place after a size change is a NEW id.
 
     Idempotency does not rest on this -- it rests on reading the venue's open
     orders in `ensure()`. This exists so that two identical intents cannot
     double-place inside one pass, and so the id is greppable in an audit.
+
+    THE SALT IS NOT DECORATION (2026-09-07, Labor Day lab C1-4)
+    ==========================================================
+    Alpaca's `client_order_id` uniqueness is over the ACCOUNT'S LIFETIME, not
+    over the day and not over the set of OPEN orders. The first cut hashed
+    `symbol|qty|price` alone, which carries no clock at all -- so a position
+    whose size and entry price had not changed asked for THE SAME ID the next
+    morning, and got
+
+        HTTP 422 {"code":40010001,"message":"client_order_id must be unique"}
+
+    That is the BUR stop failure, and its shape is the worst kind: the refusal
+    is recorded, the pass continues, and the position simply has no stop --
+    every day, for the same reason, for as long as it is held. A risk control
+    that cannot be re-placed is a risk control that is gone.
+
+    Two salts, and each answers a different collision:
+
+      SESSION DAY   the overnight case above. `alpha.exits.session_day` is the
+                    repo's one definition of the trading day, so a stop placed
+                    at 22:00 UTC and one placed at 02:00 UTC the same ET session
+                    still agree.
+      INSTANT       the SAME-SESSION re-place. `exits.manage` cancels the stop
+                    before a close; when the close then fails it re-places one
+                    seconds later -- and with a day salt alone that is the same
+                    id the cancel just retired. The venue refuses it anyway,
+                    because a `client_order_id` is spent whether or not the
+                    order it named still rests. That is the 2026-09-04 hack2
+                    "76 unprotected minutes" defect reappearing one layer down,
+                    and it is why the salt is an instant and not a date.
+
+    WHAT IS GIVEN UP, AND WHY IT COSTS NOTHING
+    ------------------------------------------
+    Two calls a microsecond apart no longer collide, so this id no longer stops
+    a double-place by itself. It never did: the module's own docstring says
+    *"`ensure()` is idempotent by reading the venue rather than by remembering
+    what it did"*, and inside one `ensure()` each position is visited exactly
+    once. A crash between POST and response is covered by the same read -- the
+    next pass sees the resting stop and keeps it. `now` is injectable so the id
+    stays deterministic GIVEN A CLOCK, which is what a test can pin.
     """
-    digest = hashlib.sha256(f"{symbol}|{qty}|{stop_price:.2f}".encode()).hexdigest()[:24]
+    from alpha import exits as _exits
+
+    t = now or datetime.now(timezone.utc)
+    salt = f"{_exits.session_day(t)}|{t.strftime('%H%M%S%f')}"
+    digest = hashlib.sha256(
+        f"{symbol}|{qty}|{stop_price:.2f}|{salt}".encode()).hexdigest()[:24]
     return f"{STOP_PREFIX}{digest}"
 
 
@@ -105,6 +151,93 @@ def stopped_today(client: AlpacaPaper, *, now: datetime | None = None) -> set[st
         if is_ours(order) and order.get("status") == "filled":
             out.add(str(order.get("symbol") or ""))
     return {s for s in out if s}
+
+
+def stops_placed_today(*, now: datetime | None = None) -> set[str]:
+    """Symbols this account PLACED a protective stop on during today's ET session.
+
+    Read from `protective_stops.jsonl`, the local append-only audit `_record`
+    writes on every placement. It is not a record of FILLS -- it cannot be --
+    but it is the set of names that had a stop standing today, which is exactly
+    the population a stop could have closed. Local, so it survives a venue that
+    is not answering.
+    """
+    from pathlib import Path
+
+    from alpha import exits as _exits
+    from alpha import ledger
+
+    today = _exits.session_day(now)
+    out: set[str] = set()
+    path = Path(ledger.LEDGER_DIR) / "protective_stops.jsonl"
+    if not path.exists():
+        return out
+    try:
+        with path.open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except ValueError:
+                    continue
+                ts = row.get("ts_utc")
+                if not ts:
+                    continue
+                try:
+                    t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+                except ValueError:
+                    continue
+                if _exits.session_day(t) == today and row.get("symbol"):
+                    out.add(str(row["symbol"]))
+    except OSError as exc:                                       # noqa: BLE001
+        logger.warning("protective stop audit unreadable: %s", exc)
+    return out
+
+
+def stopped_today_or_suspects(client: AlpacaPaper, *, now: datetime | None = None,
+                              held: set[str] | None = None) -> tuple[set[str], str]:
+    """`stopped_today`, and what to do when the VENUE will not answer it.
+
+    A GUARD DERIVES ITS INPUTS OR REFUSES (2026-09-07, Labor Day lab C1-13)
+    ======================================================================
+    `runner.run_pass` used to call `stopped_today` inside a bare
+    `except Exception: stopped = set()` and log *"re-entry guard is OFF this
+    pass"*. That is a fail-OPEN, and it fails open on exactly the correlated
+    event that makes it matter: a venue having a bad morning is a venue whose
+    stops are firing. The loop could then re-buy at 10:31 a name its own stop
+    closed at 10:01, and the only trace would be one WARNING line.
+
+    The ledger cannot cover the gap either -- `exits_closed_today` sees the
+    closes WE performed, and a stop that filled at the venue writes no exit row
+    at all. So the fallback is DERIVED from the one local record that does
+    describe the population: the protective-stop audit. A name we placed a stop
+    on today and no longer hold either left through that stop or through an exit
+    the ledger already names. Both are exits, and neither is re-buyable today.
+
+    Returns `(symbols, note)`. The note is written onto the pass's log and says
+    which source answered, so a fallback can never be mistaken for a clean read.
+    """
+    try:
+        got = stopped_today(client, now=now)
+        return got, f"venue closed-orders: {len(got)} name(s) stopped today"
+    except Exception as exc:                                     # noqa: BLE001
+        # BOUND OUTSIDE THE HANDLER ON PURPOSE: Python deletes the `as` name at
+        # the end of an except clause, so a message built afterwards from `exc`
+        # is a NameError on the one path that needs it.
+        why = str(exc)
+    held = held if held is not None else set()
+    try:
+        placed = stops_placed_today(now=now)
+    except Exception as exc2:                                    # noqa: BLE001
+        return set(), (f"venue closed-orders unreadable AND the local stop audit failed "
+                       f"({exc2}); the re-entry guard has NO input this pass")
+    suspects = {s for s in placed if s not in held}
+    return suspects, (
+        f"venue closed-orders unreadable ({why[:120]}); FALLBACK to the local "
+        f"protective-stop audit -- {len(placed)} name(s) carried a stop today, "
+        f"{len(suspects)} of them are no longer held and are treated as exited")
 
 
 def open_stops(client: AlpacaPaper) -> dict[str, list[dict[str, Any]]]:
@@ -135,7 +268,8 @@ def stop_price_for(position: dict[str, Any], stop_fraction: float) -> tuple[floa
     return round(entry * (1.0 + stop_fraction), 2), "buy"
 
 
-def build_stop(position: dict[str, Any], stop_fraction: float) -> dict[str, Any] | None:
+def build_stop(position: dict[str, Any], stop_fraction: float,
+               *, now: datetime | None = None) -> dict[str, Any] | None:
     """The order payload, or None when this position cannot carry one."""
     symbol = str(position.get("symbol") or "")
     if (position.get("asset_class") or "") != "us_equity" or not symbol:
@@ -150,7 +284,7 @@ def build_stop(position: dict[str, Any], stop_fraction: float) -> dict[str, Any]
         "symbol": symbol, "qty": str(qty), "side": side,
         "type": "stop", "stop_price": f"{price:.2f}",
         "time_in_force": "gtc",
-        "client_order_id": stop_client_order_id(symbol, qty, price),
+        "client_order_id": stop_client_order_id(symbol, qty, price, now=now),
     }
 
 
@@ -198,7 +332,8 @@ def sweep_orphans(client: AlpacaPaper, positions: list[dict[str, Any]] | None = 
 
 def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
            *, stop_fraction: float | None = None, dry_run: bool = False,
-           exclude_qty: dict[str, int] | None = None) -> dict[str, Any]:
+           exclude_qty: dict[str, int] | None = None,
+           now: datetime | None = None) -> dict[str, Any]:
     """Every share position ends this call with a live stop at the venue, or a
     recorded reason why it does not.
 
@@ -227,7 +362,7 @@ def ensure(client: AlpacaPaper, positions: list[dict[str, Any]] | None = None,
                 summary["refused"].append(f"{sym0}: hedge leg of a live pair, no stop of its own")
                 continue
             position = {**position, "qty": str(free)}
-        order = build_stop(position, stop_fraction)
+        order = build_stop(position, stop_fraction, now=now)
         if order is None:
             continue
         symbol = order["symbol"]

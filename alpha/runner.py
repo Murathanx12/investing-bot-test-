@@ -1158,11 +1158,16 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     reserve_for = {d: v for d, v in EVENT_RESERVE.items() if d >= today}
     reserve_total = sum(reserve_for.values())
     from alpha import protect as _protect
-    try:
-        stopped = _protect.stopped_today(client)
-    except Exception as exc:                                            # noqa: BLE001
-        stopped = set()
-        logger.warning("stopped_today unreadable (%s); re-entry guard is OFF this pass", exc)
+    # A GUARD DERIVES ITS INPUTS OR REFUSES (2026-09-07, Labor Day lab C1-13).
+    # This used to be `except Exception: stopped = set()` with a WARNING that
+    # said "re-entry guard is OFF this pass" -- a fail-OPEN, on precisely the
+    # correlated event that makes the guard matter: a venue having a bad morning
+    # is a venue whose stops are firing. `stopped_today_or_suspects` falls back
+    # to the LOCAL protective-stop audit instead of to nothing, and says which
+    # source answered so a fallback can never read as a clean pass.
+    stopped, _reentry_note = _protect.stopped_today_or_suspects(
+        client, held=set(held or ()))
+    logger.info("re-entry guard: %s", _reentry_note)
     # EVERY EXIT, NOT ONLY THE ONES THE VENUE STOPPED (2026-09-05).
     #
     # `stopped_today` reads the venue's CLOSED ORDERS, which sees a protective
@@ -1812,18 +1817,32 @@ def contract_for(forecast: Forecast, structure, contracts: int) -> dict:
     sealed = None
     if forecast.brain == _tracker_portfolio.BRAIN:
         try:
-            h = (_tracker_portfolio.sealed_holdings().get("holdings") or {}).get(forecast.symbol)
-            if isinstance(h, dict) and not contract_mod.validate(
-                    {f: h.get(f) for f in contract_mod.REQUIRED_FIELDS}):
-                sealed = {f: h.get(f) for f in contract_mod.REQUIRED_FIELDS}
-                sealed["book"] = role
+            book = _tracker_portfolio.sealed_holdings()
+            # THE BOOK-LEVEL BLOCK FIRST (2026-09-07, Labor Day lab C1-6).
+            # `scripts.prediction_book._contract_block` writes the contract at
+            # `portfolios[<book>]["contract"]` -- one per BOOK, because that is
+            # what a book promises. This function only ever looked on the
+            # HOLDING, where those fields have never appeared: `_portfolio_block`
+            # writes symbol/notional/sector/rank_value/exp_return/downside_5pct/
+            # confidence/numbers_source and nothing else. So `validate` failed on
+            # every order, `sealed` stayed None, and the published stop width,
+            # profit target, thesis expiry and risk budget were silently replaced
+            # by the role default -- the seal proved terms nothing read.
+            for cand, src in ((book.get("contract"), "sealed_book"),
+                              ((book.get("holdings") or {}).get(forecast.symbol),
+                               "sealed_holding")):
+                if isinstance(cand, dict) and not contract_mod.validate(
+                        {f: cand.get(f) for f in contract_mod.REQUIRED_FIELDS}):
+                    sealed = {k: v for k, v in cand.items()}
+                    sealed["book"] = sealed.get("book") or role
+                    sealed["source"] = src
+                    break
         except Exception as exc:                                        # noqa: BLE001
             logger.debug("no sealed contract for %s (%s); falling back to the role default",
                          forecast.symbol, exc)
     if sealed is not None:
         if risk > 0:
             sealed["risk_budget_usd"] = round(risk, 2)
-        sealed["source"] = "sealed_book"
         return sealed
     from alpha import exits as _exits_mod
     # AN EVENT BOOK'S HORIZON IS THE FORECAST'S HORIZON. For the tracker books

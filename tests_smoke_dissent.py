@@ -208,7 +208,12 @@ with tempfile.TemporaryDirectory() as _td:
     _dir.mkdir(parents=True)
     _old_book = {
         "schema": "prediction-book-3", "day": "2026-08-31",
-        "content_sha256": "old" * 8, "sealed_at_utc": "2026-08-31T07:05:00+00:00",
+        # STAMPED BELOW, not written here. Since 2026-09-07 (Labor Day lab C1-5)
+        # `sealed_holdings` recomputes the seal's own hash and declines a book
+        # that fails it -- the trading path was the last reader of the seal that
+        # did not check the guarantee. A placeholder digest is exactly what that
+        # check is for, so this fixture is sealed properly rather than exempted.
+        "sealed_at_utc": "2026-08-31T07:05:00+00:00",
         "portfolios": {"hack4": {
             "book": "hack4", "ranking": "rank_profit_max", "k_target": 5, "n_selected": 1,
             "ranking_is_degenerate": False, "constraints": {},
@@ -219,6 +224,7 @@ with tempfile.TemporaryDirectory() as _td:
                           "numbers_source": "rule"}],
         }},
     }
+    _old_book["content_sha256"] = tracker_portfolio._sha_of(_old_book)
     (_dir / "2026-08-31.json").write_text(json.dumps(_old_book), encoding="utf-8")
     _saved = tracker_portfolio.BOOKS
     try:

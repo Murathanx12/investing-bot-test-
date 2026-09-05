@@ -66,13 +66,23 @@ SEALED = {
 }
 
 
-def _staged(book: dict = None, *, role: str | None = "hack4"):
-    """Point the brain at a temp dir holding one sealed book. Returns the module."""
+def _staged(book: dict = None, *, role: str | None = "hack4", seal: bool = True):
+    """Point the brain at a temp dir holding one sealed book. Returns the module.
+
+    `seal=True` RE-STAMPS `content_sha256` over whatever payload is staged.
+    Since 2026-09-07 (Labor Day lab C1-5) `sealed_holdings` recomputes the hash
+    and DECLINES a book that fails it -- the trading path was the last reader of
+    the seal that did not check the guarantee the seal exists to give. These
+    fixtures carried placeholder digests (`"deadbeef" * 8`), which is exactly
+    what that check is for, so they are stamped here rather than exempted.
+    Pass `seal=False` to stage a deliberately mismatched book."""
     import os
     from alpha.brains import tracker_portfolio as TP
     d = Path(tempfile.mkdtemp())
-    (d / "2026-08-31.json").write_text(
-        json.dumps(book if book is not None else SEALED), encoding="utf-8")
+    payload = dict(book if book is not None else SEALED)
+    if seal:
+        payload["content_sha256"] = TP._sha_of(payload)
+    (d / "2026-08-31.json").write_text(json.dumps(payload), encoding="utf-8")
     TP.BOOKS = d
     TP.SEED_BOOKS = d
     if role is None:
@@ -80,6 +90,15 @@ def _staged(book: dict = None, *, role: str | None = "hack4"):
     else:
         os.environ["AAT_ACCOUNT_ROLE"] = role
     return TP
+
+
+def _declines(TP, needle: str, day: str = "2026-08-31") -> bool:
+    """True when `sealed_holdings` refuses with a reason containing `needle`."""
+    try:
+        TP.sealed_holdings(day)
+    except TP.PortfolioDeclined as exc:
+        return needle in str(exc)
+    return False
 
 
 def check(name: str, cond: bool, why: str = "") -> None:
@@ -120,7 +139,7 @@ def test_proof_2_the_brain_trades_exactly_what_was_sealed():
     check("proof2: the sealed WEIGHT travels with the name",
           got["holdings"]["AAA"]["notional"] == 0.10)
     check("proof2: the book's hash is carried onto the decision",
-          got["content_sha256"] == SEALED["content_sha256"])
+          got["content_sha256"] == TP._sha_of(SEALED))
 
     # day pinned explicitly: the default is TODAY, and a proof that reads
     # today's live seal is red every morning before sealing (paid 2026-09-01).
@@ -128,6 +147,15 @@ def test_proof_2_the_brain_trades_exactly_what_was_sealed():
     check("proof2: a sealed name gets a forecast", f.symbol == "AAA" and f.sd > 0)
     check("proof2: the forecast carries the sealed weight as evidence",
           f.evidence["sealed_notional"] == 0.10)
+
+    # This re-stages the module at a DELIBERATELY BROKEN book, so the good one is
+    # restored on the line after it. Since 2026-09-07 the trading path
+    # recomputes the seal's own hash (Labor Day lab C1-5): it was the last
+    # reader of the seal that did not check the guarantee the seal exists for.
+    check("proof2: a book that FAILS its own content_sha256 is declined, not traded",
+          _declines(_staged({**SEALED, "content_sha256": "deadbeef" * 8}, seal=False),
+                    "content_sha256"))
+    TP = _staged()          # the broken book above is module state; restore the good one
     check("proof2: it claims DIRECTION only, never the width", f.claim == "direction")
     # |downside_5pct| is a 5% NORMAL QUANTILE. Using it raw as the spread would
     # inflate every name's sd by 64% and hand the book wider distributions than

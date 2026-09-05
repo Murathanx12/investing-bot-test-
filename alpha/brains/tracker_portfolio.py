@@ -46,6 +46,7 @@ decision on a live paper account and is made by a human, not by this file.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -108,6 +109,22 @@ def role() -> str | None:
     return r or None
 
 
+def _sha_of(payload: dict) -> str:
+    """The seal's own content hash, over the payload WITHOUT `content_sha256`.
+
+    Byte-identical to `scripts.prediction_book._sha`, and deliberately RE-WRITTEN
+    here rather than imported: a brain that imports a script inherits that
+    script's argparse, its module-level paths and its import cost inside the
+    order path. `tests_smoke_labor_faults` pins the two against each other, so
+    the duplication cannot drift in silence.
+    """
+    body = dict(payload)
+    body.pop("content_sha256", None)
+    return hashlib.sha256(
+        json.dumps(body, sort_keys=True, ensure_ascii=False,
+                   separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
 def sealed_holdings(day: str | None = None, *, book: str | None = None) -> dict:
     """{symbol: holding} for this account's book, plus the provenance.
 
@@ -140,6 +157,27 @@ def sealed_holdings(day: str | None = None, *, book: str | None = None) -> dict:
         raise PortfolioDeclined(
             f"the sealed book for {day} has no portfolio for role {b!r} "
             f"(it has {sorted(ports)}). Refusing rather than substituting another book.")
+    # THE HASH IS THE WHOLE GUARANTEE, SO IT IS CHECKED (2026-09-07, lab C1-5).
+    # This module's docstring says the holdings are "frozen inside
+    # `content_sha256`" -- and until tonight nothing in the TRADING path
+    # recomputed it. `scripts.seal_authority`, `scripts.fleet_health` and
+    # `scripts.leverage_lab` all verify; the brain that actually places the
+    # orders did not, so an edited book traded with every check green
+    # somewhere else. Checked AFTER the role/portfolio refusals so a book for
+    # another account fails on its own reason rather than on arithmetic.
+    claimed = payload.get("content_sha256")
+    actual = _sha_of(payload)
+    if not claimed or claimed != actual:
+        raise PortfolioDeclined(
+            f"the sealed book for {day} does not match its own content_sha256 "
+            f"(claimed {str(claimed)[:16]!r}, recomputed {actual[:16]!r}). The seal's "
+            f"only guarantee is that these holdings are the holdings that were "
+            f"inspected; a file that fails its own hash carries no such guarantee, "
+            f"so it is DECLINED rather than traded. Re-seal and re-publish.")
+    if payload.get("day") not in (None, day):
+        raise PortfolioDeclined(
+            f"the book found for {day} declares day {payload.get('day')!r} inside its "
+            f"own hashed content. Refusing rather than trading yesterday's names.")
     if port.get("ranking_is_degenerate"):
         raise PortfolioDeclined(
             f"{b}'s sealed ranking is DEGENERATE -- all eligible names share one "
@@ -155,6 +193,14 @@ def sealed_holdings(day: str | None = None, *, book: str | None = None) -> dict:
         "n_selected": port.get("n_selected"),
         "k_target": port.get("k_target"),
         "constraints": port.get("constraints"),
+        # THE PUBLISHED TERMS, EXPOSED SO SOMETHING CAN READ THEM (lab C1-6).
+        # `scripts.prediction_book._contract_block` has written this into every
+        # seal since 2026-09-05 and `runner.contract_for` looked for it on the
+        # HOLDING, where it has never been -- so the horizon, stop width, profit
+        # target, thesis expiry and risk budget a book PUBLISHED were discarded
+        # on every order and silently replaced by the role default. A seal that
+        # nothing reads is a seal that proves nothing.
+        "contract": port.get("contract"),
         "holdings": {h["symbol"]: h for h in (port.get("holdings") or [])},
     }
 

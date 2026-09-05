@@ -205,10 +205,18 @@ def read_all(name: str = "decisions") -> list[dict[str, Any]]:
                 out.append(json.loads(l))
             except ValueError:
                 bad.append(i)
+    # Lines interleaved by two unlocked writers on 25 Aug. The file is never
+    # rewritten (tamper-evidence); the damage is COUNTED and surfaced.
+    #
+    # THIS REFLECTS THE LAST READ, NOT EVERY READ EVER (2026-09-07). It used to
+    # only ever ADD, so once a process had seen a tear the entry stood for the
+    # life of the process. `exits._evaluate_shares` now withholds a
+    # discretionary flatten while this is non-empty, which turns a stale entry
+    # into a book that can never be reconciled -- so a clean read must clear it.
     if bad:
-        # Lines interleaved by two unlocked writers on 25 Aug. The file is never
-        # rewritten (tamper-evidence); the damage is COUNTED and surfaced.
         MALFORMED[name] = bad
+    else:
+        MALFORMED.pop(name, None)
     return out
 
 

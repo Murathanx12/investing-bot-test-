@@ -1,0 +1,134 @@
+{
+  "item": "C1",
+  "lane": "C",
+  "lab": "labor_day_lab_2026-09-07",
+  "ts_utc": "2026-09-05T15:23:20.395422+00:00",
+  "argv": [
+    "tests_smoke_labor_faults.py"
+  ],
+  "git_commit": "00100d88f2dbb6e09f218cb490f395f4cae68e57",
+  "config": {
+    "AAT_ACCOUNT_ROLE": "dev",
+    "AAT_RISK_PROFILE": "aggressive",
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b",
+    "network": "no venue client is constructed; the only broker in this suite is its own MockVenue. The socket block belongs to run_tests.py."
+  },
+  "inputs_opened": [
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\decisions.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\protective_stops.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-gjz8kl7b\\predictions"
+  ],
+  "modules_under_test": [
+    "alpha.runner",
+    "alpha.exits",
+    "alpha.protect",
+    "alpha.ledger",
+    "alpha.contract",
+    "alpha.brains.tracker_portfolio",
+    "alpha.refusal_classes",
+    "alpha.fleet"
+  ],
+  "checks_run": 52,
+  "checks_failed": 0,
+  "failed": [],
+  "table": [
+    {
+      "fault": "venue 5xx on ENTRY (POST /v2/orders)",
+      "expected": "BrokerRefusal -> counted, `rejected` ledger row naming HTTP 503, no order at the venue",
+      "observed": "errors=1 submitted=0 rejected_rows=1 reason_names_503=True intent_row=True",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "venue 5xx on EXIT (DELETE /v2/positions)",
+      "expected": "close_failed row naming HTTP 502, position kept, protective stop re-placed",
+      "observed": "errors=1 closed=0 rows=['close_failed'] actions=['error', 'stop_replaced'] stops_placed=2",
+      "verdict": "PASS",
+      "fix": "none needed (fixed 2026-09-05)"
+    },
+    {
+      "fault": "venue 5xx on STOP PLACEMENT",
+      "expected": "refusal recorded in the protective-stop audit, exit pass continues, position held",
+      "observed": "refused=['NVDA: POST /v2/orders -> HTTP 500: internal error'] audit_rows=1 checked=1 held=1",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "colliding stop client_order_id across sessions (BUR 422)",
+      "expected": "a re-place on a later session gets a NEW id and is accepted",
+      "observed": "same_day_stable=True cross_day_distinct=True day2_refused=[] stops_at_venue=2",
+      "verdict": "PASS",
+      "fix": "FIXED: alpha/protect.py stop_client_order_id salts the digest with the ET session day"
+    },
+    {
+      "fault": "stale / tampered seal (content_sha256 mismatch)",
+      "expected": "the brain recomputes the hash and declines rather than trading an unverifiable book",
+      "observed": "matching_seal_traded=True mismatching_seal_declined=True",
+      "verdict": "PASS",
+      "fix": "FIXED: tracker_portfolio.sealed_holdings verifies content_sha256 before returning"
+    },
+    {
+      "fault": "seal missing a contract / seal carrying one nothing reads",
+      "expected": "the sealed contract block governs the position; absence falls back to the role default and says so",
+      "observed": "validate_refuses_absent=True sealed_block_used=True fallback_source=declared",
+      "verdict": "PASS",
+      "fix": "FIXED: sealed_holdings exposes portfolios[book].contract and runner.contract_for reads it"
+    },
+    {
+      "fault": "torn ledger line under a live position's entry row",
+      "expected": "the tear is counted, the position is HELD with a typed reason, the stop still fires, and a clean-ledger orphan is still corrected",
+      "observed": "malformed=None torn_row_verdict=HELD closed=False stop_still_fires=HARD_RISK_LIMIT clean_orphan=EXECUTION_CORRECTION",
+      "verdict": "PASS",
+      "fix": "FIXED: exits._evaluate_shares refuses EXECUTION_CORRECTION while ledger.MALFORMED is non-empty"
+    },
+    {
+      "fault": "clock skew +/- 20 minutes (local wall clock vs venue clock)",
+      "expected": "an ET-time gate should be computed against a clock that is checked, or refuse",
+      "observed": "guard_true_at_0932=True disarmed_by_+20m=True false_refusal_at_-20m=True curfew_20m_early=True skew_guard_exists=False",
+      "verdict": "FAIL (REPORTED, NOT FIXED)",
+      "fix": "REPORTED: every ET gate reads the local clock. `is_open` is the venue's; in_opening_range / deadline_liquidation_due / session_day are not. A skew probe (venue /v2/clock vs local, refuse beyond ~120s) is a one-file change but it touches the entry gate of six live services -- attended work, not a lab commit."
+    },
+    {
+      "fault": "empty corpus / empty or absent sealed book",
+      "expected": "declines with a reason; never re-derives, never substitutes another book",
+      "observed": "empty_portfolio_declined=True absent_book_declined=True rule_claims_empty=True",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "a name halted mid-session (close and stop both refused)",
+      "expected": "close_failed row naming the halt; the failed stop re-place is stated, never implied",
+      "observed": "errors=1 closed=0 actions=['error', 'stop_replace_failed']",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "partial fill (order qty != position qty)",
+      "expected": "the stop is sized to the venue's reported qty; an over-sized stop is cancelled and re-placed",
+      "observed": "cancelled=['old-1'] placed_qty=40 resized=['NVDA 1 stop(s) x120 -> 1 x40 sell (size)'] partially_filled_kept=True",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "a gap THROUGH the stop at the open (venue refuses the stop)",
+      "expected": "the refusal is recorded, the exit pass continues, the position closes as HARD_RISK_LIMIT",
+      "observed": "checked=1 closed=1 exit_reason=HARD_RISK_LIMIT",
+      "verdict": "PASS",
+      "fix": "none needed"
+    },
+    {
+      "fault": "venue 5xx on the re-entry guard's own read (GET /v2/orders?status=closed)",
+      "expected": "the guard derives its suspects from the local protective-stop audit rather than failing OPEN",
+      "observed": "venue_route=True ledger_route=True fallback_suspects=['BUR'] note='venue closed-orders unreadable (GET /v2/orders -> HTTP 503: service unavailable)'",
+      "verdict": "PASS",
+      "fix": "FIXED: protect.stopped_today_or_suspects + runner.run_pass uses it"
+    },
+    {
+      "fault": "refusal typing across every injected fault",
+      "expected": "every fault's sentence lands on a TERMINAL_STATE; unmapped prose is counted",
+      "observed": "states=['OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'DATA_MISSING', 'OPENING_RANGE'] unmapped=['POST /v#/orders -> HTTP #: {\"message\":\"s', 'DELETE /v#/positions/NVDA -> HTTP #: bad', 'POST /v#/orders -> HTTP #: {\"code\":#,\"me', 'the sealed book for ### carries no `port']",
+      "verdict": "PASS",
+      "fix": "unmapped sentences are reported in the C1 receipt, not fixed by widening a bucket"
+    }
+  ]
+}
