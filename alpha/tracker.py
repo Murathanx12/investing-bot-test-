@@ -235,6 +235,49 @@ _BUCKET_ORDER = [b[0] for b in COVERAGE_BUCKETS]
 #: out whether any of them were the tail after all.
 UPSIDE_IMPLAUSIBLE_AT = 4.00
 
+# ---------------------------------------------------------------------------
+# DECISION B.1 4a -- HYGIENE ONLY (Murat, 2026-09-05). PREPARED, NOT ENABLED.
+# ---------------------------------------------------------------------------
+# "Guides and indicators, not rules." The band's four RETURN constants are
+# retired and the target/price ratio becomes a displayed indicator and a model
+# feature; what remains is HYGIENE, which is a claim about whether a number is
+# READABLE rather than about what it predicts:
+#
+#     price >= $2 . >= 2 analysts . targets not >5x apart inside the window
+#
+# Three live behaviours change when it is on, and they pull in OPPOSITE
+# directions -- which is why this is one switch and not three:
+#
+#   1. `UPSIDE_IMPLAUSIBLE_AT` stops BARRING candidacy. It stays on the row as
+#      a flag. This ADMITS names (the ratio >= 4 population).
+#   2. the price floor rises from $1 to $2. This EXCLUDES names, and it is the
+#      condition every EXP-RETURN-XS-1 cell was measured under.
+#   3. a target window whose high/low exceeds 5x is UNREADABLE and is barred --
+#      the split / share-basis case that produced the toxic band in the first
+#      place, now named as a data defect instead of priced as a forecast.
+#
+# THIS IS OFF BY DEFAULT AND THE LIVE FLEET IS BYTE-IDENTICAL WITHOUT THE FLAG.
+# Murat enables it with one Railway variable per role:
+#
+#     railway variables --service aat-loop-<role> --set "AAT_BAND_MODE=hygiene_only"
+#
+# The research side already runs under it (`scripts/monday_dry_run.py`), so the
+# admitted set under both modes is a measured comparison, not an argument.
+
+
+def hygiene_only() -> bool:
+    """Is the live tracker running decision B.1 4a? Read at CALL time."""
+    from alpha import murat_rule as _mr
+    return _mr.band_mode() == _mr.BAND_MODE_HYGIENE_ONLY
+
+
+def min_price_usd() -> float:
+    """The hard price floor. $1 today; $2 under hygiene-only, because that is
+    the condition the eleven-year cells were measured under and below it the
+    panel has NO OPINION (t 0.39) rather than a bad one."""
+    from alpha import murat_rule as _mr
+    return _mr.BAND_PRIOR["min_price"] if hygiene_only() else MIN_PRICE_USD
+
 #: WATCH is not in Murat's five and is not a sixth grade -- it is the ABSENCE
 #: of one. A name we have never held, which today clears no buy bar, has
 #: nothing to sell and nothing to drop; calling that "SELL" would fill the
@@ -536,8 +579,9 @@ def classify(row: dict, *, prev: dict | None = None, stopped: bool = False) -> S
     blocked: list[str] = []
 
     # -- hard exclusions, before any rating is read ------------------------
-    if price is not None and price < MIN_PRICE_USD:
-        return StatusVerdict("DROP", [f"price ${price:.2f} < ${MIN_PRICE_USD:.2f}"], [], prev_streak)
+    _floor = min_price_usd()
+    if price is not None and price < _floor:
+        return StatusVerdict("DROP", [f"price ${price:.2f} < ${_floor:.2f}"], [], prev_streak)
     if not tradable:
         return StatusVerdict("DROP", ["not tradable at the venue"], [], prev_streak)
 
@@ -565,10 +609,17 @@ def classify(row: dict, *, prev: dict | None = None, stopped: bool = False) -> S
     # across a corporate action, and buying that band cost -26.47%/yr against
     # the market at t -4.71. See UPSIDE_IMPLAUSIBLE_AT for the whole table.
     if up is not None and up >= UPSIDE_IMPLAUSIBLE_AT:
-        return StatusVerdict("WATCH", [], [
-            f"upside {up:+.0%} >= {UPSIDE_IMPLAUSIBLE_AT:.0%}: not a forecast, almost always a "
-            "target quoted on a different share basis. Barred from candidacy, kept and counted."
-        ], 0)
+        if not hygiene_only():
+            return StatusVerdict("WATCH", [], [
+                f"upside {up:+.0%} >= {UPSIDE_IMPLAUSIBLE_AT:.0%}: not a forecast, almost always a "
+                "target quoted on a different share basis. Barred from candidacy, kept and counted."
+            ], 0)
+        # HYGIENE-ONLY (B.1 4a): the ratio is an INDICATOR. The name is reported
+        # and stays eligible; what disqualifies it now is an unreadable target
+        # WINDOW (>5x high/low), which is the actual defect this bar was a proxy
+        # for -- and that test lives in the eligibility chain, once.
+        blocked.append(f"upside {up:+.0%} >= {UPSIDE_IMPLAUSIBLE_AT:.0%} -- REPORTED as an "
+                       "indicator, not barred (decision B.1 4a: guides, not rules)")
     if up is None:
         blocked.append("upside unreadable (no target or no price)")
     if cons is None:
@@ -995,6 +1046,22 @@ def _eligibility_checks(p: Personality) -> list:
     on data the chain used to skip would turn a report into a crash.
     """
     checks: list = []
+
+    # HYGIENE FIRST when decision B.1 4a is on: it is the only thing left of the
+    # band prior, and it is a statement about READABILITY, so it belongs before
+    # any rule that reads the same numbers. `murat_rule.score` puts the verdict
+    # on the row; re-deriving it here would be the second expression of a rule
+    # that `_eligibility_checks` exists to avoid.
+    if hygiene_only():
+        def _hygiene(r):
+            if r.get("hygiene_ok") is True:
+                return None
+            bad = list(r.get("hygiene_fails") or []) + list(r.get("hygiene_unreadable") or [])
+            if not bad:
+                return ("hygiene not evaluated (row carries no band overlay)", "")
+            return ("hygiene (B.1 4a: >= $2, >= 2 analysts, target window readable)",
+                    f"{r['symbol']}: {'; '.join(bad)[:160]}")
+        checks.append(_hygiene)
 
     if p.exclude_past_winners:
         def _past_winner(r):

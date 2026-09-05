@@ -476,7 +476,7 @@ def rule_predictions(rows: list[dict], prior: dict, driver_of: dict[str, str]) -
 # ------------------------------------------------------------------- the build
 
 
-def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
+def tracker_rows(day: str | None = None, *, asof: str | None = None) -> tuple[list[dict], dict, list[dict]]:
     """Book rows built from the TRACKER instead of the corpus. (rows, provenance).
 
     WHY THE TRACKER AND NOT THE CORPUS
@@ -512,7 +512,12 @@ def tracker_rows(day: str | None = None) -> tuple[list[dict], dict, list[dict]]:
     # without this a dead refresh seals Monday's book on Friday's closes and
     # says nothing. Counted in sessions: Monday on Sunday's file is age 1.
     try:
-        fresh = _tracker.assert_fresh(day, what=f"tracker file {day} (the seal's price source)")
+        # `asof` is for a declared REPLAY only (scripts/monday_dry_run.py): it
+        # asks "was this vintage fresh ON ITS OWN DAY", which is the right
+        # question for a replay and the WRONG one for a live seal. A live
+        # seal passes nothing and is measured against today, unchanged.
+        fresh = _tracker.assert_fresh(day, asof=asof,
+                                      what=f"tracker file {day} (the seal's price source)")
     except _tracker.StaleTrackerData as exc:
         raise SystemExit(str(exc)) from exc
     trows = _tracker.build_rows(raw)

@@ -153,7 +153,77 @@ BAND_PRIOR = {
 }
 
 
-def band_overlay(row: dict) -> dict | None:
+#: DECISION B.1 4a (Murat, 2026-09-05): "guides and indicators, not rules".
+#:
+#: The four BAND_PRIOR return constants above were fitted on a tape whose
+#: +400% cell turned out to be stale targets read across corporate actions, and
+#: the S30b de-contamination made that cell WORSE rather than better. Murat's
+#: ruling is that the target/price ratio stays as a DISPLAYED INDICATOR and a
+#: MODEL FEATURE, and stops being an admission rule. What survives is HYGIENE --
+#: the three conditions every EXP-RETURN-XS-1 cell was measured under, which are
+#: statements about whether a number is READABLE, not about what it predicts:
+#:
+#:     price >= $2          below it the eleven-year cell is UNINFORMATIVE
+#:                          (t 0.39, S30b) -- "no opinion", never "bad"
+#:     >= 2 analysts        a one-analyst consensus is not a consensus
+#:     not unreadable       targets more than 5x apart inside the window are a
+#:     across a split       split or a share-basis change, not a forecast
+#:                          (`analyst_targets.Panel.split_suspect`, same 5x)
+#:
+#: MODE, AND WHY IT IS A SWITCH RATHER THAN A DELETION. The research side runs
+#: hygiene-only NOW; the live fleet keeps the return constants until Murat flips
+#: `AAT_BAND_MODE=hygiene_only`, because changing what a live book admits is his
+#: call and not a session's. Both modes are exercised by the suite, so the
+#: switch cannot rot.
+BAND_MODE_RETURNS = "returns"
+BAND_MODE_HYGIENE_ONLY = "hygiene_only"
+BAND_MODE_ENV = "AAT_BAND_MODE"
+
+#: The 5x that makes a target window unreadable. Same constant, same reason, as
+#: `analyst_targets.Panel.split_suspect`.
+SPLIT_SUSPECT_RATIO = 5.0
+
+
+def band_mode() -> str:
+    """`returns` (the live default) or `hygiene_only` (decision B.1 4a)."""
+    import os
+    m = (os.getenv(BAND_MODE_ENV) or "").strip().lower()
+    return BAND_MODE_HYGIENE_ONLY if m == BAND_MODE_HYGIENE_ONLY else BAND_MODE_RETURNS
+
+
+def hygiene(row: dict) -> dict:
+    """Is this row's target/price ratio READABLE at all? Never what it predicts.
+
+    Returns `{"ok": bool, "fails": [...], "unreadable": [...]}`. A condition that
+    cannot be EVALUATED lands in `unreadable`, not in `fails`: "we could not
+    check the price" and "the price is below $2" are different facts, and
+    collapsing them is how a data gap becomes a verdict.
+    """
+    fails: list[str] = []
+    unreadable: list[str] = []
+    close, coverage = row.get("close"), row.get("coverage")
+    if close is None:
+        unreadable.append("close unreadable -- the >= $2 condition cannot be verified")
+    elif float(close) < BAND_PRIOR["min_price"]:
+        fails.append(f"close ${float(close):.2f} < ${BAND_PRIOR['min_price']:g} "
+                     f"(the sub-$2 cell is UNINFORMATIVE, t 0.39 -- no opinion, not 'bad')")
+    if coverage is None:
+        unreadable.append("coverage unreadable -- the >= 2 analyst condition cannot be verified")
+    elif int(coverage) < BAND_PRIOR["min_coverage"]:
+        fails.append(f"coverage {int(coverage)} < {BAND_PRIOR['min_coverage']} analysts")
+    hi, lo = row.get("target_high"), row.get("target_low")
+    try:
+        if hi is not None and lo is not None and float(lo) > 0:
+            if float(hi) / float(lo) > SPLIT_SUSPECT_RATIO:
+                fails.append(f"target window unreadable: high/low = "
+                             f"{float(hi) / float(lo):.1f}x > {SPLIT_SUSPECT_RATIO:g}x, "
+                             f"a split or a share-basis change rather than a forecast")
+    except (TypeError, ValueError):
+        unreadable.append("target_high/target_low unreadable")
+    return {"ok": not fails and not unreadable, "fails": fails, "unreadable": unreadable}
+
+
+def band_overlay(row: dict, *, mode: str | None = None) -> dict | None:
     """The band prior's opinion on one row, or None where it has none.
 
     A None or a non-applying result is one of FOUR different silences, and the
@@ -166,6 +236,26 @@ def band_overlay(row: dict) -> dict | None:
     tr = row.get("target_ratio")
     close = row.get("close")
     coverage = row.get("coverage")
+    if (mode or band_mode()) == BAND_MODE_HYGIENE_ONLY:
+        # HYGIENE ONLY. No return constant is contributed and no band excludes
+        # anything: `applies` is False, so `score()` keeps the panel base rate,
+        # and the ratio travels on the row as `upside_band` -- an indicator a
+        # reader and a model can both see, and neither can be gated on.
+        h = hygiene(row)
+        label = None
+        if tr is not None:
+            for lo, hi, _m, _a, _t, _n in BAND_PRIOR["bands"]:
+                if tr >= lo and (hi is None or tr < hi):
+                    label = f"ratio {lo:g}..{hi if hi is not None else 'inf'}"
+                    break
+        return {"band": label, "applies": False, "mode": BAND_MODE_HYGIENE_ONLY,
+                "hygiene_ok": h["ok"], "hygiene_fails": h["fails"],
+                "hygiene_unreadable": h["unreadable"],
+                "basis": ("band prior HYGIENE-ONLY (decision B.1 4a): the four return "
+                          "constants are retired; the ratio is a displayed indicator and a "
+                          "model feature, never a gate. "
+                          + ("hygiene ok" if h["ok"]
+                             else "hygiene: " + "; ".join(h["fails"] + h["unreadable"])))}
     if tr is None:
         return None
     for lo, hi, monthly, ann, t, n in BAND_PRIOR["bands"]:
@@ -371,7 +461,15 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
     exp_return = (2.0 * p_up - 1.0) * claimed if claimed is not None else None
     exp_basis = "(2*p_up - 1) x claimed_abs_move; p_up = 0.5 gives exactly zero"
     band = band_overlay(row)
-    if band is not None and band.get("applies"):
+    hyg = {"hygiene_ok": None, "hygiene_fails": [], "hygiene_unreadable": []}
+    if band is not None and band.get("mode") == BAND_MODE_HYGIENE_ONLY:
+        # HYGIENE-ONLY: no return constant, and the readability verdict travels
+        # ON THE ROW so `tracker.build_portfolio` can exclude on it with a named
+        # reason instead of re-deriving the same three conditions a second time.
+        hyg = {k: band.get(k) for k in
+               ("hygiene_ok", "hygiene_fails", "hygiene_unreadable")}
+        exp_basis = f"{exp_basis}; {band['basis']}"
+    elif band is not None and band.get("applies"):
         # The band's eleven-year mean excess replaces the two-cell scale hack
         # for the names it covers: the toxic +400%+ band goes NEGATIVE (and the
         # long-book coherence floor then excludes it), the +200..400% band goes
@@ -397,7 +495,11 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
                                    f"{CLAIM_ABS_MOVE_CAP:.0%}. A scale, not a forecast."),
         "exp_return": round(exp_return, 5) if exp_return is not None else None,
         "exp_return_basis": exp_basis,
+        "band_mode": (band or {}).get("mode") or BAND_MODE_RETURNS,
+        # The ratio's band as an INDICATOR. Present in both modes; a GATE in
+        # neither once `AAT_BAND_MODE=hygiene_only` is set (decision B.1 4a).
         "upside_band": (band or {}).get("band"),
+        **hyg,
         "downside_5pct": round(downside, 5) if downside is not None else None,
         "downside_basis": f"-{Z05} x the same vol scale (5% normal quantile). Not a stop.",
         "confidence": round(conf, 3),
