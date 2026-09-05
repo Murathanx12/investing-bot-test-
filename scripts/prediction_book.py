@@ -600,6 +600,11 @@ def _source_versions() -> dict:
         "selector_brain": "alpha.brains.tracker_portfolio",
         "rule_generator": RULE_GENERATOR,
         "rule_registered": murat_rule.CONTRACT["registered"],
+        # WHICH BAND MODE PRODUCED THIS BOOK. Inside content_sha256, because
+        # the mode decides whether `exp_return` is an eleven-year band constant,
+        # a panel base rate, or nothing -- and a seal that does not say which
+        # cannot be graded against the next one.
+        "band_mode": murat_rule.band_mode(),
     }
 
 
@@ -742,6 +747,7 @@ def _portfolio_block(port: dict, p, driver_of: dict[str, str],
     holdings = [{"symbol": h["symbol"], "notional": h["notional"],
                  "sector": h["sector"], "rank_value": h["rank_value"],
                  "exp_return": h["exp_return"],
+                 "exp_return_validation": h.get("exp_return_validation"),
                  "downside_5pct": h["downside_5pct"],
                  "confidence": h["confidence"],
                  "numbers_source": h["numbers_source"],

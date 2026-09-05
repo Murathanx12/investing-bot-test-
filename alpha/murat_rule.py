@@ -175,9 +175,44 @@ BAND_PRIOR = {
 #: `AAT_BAND_MODE=hygiene_only`, because changing what a live book admits is his
 #: call and not a session's. Both modes are exercised by the suite, so the
 #: switch cannot rot.
+#:
+#: THE THIRD MODE, `indicator` (proposed 2026-09-05, CONTINUATION b item 7).
+#: `hygiene_only` implemented literally EMPTIES hack6 -- 15 names to 0 on the
+#: 2026-09-02 vintage -- and halves hack3 with an entirely different five. The
+#: mechanism is not a coincidence: the band's return constants were the SOURCE
+#: of `exp_return` for the names those books hold, so retiring them sends every
+#: row back to the panel base rate, and 799 of 810 then fail the long-book
+#: coherence floor (`exp_return` not positive) against 35 of 806 today. The
+#: floor is doing what it should; there is simply nothing left for it to read.
+#:
+#: `indicator` is the middle path, and it is a PROPOSAL, not a decision:
+#:   * HYGIENE applies exactly as in `hygiene_only` -- the ratio may not admit
+#:     a name whose price, coverage or target window is unreadable;
+#:   * the ratio is never an ADMISSION RULE in either mode;
+#:   * the band's eleven-year mean excess still populates `exp_return`, so the
+#:     coherence floor has a non-degenerate quantity to read -- and it is
+#:     STAMPED `UNVALIDATED_INDICATOR` on the row and inside the seal's
+#:     `content_sha256`, so no reader can mistake it for a validated forecast.
+#:
+#: What it is NOT: it is not a claim that the constants are right. They came
+#: off a tape whose defects are documented, they sit below the t 2 bar, and
+#: `exp_return_validation` says so on every row that carries one. The honest
+#: reading is "this book's coherence floor is reading an unvalidated prior",
+#: which is a state a reader can act on. `hygiene_only` emptying a book without
+#: saying why is not.
 BAND_MODE_RETURNS = "returns"
 BAND_MODE_HYGIENE_ONLY = "hygiene_only"
+BAND_MODE_INDICATOR = "indicator"
+BAND_MODES = (BAND_MODE_RETURNS, BAND_MODE_HYGIENE_ONLY, BAND_MODE_INDICATOR)
 BAND_MODE_ENV = "AAT_BAND_MODE"
+
+#: How `exp_return` on a scored row was arrived at. Carried on every row and
+#: stamped into the seal, because "0.00246" and "an eleven-year band constant
+#: that is below its own t 2 bar" are different objects and the number alone
+#: cannot tell them apart.
+EXP_RETURN_UNVALIDATED = "UNVALIDATED_INDICATOR"
+EXP_RETURN_PANEL_BASE_RATE = "PANEL_BASE_RATE"
+EXP_RETURN_NONE = "NONE"
 
 #: The 5x that makes a target window unreadable. Same constant, same reason, as
 #: `analyst_targets.Panel.split_suspect`.
@@ -185,10 +220,13 @@ SPLIT_SUSPECT_RATIO = 5.0
 
 
 def band_mode() -> str:
-    """`returns` (the live default) or `hygiene_only` (decision B.1 4a)."""
+    """`returns` (the live default), `hygiene_only` (decision B.1 4a) or
+    `indicator` (the 2026-09-05 proposal). An unrecognised value resolves to
+    `returns` -- a typo in a Railway variable must not silently change what a
+    live book admits."""
     import os
     m = (os.getenv(BAND_MODE_ENV) or "").strip().lower()
-    return BAND_MODE_HYGIENE_ONLY if m == BAND_MODE_HYGIENE_ONLY else BAND_MODE_RETURNS
+    return m if m in BAND_MODES else BAND_MODE_RETURNS
 
 
 def hygiene(row: dict) -> dict:
@@ -236,7 +274,34 @@ def band_overlay(row: dict, *, mode: str | None = None) -> dict | None:
     tr = row.get("target_ratio")
     close = row.get("close")
     coverage = row.get("coverage")
-    if (mode or band_mode()) == BAND_MODE_HYGIENE_ONLY:
+    _m = mode or band_mode()
+    if _m == BAND_MODE_INDICATOR:
+        # THE PROPOSAL. Hygiene decides ADMISSION exactly as under
+        # `hygiene_only`; the band constant still populates `exp_return` so the
+        # coherence floor has something to read, and it is labelled
+        # UNVALIDATED_INDICATOR wherever it travels. The returns path below is
+        # reused verbatim -- including all four of its silences -- because a
+        # second expression of the same preconditions is how two modes drift
+        # apart without anybody noticing.
+        h = hygiene(row)
+        base = band_overlay(row, mode=BAND_MODE_RETURNS)
+        out = dict(base) if base else {"band": None, "applies": False,
+                                       "basis": "band prior: ratio unreadable"}
+        out["mode"] = BAND_MODE_INDICATOR
+        out["hygiene_ok"] = h["ok"]
+        out["hygiene_fails"] = h["fails"]
+        out["hygiene_unreadable"] = h["unreadable"]
+        out["validation"] = EXP_RETURN_UNVALIDATED
+        out["basis"] = (
+            "band prior INDICATOR MODE (proposal 2026-09-05): hygiene gates "
+            "admission, the ratio never does, and the return constant below is "
+            "an UNVALIDATED INDICATOR carried so the coherence floor is not "
+            "reading a degenerate constant. "
+            + ("hygiene ok" if h["ok"]
+               else "hygiene: " + "; ".join(h["fails"] + h["unreadable"]))
+            + " | " + str(out.get("basis")))
+        return out
+    if _m == BAND_MODE_HYGIENE_ONLY:
         # HYGIENE ONLY. No return constant is contributed and no band excludes
         # anything: `applies` is False, so `score()` keeps the panel base rate,
         # and the ratio travels on the row as `upside_band` -- an indicator a
@@ -461,8 +526,19 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
     exp_return = (2.0 * p_up - 1.0) * claimed if claimed is not None else None
     exp_basis = "(2*p_up - 1) x claimed_abs_move; p_up = 0.5 gives exactly zero"
     band = band_overlay(row)
+    exp_validation = (EXP_RETURN_PANEL_BASE_RATE if exp_return is not None
+                      else EXP_RETURN_NONE)
     hyg = {"hygiene_ok": None, "hygiene_fails": [], "hygiene_unreadable": []}
-    if band is not None and band.get("mode") == BAND_MODE_HYGIENE_ONLY:
+    if band is not None and band.get("mode") == BAND_MODE_INDICATOR:
+        # THE PROPOSAL. Hygiene travels for the eligibility gate, AND the band
+        # constant populates exp_return -- labelled for what it is.
+        hyg = {k: band.get(k) for k in
+               ("hygiene_ok", "hygiene_fails", "hygiene_unreadable")}
+        if band.get("applies"):
+            exp_return = band["exp_return_monthly"]
+            exp_validation = EXP_RETURN_UNVALIDATED
+        exp_basis = band["basis"]
+    elif band is not None and band.get("mode") == BAND_MODE_HYGIENE_ONLY:
         # HYGIENE-ONLY: no return constant, and the readability verdict travels
         # ON THE ROW so `tracker.build_portfolio` can exclude on it with a named
         # reason instead of re-deriving the same three conditions a second time.
@@ -476,6 +552,9 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
         # positive and is finally admissible on evidence rather than lost.
         exp_return = band["exp_return_monthly"]
         exp_basis = band["basis"]
+        # The LIVE default has always used this constant. It was never
+        # validated either; until today nothing said so on the row.
+        exp_validation = EXP_RETURN_UNVALIDATED
     elif band is not None:
         exp_basis = f"{exp_basis}; {band['basis']}"
     downside = -Z05 * mag if mag is not None else None
@@ -495,6 +574,11 @@ def score(row: dict, verdict: dict, prior: dict) -> dict:
                                    f"{CLAIM_ABS_MOVE_CAP:.0%}. A scale, not a forecast."),
         "exp_return": round(exp_return, 5) if exp_return is not None else None,
         "exp_return_basis": exp_basis,
+        # WHAT KIND OF NUMBER `exp_return` IS. A reader cannot tell an
+        # eleven-year band constant (below its own t 2 bar) from a panel base
+        # rate by looking at the value, and the coherence floor reads it either
+        # way. Stamped on the row and, at seal time, inside content_sha256.
+        "exp_return_validation": exp_validation,
         "band_mode": (band or {}).get("mode") or BAND_MODE_RETURNS,
         # The ratio's band as an INDICATOR. Present in both modes; a GATE in
         # neither once `AAT_BAND_MODE=hygiene_only` is set (decision B.1 4a).

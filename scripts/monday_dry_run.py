@@ -150,8 +150,15 @@ def render(built: dict, *, day: str) -> str:
     prov = built["provenance"]
     L.append(f"universe: {prov.get('tracker_names_total')} names screened -> "
              f"{built['n_candidates']} candidates"
+             # The hygiene count belongs on EVERY mode that applies hygiene, not
+             # only on `hygiene_only`. Printing it for one of the two modes that
+             # run the gate is how a reader concludes the gate is off.
              + (f"   ({built['n_hygiene_fail']} fail hygiene: >= $2, >= 2 analysts, "
-                f"target window readable)" if built["band_mode"] == "hygiene_only" else ""))
+                f"target window readable)"
+                if built["band_mode"] in ("hygiene_only", "indicator") else ""))
+    if built["band_mode"] == "indicator":
+        L.append("  exp_return in this mode comes from the band's eleven-year constants "
+                 "and is stamped UNVALIDATED_INDICATOR on every row that carries one.")
     gaps = prov.get("data_gaps") or {}
     L.append(f"data gaps on the vintage: rec_status not ok "
              f"{gaps.get('rows_rec_status_not_ok')}, target_status not ok "
@@ -259,8 +266,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--day", default=None, help="tracker vintage (default: newest on disk)")
     ap.add_argument("--mode", default="hygiene_only",
-                    choices=("hygiene_only", "returns"),
-                    help="band mode for the run (default: decision B.1 4a)")
+                    choices=("hygiene_only", "returns", "indicator"),
+                    help="band mode for the run (default: decision B.1 4a). "
+                         "`indicator` is the 2026-09-05 PROPOSAL: hygiene gates "
+                         "admission, the ratio never does, and the band constant "
+                         "still populates exp_return stamped UNVALIDATED_INDICATOR")
     ap.add_argument("--compare", action="store_true",
                     help="run BOTH band modes and print the admitted-set difference")
     ap.add_argument("--out", default=None,
@@ -287,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         print("REFUSED: no tracker vintage on disk. `python -m scripts.tracker --refresh`.")
         return 2
 
-    modes = ("returns", "hygiene_only") if args.compare else (args.mode,)
+    modes = ("returns", "hygiene_only", "indicator") if args.compare else (args.mode,)
     results: dict[str, dict] = {}
     pages: list[str] = []
     for m in modes:
@@ -300,14 +310,21 @@ def main(argv: list[str] | None = None) -> int:
     page = "\n\n".join(pages) + "\n" + authority_block()
 
     if args.compare:
-        page += "\n\n" + "-" * 78 + "\nBAND MODE DIFFERENCE (returns -> hygiene_only)\n"
-        for book in BOOKS:
-            a = {str(h.get("symbol")) for h in
-                 ((results["returns"]["books"].get(book) or {}).get("port") or {}).get("holdings") or []}
-            b = {str(h.get("symbol")) for h in
-                 ((results["hygiene_only"]["books"].get(book) or {}).get("port") or {}).get("holdings") or []}
-            page += (f"  {book:<7}{len(a)} -> {len(b)}   added: {sorted(b - a) or '-'}   "
-                     f"dropped: {sorted(a - b) or '-'}\n")
+        def _held(mode: str, book: str) -> set:
+            return {str(h.get("symbol")) for h in
+                    ((results[mode]["books"].get(book) or {}).get("port")
+                     or {}).get("holdings") or []}
+
+        for other in ("hygiene_only", "indicator"):
+            if other not in results:
+                continue
+            page += ("\n\n" + "-" * 78 +
+                     f"\nBAND MODE DIFFERENCE (returns -> {other})\n")
+            for book in BOOKS:
+                a, b = _held("returns", book), _held(other, book)
+                page += (f"  {book:<7}{len(a)} -> {len(b)}   "
+                         f"added: {sorted(b - a) or '-'}   "
+                         f"dropped: {sorted(a - b) or '-'}\n")
 
     print(page)
     receipt = {

@@ -382,3 +382,137 @@ Not fixed here. Which defaults hack2 gets is your call, not a session's.
   seal would then price a book on, which is a worse failure than an absent one.
 - **It therefore reports the vintage it actually has**, and the 10:01 pass result
   above is the true current state, not a simulated success.
+
+---
+
+# APPENDIX B — THE TWO DECISIONS AS PROPOSALS (added 2026-09-05, CONTINUATION b item 7)
+
+Read-only. **Nothing was sealed, ordered, deployed, or changed on Railway.** The
+full three-mode printout this appendix summarises is
+`aegis-finance/backend/data/optimus/continuation_2026-09-06b/C7_monday_dry_run_printout.txt`
+and its replay JSON is `C7_monday_dry_run_replay_2026-09-02.json`. Tracker
+vintage 2026-09-02, the newest on disk; a seal today is still correctly refused
+by `MAX_TRACKER_AGE_SESSIONS = 2`.
+
+## B.1 Proposal (a): a third band mode, `indicator`
+
+**The problem A.3 found.** Decision B.1 4a implemented literally — retire the
+band's four return constants, keep hygiene — **empties hack6** (15 names to 0)
+and replaces hack3's ten with a different five. That is not a coincidence and
+it is not a bug in the coherence floor: the band's constants were the *source*
+of `exp_return` for exactly those names, so retiring them sends every row back
+to the panel base rate and **799 of 810 then fail the long-book coherence
+floor**, against 35 of 806 today. The floor is doing its job. There is nothing
+left for it to read.
+
+**The proposal.** `AAT_BAND_MODE=indicator`, a third mode, **OFF by default**:
+
+| | `returns` (live today) | `hygiene_only` (B.1 4a) | **`indicator` (proposed)** |
+|---|---|---|---|
+| ratio is an admission rule | **yes** (≥ 4.0 bars candidacy) | no | **no** |
+| hygiene gates admission | no | yes | **yes** |
+| hard price floor | $1 | $2 | **$2** |
+| band constant populates `exp_return` | yes | **no** | **yes** |
+| that constant is labelled | no | n/a | **`UNVALIDATED_INDICATOR`** |
+
+**Measured on the 2026-09-02 vintage:**
+
+```
+BAND MODE DIFFERENCE (returns -> hygiene_only)
+  hack3  10 -> 5    hack4  5 -> 5    hack6  15 -> 0
+BAND MODE DIFFERENCE (returns -> indicator)
+  hack3  10 -> 10   hack4  5 -> 5    hack6  15 -> 15
+```
+
+So the proposal **costs nothing in admissions and buys the label**: the admitted
+sets are identical to today's, the ratio stops being an admission rule, hygiene
+starts being one, and every `exp_return` that came off an eleven-year band
+constant now says so — on the row, in the book, and **inside the seal's
+`content_sha256`** (`band_mode` in the provenance block,
+`exp_return_validation` on every holding).
+
+**Two things this proposal does NOT claim.** It does not say the constants are
+right — they came off a tape whose defects are documented and they sit below
+their own t 2 bar, which is precisely why the label reads UNVALIDATED. And the
+identical admitted set is a fact about *this vintage*: the hygiene gate does
+fire (33 names fail it, visible in the printout's `fails` column for every
+book), it simply removes names that were already failing something else.
+
+**What is genuinely different, and is a real change:** under `indicator` the
+candidate pool is 810 rather than 806, the price floor is $2 rather than $1, and
+a ratio ≥ 4.0 no longer bars a name from candidacy. Those are the same three
+movements `hygiene_only` makes, pulling in opposite directions, and they are
+pinned by `tests_smoke_band_mode.py`.
+
+**How to try it, when you want to (not tonight, not by a session):**
+
+```bash
+# research side, read-only, no seal:
+python -m scripts.monday_dry_run --compare        # all three modes, side by side
+python -m scripts.monday_dry_run --mode indicator
+
+# live fleet — YOUR call, and it is a Railway variable per role:
+railway variables --service aat-loop-<role> --set "AAT_BAND_MODE=indicator"
+```
+
+An unrecognised value resolves to `returns`. A typo in a Railway variable must
+not half-apply a mode to a live book, and that is pinned by a test.
+
+## B.2 Proposal (b): hack2 is manage-only until its defaults are decided
+
+**Restating A.5's finding, because it is the sharpest edge going into Monday.**
+`contract.defaults_for` branches on `TRACKER_BOOKS = (hack3, hack4, hack6)`, so
+**hack2 falls through to the EVENT defaults**: `expected_horizon_sessions 3`,
+`min_normal_hold_sessions 0`, `profit_target_frac 0.025`. Its fleet profile is
+`aggressive`, i.e. a **3% stop**. The one armed book with **no minimum hold and
+a +2.5% profit target** is the exact churn pattern the whole minimum-hold build
+was written to stop — and it is the book that opened five 1:8 shorts on
+2026-09-04.
+
+**Proposed for Monday: mark hack2 MANAGE-ONLY before §2's deploy re-arms
+entries**, and leave it there until you have decided which contract defaults it
+should get. This is a runbook instruction, not a code change: nothing in this
+session set `manage_only` on hack2, because which defaults hack2 gets is your
+call.
+
+Add this to §3, before running §2:
+
+```bash
+railway variables --service aat-loop-hack2 --set "AAT_MANAGE_ONLY=1"
+railway variables --service aat-loop-hack2            # confirm it took
+```
+
+Then §5's ENTRY AUTHORITY block should read `hack2  DISARMED` rather than
+`hack2  ARMED  nothing -- this book may enter`. If it still says ARMED after the
+deploy, the variable did not take, and **two of the four possible disarms are
+Railway variables that a local process cannot see** — so verify at the service,
+not from the laptop.
+
+**The alternative, if you would rather it trade:** give hack2 tracker defaults
+(21/10, no profit target). That is a one-line change to `TRACKER_BOOKS` or an
+explicit branch in `contract.defaults_for`, and it should be made deliberately
+rather than by a book falling through a tuple membership test.
+
+## B.3 What Appendix B changed in code, and what it did not
+
+Changed (all behind the flag; the live default is byte-identical, and the
+terminal suite is **76 suites / 3,503 checks / ALL PASS**, up from 3,483):
+
+- `alpha/murat_rule.py` — `BAND_MODE_INDICATOR`, `BAND_MODES`, the `indicator`
+  branch of `band_overlay` (which *reuses* the returns path verbatim rather than
+  re-expressing its four silences), and `exp_return_validation` on every scored
+  row in **every** mode. The live default's constant was never validated either;
+  until now nothing said so.
+- `alpha/tracker.py` — `hygiene_gate_on()` beside the narrower `hygiene_only()`.
+  The eligibility chain, the $2 floor and the ratio bar now ask the gate
+  question, not the mode-name question. Gating on `hygiene_only()` alone would
+  have silently dropped the hygiene exclusion the moment a third mode was
+  switched on.
+- `scripts/prediction_book.py` — `band_mode` in the seal's provenance block and
+  `exp_return_validation` on every sealed holding, both **inside**
+  `content_sha256`.
+- `scripts/monday_dry_run.py` — `--mode indicator`, `--compare` over all three,
+  and the hygiene count printed for every mode that runs the gate.
+
+Not changed: no Railway variable, no `manage_only` flag, no seal, no order, no
+deploy. `AAT_BAND_MODE` is unset locally and the live fleet is untouched.

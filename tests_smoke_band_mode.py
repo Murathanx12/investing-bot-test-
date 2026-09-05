@@ -118,6 +118,93 @@ finally:
 check("and the flag is OFF again afterwards -- no test leaks a live setting",
       mr.band_mode() == mr.BAND_MODE_RETURNS and tk.hygiene_only() is False)
 
+# ── the THIRD mode: `indicator` (proposal, 2026-09-05, CONTINUATION b item 7) ──
+#
+# `hygiene_only` implemented literally EMPTIES hack6 (15 -> 0 on the 2026-09-02
+# vintage) because the band's return constants WERE the source of `exp_return`,
+# so every row falls back to the panel base rate and the long-book coherence
+# floor then refuses 799 of 810. `indicator` keeps hygiene as the admission
+# gate, keeps the ratio out of admission, and keeps the constant -- LABELLED.
+#
+# The check that matters here is the LABEL and the GATE, not the admitted set:
+# a mode that carries an unvalidated constant without saying so is worse than
+# the mode that empties the book, because the emptying is at least visible.
+# A FROZEN prior, so this suite measures the RULE and not whatever the panel
+# happens to say today -- the same reasoning as `scripts/scenario_lab`'s.
+from scripts.scenario_lab import FROZEN_PRIOR as _FROZEN_PRIOR
+
+print("\n-- the `indicator` proposal: hygiene gates, the ratio does not, the constant is labelled")
+check("`indicator` is a declared mode and is NOT the default",
+      mr.BAND_MODE_INDICATOR in mr.BAND_MODES
+      and mr.BAND_MODE_INDICATOR != mr.band_mode())
+os.environ["AAT_BAND_MODE"] = "indicator"
+try:
+    check("the flag is read at call time", mr.band_mode() == mr.BAND_MODE_INDICATOR)
+    check("hygiene_only() is False -- it answers a NARROWER question",
+          tk.hygiene_only() is False)
+    check("but hygiene_gate_on() is True -- the gate the eligibility chain asks about",
+          tk.hygiene_gate_on() is True)
+    check("so the $2 floor applies, exactly as under hygiene_only",
+          tk.min_price_usd() == 2.0)
+    pers_i = next(p for p in tk.PERSONALITIES if p.book == "hack6")
+    names_i = [getattr(c, "__name__", "?") for c in tk._eligibility_checks(pers_i)]
+    check("the hygiene check is in the chain, FIRST", names_i[0] == "_hygiene", str(names_i))
+    _vi = tk.classify(dict(TOXIC, upside=6.0, consensus=4.5, past_winner=False,
+                           days_to_catalyst=5, tradable=True), prev=None)
+    check("a ratio >= 4.0 name is NOT barred -- the ratio is not an admission rule here",
+          _vi.status != "WATCH" or not any("Barred" in b for b in _vi.blocked_by), str(_vi))
+    _bi = mr.band_overlay(TOXIC)
+    check("the band still APPLIES a return constant",
+          _bi["applies"] is True and _bi["exp_return_monthly"] < 0,
+          str(_bi.get("exp_return_monthly")))
+    check("and it is stamped UNVALIDATED_INDICATOR on the overlay",
+          _bi.get("validation") == mr.EXP_RETURN_UNVALIDATED)
+    check("the basis names the proposal and the hygiene verdict together",
+          "INDICATOR MODE" in _bi["basis"] and "hygiene" in _bi["basis"])
+    check("the overlay carries the hygiene verdict for the eligibility chain",
+          _bi.get("hygiene_ok") is True)
+    _row_i = dict(TOXIC, upside=6.0, consensus=4.5, past_winner=False,
+                  days_to_catalyst=5, realised_vol_20d=0.4)
+    _si = mr.score(_row_i, mr.evaluate(_row_i), _FROZEN_PRIOR)
+    check("score()'s exp_return is the band constant in this mode",
+          _si["exp_return"] == round(_bi["exp_return_monthly"], 5),
+          f"{_si['exp_return']} vs {_bi['exp_return_monthly']} (score rounds to 5 dp)")
+    check("and the ROW says what kind of number it is",
+          _si["exp_return_validation"] == mr.EXP_RETURN_UNVALIDATED)
+    check("band_mode travels on the row too", _si["band_mode"] == mr.BAND_MODE_INDICATOR)
+    _dropi = tk.classify({"close": 1.50, "upside": 0.5, "consensus": 4.5,
+                          "past_winner": False, "tradable": True}, prev=None)
+    check("a $1.50 name is DROPPED here too -- the floor is not mode-specific",
+          _dropi.status == "DROP" and "$2.00" in _dropi.reasons[0], str(_dropi))
+finally:
+    os.environ.pop("AAT_BAND_MODE", None)
+
+check("no leak: back to `returns` and the $1 floor",
+      mr.band_mode() == mr.BAND_MODE_RETURNS and tk.min_price_usd() == tk.MIN_PRICE_USD)
+
+# A TYPO IN A RAILWAY VARIABLE MUST NOT CHANGE WHAT A LIVE BOOK ADMITS.
+os.environ["AAT_BAND_MODE"] = "hygeine_only"          # deliberate misspelling
+try:
+    check("an unrecognised mode string resolves to `returns`, not to a half-applied mode",
+          mr.band_mode() == mr.BAND_MODE_RETURNS and tk.hygiene_gate_on() is False)
+finally:
+    os.environ.pop("AAT_BAND_MODE", None)
+
+# The LIVE default's own exp_return was never validated either. Until today
+# nothing said so on the row; saying it is not a change of behaviour.
+_row_live = dict(TOXIC, upside=6.0, consensus=4.5, past_winner=False,
+                 days_to_catalyst=5, realised_vol_20d=0.4)
+_slive = mr.score(_row_live, mr.evaluate(_row_live), _FROZEN_PRIOR)
+check("the LIVE default now labels its band constant UNVALIDATED too",
+      _slive["exp_return_validation"] == mr.EXP_RETURN_UNVALIDATED
+      and _slive["band_mode"] == mr.BAND_MODE_RETURNS)
+
+_pbsrc = Path("scripts/prediction_book.py").read_text(encoding="utf-8")
+check("the seal stamps the band mode inside content_sha256",
+      '"band_mode": murat_rule.band_mode(),' in _pbsrc)
+check("and stamps exp_return_validation on every holding",
+      '"exp_return_validation": h.get("exp_return_validation"),' in _pbsrc)
+
 print("\n-- the Monday dry run: units, attribution, and it can never seal")
 from scripts import monday_dry_run as dr
 

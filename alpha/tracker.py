@@ -266,17 +266,40 @@ UPSIDE_IMPLAUSIBLE_AT = 4.00
 
 
 def hygiene_only() -> bool:
-    """Is the live tracker running decision B.1 4a? Read at CALL time."""
+    """Is the live tracker running decision B.1 4a EXACTLY? Read at CALL time.
+
+    Narrow on purpose: it answers "is the mode `hygiene_only`", and nothing
+    else. `hygiene_gate_on()` is the question the eligibility checks actually
+    ask, and the two are different now that a third mode exists.
+    """
     from alpha import murat_rule as _mr
     return _mr.band_mode() == _mr.BAND_MODE_HYGIENE_ONLY
+
+
+def hygiene_gate_on() -> bool:
+    """Does the hygiene READABILITY gate apply today?
+
+    True under `hygiene_only` AND under the `indicator` proposal: both retire
+    the ratio as an admission rule and keep hygiene, and they differ only in
+    whether the band constant still populates `exp_return`. Gating on
+    `hygiene_only()` alone would have silently dropped the hygiene exclusion
+    the moment the third mode was switched on -- a guard that stops firing
+    because a neighbouring constant changed is the failure this repo keeps
+    paying for.
+    """
+    from alpha import murat_rule as _mr
+    return _mr.band_mode() in (_mr.BAND_MODE_HYGIENE_ONLY, _mr.BAND_MODE_INDICATOR)
 
 
 def min_price_usd() -> float:
     """The hard price floor. $1 today; $2 under hygiene-only, because that is
     the condition the eleven-year cells were measured under and below it the
-    panel has NO OPINION (t 0.39) rather than a bad one."""
+    panel has NO OPINION (t 0.39) rather than a bad one. The `indicator`
+    proposal keeps the same floor: it retires the ratio as an admission rule
+    and keeps every readability condition, so the price condition travels with
+    hygiene and not with the return constants."""
     from alpha import murat_rule as _mr
-    return _mr.BAND_PRIOR["min_price"] if hygiene_only() else MIN_PRICE_USD
+    return _mr.BAND_PRIOR["min_price"] if hygiene_gate_on() else MIN_PRICE_USD
 
 #: WATCH is not in Murat's five and is not a sixth grade -- it is the ABSENCE
 #: of one. A name we have never held, which today clears no buy bar, has
@@ -609,12 +632,14 @@ def classify(row: dict, *, prev: dict | None = None, stopped: bool = False) -> S
     # across a corporate action, and buying that band cost -26.47%/yr against
     # the market at t -4.71. See UPSIDE_IMPLAUSIBLE_AT for the whole table.
     if up is not None and up >= UPSIDE_IMPLAUSIBLE_AT:
-        if not hygiene_only():
+        if not hygiene_gate_on():
             return StatusVerdict("WATCH", [], [
                 f"upside {up:+.0%} >= {UPSIDE_IMPLAUSIBLE_AT:.0%}: not a forecast, almost always a "
                 "target quoted on a different share basis. Barred from candidacy, kept and counted."
             ], 0)
-        # HYGIENE-ONLY (B.1 4a): the ratio is an INDICATOR. The name is reported
+        # HYGIENE-ONLY (B.1 4a) and the `indicator` proposal both retire the
+        # ratio as an ADMISSION RULE, so both take this branch: the ratio is an
+        # INDICATOR. The name is reported
         # and stays eligible; what disqualifies it now is an unreadable target
         # WINDOW (>5x high/low), which is the actual defect this bar was a proxy
         # for -- and that test lives in the eligibility chain, once.
@@ -1052,7 +1077,7 @@ def _eligibility_checks(p: Personality) -> list:
     # any rule that reads the same numbers. `murat_rule.score` puts the verdict
     # on the row; re-deriving it here would be the second expression of a rule
     # that `_eligibility_checks` exists to avoid.
-    if hygiene_only():
+    if hygiene_gate_on():
         def _hygiene(r):
             if r.get("hygiene_ok") is True:
                 return None
@@ -1267,7 +1292,12 @@ def build_portfolio(rows: list[dict], p: Personality) -> dict:
             "rank_value": round(rank_value(r, p.rank), 6), "status": r.get("status"),
             "upside": r.get("upside"), "consensus": r.get("consensus"),
             "coverage_bucket": r.get("coverage_bucket"),
-            "exp_return": r.get("exp_return"), "downside_5pct": r.get("downside_5pct"),
+            "exp_return": r.get("exp_return"),
+            # WHAT KIND OF NUMBER `exp_return` IS. The coherence floor reads it
+            # either way and a reader cannot tell an eleven-year band constant
+            # (below its own t 2 bar) from a panel base rate by the value alone.
+            "exp_return_validation": r.get("exp_return_validation"),
+            "downside_5pct": r.get("downside_5pct"),
             "confidence": r.get("confidence"), "days_to_catalyst": r.get("days_to_catalyst"),
             "past_winner": r.get("past_winner"),
             # WHOSE NUMBER RANKED THIS NAME. A book built from two number
