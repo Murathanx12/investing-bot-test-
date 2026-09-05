@@ -23,6 +23,19 @@ Every session, across the WHOLE universe (HIGH_DISPERSION_US_v1, SIP closes):
 Output: `state/autopsy/<date>.json`, a table, and the rolling template tally.
 Nothing here places an order or changes a weight; the improvement is that
 tomorrow's candidate report is read beside yesterday's autopsy.
+
+A RECEIPT EVERY NIGHT (B3, 2026-09-05)
+======================================
+This script used to print a one-line complaint, return 1 and write NOTHING,
+and it dated its receipt from the last bar it happened to receive -- so a night
+with no bars wrote `state/autopsy/None.json`. Both are the same failure: after
+the fact, a night that refused and a night that never ran are indistinguishable
+on disk, and this script's value is entirely in the count across days.
+
+So: the session day is DERIVED (`alpha.exits.session_day`, the repo's one clock
+convention) rather than read off a bar that may not exist, and every exit path
+writes `state/autopsy/<day>.json` with a `status` -- `ok`, `EMPTY`, or
+`REFUSED` with the reason. An empty night writes a receipt saying it was empty.
 """
 
 from __future__ import annotations
@@ -37,7 +50,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from alpha import config, universe
+from alpha import config, exits, universe
 from alpha.broker.alpaca import AlpacaPaper
 from alpha.sources import attention, finnhub
 from alpha.sources.http import SourceRefusal
@@ -62,6 +75,14 @@ SYSTEM = (
     "KNOWABLE BEFOREHAND from an observable precursor -- a scheduled event, a supplier's number, a sector move "
     "the day before -- or not. Prefer 'unknown' over invention. Answer ONLY with one JSON object, in English."
 )
+
+
+def write_receipt(day: str, payload: dict) -> Path:
+    """The one writer. Every exit path goes through it, including the refusals."""
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / f"{day}.json"
+    path.write_text(json.dumps(payload, indent=1, default=str), encoding="utf-8")
+    return path
 
 
 def _returns(bars: dict[str, list[dict]], n: int) -> dict[str, float]:
@@ -134,18 +155,55 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--top", type=int, default=20)
     p.add_argument("--no-llm", action="store_true")
+    p.add_argument("--day", default=None, help="ET session day (default: derived)")
     args = p.parse_args()
     logging.basicConfig(level=logging.WARNING)
     config.load_env()
-    client = AlpacaPaper()
+    # DERIVED, never read off whichever bar arrived. `session_day` is the repo's
+    # one ET convention; the bars only CONFIRM it below.
+    day = args.day or exits.session_day()
     members = [m for m in universe.load() if not m.etf_like]
     by_sym = {m.symbol: m for m in members}
     if not members:
-        print("no universe on disk")
+        path = write_receipt(day, {
+            "session": day, "status": "REFUSED", "universe_n": 0, "movers": [],
+            "generated_utc": datetime.now(timezone.utc).isoformat(),
+            "why": ("no universe on disk (`alpha.universe.load()` returned nothing). "
+                    "This is a refusal, not a night with no movers -- run "
+                    "`python -m scripts.universe --build` and re-run.")})
+        print(f"DAILY AUTOPSY {day}: REFUSED -- no universe on disk")
+        print(f"  receipt -> {path}")
         return 1
-    start = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%d")
-    bars = client.stock_bars_multi([m.symbol for m in members], start=start)
+    try:
+        client = AlpacaPaper()
+        start = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%d")
+        bars = client.stock_bars_multi([m.symbol for m in members], start=start)
+    except Exception as exc:                                             # noqa: BLE001
+        path = write_receipt(day, {
+            "session": day, "status": "REFUSED", "universe_n": len(members),
+            "movers": [], "generated_utc": datetime.now(timezone.utc).isoformat(),
+            "why": f"{type(exc).__name__}: {str(exc)[:300]}",
+            "note": "the venue would not answer for bars; nothing about the tape follows"})
+        print(f"DAILY AUTOPSY {day}: REFUSED -- {type(exc).__name__}: {str(exc)[:200]}")
+        print(f"  receipt -> {path}")
+        return 1
     session = max((b[-1]["t"][:10] for b in bars.values() if b), default=None)
+    if session is None:
+        path = write_receipt(day, {
+            "session": day, "status": "EMPTY", "universe_n": len(members), "movers": [],
+            "generated_utc": datetime.now(timezone.utc).isoformat(),
+            "why": (f"the venue returned no usable bar for any of {len(members)} names. "
+                    f"An EMPTY night, recorded as one -- and dated {day} from the clock, "
+                    f"not from a bar that does not exist.")})
+        print(f"DAILY AUTOPSY {day}: EMPTY -- no bars for any name")
+        print(f"  receipt -> {path}")
+        return 0
+    if session != day:
+        # Not an error: run after a weekend and the newest session is Friday.
+        # Recorded so nobody reads Friday's autopsy as Sunday's.
+        print(f"  note: newest venue session is {session}, clock day is {day}; "
+              f"the receipt is filed under {session}")
+    day = session
     r1, r5 = _returns(bars, 1), _returns(bars, 5)
     # Only names whose last bar IS the session (a stale name is not a mover).
     r1 = {s: v for s, v in r1.items() if bars[s][-1]["t"][:10] == session}
@@ -226,12 +284,11 @@ def main() -> int:
              "movers_in_old_universe": sum(1 for m in movers if m["engine"]["old_universe"]),
              "movers_in_control_holdings": [m["symbol"] for m in movers if m["engine"]["control_holding"]],
              "knowable_before": {k: sum(1 for m in movers if (m.get("compiled") or {}).get("knowable_before") == k) for k in ("yes", "partly", "no")}}
-    report = {"session": session, "generated_utc": datetime.now(timezone.utc).isoformat(), "universe_n": len(members),
+    report = {"session": session, "status": "ok" if movers else "EMPTY",
+              "generated_utc": datetime.now(timezone.utc).isoformat(), "universe_n": len(members),
               "median_1d_return": round(statistics.median(r1.values()), 4) if r1 else None,
               "movers": movers, "industry_clusters": clusters, "compiled": compiled, "llm": llm, "grade": grade}
-    OUT.mkdir(parents=True, exist_ok=True)
-    path = OUT / f"{session}.json"
-    path.write_text(json.dumps(report, indent=1, default=str), encoding="utf-8")
+    path = write_receipt(session, report)
     if compiled and "movers" in compiled:
         with TALLY.open("a", encoding="utf-8") as fh:
             for m in movers:

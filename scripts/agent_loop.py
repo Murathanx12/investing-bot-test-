@@ -40,8 +40,17 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from alpha import config, liveness
+from alpha import config, exits as _clock, liveness
 from alpha.broker.alpaca import AlpacaPaper, BrokerRefusal
+
+#: How long to wait before RETRYING the after-close block when it failed.
+#: The block used to stamp `last["autopsy"] = now` unconditionally, so a single
+#: non-zero exit -- a venue refusal, a rate limit, a missing universe -- lost the
+#: WHOLE NIGHT and the next attempt was twenty hours away, by which time the
+#: after-close window had closed. A success still holds the 20h lock; a failure
+#: holds it for 30 minutes, which retries inside the window without spinning.
+AUTOPSY_RETRY_S = 30 * 60
+AUTOPSY_DONE_S = 20 * 3600
 
 log = logging.getLogger("loop")
 
@@ -279,13 +288,28 @@ def _cycle(client, args, last: dict) -> int:
 
         if is_open and now - last["exit"] >= args.exit_minutes * 60:
             _run("scripts.manage", live=args.live); last["exit"] = now
-        et_hour = (datetime.now(timezone.utc).hour - 4) % 24
-        if not is_open and 16 <= et_hour < 20 and now - last["autopsy"] >= 20 * 3600:
+        # ONE CLOCK. `(utc.hour - 4) % 24` was the ET offset written a second
+        # time; `alpha.exits.ET_OFFSET` is the repo's single definition and the
+        # one `session_day` uses, so the after-close window and the day the
+        # autopsy files its receipt under cannot drift apart.
+# NOTE the alias: `_cycle` later does `from alpha import ... exits as
+        # _exits`, which makes that name a LOCAL for the whole function --
+        # reading it here would be an UnboundLocalError on every cycle.
+        et_hour = (datetime.now(timezone.utc) + _clock.ET_OFFSET).hour
+        if not is_open and 16 <= et_hour < 20 and now - last["autopsy"] >= AUTOPSY_RETRY_S:
             # After the close: what won, what lost, why, and did the engine hold it.
-            _run("scripts.daily_autopsy", live=False); last["autopsy"] = now
+            rc_a = _run("scripts.daily_autopsy", live=False)
             # The SECOND autopsy question: which of today's biggest movers did we never
-            # generate? A miss with pre-open evidence is a research task (vision §4.3).
-            _run("scripts.discovery_autopsy", live=False)
+            # generate, and WHICH STAGE OF OURS lost each one? A miss with pre-open
+            # evidence is a research task (vision §4.3); the typed miss says which
+            # repair it is (coverage / model / execution / exit rule).
+            rc_d = _run("scripts.discovery_autopsy", live=False)
+            # A FAILED NIGHT IS RETRIED, NOT MARKED DONE. Both write a receipt on
+            # every path now, so a non-zero exit here means the step genuinely
+            # could not run -- and losing the night to a transient venue refusal
+            # is the failure this stamp used to cause.
+            last["autopsy"] = now + (AUTOPSY_DONE_S - AUTOPSY_RETRY_S
+                                     if (rc_a == 0 and rc_d == 0) else 0)
             # THE WRITE-BACK (checkpoint queue item 5): every sealed decision gets a
             # (day, symbol, book) row -- submitted, refused-with-reason, or
             # never_reached -- and matured horizon returns append on later nights.
