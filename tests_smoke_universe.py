@@ -93,6 +93,56 @@ check("observe is a superset of execute", set(m.symbol for m in _ex) <= set(m.sy
 check("every execute member clears the execute floor",
       all((m.median_dollar_volume or 0) >= universe.MIN_EXECUTE_DOLLAR_VOLUME for m in _ex))
 
+# --- SIZE-AWARE EXECUTE FLOOR (2026-09-07, night-lab lane N3) --------------
+# The $3m flat floor is an institution's floor. A $100k book at 1% ADV
+# participation, one-session build, 5%-of-equity per-name cap needs
+# ($100,000 x 0.05) / (0.01 x 1) = $500,000/day, not $3m -- the brainstorm's
+# own arithmetic, now pinned.
+f, why = universe.size_aware_execute_floor(100_000.0)
+check("a $100k book's size-aware floor is $500k/day", f == 500_000.0, str(f))
+check("and it carries no refusal", why is None, str(why))
+
+f1m, _ = universe.size_aware_execute_floor(1_000_000.0)
+f10m, _ = universe.size_aware_execute_floor(10_000_000.0)
+check("a $1m book's floor is $5m/day", f1m == 5_000_000.0, str(f1m))
+check("a $10m book's floor is $50m/day", f10m == 50_000_000.0, str(f10m))
+check("the floor scales LINEARLY with book size at fixed participation",
+      f1m == f * 10 and f10m == f * 100)
+
+f_none, why_none = universe.size_aware_execute_floor(None)
+check("a missing book size REFUSES, not a permissive default",
+      f_none is None and why_none is not None and "book_size_usd" in why_none, str(why_none))
+f_bad, why_bad = universe.size_aware_execute_floor(100_000.0, participation=0.0)
+check("a zero participation REFUSES rather than dividing by zero",
+      f_bad is None and why_bad is not None, str(why_bad))
+f_neg, why_neg = universe.size_aware_execute_floor(-1.0)
+check("a non-positive book size REFUSES",
+      f_neg is None and why_neg is not None, str(why_neg))
+
+# `execution_authority` without `book_size_usd` is BYTE-FOR-BYTE the old
+# behaviour -- no existing caller changes.
+a_old = universe.execution_authority(25_000.0, equity=99_200.0)
+check("execution_authority with no book_size_usd is unchanged (OBSERVE_ONLY)",
+      a_old["tier"] == "OBSERVE_ONLY" and a_old["max_usd"] == 250.0, str(a_old))
+
+# THE RESURRECTION: a name that dies at the flat $3m floor lives at a $100k
+# book's size-aware $500k floor.
+mdv_1m = 1_000_000.0  # under $3m, over the $100k book's $500k floor
+a_flat = universe.execution_authority(mdv_1m, equity=100_000.0)
+check("a $1m/day name is OBSERVE_ONLY under the flat $3m floor",
+      a_flat["tier"] == "OBSERVE_ONLY", str(a_flat))
+a_sized = universe.execution_authority(mdv_1m, equity=100_000.0, book_size_usd=100_000.0)
+check("the SAME name is FULL under the $100k book's size-aware floor",
+      a_sized["tier"] == "FULL" and a_sized["floor_basis"] == "size_aware", str(a_sized))
+check("its execute_floor_usd is the $500k derived floor",
+      a_sized["execute_floor_usd"] == 500_000.0, str(a_sized["execute_floor_usd"]))
+
+# A size-aware request that cannot be resolved REFUSES -- it does not fall
+# back to the flat institutional floor and silently authorise at $3m.
+a_refused = universe.execution_authority(mdv_1m, book_size_usd=100_000.0, participation=0.0)
+check("an unresolvable size-aware request is CANNOT_DETERMINE, not a fallback",
+      a_refused["tier"] == "CANNOT_DETERMINE" and a_refused["max_usd"] == 0.0, str(a_refused))
+
 if __name__ == "__main__":
     print(f"\n{len(fails)} failures" + (": " + ", ".join(fails) if fails else ""))
     raise SystemExit(1 if fails else 0)

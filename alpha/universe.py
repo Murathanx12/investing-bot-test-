@@ -87,32 +87,113 @@ MIN_EXECUTE_DOLLAR_VOLUME = MIN_DOLLAR_VOLUME
 MAX_ADV_PARTICIPATION = 0.01
 
 
-def execution_authority(median_dollar_volume: float | None, equity: float | None = None) -> dict:
+#: ---------------------------------------------------------------------------
+#: SIZE-AWARE EXECUTE FLOOR (2026-09-07, night-lab lane N3)
+#:
+#: `MIN_EXECUTE_DOLLAR_VOLUME` ($3m/day) is an INSTITUTION's floor: the dollar
+#: liquidity a book big enough to need it can absorb without moving the tape.
+#: A $100k book at 1% ADV participation does not need $3m/day to fill one
+#: position inside a session -- it needs (book size x per-name notional cap) /
+#: (participation x sessions to build). For a $100k book, 1% participation, a
+#: 5%-of-equity per-name cap, built in one session: ($100,000 x 0.05) /
+#: (0.01 x 1) = $500,000/day, not $3,000,000. That is the brainstorm's
+#: "$100k book at 1% ADV can trade a $500k/day name" arithmetic, made callable
+#: rather than asserted.
+#:
+#: `size_aware_execute_floor` REFUSES (returns `(None, why)`) rather than
+#: guessing when book size, participation, position fraction or build
+#: sessions is missing or non-positive -- a size-aware request that cannot be
+#: computed must say so, not quietly fall back to the flat institutional
+#: floor. `execution_authority(book_size_usd=...)` is the opt-in: omitting
+#: `book_size_usd` reproduces the historical flat-$3m behaviour byte for
+#: byte, so every existing caller (including this file's own smoke test) is
+#: unchanged.
+SIZE_AWARE_POSITION_FRACTION = 0.05
+SIZE_AWARE_BUILD_SESSIONS = 1.0
+
+
+def size_aware_execute_floor(book_size_usd: float | None, *,
+                              participation: float | None = MAX_ADV_PARTICIPATION,
+                              position_fraction: float | None = SIZE_AWARE_POSITION_FRACTION,
+                              build_sessions: float | None = SIZE_AWARE_BUILD_SESSIONS
+                              ) -> tuple[float | None, str | None]:
+    """The $/day median-dollar-volume floor a book of `book_size_usd` needs to
+    fill ONE full position inside `build_sessions` sessions without exceeding
+    `participation` of a name's own ADV, given a per-name notional cap of
+    `position_fraction` of the book.
+
+    Returns `(floor_usd, None)` on success or `(None, why)` on refusal. Never
+    raises and never returns a permissive default: a missing or non-positive
+    input is a reason to refuse, not a reason to fall back to the flat floor.
+    """
+    inputs = {"book_size_usd": book_size_usd, "participation": participation,
+              "position_fraction": position_fraction, "build_sessions": build_sessions}
+    missing = [k for k, v in inputs.items() if v is None]
+    if missing:
+        return None, ("cannot derive a size-aware execute floor: missing "
+                      + ", ".join(missing))
+    bad = [k for k, v in inputs.items() if not (float(v) > 0)]
+    if bad:
+        return None, ("cannot derive a size-aware execute floor: non-positive "
+                      + ", ".join(bad))
+    floor = (float(book_size_usd) * float(position_fraction)) / (
+        float(participation) * float(build_sessions))
+    return floor, None
+
+
+def execution_authority(median_dollar_volume: float | None, equity: float | None = None, *,
+                        book_size_usd: float | None = None,
+                        participation: float = MAX_ADV_PARTICIPATION,
+                        position_fraction: float = SIZE_AWARE_POSITION_FRACTION,
+                        build_sessions: float = SIZE_AWARE_BUILD_SESSIONS) -> dict:
     """How much of THIS name may we buy, and why. Never a reason to stop looking.
 
     Returns the dollar cap, the same cap as a fraction of `equity` when one is
     given, and a `tier` a human can read. `None` in means UNKNOWN, which is
     reported as unknown and authorises nothing -- an absent dollar volume is
     not a dollar volume of zero and it is not a dollar volume of a million.
+
+    `book_size_usd`, when given, switches the EXECUTE floor from the flat
+    institutional $3m to the SIZE-AWARE floor derived by
+    `size_aware_execute_floor` from book size and participation. Omitting it
+    reproduces the historical flat-floor behaviour exactly, so every existing
+    caller is unchanged. Passing it and having the derivation fail to resolve
+    (bad participation, non-positive book size, ...) returns tier
+    `CANNOT_DETERMINE` and authorises nothing -- it does NOT silently fall
+    back to the flat floor, which would make a broken size-aware request read
+    as an ordinary institutional one.
     """
     if median_dollar_volume is None:
         return {"tier": "UNKNOWN", "max_usd": 0.0, "max_fraction": 0.0,
                 "reason": "no median dollar volume on the row; authority cannot be derived"}
     mdv = float(median_dollar_volume)
-    cap = mdv * MAX_ADV_PARTICIPATION
+    part = participation if participation else MAX_ADV_PARTICIPATION
+    cap = mdv * part
+    execute_floor = MIN_EXECUTE_DOLLAR_VOLUME
+    floor_basis = "flat_institutional"
+    if book_size_usd is not None:
+        saf, why = size_aware_execute_floor(book_size_usd, participation=participation,
+                                            position_fraction=position_fraction,
+                                            build_sessions=build_sessions)
+        if saf is None:
+            return {"tier": "CANNOT_DETERMINE", "max_usd": 0.0, "max_fraction": 0.0,
+                    "reason": why, "floor_basis": "size_aware_refused"}
+        execute_floor = saf
+        floor_basis = "size_aware"
     if mdv < MIN_OBSERVE_DOLLAR_VOLUME:
         tier, reason = "NONE", f"below the ${MIN_OBSERVE_DOLLAR_VOLUME:,.0f}/day observation floor"
-    elif mdv < MIN_EXECUTE_DOLLAR_VOLUME:
+    elif mdv < execute_floor:
         tier, reason = "OBSERVE_ONLY", (
-            f"${mdv:,.0f}/day is under the ${MIN_EXECUTE_DOLLAR_VOLUME:,.0f} execute floor: "
-            f"observable and gradeable, at most ${cap:,.0f} transactable")
+            f"${mdv:,.0f}/day is under the ${execute_floor:,.0f} execute floor "
+            f"({floor_basis}): observable and gradeable, at most ${cap:,.0f} transactable")
     else:
-        tier, reason = "FULL", f"${mdv:,.0f}/day clears the execute floor"
+        tier, reason = "FULL", f"${mdv:,.0f}/day clears the {floor_basis} execute floor (${execute_floor:,.0f})"
     if tier == "NONE":
         cap = 0.0
     return {"tier": tier, "max_usd": round(cap, 2),
             "max_fraction": (round(cap / equity, 6) if equity else 0.0),
-            "reason": reason}
+            "reason": reason, "execute_floor_usd": round(execute_floor, 2),
+            "floor_basis": floor_basis}
 #: Dollar-volume buckets used until a market cap is read. Labelled as such.
 DV_BUCKETS = (("micro", 0.0), ("small", 10e6), ("mid", 50e6), ("large", 300e6), ("mega", 2e9))
 ETF_WORDS = ("ETF", "TRUST", "FUND", "INDEX", "ISHARES", "PROSHARES", "SPDR", "VANGUARD", "INVESCO",
