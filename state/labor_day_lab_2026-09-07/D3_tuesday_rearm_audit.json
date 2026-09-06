@@ -1,0 +1,240 @@
+{
+ "at": "2026-09-05T15:32:33.435143+00:00",
+ "headline": {
+  "AAT_MANDATE_END_UTC_set_anywhere_today": [],
+  "roles_armed_by_the_deploy": [
+   "hack2",
+   "hack3",
+   "hack4",
+   "hack5",
+   "hack6"
+  ],
+  "roles_disarmed_today": [
+   "hack1",
+   "hack2",
+   "hack3",
+   "hack4",
+   "hack5",
+   "hack6"
+  ]
+ },
+ "method": "READ-ONLY. `railway variables --service <svc> --json` per service, filtered to an allowlist of non-secret names; every other name is recorded by NAME only and no value is read into anything printed. The 'after deploy' column is computed from alpha.fleet.env_for(), not from a deploy.",
+ "non_fleet_services": {
+  "aat-loop-staging": {
+   "in_fleet_deploy_path": false,
+   "note": "`scripts.fleet --deploy` iterates alpha/fleet.FLEET, which holds hack1..hack6 only. This service is never touched by the Tuesday procedure and never receives AAT_MANDATE_END_UTC.",
+   "safe": {
+    "AAT_ACCOUNT_ROLE": "staging",
+    "AAT_DATA_BASE": "https://data.alpaca.markets",
+    "AAT_LEDGER_DIR": "/app/state",
+    "AAT_LOOP_ARGS": "--profile conservative --window-universe",
+    "AAT_LOOP_BRAINS": "post_event_drift",
+    "AAT_LOOP_EXPIRY": "2026-09-04",
+    "AAT_OPTIONS_FEED": "indicative",
+    "AAT_RISK_PROFILE": "aggressive",
+    "AAT_STOCK_FEED": "iex",
+    "AAT_TRADING_BASE": "https://paper-api.alpaca.markets"
+   }
+  },
+  "seal-authority": {
+   "in_fleet_deploy_path": false,
+   "note": "`scripts.fleet --deploy` iterates alpha/fleet.FLEET, which holds hack1..hack6 only. This service is never touched by the Tuesday procedure and never receives AAT_MANDATE_END_UTC.",
+   "safe": {
+    "AAT_ACCOUNT_ROLE": "hack3",
+    "AAT_DATA_BASE": "https://data.alpaca.markets",
+    "AAT_LEDGER_DIR": "/app/state",
+    "AAT_TRADING_BASE": "https://paper-api.alpaca.markets"
+   }
+  }
+ },
+ "railway_project": "loving-elegance",
+ "receipt": "LABOR-D3-TUESDAY-REARM-AUDIT",
+ "roles": [
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "DISARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": true,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": true,
+   "role": "hack1",
+   "service": "aat-loop-hack1",
+   "variables_added_by_deploy": {
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile conservative --universe SPY QQQ IWM NVDA AVGO PANW",
+     "to": "--profile conservative --manage-only --universe SPY QQQ IWM NVDA AVGO PANW"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2026-10-16"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT"
+   ]
+  },
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": false,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": false,
+   "role": "hack2",
+   "service": "aat-loop-hack2",
+   "variables_added_by_deploy": {
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile aggressive --window-universe",
+     "to": "--profile aggressive --window-universe"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2026-10-16"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT"
+   ]
+  },
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": false,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": false,
+   "role": "hack3",
+   "service": "aat-loop-hack3",
+   "variables_added_by_deploy": {
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile basket --universe ABAT AG ALMU AMPX ARRY AVAV BE BWXT CDE DKNG DNN ENPH EOSE FCEL FLNC FPS FSLR HL HUBS IONQ KTOS LAES LEU LOVE LPTH MP MU NB NTLA NXE NXT OKLO ONDS OUST PLUG POWL QBTS QS QUBT RCAT RFIL RGTI RUN RZLT SHLS SMR SYM TER UEC USAR UUUU",
+     "to": "--profile basket --universe AG AMPX ARRY BE BWXT CDE DKNG DNN ENPH EOSE FCEL FLNC FSLR HL HUBS IONQ KTOS LEU MP NTLA NXE NXT OKLO ONDS OUST PLUG POWL QBTS QS QUBT RCAT RGTI RUN SHLS SMR SYM TER UEC USAR UUUU"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2027-12-31"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT",
+    "AAT_PREDICTION_BOOK_BASE_URL",
+    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
+   ]
+  },
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": false,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": false,
+   "role": "hack4",
+   "service": "aat-loop-hack4",
+   "variables_added_by_deploy": {
+    "AAT_ENTRY_STYLE": "open_auction",
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile maximum --window-universe",
+     "to": "--profile maximum --window-universe"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2027-12-31"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT",
+    "AAT_PREDICTION_BOOK_BASE_URL",
+    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
+   ]
+  },
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": false,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": false,
+   "role": "hack5",
+   "service": "aat-loop-hack5",
+   "variables_added_by_deploy": {
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile convex --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
+     "to": "--profile convex --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2026-10-16"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT"
+   ]
+  },
+  {
+   "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
+   "ENTRY_STATE_TODAY": "DISARMED",
+   "declared_allow_short": false,
+   "declared_manage_only": false,
+   "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
+   "live_has_manage_only_flag": true,
+   "live_mandate_end_utc": null,
+   "post_deploy_has_manage_only_flag": false,
+   "role": "hack6",
+   "service": "aat-loop-hack6",
+   "variables_added_by_deploy": {
+    "AAT_ENTRY_STYLE": "staggered",
+    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
+   },
+   "variables_changed_by_deploy": {
+    "AAT_LOOP_ARGS": {
+     "from": "--manage-only --profile aggressive --window-universe --council --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
+     "to": "--profile aggressive --window-universe --council --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA"
+    },
+    "AAT_LOOP_EXPIRY": {
+     "from": "2026-09-04",
+     "to": "2027-12-31"
+    }
+   },
+   "variables_deploy_does_NOT_manage": [
+    "AAT_BUILD_COMMIT",
+    "AAT_PREDICTION_BOOK_BASE_URL",
+    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
+   ]
+  }
+ ],
+ "services_seen": [
+  "aat-loop-hack1",
+  "aat-loop-hack2",
+  "aat-loop-hack3",
+  "aat-loop-hack4",
+  "aat-loop-hack5",
+  "aat-loop-hack6",
+  "aat-loop-staging",
+  "seal-authority"
+ ]
+}

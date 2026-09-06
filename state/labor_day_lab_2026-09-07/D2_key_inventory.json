@@ -1,0 +1,1211 @@
+{
+ "at": "2026-09-05T15:31:32.018234+00:00",
+ "counts": {
+  "names": 44
+ },
+ "cross_repo_key_pairs": [
+  {
+   "finance": "FRED_API_KEY",
+   "finance_fingerprint": "sha256:4392b888/len32",
+   "same_object": true,
+   "terminal": "AAT_FRED_API_KEY",
+   "terminal_fingerprint": "sha256:4392b888/len32"
+  },
+  {
+   "finance": "FINNHUB_API_KEY",
+   "finance_fingerprint": "sha256:ce62c336/len40",
+   "same_object": true,
+   "terminal": "AAT_FINNHUB_API_KEY",
+   "terminal_fingerprint": "sha256:ce62c336/len40"
+  },
+  {
+   "finance": "DEEPSEEK_API_KEY",
+   "finance_fingerprint": "sha256:8bc3fd9a/len35",
+   "same_object": true,
+   "terminal": "AAT_DEEPSEEK_API_KEY",
+   "terminal_fingerprint": "sha256:8bc3fd9a/len35"
+  },
+  {
+   "finance": "NVIDIA_API_KEY",
+   "finance_fingerprint": "sha256:e0b68a59/len70",
+   "same_object": true,
+   "terminal": "AAT_NVIDIA_API_KEY",
+   "terminal_fingerprint": "sha256:e0b68a59/len70"
+  },
+  {
+   "finance": "HF_TOKEN",
+   "finance_fingerprint": "sha256:1f14df0b/len37",
+   "same_object": true,
+   "terminal": "AAT_HF_TOKEN",
+   "terminal_fingerprint": "sha256:1f14df0b/len37"
+  },
+  {
+   "finance": "GTP_TOKEN",
+   "finance_fingerprint": "sha256:c4c8ffc4/len164",
+   "same_object": true,
+   "terminal": "AAT_OPENAI_API_KEY",
+   "terminal_fingerprint": "sha256:c4c8ffc4/len164"
+  }
+ ],
+ "dead_weight": [],
+ "empty": [
+  "ANTHROPIC_API_KEY"
+ ],
+ "env_files": {
+  "finance": {
+   "exists": true,
+   "names": 18,
+   "path": "C:\\Users\\mrthn\\aegis-finance\\.env"
+  },
+  "terminal": {
+   "exists": true,
+   "names": 26,
+   "path": "C:\\Users\\mrthn\\aegis-alpha-terminal\\.env"
+  }
+ },
+ "method": "NAMES AND LENGTHS ONLY. Values are hashed at parse time and only an 8-hex prefix is retained. No .env file was moved, copied, renamed or edited.",
+ "probe_receipts": [
+  "backend\\data\\optimus\\labor_day_lab_2026-09-07\\D1_connection_check_finance.json",
+  "C:\\Users\\mrthn\\aegis-alpha-terminal\\state\\labor_day_lab_2026-09-07\\D1_connection_check_terminal.json"
+ ],
+ "receipt": "LABOR-D2-KEY-INVENTORY",
+ "refused": [
+  "ALPACA_API_KEY_ID",
+  "ALPACA_API_SECRET_KEY",
+  "ALPACA_ARENA_API_KEY_ID",
+  "ALPACA_ARENA_API_SECRET_KEY"
+ ],
+ "rows": [
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:1d85bc9c/len27"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 27
+   },
+   "name": "AAT_DATA_BASE",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "terminal:.env.example:26",
+    "terminal:alpha/config.py:357",
+    "terminal:alpha/fleet.py:171",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:49"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:8bc3fd9a/len35"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 35
+   },
+   "name": "AAT_DEEPSEEK_API_KEY",
+   "probe": "DeepSeek",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 22,
+   "references_sample": [
+    "finance:docs/ROADMAP_2026-08-29_WEEKEND_TO_MONDAY.md:244",
+    "terminal:CLAUDE.md:27",
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/fleet.py:327",
+    "terminal:alpha/psychohistory.py:349",
+    "terminal:alpha/psychohistory.py:351"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:00d4b002/len67"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 67
+   },
+   "name": "AAT_FEATHERLESS_API_KEY",
+   "probe": "Featherless",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "finance:docs/VERIFICATION_2026-09-04_OPUS5_ON_FABLE51.md:233",
+    "terminal:alpha/fleet.py:329",
+    "terminal:alpha/council/providers.py:98",
+    "terminal:scripts/fleet.py:74"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:ce62c336/len40"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 40
+   },
+   "name": "AAT_FINNHUB_API_KEY",
+   "probe": "Finnhub",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 14,
+   "references_sample": [
+    "finance:scripts/night_lab_jobs.py:218",
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/sources/finnhub.py:25",
+    "terminal:alpha/sources/finnhub.py:27",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:51",
+    "terminal:scripts/analyst_panel.py:135"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:4392b888/len32"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 32
+   },
+   "name": "AAT_FRED_API_KEY",
+   "probe": "FRED",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 8,
+   "references_sample": [
+    "finance:scripts/night_lab_jobs.py:218",
+    "terminal:alpha/fleet.py:187",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:51",
+    "terminal:scripts/catalyst_horizon.py:180",
+    "terminal:scripts/catalyst_horizon.py:182",
+    "terminal:scripts/event_contract_basis.py:106"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:8a1d8b5d/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK1_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:2e753cae/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK1_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:92b2e6b2/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK2_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:48e92f70/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK2_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:2a913264/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK3_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 1,
+   "references_sample": [
+    "terminal:tests_smoke_crossbook.py:128"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:31f7f234/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK3_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:f24bedb8/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK4_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:2c62ce29/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK4_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:4e498d8e/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK5_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:fb7fbed6/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK5_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_KEY_ID from the role (terminal:alpha/config.py:298)",
+   "fingerprints": {
+    "terminal": "sha256:a5e19945/len26"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 26
+   },
+   "name": "AAT_HACK6_KEY_ID",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": "alpha/config.py::credentials builds AAT_<ROLE>_SECRET_KEY from the role (terminal:alpha/config.py:299)",
+   "fingerprints": {
+    "terminal": "sha256:2804ba14/len44"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 44
+   },
+   "name": "AAT_HACK6_SECRET_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_VIA_CONSTRUCTED_NAME",
+   "reference_count": 0,
+   "references_sample": [],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED (name built at runtime; DO NOT DELETE)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:1f14df0b/len37"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 37
+   },
+   "name": "AAT_HF_TOKEN",
+   "probe": "HF router",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/fleet.py:328",
+    "terminal:alpha/council/providers.py:85",
+    "terminal:alpha/council/providers.py:87"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:5127a619/len7"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 7
+   },
+   "name": "AAT_LEDGER_DIR",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 40,
+   "references_sample": [
+    "finance:docs/BUILD_CONTINUATION_2026-09-06_DETAIL.md:450",
+    "terminal:.env.example:28",
+    "terminal:run_tests.py:27",
+    "terminal:run_tests.py:38",
+    "terminal:run_tests.py:95",
+    "terminal:run_tests.py:97"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:e0b68a59/len70"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 70
+   },
+   "name": "AAT_NVIDIA_API_KEY",
+   "probe": "NVIDIA NIM",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 7,
+   "references_sample": [
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/fleet.py:328",
+    "terminal:alpha/council/providers.py:80",
+    "terminal:alpha/council/providers.py:82",
+    "terminal:alpha/council/providers.py:84",
+    "terminal:alpha/sources/features.py:397"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:7ca1fa20/len35"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 35
+   },
+   "name": "AAT_NVIDIA_BASE_URL",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "terminal:alpha/council/providers.py:79",
+    "terminal:alpha/council/providers.py:81",
+    "terminal:alpha/council/providers.py:83",
+    "terminal:alpha/sources/features.py:396"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:c4c8ffc4/len164"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 164
+   },
+   "name": "AAT_OPENAI_API_KEY",
+   "probe": "OpenAI",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 13,
+   "references_sample": [
+    "finance:docs/VERIFICATION_2026-09-04_OPUS5_ON_FABLE51.md:234",
+    "terminal:tests_smoke_relevance.py:57",
+    "terminal:tests_smoke_relevance.py:58",
+    "terminal:tests_smoke_relevance.py:67",
+    "terminal:alpha/fleet.py:328",
+    "terminal:alpha/council/providers.py:68"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:b20ad0b7/len10"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 10
+   },
+   "name": "AAT_OPTIONS_FEED",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "terminal:alpha/config.py:70",
+    "terminal:alpha/fleet.py:172",
+    "terminal:alpha/broker/alpaca.py:243",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:50"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:42eddc67/len10"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 10
+   },
+   "name": "AAT_RISK_PROFILE",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 22,
+   "references_sample": [
+    "finance:docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md:468",
+    "finance:docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md:478",
+    "finance:docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md:479",
+    "finance:docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md:490",
+    "finance:docs/REDTEAM_2026-09-02_ENGINE_AUDIT.md:500",
+    "terminal:tests_smoke_labor_exits_adversary.py:128"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:7bdc79a3/len3"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 3
+   },
+   "name": "AAT_STOCK_FEED",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 3,
+   "references_sample": [
+    "terminal:alpha/config.py:74",
+    "terminal:alpha/fleet.py:173",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:50"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "terminal": "sha256:02105b0c/len32"
+   },
+   "in_env": [
+    "terminal"
+   ],
+   "lengths": {
+    "terminal": 32
+   },
+   "name": "AAT_TRADING_BASE",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 6,
+   "references_sample": [
+    "terminal:.env.example:25",
+    "terminal:tests_smoke.py:240",
+    "terminal:tests_smoke.py:243",
+    "terminal:alpha/config.py:350",
+    "terminal:alpha/fleet.py:170",
+    "terminal:docs/ROADMAP_2026-08-28_EXECUTION_AND_HOSTING.md:49"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:0c510528/len26"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 26
+   },
+   "name": "ALPACA_API_KEY_ID",
+   "probe": "Alpaca (finance mirror/arena)",
+   "probe_failure_class": "auth",
+   "probe_status": "FAIL",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 32,
+   "references_sample": [
+    "finance:backend/main.py:428",
+    "finance:backend/services/portfolio_intelligence/alpaca_mirror.py:14",
+    "finance:backend/services/portfolio_intelligence/paper_broker_targets.py:373",
+    "finance:backend/services/portfolio_intelligence/paper_broker_targets.py:377",
+    "finance:backend/tests/test_paper_broker_targets.py:85",
+    "finance:backend/tests/test_paper_broker_targets.py:102"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "REFUSED BY PROVIDER (auth)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:06ff27c0/len44"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 44
+   },
+   "name": "ALPACA_API_SECRET_KEY",
+   "probe": "Alpaca (finance mirror/arena)",
+   "probe_failure_class": "auth",
+   "probe_status": "FAIL",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 23,
+   "references_sample": [
+    "finance:backend/main.py:428",
+    "finance:backend/services/portfolio_intelligence/alpaca_mirror.py:15",
+    "finance:backend/tests/test_paper_broker_targets.py:85",
+    "finance:backend/tests/test_paper_broker_targets.py:103",
+    "finance:backend/tests/test_paper_broker_targets.py:112",
+    "finance:backend/tests/test_paper_broker_targets.py:122"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "REFUSED BY PROVIDER (auth)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:512104b6/len26"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 26
+   },
+   "name": "ALPACA_ARENA_API_KEY_ID",
+   "probe": "Alpaca (finance mirror/arena)",
+   "probe_failure_class": "auth",
+   "probe_status": "FAIL",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 14,
+   "references_sample": [
+    "finance:backend/tests/test_paper_broker_targets.py:90",
+    "finance:backend/tests/test_paper_broker_targets.py:104",
+    "finance:backend/tests/test_paper_broker_targets.py:113",
+    "finance:backend/tests/test_paper_broker_targets.py:123",
+    "finance:backend/tests/test_paper_broker_targets.py:132",
+    "finance:backend/tests/test_paper_broker_targets.py:409"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "REFUSED BY PROVIDER (auth)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:be653ba7/len44"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 44
+   },
+   "name": "ALPACA_ARENA_API_SECRET_KEY",
+   "probe": "Alpaca (finance mirror/arena)",
+   "probe_failure_class": "auth",
+   "probe_status": "FAIL",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 13,
+   "references_sample": [
+    "finance:backend/tests/test_paper_broker_targets.py:90",
+    "finance:backend/tests/test_paper_broker_targets.py:105",
+    "finance:backend/tests/test_paper_broker_targets.py:114",
+    "finance:backend/tests/test_paper_broker_targets.py:124",
+    "finance:backend/tests/test_paper_broker_targets.py:133",
+    "finance:backend/tests/test_paper_broker_targets.py:410"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "REFUSED BY PROVIDER (auth)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:6cdbb46e/len16"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 16
+   },
+   "name": "ALPHA_VANTAGE_API_KEY",
+   "probe": "AlphaVantage",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 3,
+   "references_sample": [
+    "finance:backend/config.py:198",
+    "finance:backend/tests/ci_env_sim.py:70",
+    "finance:scripts/probe_analyst_sources.py:38"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": null
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 0
+   },
+   "name": "ANTHROPIC_API_KEY",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 40,
+   "references_sample": [
+    "finance:CLAUDE.md:232",
+    "finance:CLAUDE.md:233",
+    "finance:backend/config.py:910",
+    "finance:backend/config.py:1846",
+    "finance:backend/routers/copilot.py:68",
+    "finance:backend/routers/portfolio.py:642"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "EMPTY_VALUE"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:8bc3fd9a/len35"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 35
+   },
+   "name": "DEEPSEEK_API_KEY",
+   "probe": "DeepSeek",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 40,
+   "references_sample": [
+    "finance:.env.example:9",
+    "finance:AGENTS.md:54",
+    "finance:README.md:457",
+    "finance:backend/config.py:913",
+    "finance:backend/routers/portfolio.py:642",
+    "finance:backend/services/architecture_arena.py:136"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:0f5cf220/len23"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 23
+   },
+   "name": "EODHD_API_TOKEN",
+   "probe": "EODHD",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 7,
+   "references_sample": [
+    "finance:docs/V4_CLOSEOUT.md:129",
+    "finance:engine/research/eodhd_acceptance.py:23",
+    "finance:engine/research/eodhd_acceptance.py:51",
+    "finance:engine/research/eodhd_acceptance.py:53",
+    "finance:engine/research/eodhd_harvest.py:43",
+    "finance:engine/research/eodhd_harvest.py:45"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:ce62c336/len40"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 40
+   },
+   "name": "FINNHUB_API_KEY",
+   "probe": "Finnhub",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 25,
+   "references_sample": [
+    "finance:.env.example:5",
+    "finance:AGENTS.md:54",
+    "finance:README.md:458",
+    "finance:backend/config.py:196",
+    "finance:backend/services/insider_trading.py:15",
+    "finance:backend/services/short_interest.py:11"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:412805cb/len32"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 32
+   },
+   "name": "FMP_API_KEY",
+   "probe": "FMP",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 12,
+   "references_sample": [
+    "finance:.env.example:6",
+    "finance:AGENTS.md:54",
+    "finance:README.md:459",
+    "finance:backend/config.py:197",
+    "finance:backend/services/congress_trades.py:44",
+    "finance:backend/services/estimate_revisions.py:16"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:4392b888/len32"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 32
+   },
+   "name": "FRED_API_KEY",
+   "probe": "FRED",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 40,
+   "references_sample": [
+    "finance:.env.example:2",
+    "finance:AGENTS.md:53",
+    "finance:CONTRIBUTING.md:26",
+    "finance:CONTRIBUTING.md:39",
+    "finance:README.md:438",
+    "finance:README.md:456"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:c4c8ffc4/len164"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 164
+   },
+   "name": "GTP_TOKEN",
+   "probe": "OpenAI",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 12,
+   "references_sample": [
+    "finance:docs/REVIEW_2026-09-04_FABLE51_VERDICTS.md:151",
+    "finance:scripts/era_replay_v2.py:757",
+    "finance:scripts/era_replay_v2.py:760",
+    "terminal:tests_smoke_relevance.py:57",
+    "terminal:tests_smoke_relevance.py:58",
+    "terminal:tests_smoke_relevance.py:67"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:1f14df0b/len37"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 37
+   },
+   "name": "HF_TOKEN",
+   "probe": "HF router",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 10,
+   "references_sample": [
+    "finance:backend/services/model_provider.py:88",
+    "finance:backend/tests/test_guard_missing_input_contract.py:777",
+    "finance:backend/tests/test_guard_missing_input_contract.py:782",
+    "finance:docs/REVIEW_2026-09-04_FABLE51_VERDICTS.md:151",
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/fleet.py:328"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:0121783a/len21"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 21
+   },
+   "name": "NEXT_PUBLIC_API_URL",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "finance:.env.example:26",
+    "finance:docker-compose.yml:25",
+    "finance:docker-compose.yml:32",
+    "terminal:scripts/labor_c4_secrets_audit.py:243"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:e0b68a59/len70"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 70
+   },
+   "name": "NVIDIA_API_KEY",
+   "probe": "NVIDIA NIM",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 10,
+   "references_sample": [
+    "finance:backend/services/model_provider.py:81",
+    "terminal:alpha/fleet.py:187",
+    "terminal:alpha/fleet.py:328",
+    "terminal:alpha/council/providers.py:80",
+    "terminal:alpha/council/providers.py:82",
+    "terminal:alpha/council/providers.py:84"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:7ca1fa20/len35"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 35
+   },
+   "name": "NVIDIA_BASE_URL",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 5,
+   "references_sample": [
+    "finance:docs/REVIEW_2026-09-04_FABLE51_VERDICTS.md:151",
+    "terminal:alpha/council/providers.py:79",
+    "terminal:alpha/council/providers.py:81",
+    "terminal:alpha/council/providers.py:83",
+    "terminal:alpha/sources/features.py:396"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:ab050819/len32"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 32
+   },
+   "name": "POLYGON_API_KEY",
+   "probe": "Polygon",
+   "probe_failure_class": null,
+   "probe_status": "ok",
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 4,
+   "references_sample": [
+    "finance:AGENTS.md:54",
+    "finance:backend/config.py:199",
+    "finance:backend/tests/ci_env_sim.py:71",
+    "finance:scripts/probe_analyst_sources.py:37"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "LIVE_AND_USED"
+  },
+  {
+   "constructed_name_evidence": null,
+   "fingerprints": {
+    "finance": "sha256:ad5f9478/len4"
+   },
+   "in_env": [
+    "finance"
+   ],
+   "lengths": {
+    "finance": 4
+   },
+   "name": "PORT",
+   "probe": null,
+   "probe_failure_class": null,
+   "probe_status": null,
+   "reference_class": "READ_IN_CODE",
+   "reference_count": 40,
+   "references_sample": [
+    "finance:.env.example:12",
+    "finance:docker-compose.yml:7",
+    "finance:docker-compose.yml:11",
+    "finance:docker-compose.yml:14",
+    "finance:docker-compose.yml:25",
+    "finance:docker-compose.yml:32"
+   ],
+   "same_object_across_repos": null,
+   "verdict": "READ_IN_CODE, NOT PROBED (no provider probe covers it)"
+  }
+ ],
+ "same_name_different_object": [],
+ "shared_across_repos": []
+}

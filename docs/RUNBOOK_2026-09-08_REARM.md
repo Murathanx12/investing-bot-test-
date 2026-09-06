@@ -518,3 +518,202 @@ terminal suite is **76 suites / 3,503 checks / ALL PASS**, up from 3,483):
 
 Not changed: no Railway variable, no `manage_only` flag, no seal, no order, no
 deploy. `AAT_BAND_MODE` is unset locally and the live fleet is untouched.
+
+---
+
+# APPENDIX C â€” THE PRE-FLIGHT AUDIT (added 2026-09-05 by the Labor Day Lab, lane D)
+
+**Read this before Â§2, and read C.1 before Â§3.** Everything below is a READ of
+the live Railway project on 2026-09-05, plus a computation of what
+`python -m scripts.fleet --deploy <role>` *would* write. **Nothing was set,
+deployed, sealed, ordered or pushed.** Receipts:
+`state/labor_day_lab_2026-09-07/D3_tuesday_rearm_audit.json` (the variable
+diff), `D1_connection_check_terminal.json` (every venue and provider probe),
+`D2_key_inventory.json` (every credential, name-and-fingerprint only). No
+receipt contains a key: values are hashed at parse time and only an 8-hex
+prefix and a length survive.
+
+Reproduce any of it in one line each, read-only:
+
+```bash
+python -m scripts.connection_check                      # venue + providers + railway status
+python -m scripts.connection_check --no-llm             # same, with no paid call
+railway variables --service aat-loop-hack4              # the live variables (secrets visible: your terminal only)
+```
+
+## C.0 The fleet as it stands, 2026-09-05
+
+`railway status`, project `loving-elegance`:
+
+| service | state | in the Tuesday deploy path? |
+|---|---|---|
+| aat-loop-hack1 | â— Online | yes |
+| aat-loop-hack2 | â— Online | yes |
+| aat-loop-hack3 | â— Online | yes |
+| aat-loop-hack4 | â— Online | yes |
+| aat-loop-hack5 | â— Online | yes |
+| aat-loop-hack6 | â— Online | yes |
+| aat-loop-staging | â— **Failed** | **no** |
+| seal-authority | â— Online | **no** |
+
+`aat-loop-staging` reads **Failed**, and that is the expected long-standing
+state rather than a new outage â€” it is named here so nobody re-diagnoses it on
+Tuesday morning. It is also the one service whose `AAT_LOOP_ARGS` carries **no**
+`--manage-only`; it cannot trade because the service is down, not because it is
+disarmed. `seal-authority` runs under `AAT_ACCOUNT_ROLE=hack3` with hack3's key
+pair â€” it seals, it does not trade, and neither service is touched by Â§2.
+
+All six paper accounts answered `/v2/account`, `/v2/clock` and `/v2/positions`
+in under a second: **status ACTIVE, `trading_blocked` false, `account_blocked`
+false, and every book flat (0 positions)** â€” hack1 $98,859 Â· hack2 $98,821 Â·
+hack3 $90,499 Â· hack4 $99,476 Â· hack5 $96,455 Â· hack6 $91,469. `/v2/clock` says
+the next open is **2026-09-08 09:30 ET**, which is Tuesday, as Â§0 says.
+
+## C.1 THREE THINGS IN THIS RUNBOOK DO NOT DO WHAT THEY SAY
+
+### (1) `AAT_MANAGE_ONLY=1` DISARMS NOTHING. Appendix B.2's line is inert.
+
+B.2 tells you to hold hack2 back with:
+
+```bash
+railway variables --service aat-loop-hack2 --set "AAT_MANAGE_ONLY=1"
+```
+
+**Nothing in this repository reads `AAT_MANAGE_ONLY`.** `grep -rn
+"AAT_MANAGE_ONLY" --include=*.py .` returns zero lines. The only two disarms
+that exist are:
+
+- `--manage-only` inside **`AAT_LOOP_ARGS`** (parsed by
+  `scripts/agent_loop.py:192`), and
+- **`Mandate.manage_only=True`** in `alpha/fleet.py`, which `loop_args()` then
+  emits into `AAT_LOOP_ARGS` â€” this is hack1's disarm and it survives a deploy.
+
+Set `AAT_MANAGE_ONLY=1` and Â§4's check will still print `hack2 ARMED`, because
+it is still armed. This is the same shape as the finding B.2 itself records
+about `Mandate.tier`: **a flag nothing reads is not a flag.** The working line,
+if you want hack2 held, is Â§7's:
+
+```bash
+railway variables --service aat-loop-hack2 --set "AAT_LOOP_ARGS=--profile aggressive --window-universe --manage-only"
+```
+
+and it must be run **AFTER** Â§2, because Â§2 overwrites `AAT_LOOP_ARGS` wholesale.
+
+### (2) `AAT_MANDATE_END_UTC` is set on **no service at all** today.
+
+Â§4 tells you to verify `AAT_MANDATE_END_UTC=2027-12-31T15:00:00Z`. Measured
+2026-09-05 across all eight services: **the variable does not exist on any of
+them.** Every loop service still carries `AAT_LOOP_EXPIRY=2026-09-04`, the
+contest deadline.
+
+That is not a fault â€” Â§2's deploy is what creates it â€” but it makes Â§4 a
+**post-deploy** check only. Running it before Â§2 returns nothing, which reads
+identically to "the deploy did not take". And note the two services outside
+`alpha/fleet.FLEET`: `aat-loop-staging` and `seal-authority` **never** receive
+`AAT_MANDATE_END_UTC` from any deploy, so if either is ever restarted into a
+trading role it inherits the old 2026-09-04 mandate end.
+
+### (3) Â§2 before Â§5 SHRINKS hack3's universe by eleven names.
+
+hack3's mandate is `universe = "themes_plus_rule"`, so `fleet.env_for()` builds
+`AAT_LOOP_ARGS` as *the 40 theme names* **UNION `rule_claimed_symbols()` â€” read
+from TODAY'S SEALED BOOK at the moment the deploy runs.**
+
+The live variable holds **51** names. `fleet.env_for()` today produces **40**,
+because there is no sealed book for today and `rule_claimed_symbols()` returns
+`[]`. So running Â§2 now would drop:
+
+```
+ABAT  ALMU  AVAV  FPS  LAES  LOVE  LPTH  MU  NB  RFIL  RZLT
+```
+
+Those are not incidental. Appendix A.2 records hack3's five admitted names
+under the proposed hygiene-only mode as **LOVE RZLT RFIL LAES AVAV** â€” *all
+five are in the dropped list* â€” and hack4's five as **NB LAES ALMU ABAT FPS**,
+four of which are too (hack4 is unaffected: it runs `--window-universe`).
+
+**Therefore the order in this runbook is wrong for hack3.** Run the Â§5 chain
+first, then Â§2:
+
+```bash
+python -m scripts.tracker --refresh
+python -m scripts.tracker --backfill-prices
+python -m scripts.prediction_book --seal --universe tracker
+python -m scripts.prediction_book --publish
+python -m scripts.fleet --deploy hack3 --up        # NOW the union has something to union
+```
+
+hack1, hack5 and hack6 have fixed universes and are unaffected (40 â†’ 40, no
+symbol added or dropped); hack2 and hack4 use `--window-universe`.
+
+## C.2 The exact Tuesday variable flip, per role
+
+Computed from `alpha.fleet.env_for()` against the live values.
+`AAT_BUILD_COMMIT` is excluded â€” the deploy stamps it and it is never equal.
+
+| role | entry today | entry after Â§2 | added | changed |
+|---|---|---|---|---|
+| hack1 | DISARMED | **DISARMED** (declared) | `AAT_MANDATE_END_UTC` | `AAT_LOOP_ARGS` (flag order only), `AAT_LOOP_EXPIRY` 2026-09-04 â†’ 2026-10-16 |
+| hack2 | DISARMED | **ARMED** | `AAT_MANDATE_END_UTC` | `AAT_LOOP_ARGS` (**`--manage-only` removed**), `AAT_LOOP_EXPIRY` â†’ 2026-10-16 |
+| hack3 | DISARMED | **ARMED** | `AAT_MANDATE_END_UTC` | `AAT_LOOP_ARGS` (**`--manage-only` removed**, 51 â†’ 40 names), `AAT_LOOP_EXPIRY` â†’ 2027-12-31 |
+| hack4 | DISARMED | **ARMED** | `AAT_MANDATE_END_UTC`, **`AAT_ENTRY_STYLE=open_auction`** | `AAT_LOOP_ARGS` (**`--manage-only` removed**), `AAT_LOOP_EXPIRY` â†’ 2027-12-31 |
+| hack5 | DISARMED | **ARMED** | `AAT_MANDATE_END_UTC` | `AAT_LOOP_ARGS` (**`--manage-only` removed**), `AAT_LOOP_EXPIRY` â†’ 2026-10-16 |
+| hack6 | DISARMED | **ARMED** | `AAT_MANDATE_END_UTC`, **`AAT_ENTRY_STYLE=staggered`** | `AAT_LOOP_ARGS` (**`--manage-only` removed**), `AAT_LOOP_EXPIRY` â†’ 2027-12-31 |
+
+The complete list of variables Â§2 writes, and the only ones it writes:
+
+```
+AAT_ACCOUNT_ROLE  AAT_ALLOW_MAXIMUM  AAT_BUILD_COMMIT  AAT_DATA_BASE
+AAT_ENTRY_STYLE (hack4, hack6 only)  AAT_LEDGER_DIR  AAT_LOOP_ARGS
+AAT_LOOP_BRAINS  AAT_LOOP_EXPIRY  AAT_LOOP_SHADOW  AAT_MANDATE_END_UTC
+AAT_OPTIONS_FEED  AAT_RANK_OBJECTIVE  AAT_RISK_PROFILE  AAT_STOCK_FEED
+AAT_STRUCTURE_KINDS  AAT_TRADING_BASE
++ the role key pair, + alpha/fleet.SECRETS, + AAT_FEATHERLESS_API_KEY
+```
+
+**Four things Â§2 deliberately does not manage**, and which therefore survive it
+unchanged: `AAT_PREDICTION_BOOK_BASE_URL` and
+`AAT_PREDICTION_BOOK_SYNC_SECONDS` (live on hack3/4/6 â€” the seal artery keeps
+working), `AAT_BAND_MODE` (unset everywhere, so the live mode is `returns`,
+exactly as Appendix B says), and anything a previous session set by hand. A
+variable `--deploy` does not know about is a variable `--deploy` cannot clear.
+
+**hack5 is armed by Â§2 and it is the options book.** Its expiry moves to
+2026-10-16 (the derived third Friday â‰¥ 14 days out), and it is the only role
+whose `AAT_STRUCTURE_KINDS` is `long_call,bull_call_spread`. If you did not
+mean to re-arm the convex book on Tuesday, deploy it without `--up`.
+
+## C.3 Every connection, measured
+
+Full table in `state/labor_day_lab_2026-09-07/D1_connection_table_terminal.md`
+and `aegis-finance/backend/data/optimus/labor_day_lab_2026-09-07/D1_connection_table.md`.
+The three rows that matter before Tuesday:
+
+- **Alpaca** â€” six accounts and all four data surfaces (bars `iex`, news,
+  options snapshots `indicative`, screener) answered 200. Nothing is blocked.
+- **The seal authority** answers on its public host. Its private host,
+  `http://seal-authority.railway.internal:8080`, is what the services use and
+  is unreachable from a laptop **by design** â€” a failed probe of it from here
+  is not an outage and must not be read as one.
+- **NVIDIA NIM is authenticated and serves no completion.** Its model list
+  returns 81 models in ~350 ms, and every model the council declares
+  (`kimi-k3`, `minimax-m3`, `gemma-4-31b-it`) returned nothing within 30 s,
+  while five other listed models answer **404 "Not found for account"**. The
+  credential is live; the models are visible and not provisioned. Any council
+  pass that probes `nvidia_kimi` will spend its timeout there. DeepSeek,
+  Featherless, the HF router and OpenAI all served a completion.
+
+## C.4 What this audit could NOT determine, and why
+
+- **Whether the deploy's read-back would succeed.** `scripts/fleet.py::deploy`
+  sets variables in bulk and then re-reads them, re-setting any that did not
+  take (28 Aug: a bulk `--set` returned 0 and left `AAT_LOOP_ARGS` stale for two
+  deploys). That path cannot be exercised without deploying, and this lane
+  deploys nothing. Â§4's manual `railway variables | grep` remains necessary.
+- **Whether `scripts/utilization.py` will report the post-deploy state
+  correctly.** It reads the LOCAL `AAT_LOOP_ARGS`, and it says so â€” its
+  `railway` row is already `CANNOT DETERMINE from here`. Verify at the service.
+- **WRDS.** Port 9737 is unreachable from this machine (TCP timeout, 21 s, with
+  and without the tool sandbox). That is a `network` classification, not a lost
+  entitlement: the last measured grant map (2026-08-31) still stands and is
+  quoted in the D1 receipt. It has no bearing on Tuesday.

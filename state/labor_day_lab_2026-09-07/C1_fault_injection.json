@@ -2,21 +2,21 @@
   "item": "C1",
   "lane": "C",
   "lab": "labor_day_lab_2026-09-07",
-  "ts_utc": "2026-09-05T15:37:13.334928+00:00",
+  "ts_utc": "2026-09-06T03:30:38.280832+00:00",
   "argv": [
     "tests_smoke_labor_faults.py"
   ],
-  "git_commit": "1034c29747444ba9da8245fe78def549d1a0a729",
+  "git_commit": "bf55c32f05d30bf64fc8ee81026b2d1ddc0fec4e",
   "config": {
     "AAT_ACCOUNT_ROLE": "dev",
     "AAT_RISK_PROFILE": "aggressive",
-    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc",
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-vuqhifck",
     "network": "no venue client is constructed; the only broker in this suite is its own MockVenue. The socket block belongs to run_tests.py."
   },
   "inputs_opened": [
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\decisions.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\protective_stops.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-3ocbcxbc\\predictions"
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-vuqhifck\\decisions.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-vuqhifck\\protective_stops.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-vuqhifck\\predictions"
   ],
   "modules_under_test": [
     "alpha.runner",

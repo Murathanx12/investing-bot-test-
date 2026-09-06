@@ -1,0 +1,619 @@
+{
+ "argv": [
+  "--json",
+  "state/labor_day_lab_2026-09-07/D1_connection_check_terminal.json",
+  "--markdown",
+  "state/labor_day_lab_2026-09-07/D1_connection_table_terminal.md"
+ ],
+ "counts": {
+  "cannot_determine": 0,
+  "fail": 0,
+  "ok": 16,
+  "total": 16
+ },
+ "env_vars_loaded_from_dotfile": 26,
+ "failure_classes": {},
+ "finished_utc": "2026-09-05T15:25:15.453970+00:00",
+ "llm_probes_enabled": true,
+ "llm_probes_issued": [
+  "featherless"
+ ],
+ "receipt": "LABOR-D1-CONNECTION-CHECK",
+ "repo": "aegis-alpha-terminal",
+ "rows": [
+  {
+   "detail": "status=ACTIVE equity=98859.47 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 1028.1,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 862.3,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 854.6,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "98859.47",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "98859.47",
+      "last_equity": "98859.47",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:8a1d8b5d/len26",
+   "latency_ms": 854.6,
+   "provider": "Alpaca hack1",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack1 paper book"
+  },
+  {
+   "detail": "status=ACTIVE equity=98820.5 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 1033.5,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 870.1,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 856.6,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "98820.5",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "98820.5",
+      "last_equity": "98820.5",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:92b2e6b2/len26",
+   "latency_ms": 856.6,
+   "provider": "Alpaca hack2",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack2 paper book"
+  },
+  {
+   "detail": "status=ACTIVE equity=90499.49 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 1033.1,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 860.9,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 840.4,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "90499.49",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "90499.49",
+      "last_equity": "90499.49",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:2a913264/len26",
+   "latency_ms": 840.4,
+   "provider": "Alpaca hack3",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack3 paper book"
+  },
+  {
+   "detail": "status=ACTIVE equity=99475.52 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 1014.0,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 874.6,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 844.3,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "99475.52",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "99475.52",
+      "last_equity": "99475.52",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:f24bedb8/len26",
+   "latency_ms": 844.3,
+   "provider": "Alpaca hack4",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack4 paper book"
+  },
+  {
+   "detail": "status=ACTIVE equity=96455.01 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 960.7,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 876.2,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 839.2,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "96455.01",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "96455.01",
+      "last_equity": "96455.01",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:4e498d8e/len26",
+   "latency_ms": 839.2,
+   "provider": "Alpaca hack5",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack5 paper book"
+  },
+  {
+   "detail": "status=ACTIVE equity=91468.74 positions=0 market_open=False",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/account",
+     "ms": 914.6,
+     "url": "https://paper-api.alpaca.markets/v2/account",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/clock",
+     "ms": 880.1,
+     "url": "https://paper-api.alpaca.markets/v2/clock",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "/v2/positions",
+     "ms": 854.2,
+     "url": "https://paper-api.alpaca.markets/v2/positions",
+     "why": null
+    },
+    {
+     "account": {
+      "account_blocked": false,
+      "cash": "91468.74",
+      "clock_is_open": false,
+      "clock_next_open": "2026-09-08T09:30:00-04:00",
+      "equity": "91468.74",
+      "last_equity": "91468.74",
+      "positions": 0,
+      "status": "ACTIVE",
+      "trading_blocked": false
+     },
+     "endpoint": "summary"
+    }
+   ],
+   "entitlement": "paper venue",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:a5e19945/len26",
+   "latency_ms": 854.2,
+   "provider": "Alpaca hack6",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the hack6 paper book"
+  },
+  {
+   "detail": "4/4 data surfaces answered",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "stocks bars (feed=iex)",
+     "ms": 864.7,
+     "url": "https://data.alpaca.markets/v2/stocks/bars?symbols=SPY&timeframe=1Day&limit=1&feed=iex",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "news (v1beta1)",
+     "ms": 926.6,
+     "url": "https://data.alpaca.markets/v1beta1/news?symbols=SPY&limit=1",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "options snapshots (feed=indicative)",
+     "ms": 856.4,
+     "url": "https://data.alpaca.markets/v1beta1/options/snapshots/SPY?limit=1&feed=indicative",
+     "why": null
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "screener most-actives",
+     "ms": 862.5,
+     "url": "https://data.alpaca.markets/v1beta1/screener/stocks/most-actives?top=1",
+     "why": null
+    }
+   ],
+   "entitlement": "granted: stocks bars (feed=iex),news (v1beta1),options snapshots (feed=indicative),screener most-actives",
+   "failure_class": null,
+   "group": "venue",
+   "key_fingerprint": "sha256:2a913264/len26",
+   "latency_ms": 856.4,
+   "provider": "Alpaca data",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "bars, news, options chain, screener"
+  },
+  {
+   "detail": "authority reachable (root 200); no book for 2026-09-05 \u2014 a SEAL state, not a connection failure",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET / (public)",
+     "ms": 436.2,
+     "url": "https://seal-authority-production.up.railway.app/",
+     "why": null
+    },
+    {
+     "class": "cannot_determine",
+     "code": 404,
+     "endpoint": "GET /2026-09-05.json (public)",
+     "ms": 387.6,
+     "url": "https://seal-authority-production.up.railway.app/2026-09-05.json",
+     "why": "404"
+    }
+   ],
+   "entitlement": "ours, public read",
+   "failure_class": null,
+   "group": "ours",
+   "key_fingerprint": null,
+   "latency_ms": 387.6,
+   "provider": "seal-authority",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "the artery the tracker books read"
+  },
+  {
+   "detail": "balance endpoint answered; is_available=True",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET /user/balance",
+     "ms": 256.3,
+     "url": "https://api.deepseek.com/user/balance",
+     "why": null
+    }
+   ],
+   "entitlement": "pay-as-you-go",
+   "failure_class": null,
+   "group": "llm",
+   "key_fingerprint": "sha256:8bc3fd9a/len35",
+   "latency_ms": 256.3,
+   "provider": "DeepSeek",
+   "quota_hint": "balance 9.36 USD",
+   "status": "ok",
+   "why": "first in the council probe order"
+  },
+  {
+   "detail": "credential authenticated; 81 models listed. Completion NOT issued here: the paid 5-token probe was spent once from the finance twin on the same key fingerprint.",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET /models",
+     "ms": 380.3,
+     "url": "https://integrate.api.nvidia.com/v1/models",
+     "why": null
+    }
+   ],
+   "entitlement": "81 models VISIBLE \u2014 visibility is not a grant",
+   "failure_class": null,
+   "group": "llm",
+   "key_fingerprint": "sha256:e0b68a59/len70",
+   "latency_ms": 380.3,
+   "provider": "NVIDIA NIM",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "council families kimi / minimax / gemma"
+  },
+  {
+   "detail": "credential authenticated; 138 models listed. Completion NOT issued here: spent once from the finance twin.",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET /models",
+     "ms": 537.3,
+     "url": "https://router.huggingface.co/v1/models",
+     "why": null
+    }
+   ],
+   "entitlement": "138 models VISIBLE \u2014 visibility is not a grant",
+   "failure_class": null,
+   "group": "llm",
+   "key_fingerprint": "sha256:1f14df0b/len37",
+   "latency_ms": 537.3,
+   "provider": "HF router",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "council families hf_deepseek_v4 / hf_glm"
+  },
+  {
+   "detail": "credential authenticated; 125 models listed. Completion NOT issued here: spent once from the finance twin.",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET /models",
+     "ms": 1247.6,
+     "url": "https://api.openai.com/v1/models",
+     "why": null
+    }
+   ],
+   "entitlement": "125 models VISIBLE \u2014 visibility is not a grant",
+   "failure_class": null,
+   "group": "llm",
+   "key_fingerprint": "sha256:c4c8ffc4/len164",
+   "latency_ms": 1247.6,
+   "provider": "OpenAI",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "gpt-5-nano extraction, gpt-5-mini judge"
+  },
+  {
+   "detail": "5-token completion returned 'up'",
+   "endpoints": [
+    {
+     "AAT_FEATHERLESS_API_KEY_in_SECRETS": false,
+     "endpoint": "alpha/fleet.py::SECRETS membership",
+     "note": "NOT in SECRETS; scripts/fleet.py::deploy appends it explicitly, so it reaches every service anyway. A declaration that lives in one call site is not a declaration."
+    },
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "GET /models",
+     "ms": 1587.2,
+     "url": "https://api.featherless.ai/v1/models",
+     "why": null
+    },
+    {
+     "endpoint": "chat/completions Qwen/Qwen2.5-72B-Instruct",
+     "usage": {
+      "cached_tokens": 0,
+      "completion_tokens": 1,
+      "prompt_tokens": 26,
+      "total_tokens": 27
+     },
+     "via": "alpha.spend.llm_post"
+    }
+   ],
+   "entitlement": "-1 models visible; Qwen/Qwen2.5-72B-Instruct served; in_SECRETS=False",
+   "failure_class": null,
+   "group": "llm",
+   "key_fingerprint": "sha256:00d4b002/len67",
+   "latency_ms": 2877.8,
+   "provider": "Featherless",
+   "quota_hint": "usage=26p/1c",
+   "status": "ok",
+   "why": "fifth family (alibaba/qwen); the skeptic role"
+  },
+  {
+   "detail": "free tier answered",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "quote (free)",
+     "ms": 568.2,
+     "url": "https://finnhub.io/api/v1/quote?symbol=AAPL&token=%3Credacted%3E",
+     "why": null
+    },
+    {
+     "class": "entitlement",
+     "code": 403,
+     "endpoint": "stock/price-target (PREMIUM)",
+     "ms": 1762.0,
+     "url": "https://finnhub.io/api/v1/stock/price-target?symbol=AAPL&token=%3Credacted%3E",
+     "why": "403"
+    }
+   ],
+   "entitlement": "granted: quote; NOT entitled: price-target (403)",
+   "failure_class": null,
+   "group": "data",
+   "key_fingerprint": "sha256:ce62c336/len40",
+   "latency_ms": 568.2,
+   "provider": "Finnhub (AAT key)",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "quotes and the analyst count"
+  },
+  {
+   "detail": "series endpoint answered",
+   "endpoints": [
+    {
+     "class": null,
+     "code": 200,
+     "endpoint": "series/VIXCLS",
+     "ms": 541.1,
+     "url": "https://api.stlouisfed.org/fred/series?series_id=VIXCLS&api_key=%3Credacted%3E&file_type=json",
+     "why": null
+    }
+   ],
+   "entitlement": "public API key",
+   "failure_class": null,
+   "group": "data",
+   "key_fingerprint": "sha256:4392b888/len32",
+   "latency_ms": 541.1,
+   "provider": "FRED (AAT key)",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "macro series the loop reads"
+  },
+  {
+   "detail": "8 services; aat-loop-staging=Failed, which is EXPECTED and is the only one",
+   "endpoints": [
+    {
+     "endpoint": "railway status",
+     "services": {
+      "aat-loop-hack1": "Online",
+      "aat-loop-hack2": "Online",
+      "aat-loop-hack3": "Online",
+      "aat-loop-hack4": "Online",
+      "aat-loop-hack5": "Online",
+      "aat-loop-hack6": "Online",
+      "aat-loop-staging": "Failed",
+      "seal-authority": "Online"
+     }
+    }
+   ],
+   "entitlement": "ours",
+   "failure_class": null,
+   "group": "ours",
+   "key_fingerprint": null,
+   "latency_ms": 2619.8,
+   "provider": "Railway (loving-elegance)",
+   "quota_hint": null,
+   "status": "ok",
+   "why": "is every fleet service Online / Failed / Sleeping"
+  }
+ ],
+ "started_utc": "2026-09-05T15:25:07.597271+00:00",
+ "why_this_call_can_change_a_decision": "Decides whether to KEEP Featherless in the council's provider order or DROP it: the skeptic role is required to use a family the synthesis did not, and if this key no longer buys a completion the council must be reconfigured rather than silently falling back to the family it was meant to disagree with."
+}

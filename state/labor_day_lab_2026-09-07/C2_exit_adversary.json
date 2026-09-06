@@ -2,11 +2,11 @@
   "item": "C2",
   "lane": "C",
   "lab": "labor_day_lab_2026-09-07",
-  "ts_utc": "2026-09-05T15:23:19.994687+00:00",
+  "ts_utc": "2026-09-06T03:30:37.841595+00:00",
   "argv": [
     "tests_smoke_labor_exits_adversary.py"
   ],
-  "git_commit": "00100d88f2dbb6e09f218cb490f395f4cae68e57",
+  "git_commit": "bf55c32f05d30bf64fc8ee81026b2d1ddc0fec4e",
   "config": {
     "seed_base": 20260907,
     "paths_per_cell": 200,
@@ -15,7 +15,7 @@
     "entry_utc": "2026-06-01T14:00:00+00:00",
     "deadline_utc": "2027-12-31T15:00:00Z",
     "network": "no venue client is constructed at all",
-    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c2-5qexgf5r"
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c2-e08drt5x"
   },
   "inputs_opened": [
     "(none -- every path is generated from the seed above; the only file this suite touches is its own receipt)"
