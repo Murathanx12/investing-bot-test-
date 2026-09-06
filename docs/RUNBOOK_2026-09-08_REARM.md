@@ -480,7 +480,9 @@ call.
 Add this to §3, before running §2:
 
 ```bash
-railway variables --service aat-loop-hack2 --set "AAT_MANAGE_ONLY=1"
+# (inert -- nothing reads AAT_MANAGE_ONLY; superseded 2026-09-06)
+# hack2 is now manage-only BY DECLARATION: alpha/fleet.py Mandate(role="hack2", manage_only=True).
+# The Tuesday deploy (`fleet --deploy hack2 --up`) writes AAT_LOOP_ARGS with --manage-only from that flag.
 railway variables --service aat-loop-hack2            # confirm it took
 ```
 
