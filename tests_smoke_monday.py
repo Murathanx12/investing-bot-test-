@@ -48,8 +48,28 @@ check("fourth 25% name (gross 75% + 25%) admitted at exactly 100%", a.ok, a.reas
 a = admission.admit(bk(), shares, n, equity=EQ, aggregate_cap=0.36, per_underlying_cap=0.15,
                     gross_cap=1.00, gross_usd=100_000.0, add_notional_usd=add)
 check("fifth 25% name refused with GROSS", (not a.ok) and a.reason.startswith("GROSS"), a.reason[:60])
-check("worst case at the 8% basket stop is now <= -8%, not -24%",
-      sizing.gross_cap("basket") * equity.stop_fraction("basket") <= 0.08 + 1e-9)
+# THE STRUCTURAL WORST CASE OF EVERY PROFILE, not just basket's, because the
+# 2026-09-08 horizon remap widened three stops at once and a bound checked on one
+# profile says nothing about the other four. `gross_cap x stop` is the CLAUDE.md
+# rule-4 expression, and it caught a real regression the moment it ran: widening
+# `maximum` 6% -> 15% against its old 1.50 cap put 22.50% of equity structurally
+# at risk -- the -9% -> -24% mistake again, to two significant figures. The cap
+# was cut to 0.60 to pay for the width, restoring 9.00%.
+#
+# The ceiling is 12.5% and it BINDS: `maximum` at its old 1.50 cap fails it.
+# `aggressive` (3% -> 10%) and `basket` (8% -> 12%) deliberately rise, because
+# their books stay fully invested and a stop that is 0.98 daily sd cannot let a
+# multi-week thesis run. That is the declared trade, not an accident.
+FLEET_WORST_CASE_CEILING = 0.125
+for _prof, _expected in (("conservative", 0.018), ("aggressive", 0.100),
+                         ("maximum", 0.090), ("basket", 0.120), ("convex", 0.080)):
+    _bound = sizing.gross_cap(_prof) * equity.stop_fraction(_prof)
+    check(f"{_prof}: gross_cap x stop = {_bound:.2%}, as declared",
+          abs(_bound - _expected) < 1e-9, f"{_bound:.4f} vs {_expected}")
+    check(f"{_prof}: inside the {FLEET_WORST_CASE_CEILING:.1%} fleet ceiling",
+          _bound <= FLEET_WORST_CASE_CEILING + 1e-9, f"{_bound:.4f}")
+    check(f"{_prof}: the gross cap is not LEVERAGE",
+          sizing.gross_cap(_prof) <= 1.0 + 1e-9, f"{sizing.gross_cap(_prof)}")
 a = admission.admit(bk(), shares, n, equity=EQ, aggregate_cap=0.36, per_underlying_cap=0.15,
                     gross_cap=1.00, gross_usd=50_000.0, add_notional_usd=add, committed_notional_usd=30_000.0)
 check("notional committed EARLIER IN THE PASS counts (50 + 30 + 25 > 100)", not a.ok and "GROSS" in a.reason)

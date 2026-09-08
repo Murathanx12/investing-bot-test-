@@ -224,7 +224,19 @@ PROFILES = {
 GROSS_NOTIONAL_CAP = {
     "conservative": 0.60,
     "aggressive": 1.00,
-    "maximum": 1.50,
+    # CUT 1.50 -> 0.60 on 2026-09-08, to PAY for the wider `maximum` stop.
+    # A wider stop on unchanged gross is simply a bigger loss (CLAUDE.md rule 4:
+    # on 2026-08-28 the "fix" that widened a stop took the worst case from -9%
+    # to -24%). `maximum`'s stop went 6% -> 15% with the horizon remap, and at a
+    # 1.50 cap that is 1.50 x 0.15 = 22.50% of equity structurally at risk --
+    # the same mistake, to two significant figures. 0.60 x 0.15 = 9.00%, which
+    # is exactly the bound this profile had before either number moved.
+    #
+    # It costs hack4 nothing real: 1.50 was LEVERAGE (150% of equity gross) that
+    # no book was using -- hack4's sealed target is k=5 x 10% = 50% gross, and
+    # its declared sizing is 5 x 8% = 40%. The cap now binds above both and
+    # below leverage, which is where a cap belongs.
+    "maximum": 0.60,
     "basket": 1.00,
     "convex": 1.00,
 }

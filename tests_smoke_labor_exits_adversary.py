@@ -174,10 +174,19 @@ ok0d2 = check("  a 1-session FORECAST cannot undercut the 2-session declared flo
               and contract_mod.validate(_short.as_dict()) == [],
               f"{_short.expected_horizon_sessions}/{_short.min_normal_hold_sessions}")
 h2_stop = contract_mod.from_payload(h2_live, book="hack2").stop_fraction()
-ok0e = check("  the stop width is hack2's DECLARED 8%, not the aggressive profile's 3%",
+# THE DECLARED WIDTH WINS OVER THE PROFILE'S -- in EITHER DIRECTION. The first
+# version of this check asserted `declared > profile`, which quietly encoded an
+# assumption that a declaration can only ever WIDEN a stop. On 2026-09-08 the
+# aggressive profile went 3% -> 10% and hack2's declared 8% became NARROWER than
+# it, so the check failed while the behaviour it was guarding was perfectly
+# correct. What matters is that the book's own number is the one charged, not
+# which way it points.
+ok0e = check("  the stop width is hack2's DECLARED 8%, whichever way it differs "
+             "from the aggressive profile's",
              abs(h2_stop - 0.08) < 1e-12
-             and h2_stop > equity_mod.STOP_FRACTION_BY_PROFILE["aggressive"],
-             f"{h2_stop}")
+             and h2_stop != equity_mod.STOP_FRACTION_BY_PROFILE["aggressive"],
+             f"declared {h2_stop} vs profile "
+             f"{equity_mod.STOP_FRACTION_BY_PROFILE['aggressive']}")
 FINDINGS.append({
     "question": "is hack2's contract the EVENT defaults?",
     "answer": "YES in shape, with two qualifications that matter more than the label",

@@ -69,7 +69,34 @@ STOP_FRACTION = 0.03
 #: -$6.9k realised on each of two books, while the index moved 0.1%. A stop
 #: inside the noise is a fee, not a stop. Width is ~1.3 daily sigma for the
 #: high-vol profiles; the SAFE profiles keep 3%.
-STOP_FRACTION_BY_PROFILE = {"conservative": 0.03, "aggressive": 0.03, "maximum": 0.06, "basket": 0.08, "convex": 0.08}
+#:
+#: WIDENED 2026-09-08, because the table did not meet its own standard and the
+#: gap was measured rather than argued. `aggressive` was 0.03 while hack6 --
+#: an `aggressive` book -- held names whose mean daily sd is 3.05%. That is
+#: 0.98 sigma, not 1.3, and over every entry point since 2024-01 it stopped
+#: 56.3% of positions out before session 10 of a 21-session thesis
+#: (docs/RECEIPT_2026-09-07_STOP_WIDTH_VS_HOLD.json in the finance repo).
+#:
+#: THE WIDTH HAS TO MATCH THE HORIZON, which is why the real declaration is now
+#: per BOOK in `contract.HORIZON_REMAP`. This table still matters because a
+#: SEALED contract carries `stop_frac: null` and a `profile` -- it defers the
+#: width to exactly this dict -- so a book trading yesterday's seal gets its
+#: stop from here and not from its own declared terms. The three profiles used
+#: by books with multi-week horizons are therefore set to their books' declared
+#: widths, so the two sources cannot disagree:
+#:
+#:     aggressive  0.03 -> 0.10   hack6, 42-session horizon
+#:     basket      0.08 -> 0.12   hack3, 63-session horizon
+#:     maximum     0.06 -> 0.15   hack4, 126-session horizon
+#:
+#: `conservative` and `convex` are unchanged: hack1 and hack5 declare their own
+#: widths (0.35 and 0.50) and never fall through to this table.
+#:
+#: A WIDER STOP IS NOT FREE and is not a risk reduction. It costs worst case
+#: (CLAUDE.md rule 4) and it feeds `runner.py`'s `stop_loss_usd`, so the sizer
+#: buys FEWER shares per name -- which is the self-correcting half of the
+#: trade and the reason gross does not rise with the width.
+STOP_FRACTION_BY_PROFILE = {"conservative": 0.03, "aggressive": 0.10, "maximum": 0.15, "basket": 0.12, "convex": 0.08}
 
 
 def stop_fraction(profile: str | None = None) -> float:

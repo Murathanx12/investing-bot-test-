@@ -126,13 +126,84 @@ def declared_map() -> dict[str, str]:
     return out
 
 
-def declared_driver(symbol: str) -> str:
+#: The prefix for a driver taken from the sealed book's own sector field, so a
+#: refusal can always say WHICH source named the driver it is refusing on.
+SECTOR_PREFIX = "sector:"
+
+
+@lru_cache(maxsize=8)
+def sealed_sector_map(day: str) -> dict[str, str]:
+    """symbol -> sector, as DECLARED by the sealed prediction book for `day`.
+
+    WHY THIS EXISTS (2026-09-08). `declared_map()` reads a HUMAN-STATED theme
+    seed written on 2026-08-28 and holding 70 symbols -- uranium, quantum,
+    fuel-cell, solar. The tracker books have since moved to a screened universe
+    of ~774 names that shares almost nothing with it: on the 2026-09-08 seal,
+    10 of hack3's 10 names and 14 of hack6's 15 were `UNCLASSIFIED`.
+
+    Every UNCLASSIFIED name shares ONE bucket, deliberately and correctly -- not
+    knowing whether four names are independent is not evidence that they are.
+    But the consequence was that the 40%-of-gross driver cap bound after roughly
+    four names on EVERY tracker book, so a measured dry pass submitted 4 of 10
+    and refused 6 with `DRIVER: ... 41% of equity on the single driver
+    'UNCLASSIFIED'`. That is a guard binding on a DATA GAP rather than on risk,
+    and a guard whose input is missing must derive it or refuse -- not quietly
+    behave as though the missing value were the worst case for ever.
+
+    The sector IS declared, and by a PIT artefact: `prediction_book` writes a
+    `sector` on every holding and the book's own constraints already enforce
+    `max_names_per_sector` (3) and `max_sector_share` (0.30). So this is a third
+    DECLARED source, not a measurement, and it obeys this module's rule that
+    "declared is the floor, and measurement may only MERGE": correlation can
+    still collapse two sectors into one driver, and nothing here ever SPLITS.
+
+    A missing or malformed seal is a STATE, not a crash: the map is empty and
+    every symbol falls through to UNCLASSIFIED exactly as before.
+    """
+    path = Path(__file__).resolve().parent.parent / "state" / "predictions" / f"{day}.json"
+    import os
+    root = os.getenv("AAT_LEDGER_DIR")
+    if root:
+        path = Path(root) / "predictions" / f"{day}.json"
+    out: dict[str, str] = {}
+    try:
+        blob = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        logger.warning("no readable sealed book at %s (%s); sector drivers unavailable and "
+                       "unnamed symbols stay %s", path, exc, UNCLASSIFIED)
+        return out
+    for body in (blob.get("portfolios") or {}).values():
+        for h in (body.get("holdings") or []):
+            sym = str(h.get("symbol") or "").strip().upper()
+            sec = str(h.get("sector") or "").strip()
+            if sym and sec:
+                out.setdefault(sym, SECTOR_PREFIX + sec.lower().replace(" ", "_"))
+    if not out:
+        logger.warning("sealed book %s named ZERO sectors; the driver cap will treat its "
+                       "names as %s", path, UNCLASSIFIED)
+    return out
+
+
+def declared_driver(symbol: str, *, day: str | None = None) -> str:
+    """The driver a symbol is DECLARED to belong to, most specific source first.
+
+    index beta -> human theme seed -> the sealed book's own sector -> UNCLASSIFIED.
+    """
     s = str(symbol or "").strip().upper()
     if not s:
         return UNCLASSIFIED
     if s in _INDEX_SYMBOLS:
         return INDEX_DRIVER
-    return declared_map().get(s, UNCLASSIFIED)
+    hit = declared_map().get(s)
+    if hit:
+        return hit
+    if day is None:
+        try:
+            from alpha import exits as _exits
+            day = _exits.session_day()
+        except Exception:                                               # noqa: BLE001
+            return UNCLASSIFIED
+    return sealed_sector_map(day).get(s, UNCLASSIFIED)
 
 
 def _corr(a: list[float], b: list[float]) -> float | None:
