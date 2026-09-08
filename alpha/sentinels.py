@@ -93,11 +93,33 @@ def chain_sigma(implied_move: float) -> float:
 #: (n=80) and lost new-position authority on one pass and kept it on the next
 #: -- with NVDA two sessions after its print, i.e. inside the only measured
 #: edge. A sentinel built for width claims must not judge a brain that makes none.
-DIRECTION_BRAINS = ("post_event_drift", "theme_basket", "council_vector")
+DIRECTION_BRAINS = ("post_event_drift", "theme_basket", "council_vector",
+                    # 2026-09-08: `tracker_portfolio` declares claim="direction"
+                    # (alpha/brains/tracker_portfolio.py) and its `sd` is the
+                    # sealed book's downside band, never a width claim against
+                    # the chain. On the 09-08 open the Railway ledger crossed the
+                    # 50-row floor and the sentinel withdrew its new-position
+                    # authority on the first live pass after the re-arm: all ten
+                    # sealed names went shadow-only and hack3 opened EMPTY. Same
+                    # defect as post_event_drift on 28 Aug, same fix.
+                    "tracker_portfolio")
 
 
 def is_direction_brain(brain: str) -> bool:
     return brain in DIRECTION_BRAINS or brain.startswith("human:")
+
+
+def _row_claims_direction(r: dict) -> bool:
+    """A row that carries its own claim is judged by that claim, not by a list.
+
+    Decision rows stamp `claim` (alpha/runner.py, the executed-row block) and
+    forecast rows carry it under `outcome`. A row written before either
+    existed carries neither and falls back to `DIRECTION_BRAINS`.
+    """
+    c = r.get("claim")
+    if c is None and isinstance(r.get("outcome"), dict):
+        c = r["outcome"].get("claim")
+    return c == "direction"
 
 
 def ratios(rows) -> dict[str, list[float]]:
@@ -109,7 +131,7 @@ def ratios(rows) -> dict[str, list[float]]:
         brain = r.get("brain")
         if sd is None or not im or not brain or im <= 0 or sd <= 0:
             continue
-        if is_direction_brain(brain):
+        if is_direction_brain(brain) or _row_claims_direction(r):
             continue
         out.setdefault(brain, []).append(float(sd) / chain_sigma(float(im)))
     return out

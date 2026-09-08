@@ -121,6 +121,30 @@ check("a sentinel that cannot run says so instead of passing silently",
       "an exception here must not read as a clean bill of health")
 check("there is an explicit escape hatch", "--no-sentinels" in src)
 
+# --- direction brains are not judged on a width they never claimed --------
+# 2026-09-08: tracker_portfolio (claim="direction" in code) crossed the 50-row
+# floor on the Railway ledger and lost new-position authority on the first
+# live pass after the re-arm; hack3 opened EMPTY with ten sealed names. A
+# sentinel built for width claims must not judge a brain that makes none.
+check("tracker_portfolio is a DIRECTION brain",
+      sentinels.is_direction_brain("tracker_portfolio"))
+check("  so its rows are not ratioed against the chain",
+      "tracker_portfolio" not in sentinels.ratios(rows("tracker_portfolio", 60, 0.3)))
+check("  and it can never be BROKEN",
+      "tracker_portfolio" not in sentinels.broken(rows("tracker_portfolio", 200, 0.3)))
+_claimed = [{"brain": "newbrain", "predicted_sd": 0.3, "implied_move": CHAIN_IM,
+             "claim": "direction"} for _ in range(60)]
+check("a row that STAMPS claim=direction is skipped whatever the brain is called",
+      "newbrain" not in sentinels.ratios(_claimed))
+_nested = [{"brain": "newbrain", "predicted_sd": 0.3, "implied_move": CHAIN_IM,
+            "outcome": {"claim": "direction"}} for _ in range(60)]
+check("  including when the claim sits under `outcome` (forecast rows)",
+      "newbrain" not in sentinels.ratios(_nested))
+_dist = [{"brain": "newbrain", "predicted_sd": 0.3, "implied_move": CHAIN_IM,
+          "claim": "distribution"} for _ in range(60)]
+check("  while a DISTRIBUTION claim is still judged",
+      len(sentinels.ratios(_dist).get("newbrain", [])) == 60)
+
 print(f"\n{ran} checks")
 print("ALL PASS" if not fails else f"\n{len(fails)} FAILED: {fails}")
 if __name__ == "__main__":
