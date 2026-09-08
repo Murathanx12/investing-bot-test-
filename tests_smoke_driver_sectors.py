@@ -84,7 +84,16 @@ print("\n-- the fix un-blocks a REAL sealed book (this is the whole point)")
 import os as _os
 import shutil as _shutil
 
-_REPO_SEAL = Path(__file__).resolve().parent / "state" / "predictions" / "2026-09-08.json"
+# The live seal is untracked, so on a FRESH CHECKOUT it is absent and the three
+# assertions that matter would quietly not run -- a suite that reports fewer
+# checks on CI than on the dev box is one step from a gate that cannot go green.
+# The committed pre-redeploy copy is byte-identical to the published seal
+# (sha f20929777f77fa55, verified) and is used as the fallback, so CI exercises
+# the same code path against the same bytes.
+_PRED = Path(__file__).resolve().parent / "state" / "predictions"
+_REPO_SEAL = _PRED / "2026-09-08.json"
+if not _REPO_SEAL.exists():
+    _REPO_SEAL = _PRED / "2026-09-08.pre_redeploy_0507.json"
 _root = _os.getenv("AAT_LEDGER_DIR")
 SEAL = _REPO_SEAL
 if _root and _REPO_SEAL.exists():
