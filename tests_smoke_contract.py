@@ -47,21 +47,38 @@ from alpha.broker.alpaca import BrokerRefusal
 
 print("\n-- the contract: what a book must state before it trades")
 k = contract.for_book("hack4", day="2026-09-08", risk_budget_usd=1500.0, profile="maximum")
-check("a tracker book declares 21 sessions and a 10-session minimum hold",
-      (k.expected_horizon_sessions, k.min_normal_hold_sessions) == (21, 10),
+# REMAPPED 2026-09-07 (contract.HORIZON_REMAP): hack4 is the SIX-MONTH hold
+# book, 126 sessions with a 42-session floor under it. The old 21/10 was the
+# generic tracker shape; a book that declares its own terms outranks it.
+check("hack4 declares 126 sessions and a 42-session minimum hold",
+      (k.expected_horizon_sessions, k.min_normal_hold_sessions) == (126, 42),
       f"{k.expected_horizon_sessions}/{k.min_normal_hold_sessions}")
 check("a tracker book declares NO profit target -- 2.5% of a 21-session thesis is noise",
       k.profit_target_frac is None, str(k.profit_target_frac))
-check("the stop width is the PROFILE's, not a flat 3%", abs(k.stop_fraction() - 0.06) < 1e-9,
-      f"{k.stop_fraction():.3f}")
+# The width is now the BOOK'S OWN declared number, which outranks the profile
+# width just as the profile width outranked the flat 3%. Measured reason
+# (docs/RECEIPT_2026-09-07_STOP_WIDTH_VS_HOLD.json): at the profile widths, 31%
+# of hack3's entries and 56% of hack6's were stopped out before their own
+# minimum hold -- an exit rule that terminates the thesis before it can run.
+check("the stop width is the BOOK'S DECLARED width, not the profile's and not a flat 3%",
+      abs(k.stop_fraction() - 0.15) < 1e-9, f"{k.stop_fraction():.3f}")
 check("the expiry is derived from the horizon in SESSIONS (weekends skipped)",
-      k.thesis_expiry == "2026-10-07", k.thesis_expiry)
+      k.thesis_expiry == "2027-03-03", k.thesis_expiry)
 check("a complete contract validates", contract.validate(k.as_dict()) == [],
       str(contract.validate(k.as_dict())))
 
 ev = contract.for_book("hack2", day="2026-09-08", risk_budget_usd=500.0, profile="aggressive")
-check("an event book declares its own +1..+3 horizon and no minimum hold",
-      (ev.expected_horizon_sessions, ev.min_normal_hold_sessions) == (3, 0))
+# THE EVENT BOOK KEEPS THE SHORTEST HORIZON AND LOSES THE ZERO. Murat,
+# 2026-09-07: "hold stocks for more than one day dont buy and sold". A zero
+# minimum hold is precisely what a same-session round trip is, so the event
+# book now expresses its drift over 5 sessions with a 2-session floor rather
+# than with no floor at all.
+check("the event book declares a 5-session horizon and a 2-session minimum hold",
+      (ev.expected_horizon_sessions, ev.min_normal_hold_sessions) == (5, 2),
+      f"{ev.expected_horizon_sessions}/{ev.min_normal_hold_sessions}")
+check("NO book in the fleet still carries a zero minimum hold",
+      all(v["min_normal_hold_sessions"] >= 1 for v in contract.HORIZON_REMAP.values()),
+      str({b: v["min_normal_hold_sessions"] for b, v in contract.HORIZON_REMAP.items()}))
 check("every emergency reason is in the enum",
       set(k.emergency_exit_reasons) == set(contract.EMERGENCY_EXIT_REASONS))
 
@@ -69,7 +86,7 @@ print("\n-- validation REFUSES, and says everything that is wrong at once")
 check("an absent contract is refused", len(contract.validate(None)) == 1)
 bad = dict(k.as_dict()); bad.pop("risk_budget_usd")
 check("a missing field is named", any("risk_budget_usd" in b for b in contract.validate(bad)))
-bad2 = dict(k.as_dict()); bad2["min_normal_hold_sessions"] = 30
+bad2 = dict(k.as_dict()); bad2["min_normal_hold_sessions"] = 200
 check("a hold longer than the horizon is refused -- it could never exit normally",
       any("exceeds the horizon" in b for b in contract.validate(bad2)))
 bad3 = dict(k.as_dict()); bad3["hard_falsifiers"] = []
@@ -105,16 +122,19 @@ check("session 1, -2.9%: HELD. This is the churn that emptied the books",
 v = ev_at(1, 0.030)
 check("session 2, +3.0%: HELD -- a tracker book has no profit target",
       not v.close and v.code == "HELD", f"{v.code}: {v.reason[:70]}")
-v = ev_at(1, -0.070)
-check("-7.0% is inside the 6% profile stop? no -- past it, so HARD_RISK_LIMIT",
+v = ev_at(1, -0.160)
+check("-16.0% is past hack4's declared 15% stop, so HARD_RISK_LIMIT",
       v.close and v.code == "HARD_RISK_LIMIT", f"{v.code}: {v.reason[:70]}")
-v = ev_at(1, -0.040)
-check("-4.0% HOLDS at the 6% profile width, where the old flat 3% would have sold",
+v = ev_at(1, -0.070)
+check("-7.0% HOLDS at the declared 15% width, where the 6% profile stop would have sold",
       not v.close, f"{v.code}: {v.reason[:70]}")
-v = ev_at(29, 0.01)                                  # 21 sessions later, on the expiry date
+v = ev_at(1, -0.040)
+check("-4.0% HOLDS too, where the old flat 3% would have sold on session 2",
+      not v.close, f"{v.code}: {v.reason[:70]}")
+v = ev_at(176, 0.01)                 # 126 sessions later, ON the expiry date 2027-03-03
 check("at the horizon: HORIZON_SPENT", v.close and v.code == "HORIZON_SPENT",
       f"{v.code}: {v.reason[:70]}")
-v = ev_at(31, 0.01)                                  # two days past the declared expiry
+v = ev_at(178, 0.01)                 # two sessions past the declared expiry
 check("past the thesis expiry: THESIS_EXPIRED, whether or not it moved",
       v.close and v.code == "THESIS_EXPIRED", f"{v.code}: {v.reason[:70]}")
 v = exits.evaluate(POS, deadline_utc=DL,
@@ -132,7 +152,8 @@ check("a legacy row keeps the horizon it recorded",
       f"{c_leg.expected_horizon_sessions} {c_leg.source}")
 c_def = contract.resolve(None, book="hack3", day="2026-09-09")
 check("no row at all -> the role default, stamped as such",
-      (c_def.expected_horizon_sessions, c_def.source) == (21, "role_default"), c_def.source)
+      (c_def.expected_horizon_sessions, c_def.source) == (63, "role_default"),
+      f"{c_def.expected_horizon_sessions} {c_def.source}")
 
 # ------------------------------------------------------------- 3. the deadline
 

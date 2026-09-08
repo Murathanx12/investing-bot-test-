@@ -535,18 +535,71 @@ ok4 = check("the liquidation curfew is not due at a true 10:40 ET",
             not exits.deadline_liquidation_due(dl, now=at_1040))
 ok5 = check("  but a +20min fast clock liquidates the whole book 20 minutes early",
             exits.deadline_liquidation_due(dl, now=at_1040 + timedelta(minutes=20)))
-ok6 = check("nothing in the repo compares the local clock to the venue clock",
-            not any("skew" in n for n in dir(exits) + dir(runner)),
-            "if this fails a skew guard now exists -- update this case")
+# -- THE GUARD (X1, 2026-09-07). Everything above still happens: the ET gates
+# themselves are unchanged, and a skewed clock still disarms them. What changed
+# is that the pass now MEASURES the skew against the venue's own clock and
+# refuses to open risk on a clock it cannot trust -- which is the only fix that
+# does not require re-deriving four gates against an unavailable timezone db.
+
+
+class _SkewedVenue:
+    """A venue whose clock is `minutes` behind ours == our clock is that far fast."""
+
+    def __init__(self, minutes: float):
+        self._m = minutes
+
+    def clock(self) -> dict:
+        return {"timestamp": (datetime.now(timezone.utc)
+                              - timedelta(minutes=self._m)).isoformat(),
+                "is_open": True}
+
+
+ok6 = check("a guard now EXISTS: the pass compares the local clock with the venue's",
+            hasattr(runner, "venue_clock_skew") and hasattr(runner, "CLOCK_SKEW_LIMIT_S"),
+            "runner.venue_clock_skew / CLOCK_SKEW_LIMIT_S")
+_k_fast = runner.venue_clock_skew(_SkewedVenue(20))
+_k_slow = runner.venue_clock_skew(_SkewedVenue(-20))
+_k_ok = runner.venue_clock_skew(_SkewedVenue(0))
+ok7 = check("  +20 min fast is MEASURED (+1200s) and REFUSES entries",
+            _k_fast.verified and abs(_k_fast.seconds - 1200) < 5 and _k_fast.refuses,
+            str(_k_fast.seconds))
+ok8 = check("  -20 min slow is MEASURED (-1200s) and REFUSES entries",
+            _k_slow.verified and abs(_k_slow.seconds + 1200) < 5 and _k_slow.refuses,
+            str(_k_slow.seconds))
+ok9 = check("  a matched clock does not refuse (the guard can go green)",
+            _k_ok.verified and not _k_ok.refuses, str(_k_ok.seconds))
+ok10 = check("  the refusal is TYPED CLOCK_SKEW, so a census can group it",
+             refusal_classes.classify(_k_fast.reason) == "CLOCK_SKEW",
+             refusal_classes.classify(_k_fast.reason))
+# EXITS ARE UNAFFECTED, and that is the half that matters: a clock we cannot
+# trust must never be able to trap us in a position.
+ok11 = check("  EXITS are untouched: `alpha.exits` has no skew guard and names none",
+             not any("skew" in n.lower() for n in dir(exits))
+             and "venue_clock_skew" not in open(exits.__file__, encoding="utf-8").read(),
+             str([n for n in dir(exits) if "skew" in n.lower()]))
+_v_exit = exits.evaluate(position("NVDA", 10, 180.0, plpc=-0.11),
+                         deadline_utc=DEADLINE, rows=[])
+ok12 = check("  ...and a position 11% underwater still EXITS while the clock is skewed",
+             _v_exit.close, f"{_v_exit.code}: {_v_exit.reason[:90]}")
 row("clock skew +/- 20 minutes (local wall clock vs venue clock)",
     "an ET-time gate should be computed against a clock that is checked, or refuse",
     f"guard_true_at_0932={ok1} disarmed_by_+20m={skew_fast is False} "
-    f"false_refusal_at_-20m={skew_slow is True} curfew_20m_early={ok5} skew_guard_exists=False",
-    "FAIL (REPORTED, NOT FIXED)",
-    "REPORTED: every ET gate reads the local clock. `is_open` is the venue's; "
-    "in_opening_range / deadline_liquidation_due / session_day are not. A skew probe "
-    "(venue /v2/clock vs local, refuse beyond ~120s) is a one-file change but it "
-    "touches the entry gate of six live services -- attended work, not a lab commit.")
+    f"false_refusal_at_-20m={skew_slow is True} curfew_20m_early={ok5} "
+    f"skew_guard_exists=True measured_fast={_k_fast.seconds:+.0f}s "
+    f"measured_slow={_k_slow.seconds:+.0f}s refuses_both="
+    f"{_k_fast.refuses and _k_slow.refuses} tolerance={runner.CLOCK_SKEW_LIMIT_S:.0f}s "
+    f"exits_unaffected={ok11 and ok12}",
+    "PASS" if all((ok1, ok6, ok7, ok8, ok9, ok10, ok11, ok12)) else "FAIL",
+    "FIXED (X1, 2026-09-07): `runner.venue_clock_skew` probes GET /v2/clock ONCE per pass; "
+    "skew beyond CLOCK_SKEW_LIMIT_S (300s) refuses every entry with the typed class "
+    "`clock_skew` (-> refusal_classes.CLOCK_SKEW -> DATA_STALE). The ET gates themselves "
+    "are unchanged -- they still read the local clock, and still misbehave under skew; what "
+    "the guard buys is that the pass REFUSES rather than acting on gates it cannot trust. "
+    "EXITS ARE DELIBERATELY UNAFFECTED: `alpha.exits` does not import the guard, so a "
+    "skewed clock can never trap us in a position. An UNREADABLE venue clock is CANNOT "
+    "DETERMINE and does not refuse by default (AAT_CLOCK_SKEW_STRICT=1 makes it refuse), "
+    "because /v2/clock is unreachable exactly when the venue is, and a transport blip must "
+    "not become a fleet-wide entry freeze.")
 
 # ===========================================================================
 print("\nC1-9  EMPTY CORPUS / EMPTY SEAL")
@@ -727,23 +780,39 @@ unmapped = refusal_classes.unmapped_report()
 ok2 = check("  and any that fall through are COUNTED, never silently absorbed",
             len(unmapped) == len([s for s in states if s == refusal_classes.OTHER_TYPED]),
             f"states={states} unmapped={unmapped}")
-_venue = [s for s, st in zip(samples, states)
-          if st == refusal_classes.OTHER_TYPED and "HTTP" in s]
-ok3 = check("REPORTED: a refusal the VENUE issued has no type of its own -- every HTTP "
-            "rejection lands in OTHER_TYPED",
-            len(_venue) >= 3, f"venue sentences typed OTHER_TYPED: {len(_venue)}")
+_http = [s for s in samples if "HTTP" in s]
+_venue_typed = [s for s, st in zip(samples, states)
+                if st == "VENUE_REJECTED" and "HTTP" in s]
+ok3 = check("a refusal the VENUE issued now has a type of its own (X4)",
+            len(_venue_typed) == len(_http),
+            f"{len(_venue_typed)} of {len(_http)} HTTP rejections typed VENUE_REJECTED")
+ok4 = check("  a TRANSPORT failure is a venue rejection too, not prose",
+            refusal_classes.terminal_state(
+                "GET /v2/clock -> transport failure: getaddrinfo failed") == "VENUE_REJECTED")
+ok5 = check("  and it is its OWN kind: not book state, not merit, not the tournament",
+            refusal_classes.kind_of("VENUE_REJECTED") == "venue",
+            refusal_classes.kind_of("VENUE_REJECTED"))
+ok6 = check("  our own gates are NOT re-labelled as venue rejections",
+            refusal_classes.terminal_state("DAILY LOSS LATCH: the book is down 3.1% today.")
+            == "RISK"
+            and refusal_classes.terminal_state(
+                "OPENING RANGE: shares are not bought in the first 15 minutes.")
+            == "OPENING_RANGE")
 row("refusal typing across every injected fault",
     "every fault's sentence lands on a TERMINAL_STATE; unmapped prose is counted",
     f"states={states} unmapped={[u[0][:40] for u in unmapped]} "
-    f"venue_http_refusals_typed_OTHER_TYPED={len(_venue)} of {sum(1 for x in samples if 'HTTP' in x)}",
-    "PASS (with a REPORTED gap)" if (ok1 and ok2 and ok3) else "FAIL",
-    "REPORTED, NOT FIXED: `refusal_classes` has no state for a refusal the VENUE issued, so "
-    "an order rejected with HTTP 503/502/422 is counted in the same bucket as prose from a "
-    "gate nobody typed. The daily census therefore cannot separate 'the venue refused us' "
-    "from 'a rule of ours refused us' -- opposite work. The module is right that unmapped "
-    "prose must be COUNTED rather than absorbed (it is, in UNMAPPED), and widening an "
-    "existing bucket to swallow these would be worse; a VENUE_REJECTED state changes the "
-    "grouping every finished report uses, which is an attended decision.")
+    f"venue_http_refusals_typed_VENUE_REJECTED={len(_venue_typed)} of {len(_http)} "
+    f"kind={refusal_classes.kind_of('VENUE_REJECTED')}",
+    "PASS" if all((ok1, ok2, ok3, ok4, ok5, ok6)) else "FAIL",
+    "FIXED (X4, 2026-09-07): `VENUE_REJECTED` is an 18th terminal state and a post-hoc "
+    "class matched LAST, so it can only claim sentences no in-house gate wrote. Its regex "
+    "is `AlpacaPaper._request`'s own two refusal formats and nothing else. It is its own "
+    "KIND (`kind_of -> 'venue'`) because a counterfactual on it asks 'would the order have "
+    "paid if it had reached the book', which is neither 'should the book have had room' nor "
+    "'was the idea good' -- and because it is fixed by retrying, re-routing or repairing the "
+    "account, never by loosening a gate. This DOES change the grouping in every finished "
+    "report: HTTP rejections move out of OTHER_TYPED, and a halt ('HTTP 422: asset is not "
+    "tradable') moves out of MANDATE into VENUE_REJECTED, which is the more accurate reading.")
 
 # ===========================================================================
 # RECEIPT

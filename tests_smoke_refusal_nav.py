@@ -81,10 +81,14 @@ check("being out-ranked by a sibling is neither -- it is the tournament",
       rc.kind_of("OUTRANKED_BY_SIBLING") == "tournament")
 check("an unknown class is 'unknown', never silently 'merit'",
       rc.kind_of("SOMETHING_NEW") == "unknown")
+check("a refusal the VENUE issued is its own kind (X4, 2026-09-07)",
+      rc.kind_of("VENUE_REJECTED") == "venue", rc.kind_of("VENUE_REJECTED"))
+check("the clock guard and the closed session are SESSION state, not merit",
+      rc.kind_of("CLOCK_SKEW") == "book state" and rc.kind_of("SESSION_CLOSED") == "book state")
+_KINDS = (rc.BOOK_STATE_CLASSES, rc.MERIT_CLASSES, rc.TOURNAMENT_CLASSES, rc.VENUE_CLASSES)
 check("no class is in two kinds at once",
-      not (rc.BOOK_STATE_CLASSES & rc.MERIT_CLASSES)
-      and not (rc.BOOK_STATE_CLASSES & rc.TOURNAMENT_CLASSES)
-      and not (rc.MERIT_CLASSES & rc.TOURNAMENT_CLASSES))
+      all(not (a & b) for i, a in enumerate(_KINDS) for b in _KINDS[i + 1:]),
+      str([sorted(a & b) for i, a in enumerate(_KINDS) for b in _KINDS[i + 1:] if a & b]))
 check("every pattern's class is assigned a kind",
       all(rc.kind_of(name) != "unknown" for name, _ in rc.PATTERNS),
       str([n for n, _ in rc.PATTERNS if rc.kind_of(n) == "unknown"]))

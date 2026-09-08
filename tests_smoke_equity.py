@@ -35,9 +35,23 @@ from alpha.engine import equity, payoff, sizing
 # passed on 27 Aug and refused every share structure on 28 Aug ("none cleared
 # the gates" -- zero days left). Dates are RELATIVE so the test says the same
 # thing every day it runs.
-_TODAY = datetime.now(timezone.utc).date()
-EXPIRY = (_TODAY + timedelta(days=1)).isoformat()
-EVENT_DATE = _TODAY.isoformat()  # event_pending is event_date >= today
+# ONE CLOCK, AND THE CALENDAR (X3, 2026-09-07). These three lines used to mix
+# `datetime.now(timezone.utc).date()` for the expiry with `datetime.now().date()`
+# for the session clock -- a LOCAL date on a UTC+8 box. Between 20:00 and 08:00
+# local the two disagree by a day, the derived session lands ON the expiry,
+# `run_pass` correctly refuses the whole session as its own expiry day, and the
+# suite reads `considered=0` it cannot explain. That is what turned four suites
+# red at ET Sunday 13:34 on 2026-09-06 and green again the next afternoon with
+# nothing changed but the wall clock. `tests_fixtures` derives BOTH from
+# `alpha.exits.now_et()` and steps the expiry past every weekend AND holiday --
+# 2026-09-07 is a Monday and Labor Day, and a weekday is not a session.
+from tests_fixtures import (expiry_after_session, event_date_pending, open_clock,  # noqa: E402
+                            session_clock)
+
+_SESSION = session_clock()                     # a real session, mid-session, naive ET
+_TODAY = _SESSION.date()
+EXPIRY = expiry_after_session()                # strictly AFTER _SESSION's own day
+EVENT_DATE = event_date_pending()  # run_pass reads pendingness off the UTC date
 
 print("\n-- equity.shares: a bounded structure from a stock quote")
 s = equity.shares("NVDA", spot=180.0, bid=179.98, ask=180.02, direction="up",
@@ -125,7 +139,7 @@ class FakeClient:
     def account(self): return {"equity": "100000", "last_equity": "100000"}
     def positions(self): return self._p
     def orders(self, status="open", limit=200): return []
-    def clock(self): return {"is_open": True}
+    def clock(self): return open_clock()
     def stock_quote(self, syms): return {"quotes": {syms[0]: {"bp": self._q[0], "ap": self._q[1], "bs": 5, "as": 5, "t": "now"}}}
     def asset(self, sym): return {"shortable": self._short, "easy_to_borrow": self._short, "tradable": True}
     def submit(self, order, *, decision_id, quote_snapshot): return {"id": "fake-" + decision_id}
@@ -182,15 +196,7 @@ check("two-sided but 2.8% off the trade -> also synthetic", st_far is not None a
 # injectable these suites went red for fifteen minutes every day and green again
 # at 09:45 with nothing changed but the wall clock. Derive from `today` so the
 # fixture cannot rot -- the rule CLAUDE.md states after three literal expiries.
-def _mid_session_et():
-    from datetime import datetime, time as _time, timedelta
-    d = datetime.now().date()
-    while d.weekday() >= 5:
-        d -= timedelta(days=1)
-    return datetime.combine(d, _time(10, 30))
-
-
-NOW_ET = _mid_session_et()
+NOW_ET = _SESSION
 
 
 print("\n-- run_pass end to end (dry), and the book that results")

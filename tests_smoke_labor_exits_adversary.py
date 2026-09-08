@@ -132,12 +132,19 @@ h2_event = contract_mod.defaults_for("__no_such_book__",
 same_shape = {k: h2_defaults[k] == h2_event[k] for k in h2_event}
 ok0a = check("hack2 is NOT one of contract.TRACKER_BOOKS",
              "hack2" not in contract_mod.TRACKER_BOOKS)
-ok0b = check("  so `defaults_for('hack2')` IS the EVENT default shape, field for field",
-             all(same_shape.values()), str(same_shape))
-ok0c = check("  horizon 3, minimum hold ZERO, profit target 2.5%, EVENT falsifiers",
-             h2_defaults["expected_horizon_sessions"] == 3
-             and h2_defaults["min_normal_hold_sessions"] == 0
-             and abs(float(h2_defaults["profit_target_frac"]) - 0.025) < 1e-9
+# WHAT THIS SECTION FOUND, AND WHAT WAS DONE ABOUT IT (2026-09-07).
+# The C1 run recorded that hack2's contract was the EVENT default shape field
+# for field -- horizon 3, minimum hold ZERO, +2.5% target on a 3% stop -- i.e.
+# the same-day churn B2 exists to stop, on a book that was live. That finding
+# is now CLOSED by `contract.HORIZON_REMAP`, and this section asserts the fix
+# rather than re-recording the defect. hack2 is still not a TRACKER book; it now
+# declares its own terms instead of inheriting the event default.
+ok0b = check("  hack2 no longer inherits the event default shape -- it declares its own",
+             not all(same_shape.values()), str(same_shape))
+ok0c = check("  horizon 5, minimum hold TWO, no profit target, EVENT falsifiers",
+             h2_defaults["expected_horizon_sessions"] == 5
+             and h2_defaults["min_normal_hold_sessions"] == 2
+             and h2_defaults["profit_target_frac"] is None
              and h2_defaults["hard_falsifiers"] == contract_mod.EVENT_FALSIFIERS,
              str(h2_defaults))
 
@@ -152,14 +159,24 @@ _s = sizing.Structure(symbol="NVDA", kind="long_shares", entry_cost=100.0, max_l
                       implied_move=0.03, days_to_expiry=5.0, legs=(("NVDA", 1, 100.0),),
                       quote={"bid": 99.9, "ask": 100.1})
 h2_live = runner.contract_for(_f, _s, 10)
-ok0d = check("  and the LIVE stamp takes its horizon from the FORECAST, not from the 3",
+ok0d = check("  the LIVE stamp still takes its horizon from the FORECAST (5 sessions)",
              int(h2_live["expected_horizon_sessions"]) == 5
-             and int(h2_live["min_normal_hold_sessions"]) == 0,
+             and int(h2_live["min_normal_hold_sessions"]) == 2,
              str({k: h2_live[k] for k in ("expected_horizon_sessions",
                                           "min_normal_hold_sessions", "profile")}))
+# ...but the DECLARED FLOOR outranks it. A forecast of one session cannot hand
+# this book a horizon shorter than the hold it published; the horizon is lifted
+# to the floor rather than the floor being cut to the forecast.
+_short = contract_mod.for_book("hack2", day="2026-09-08", risk_budget_usd=100.0,
+                               profile="aggressive", expected_horizon_sessions=1)
+ok0d2 = check("  a 1-session FORECAST cannot undercut the 2-session declared floor",
+              (_short.expected_horizon_sessions, _short.min_normal_hold_sessions) == (2, 2)
+              and contract_mod.validate(_short.as_dict()) == [],
+              f"{_short.expected_horizon_sessions}/{_short.min_normal_hold_sessions}")
 h2_stop = contract_mod.from_payload(h2_live, book="hack2").stop_fraction()
-ok0e = check("  the stop width is the AGGRESSIVE profile width, 3%",
-             abs(h2_stop - equity_mod.STOP_FRACTION_BY_PROFILE["aggressive"]) < 1e-12,
+ok0e = check("  the stop width is hack2's DECLARED 8%, not the aggressive profile's 3%",
+             abs(h2_stop - 0.08) < 1e-12
+             and h2_stop > equity_mod.STOP_FRACTION_BY_PROFILE["aggressive"],
              f"{h2_stop}")
 FINDINGS.append({
     "question": "is hack2's contract the EVENT defaults?",
@@ -206,7 +223,6 @@ violations_spurious: list[str] = []
 for cell_i, (role, profile) in enumerate(CELLS):
     os.environ["AAT_ACCOUNT_ROLE"] = role
     os.environ["AAT_RISK_PROFILE"] = profile
-    stop_frac = equity_mod.stop_fraction(profile)
     d = contract_mod.defaults_for(role, profile=profile)
     hold = int(d["min_normal_hold_sessions"])
     horizon_declared = int(d["expected_horizon_sessions"])
@@ -216,6 +232,12 @@ for cell_i, (role, profile) in enumerate(CELLS):
     k = contract_mod.resolve(row, day=session_datetime(1).date().isoformat(), profile=profile)
     horizon = int(k.expected_horizon_sessions)
     hold = int(k.min_normal_hold_sessions)
+    # THE WIDTH THE EXIT RULE ACTUALLY CHARGES, which is the contract's and only
+    # falls back to the profile's when the book declared none. Reading
+    # `equity.stop_fraction(profile)` here measured a number `exits.evaluate`
+    # had stopped using the moment a book declared its own width, so the suite
+    # reported violations that were the suite's own arithmetic.
+    stop_frac = k.stop_fraction()
 
     rng = np.random.default_rng(SEED + cell_i)
     P = paths(rng, N_PATHS, N_SESSIONS, daily_sd=0.025)
@@ -293,7 +315,7 @@ for cell_i, (role, profile) in enumerate(CELLS):
 
 ok1 = check("A. no path closed before its minimum hold without a TYPED reason",
             not violations_hold, "; ".join(violations_hold[:3]))
-ok2 = check("B. every session past the profile-width stop closed as HARD_RISK_LIMIT",
+ok2 = check("B. every session past the BOOK'S DECLARED stop closed as HARD_RISK_LIMIT",
             not violations_stop, "; ".join(violations_stop[:3]))
 ok3 = check("C. no spurious code on a path that was held",
             not violations_spurious, "; ".join(violations_spurious[:3]))
@@ -301,14 +323,23 @@ ok4 = check("  the stop actually FIRED somewhere (an assertion that never binds 
             "is not an assertion)",
             sum(r["session_observations_past_the_stop"] for r in REPORT) > 100,
             str([r["session_observations_past_the_stop"] for r in REPORT]))
-ok5 = check("  and the stop width DIFFERS by profile (3% / 6% / 8%), not a flat 3%",
-            len({r["stop_fraction"] for r in REPORT}) >= 3,
+ok5 = check("  and the stop width DIFFERS BY BOOK, not a flat 3% and not one per profile",
+            len({r["stop_fraction"] for r in REPORT}) >= 4,
             str(sorted({r["stop_fraction"] for r in REPORT})))
+ok5b = check("  every declared width is wider than the flat 3% that emptied the books",
+             all(r["stop_fraction"] > 0.03 for r in REPORT),
+             str(sorted({r["role"]: r["stop_fraction"] for r in REPORT}.items())))
 
+# WAS: assertion A was VACUOUS on hack1, hack2 and hack5, because a minimum
+# hold of zero can never be violated and their silence was being counted as a
+# pass. `contract.HORIZON_REMAP` gave every book in the fleet a floor of at
+# least two sessions on 2026-09-07, so the vacuity is gone and assertion A now
+# binds on all six. This check is kept, inverted, so that re-introducing a
+# zero-hold book anywhere fails the suite instead of quietly making A vacuous
+# again.
 vacuous = [r["role"] for r in REPORT if r["hold_rule_is_vacuous_on_this_book"]]
-ok6 = check("  assertion A is VACUOUS on the event books, and this test says so "
-            "rather than counting their silence as a pass",
-            set(vacuous) == {"hack1", "hack2", "hack5"},
+ok6 = check("  assertion A is VACUOUS on no book -- every book has a real minimum hold",
+            vacuous == [],
             f"books with min_normal_hold_sessions == 0: {vacuous}")
 
 # ===========================================================================
@@ -329,11 +360,12 @@ ok7 = check("ten sessions of +-6% inside an 8% basket stop close NOTHING",
             str([(v.close, v.code) for v in verdicts if v.close][:3]))
 ok8 = check("  and every one of them is coded HELD, not left untyped",
             all(v.code == "HELD" for v in verdicts))
-# ... and the same book at -9% closes on session 1, because the stop outranks
+# ... and the same book at -13% closes on session 1, because the stop outranks
 # the hold and always did.
-v_stop = exits.evaluate(position("SYN", -0.09), deadline_utc=DEADLINE,
+v_stop = exits.evaluate(position("SYN", -0.13), deadline_utc=DEADLINE,
                         now=session_datetime(1), rows=[row])
-ok9 = check("  but -9% on session 1 closes immediately as HARD_RISK_LIMIT",
+ok9 = check("  but -13% on session 1 closes immediately as HARD_RISK_LIMIT "
+            "(hack3's declared width is 12%)",
             v_stop.close and v_stop.code == "HARD_RISK_LIMIT", v_stop.reason[:120])
 ok10 = check("  and the old FLAT 3% would have closed on session 4 (-5%): "
              "the width is the profile's, not a constant",

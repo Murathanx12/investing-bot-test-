@@ -349,31 +349,77 @@ min_edge_over_stop          None        (MEASURED AND RECORDED, NOT ENFORCED)
 Before the 10th session a close needs one of the six typed emergency reasons.
 "The price moved 3%" is not one of them any more.
 
-## A.5 Armed / disarmed, as of 2026-09-05
+## A.5 Armed / disarmed — RE-DERIVED 2026-09-07 (X10)
+
+Do not read the block below off this page and trust it. It is a snapshot of a
+`FLEET` table that changes by commit, and the 2026-09-05 version of this section
+said `hack2 ARMED` for a day after hack2 had been declared manage-only. Re-derive
+it before every re-arm — offline, read-only, no Railway call:
+
+```bash
+python -m scripts.labor_d3_rearm_audit --print   # writes nothing
+python -m scripts.labor_d3_rearm_audit           # refreshes the D3 receipt
+```
+
+Re-derived 2026-09-07 from `alpha.fleet.env_for()` — the same function
+`scripts.fleet --deploy` calls, so this column cannot drift from the deploy. The
+receipt (`state/labor_day_lab_2026-09-07/D3_tuesday_rearm_audit.json`) carries
+the exact `git_commit` it was derived at:
 
 ```
   hack1  DISARMED  Mandate.manage_only=True (declared in alpha/fleet.py)
-  hack2  ARMED     nothing -- this book may enter
+  hack2  ARMED     re-armed 2026-09-07 once contract.HORIZON_REMAP froze its terms
   hack3  ARMED     nothing -- this book may enter
   hack4  ARMED     nothing -- this book may enter
   hack5  ARMED     nothing -- this book may enter
   hack6  ARMED     nothing -- this book may enter
 ```
 
+hack2 went DISARMED on 2026-09-06 and ARMED again on 2026-09-07, so the state
+here matches 2026-09-05 by coincidence and not because nothing happened. The
+receipt's `changed_since_previous_receipt` compares against the last receipt on
+disk and will read `(none)` for that reason; the round trip is the point, and it
+is why this table is re-derived rather than trusted.
+
 Two of the four possible disarms are **Railway variables** and are invisible to
-a local process. It reports that rather than guessing:
-`railway variables --service aat-loop-<role>`.
+a local process. The audit reports that rather than guessing: its live column is
+carried forward, stamped `LIVE_NOT_RE_READ` with the date it was really read
+(2026-09-05). Re-read it with `railway variables --service aat-loop-<role>`.
 
-### hack2 is armed and is NOT a tracker book — print this before Monday
+### hack2: why it was disarmed, and what had to be true to re-arm it
 
-`contract.defaults_for` branches on `TRACKER_BOOKS = (hack3, hack4, hack6)`, so
-**hack2 falls through to the EVENT defaults**: `expected_horizon_sessions 3`,
-`min_normal_hold_sessions 0`, `profit_target_frac 0.025`. Its fleet profile is
-`aggressive`, i.e. a **3% stop**. So the one armed book with **no minimum hold
-and a +2.5% profit target** is precisely the churn the whole minimum-hold build
-exists to stop, and it is the book that opened five 1:8 shorts on 2026-09-04.
+The 2026-09-06 objection was specific, and it is worth keeping written down
+because it is the template for every future disarm. `contract.defaults_for`
+branches on `TRACKER_BOOKS = (hack3, hack4, hack6)`, so hack2 **fell through to
+the EVENT defaults**: `expected_horizon_sessions 3`, `min_normal_hold_sessions
+0`, `profit_target_frac 0.025`, on an `aggressive` profile's **3% stop**. No
+minimum hold plus a +2.5% target is precisely the same-session churn the whole
+minimum-hold build exists to stop, and hack2 is the book that opened five 1:8
+shorts on 2026-09-04. So it was set `manage_only=True` **until its own contract
+was frozen**.
 
-Not fixed here. Which defaults hack2 gets is your call, not a session's.
+**That condition is now met** (2026-09-07, lead session):
+`contract.HORIZON_REMAP["hack2"]` freezes `expected_horizon_sessions 5`,
+`min_normal_hold_sessions 2`, `profit_target_frac None`, `stop_frac 0.08`.
+Every clause of the stated objection is answered — the zero minimum hold, the
++2.5% target and the 3% stop were the three things named — so the flag was
+lifted rather than left standing out of habit. **A gate whose condition has been
+met and which stays shut is not caution; it is an unread gate.**
+
+What this does NOT settle: hack2 still is not a `TRACKER_BOOKS` member, so its
+behaviour comes from the remap entry rather than from the tracker branch. If the
+remap entry is ever removed, hack2 silently falls back to the EVENT defaults and
+the 2026-09-06 objection returns without anyone deciding it should.
+
+**`AAT_MANAGE_ONLY=1` still disarms nothing.** Re-derived 2026-09-07 by the D3
+audit, which scans for an actual read (`os.getenv` / `environ.get` / `environ[`)
+rather than a mention: `readers: []`. Setting that variable on Railway changes
+no behaviour whatsoever. The ONE switch is
+`alpha.fleet.Mandate.manage_only` → `loop_args()` → `--manage-only` in
+`AAT_LOOP_ARGS` → `scripts.agent_loop`'s `args.manage_only`, which gates the
+ENTRY branch only (exits keep running, which is the point). The audit reports
+this by derivation and would say the opposite the day somebody wires it up, so
+it is not a claim frozen into a document.
 
 ## A.6 What this dry run could NOT do, and why
 

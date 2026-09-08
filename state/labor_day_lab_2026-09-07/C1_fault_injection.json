@@ -2,21 +2,21 @@
   "item": "C1",
   "lane": "C",
   "lab": "labor_day_lab_2026-09-07",
-  "ts_utc": "2026-09-06T13:12:35.989809+00:00",
+  "ts_utc": "2026-09-08T04:58:54.231552+00:00",
   "argv": [
     "tests_smoke_labor_faults.py"
   ],
-  "git_commit": "1f39189de6908e6c3092256ede9fda7d39050d72",
+  "git_commit": "c413796e945ea31025a50a60a4de93f15bb6d820",
   "config": {
     "AAT_ACCOUNT_ROLE": "dev",
     "AAT_RISK_PROFILE": "aggressive",
-    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-9oulhe_8",
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-qfgyfqlq",
     "network": "no venue client is constructed; the only broker in this suite is its own MockVenue. The socket block belongs to run_tests.py."
   },
   "inputs_opened": [
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-9oulhe_8\\decisions.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-9oulhe_8\\protective_stops.jsonl",
-    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-9oulhe_8\\predictions"
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-qfgyfqlq\\decisions.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-qfgyfqlq\\protective_stops.jsonl",
+    "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c1-qfgyfqlq\\predictions"
   ],
   "modules_under_test": [
     "alpha.runner",
@@ -28,7 +28,7 @@
     "alpha.refusal_classes",
     "alpha.fleet"
   ],
-  "checks_run": 53,
+  "checks_run": 62,
   "checks_failed": 0,
   "failed": [],
   "table": [
@@ -84,9 +84,9 @@
     {
       "fault": "clock skew +/- 20 minutes (local wall clock vs venue clock)",
       "expected": "an ET-time gate should be computed against a clock that is checked, or refuse",
-      "observed": "guard_true_at_0932=True disarmed_by_+20m=True false_refusal_at_-20m=True curfew_20m_early=True skew_guard_exists=False",
-      "verdict": "FAIL (REPORTED, NOT FIXED)",
-      "fix": "REPORTED: every ET gate reads the local clock. `is_open` is the venue's; in_opening_range / deadline_liquidation_due / session_day are not. A skew probe (venue /v2/clock vs local, refuse beyond ~120s) is a one-file change but it touches the entry gate of six live services -- attended work, not a lab commit."
+      "observed": "guard_true_at_0932=True disarmed_by_+20m=True false_refusal_at_-20m=True curfew_20m_early=True skew_guard_exists=True measured_fast=+1200s measured_slow=-1200s refuses_both=True tolerance=300s exits_unaffected=True",
+      "verdict": "PASS",
+      "fix": "FIXED (X1, 2026-09-07): `runner.venue_clock_skew` probes GET /v2/clock ONCE per pass; skew beyond CLOCK_SKEW_LIMIT_S (300s) refuses every entry with the typed class `clock_skew` (-> refusal_classes.CLOCK_SKEW -> DATA_STALE). The ET gates themselves are unchanged -- they still read the local clock, and still misbehave under skew; what the guard buys is that the pass REFUSES rather than acting on gates it cannot trust. EXITS ARE DELIBERATELY UNAFFECTED: `alpha.exits` does not import the guard, so a skewed clock can never trap us in a position. An UNREADABLE venue clock is CANNOT DETERMINE and does not refuse by default (AAT_CLOCK_SKEW_STRICT=1 makes it refuse), because /v2/clock is unreachable exactly when the venue is, and a transport blip must not become a fleet-wide entry freeze."
     },
     {
       "fault": "empty corpus / empty or absent sealed book",
@@ -126,9 +126,9 @@
     {
       "fault": "refusal typing across every injected fault",
       "expected": "every fault's sentence lands on a TERMINAL_STATE; unmapped prose is counted",
-      "observed": "states=['OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'OTHER_TYPED', 'DATA_MISSING', 'OPENING_RANGE'] unmapped=['POST /v#/orders -> HTTP #: {\"message\":\"s', 'DELETE /v#/positions/NVDA -> HTTP #: bad', 'POST /v#/orders -> HTTP #: {\"code\":#,\"me', 'the sealed book for ### carries no `port'] venue_http_refusals_typed_OTHER_TYPED=3 of 3",
-      "verdict": "PASS (with a REPORTED gap)",
-      "fix": "REPORTED, NOT FIXED: `refusal_classes` has no state for a refusal the VENUE issued, so an order rejected with HTTP 503/502/422 is counted in the same bucket as prose from a gate nobody typed. The daily census therefore cannot separate 'the venue refused us' from 'a rule of ours refused us' -- opposite work. The module is right that unmapped prose must be COUNTED rather than absorbed (it is, in UNMAPPED), and widening an existing bucket to swallow these would be worse; a VENUE_REJECTED state changes the grouping every finished report uses, which is an attended decision."
+      "observed": "states=['VENUE_REJECTED', 'VENUE_REJECTED', 'VENUE_REJECTED', 'OTHER_TYPED', 'DATA_MISSING', 'OPENING_RANGE'] unmapped=['the sealed book for ### carries no `port'] venue_http_refusals_typed_VENUE_REJECTED=3 of 3 kind=venue",
+      "verdict": "PASS",
+      "fix": "FIXED (X4, 2026-09-07): `VENUE_REJECTED` is an 18th terminal state and a post-hoc class matched LAST, so it can only claim sentences no in-house gate wrote. Its regex is `AlpacaPaper._request`'s own two refusal formats and nothing else. It is its own KIND (`kind_of -> 'venue'`) because a counterfactual on it asks 'would the order have paid if it had reached the book', which is neither 'should the book have had room' nor 'was the idea good' -- and because it is fixed by retrying, re-routing or repairing the account, never by loosening a gate. This DOES change the grouping in every finished report: HTTP rejections move out of OTHER_TYPED, and a halt ('HTTP 422: asset is not tradable') moves out of MANDATE into VENUE_REJECTED, which is the more accurate reading."
     }
   ]
 }

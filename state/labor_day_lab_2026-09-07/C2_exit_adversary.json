@@ -2,11 +2,11 @@
   "item": "C2",
   "lane": "C",
   "lab": "labor_day_lab_2026-09-07",
-  "ts_utc": "2026-09-06T13:12:35.498382+00:00",
+  "ts_utc": "2026-09-08T04:58:53.757902+00:00",
   "argv": [
     "tests_smoke_labor_exits_adversary.py"
   ],
-  "git_commit": "1f39189de6908e6c3092256ede9fda7d39050d72",
+  "git_commit": "c413796e945ea31025a50a60a4de93f15bb6d820",
   "config": {
     "seed_base": 20260907,
     "paths_per_cell": 200,
@@ -15,7 +15,7 @@
     "entry_utc": "2026-06-01T14:00:00+00:00",
     "deadline_utc": "2027-12-31T15:00:00Z",
     "network": "no venue client is constructed at all",
-    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c2-tu5h50a6"
+    "AAT_LEDGER_DIR": "C:\\Users\\mrthn\\AppData\\Local\\Temp\\aat-labor-c2-a_6qxxz8"
   },
   "inputs_opened": [
     "(none -- every path is generated from the seed above; the only file this suite touches is its own receipt)"
@@ -34,24 +34,22 @@
       "seed": 20260907,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.03,
-      "declared_horizon_sessions": 3,
+      "stop_fraction": 0.35,
+      "declared_horizon_sessions": 126,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 0,
+      "min_normal_hold_sessions": 21,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "EXPLICIT_EVENT_STRATEGY_EXIT": 1,
-        "HARD_RISK_LIMIT": 92,
-        "PROFIT_TARGET": 107
+        "HORIZON_SPENT": 200
       },
-      "session_observations_past_the_stop": 92,
-      "of_those_booked_HARD_RISK_LIMIT": 92,
+      "session_observations_past_the_stop": 0,
+      "of_those_booked_HARD_RISK_LIMIT": 0,
       "closes_before_min_hold_typed": 0,
       "closes_before_min_hold_UNTYPED": 0,
-      "hold_rule_is_vacuous_on_this_book": true,
-      "median_sessions_held": 3,
-      "share_closed_on_session_1_or_2": 0.19
+      "hold_rule_is_vacuous_on_this_book": false,
+      "median_sessions_held": 21,
+      "share_closed_on_session_1_or_2": 0.0
     },
     {
       "role": "hack2",
@@ -59,24 +57,23 @@
       "seed": 20260908,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.03,
-      "declared_horizon_sessions": 3,
+      "stop_fraction": 0.08,
+      "declared_horizon_sessions": 5,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 0,
+      "min_normal_hold_sessions": 2,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "EXPLICIT_EVENT_STRATEGY_EXIT": 1,
-        "HARD_RISK_LIMIT": 87,
-        "PROFIT_TARGET": 112
+        "HARD_RISK_LIMIT": 80,
+        "HORIZON_SPENT": 120
       },
-      "session_observations_past_the_stop": 87,
-      "of_those_booked_HARD_RISK_LIMIT": 87,
-      "closes_before_min_hold_typed": 0,
+      "session_observations_past_the_stop": 80,
+      "of_those_booked_HARD_RISK_LIMIT": 80,
+      "closes_before_min_hold_typed": 2,
       "closes_before_min_hold_UNTYPED": 0,
-      "hold_rule_is_vacuous_on_this_book": true,
-      "median_sessions_held": 3,
-      "share_closed_on_session_1_or_2": 0.19
+      "hold_rule_is_vacuous_on_this_book": false,
+      "median_sessions_held": 21,
+      "share_closed_on_session_1_or_2": 0.01
     },
     {
       "role": "hack3",
@@ -84,23 +81,23 @@
       "seed": 20260909,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.08,
-      "declared_horizon_sessions": 21,
+      "stop_fraction": 0.12,
+      "declared_horizon_sessions": 63,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 10,
+      "min_normal_hold_sessions": 21,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "HARD_RISK_LIMIT": 77,
-        "HORIZON_SPENT": 123
+        "HARD_RISK_LIMIT": 47,
+        "HORIZON_SPENT": 153
       },
-      "session_observations_past_the_stop": 77,
-      "of_those_booked_HARD_RISK_LIMIT": 77,
-      "closes_before_min_hold_typed": 33,
+      "session_observations_past_the_stop": 47,
+      "of_those_booked_HARD_RISK_LIMIT": 47,
+      "closes_before_min_hold_typed": 44,
       "closes_before_min_hold_UNTYPED": 0,
       "hold_rule_is_vacuous_on_this_book": false,
       "median_sessions_held": 21,
-      "share_closed_on_session_1_or_2": 0.005
+      "share_closed_on_session_1_or_2": 0.0
     },
     {
       "role": "hack4",
@@ -108,23 +105,23 @@
       "seed": 20260910,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.06,
-      "declared_horizon_sessions": 21,
+      "stop_fraction": 0.15,
+      "declared_horizon_sessions": 126,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 10,
+      "min_normal_hold_sessions": 21,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "HARD_RISK_LIMIT": 95,
-        "HORIZON_SPENT": 105
+        "HARD_RISK_LIMIT": 23,
+        "HORIZON_SPENT": 177
       },
-      "session_observations_past_the_stop": 95,
-      "of_those_booked_HARD_RISK_LIMIT": 95,
-      "closes_before_min_hold_typed": 53,
+      "session_observations_past_the_stop": 23,
+      "of_those_booked_HARD_RISK_LIMIT": 23,
+      "closes_before_min_hold_typed": 22,
       "closes_before_min_hold_UNTYPED": 0,
       "hold_rule_is_vacuous_on_this_book": false,
       "median_sessions_held": 21,
-      "share_closed_on_session_1_or_2": 0.015
+      "share_closed_on_session_1_or_2": 0.0
     },
     {
       "role": "hack5",
@@ -132,24 +129,22 @@
       "seed": 20260911,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.08,
-      "declared_horizon_sessions": 3,
+      "stop_fraction": 0.5,
+      "declared_horizon_sessions": 21,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 0,
+      "min_normal_hold_sessions": 2,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "EXPLICIT_EVENT_STRATEGY_EXIT": 8,
-        "HARD_RISK_LIMIT": 61,
-        "PROFIT_TARGET": 131
+        "HORIZON_SPENT": 200
       },
-      "session_observations_past_the_stop": 61,
-      "of_those_booked_HARD_RISK_LIMIT": 61,
+      "session_observations_past_the_stop": 0,
+      "of_those_booked_HARD_RISK_LIMIT": 0,
       "closes_before_min_hold_typed": 0,
       "closes_before_min_hold_UNTYPED": 0,
-      "hold_rule_is_vacuous_on_this_book": true,
-      "median_sessions_held": 5,
-      "share_closed_on_session_1_or_2": 0.07
+      "hold_rule_is_vacuous_on_this_book": false,
+      "median_sessions_held": 21,
+      "share_closed_on_session_1_or_2": 0.0
     },
     {
       "role": "hack6",
@@ -157,23 +152,23 @@
       "seed": 20260912,
       "paths": 200,
       "sessions": 21,
-      "stop_fraction": 0.03,
-      "declared_horizon_sessions": 21,
+      "stop_fraction": 0.1,
+      "declared_horizon_sessions": 42,
       "resolved_horizon_sessions": 21,
-      "min_normal_hold_sessions": 10,
+      "min_normal_hold_sessions": 21,
       "contract_source": "ledger_horizon_days",
       "paths_that_closed": 200,
       "exit_codes": {
-        "HARD_RISK_LIMIT": 131,
-        "HORIZON_SPENT": 69
+        "HARD_RISK_LIMIT": 72,
+        "HORIZON_SPENT": 128
       },
-      "session_observations_past_the_stop": 131,
-      "of_those_booked_HARD_RISK_LIMIT": 131,
-      "closes_before_min_hold_typed": 110,
+      "session_observations_past_the_stop": 72,
+      "of_those_booked_HARD_RISK_LIMIT": 72,
+      "closes_before_min_hold_typed": 68,
       "closes_before_min_hold_UNTYPED": 0,
       "hold_rule_is_vacuous_on_this_book": false,
-      "median_sessions_held": 8,
-      "share_closed_on_session_1_or_2": 0.065
+      "median_sessions_held": 21,
+      "share_closed_on_session_1_or_2": 0.005
     }
   ],
   "assertions": {
@@ -196,29 +191,30 @@
       "answer": "YES in shape, with two qualifications that matter more than the label",
       "detail": {
         "defaults_for('hack2')": {
-          "expected_horizon_sessions": 3,
-          "min_normal_hold_sessions": 0,
+          "expected_horizon_sessions": 5,
+          "min_normal_hold_sessions": 2,
+          "stop_frac": 0.08,
+          "profit_target_frac": null,
           "hard_falsifiers": [
             "the day-0 move is revised away by a restatement or a corrected print",
             "the drift window (+1..+3 sessions) closes with no continuation"
           ],
-          "profit_target_frac": 0.025,
           "min_edge_over_stop": null,
           "profile": "aggressive"
         },
         "identical_to_event_defaults_field_for_field": {
-          "expected_horizon_sessions": true,
-          "min_normal_hold_sessions": true,
+          "expected_horizon_sessions": false,
+          "min_normal_hold_sessions": false,
           "hard_falsifiers": true,
-          "profit_target_frac": true,
+          "profit_target_frac": false,
           "min_edge_over_stop": true,
           "profile": true
         },
         "live_stamp_from_runner.contract_for": {
           "book": "hack2",
           "expected_horizon_sessions": 5,
-          "min_normal_hold_sessions": 0,
-          "thesis_expiry": "2026-09-11",
+          "min_normal_hold_sessions": 2,
+          "thesis_expiry": "2026-09-15",
           "hard_falsifiers": [
             "the day-0 move is revised away by a restatement or a corrected print",
             "the drift window (+1..+3 sessions) closes with no continuation"
@@ -232,8 +228,8 @@
             "THESIS_INVALIDATED",
             "EXPLICIT_EVENT_STRATEGY_EXIT"
           ],
-          "profit_target_frac": 0.025,
-          "stop_frac": null,
+          "profit_target_frac": null,
+          "stop_frac": 0.08,
           "profile": "aggressive",
           "min_edge_over_stop": null,
           "source": "declared"
@@ -241,12 +237,12 @@
         "qualification_1": "the HORIZON is not 3. `runner.contract_for` replaces it with ceil(forecast.horizon_days) for any role outside TRACKER_BOOKS, so hack2's sealed term is whatever post_event_drift declared on the day -- 5 in this probe. The '3' in defaults_for is only reached when the brain declares nothing.",
         "qualification_2": "min_normal_hold_sessions is ZERO. hack2 therefore has NO minimum hold, so the S39 repair -- 'before the minimum hold only a typed reason may close' -- imposes nothing at all on this book. Every exit on hack2 is a NORMAL exit and is legal on session 1. That is a DECLARED property of an event book (its horizon IS the thesis), not a defect -- but it means hack2 cannot be used as evidence that the hold rule works, and the 60%-same-session measurement that motivated the rule would still read 60% on this book.",
         "qualification_3": "hack2 is tier SAFE and manage_only=False, so the loop MAY originate on it (unlike hack1). Its allow_short is False, enforced since 2026-09-04.",
-        "stop_fraction": 0.03,
+        "stop_fraction": 0.08,
         "profile": "aggressive"
       }
     }
   ],
-  "checks_run": 17,
+  "checks_run": 19,
   "checks_failed": 0,
   "failed": []
 }

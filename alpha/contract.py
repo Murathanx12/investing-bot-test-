@@ -172,9 +172,154 @@ EVENT_FALSIFIERS = (
 )
 
 
+#: THE HORIZON REMAP (2026-09-07, Murat: "hold stocks for more than one day
+#: dont buy and sold"; roadmap F in `ROADMAP_2026-09-07_TWO_MODES_AMENDMENT.md`).
+#:
+#: THE MIN HOLD WAS NEVER THE BINDING CONSTRAINT. `exits.evaluate` has honoured
+#: `min_normal_hold_sessions` since 2026-09-05, and the accounts still emptied,
+#: because `HARD_RISK_LIMIT` is ALWAYS legal and fires above the hold. Measured
+#: on the 2026-09-07 seal's own names, over every entry point since 2024-01
+#: (receipt `docs/RECEIPT_2026-09-07_STOP_WIDTH_VS_HOLD.json`):
+#:
+#:     book    stop   stop / 1-day sd   P(stopped before the hold)   P(survives horizon)
+#:     hack6    3%          0.98                   56.3%                   30.2%
+#:     hack3    8%          2.35                   31.0%                   53.8%
+#:
+#: hack6's stop sat at ONE daily standard deviation of the names it had just
+#: bought. A 21-session thesis whose exit rule terminates 56% of positions
+#: before session 10 is not a 21-session thesis; it is a one-week strategy
+#: wearing a contract. `alpha/engine/equity.py` already says "a stop inside the
+#: noise is a fee, not a stop" in its own comment, and then kept 3% anyway.
+#:
+#: SO THE STOP IS WIDENED AND THE NOTIONAL IS CUT TO PAY FOR IT. A wider stop on
+#: unchanged gross is simply a bigger loss -- that is CLAUDE.md rule 4, and the
+#: 2026-08-28 version of this same "fix" moved the worst case from -9% to -24%.
+#: Each row below states `n x notional% x stop%` and the resulting worst case,
+#: and every one of them keeps gross under 100% of equity (no leverage):
+#:
+#: THESE ROWS ARE THE INTENTION. The BINDING numbers are whatever
+#: `worst_case(book, seal=...)` derives from the morning's sealed book, because
+#: `max_notional_each` and the holding count live there and not here. Both are
+#: printed below so the gap is visible rather than discovered later:
+#:
+#:   book   role              horizon/hold  stop   n   notional  gross  worst case
+#:   hack1  SPY control         126 / 21    35%    1     95%      95%    -33.25%*
+#:   hack2  event book            5 /  2     8%    8      6%      48%     -3.84%
+#:   hack3  3-month hold         63 / 21    12%   10      8.3%    83%     -9.96%  (from the seal)
+#:   hack4  6-month hold        126 / 42    15%    5      8%      40%     -6.00%
+#:   hack5  convexity            21 /  2    50%    6      3%      18%     -9.00%  (true bound -18%)
+#:   hack6  ensemble broad       42 / 21    10%   15      6%      90%     -9.00%  (from the seal)
+#:
+#:   * hack1 is the BENCHMARK ARM. Its "stop" is a -35% SPY drawdown, i.e. a
+#:     genuine emergency and not a trading rule: a control that stops out is no
+#:     longer a control. Its real risk is market risk, which is the point of it.
+#:
+#: WHAT THIS COSTS, SAID PLAINLY. hack6's worst case rises from -2.70% to -9.00%
+#: and hack3's from -6.64% to -9.96%. The first draft of this table cut the
+#: notionals to hold both near their old bounds (-6.00% / -6.60%), and that
+#: version was wrong twice over: the seal sizes these books, not this file, so
+#: the smaller numbers described an intention nothing would execute; and cutting
+#: the notional to 4% would have left a book that could hold but had stopped
+#: using the money it was given. Murat asked for both -- "lets use money and
+#: hold stocks for more than one day" -- and those two together necessarily buy
+#: a larger worst case. Roughly 9-10% of a book's equity, bounded, printed, and
+#: on paper accounts. That is the trade, made deliberately, not discovered in a
+#: drawdown.
+#:
+#: hack2 keeps the shortest horizon in the fleet because it is the EVENT book --
+#: but its minimum hold goes 0 -> 2. A zero minimum hold is what "buy and sold"
+#: means, and Murat has asked for it to stop everywhere, so the event book
+#: expresses its +1..+3 drift with a floor under it instead of without one.
+HORIZON_REMAP: dict[str, dict] = {
+    "hack1": {"expected_horizon_sessions": 126, "min_normal_hold_sessions": 21,
+              "stop_frac": 0.35, "profit_target_frac": None},
+    "hack2": {"expected_horizon_sessions": 5, "min_normal_hold_sessions": 2,
+              "stop_frac": 0.08, "profit_target_frac": None},
+    "hack3": {"expected_horizon_sessions": 63, "min_normal_hold_sessions": 21,
+              "stop_frac": 0.12, "profit_target_frac": None},
+    "hack4": {"expected_horizon_sessions": 126, "min_normal_hold_sessions": 42,
+              "stop_frac": 0.15, "profit_target_frac": None},
+    "hack6": {"expected_horizon_sessions": 42, "min_normal_hold_sessions": 21,
+              "stop_frac": 0.10, "profit_target_frac": None},
+    # THE OPTIONS BOOK IS IN THE REMAP TOO, and for the same reason: it was the
+    # last book in the fleet still carrying `min_normal_hold_sessions == 0`, and
+    # "no same-session round trips" was asked for across the fleet, not across
+    # the share books. Its stop is 50% OF PREMIUM, which is a different quantity
+    # from a share stop: a long call's true bound is the premium itself, so this
+    # book's worst case is stated BOTH ways in `worst_case()` below.
+    "hack5": {"expected_horizon_sessions": 21, "min_normal_hold_sessions": 2,
+              "stop_frac": 0.50, "profit_target_frac": None},
+}
+
+#: Gross and worst case per book, as declared above. Kept beside the remap so a
+#: future edit to one cannot silently disagree with the other -- the suite reads
+#: BOTH and recomputes `n x notional x stop`.
+BOOK_SIZING: dict[str, dict] = {
+    "hack1": {"n": 1, "notional_each": 0.95},
+    "hack2": {"n": 8, "notional_each": 0.06},
+    "hack3": {"n": 10, "notional_each": 0.055},
+    "hack4": {"n": 5, "notional_each": 0.08},
+    "hack6": {"n": 15, "notional_each": 0.04},
+    "hack5": {"n": 6, "notional_each": 0.03, "premium_at_risk": True},
+}
+
+
+def worst_case(book: str, *, seal: dict | None = None) -> dict | None:
+    """`n x notional% x stop%` and `gross / equity` for a book, or None.
+
+    CLAUDE.md rule 4 requires both numbers before any sizing/stop/cap change.
+    Computing them here rather than in prose is what stops the two from drifting
+    apart: on 2026-08-28 the prose said -9% while the configuration said -24%.
+
+    THE SEAL OUTRANKS `BOOK_SIZING` WHEN THERE IS ONE. `BOOK_SIZING` is what this
+    module INTENDS; `portfolios[book]["max_notional_each"]` and the length of
+    `holdings` are what the book will actually put on tomorrow morning. A
+    worst-case function that reports the intention while the venue receives the
+    other number is the exact defect this docstring's own example describes, so
+    when a seal is passed the derived numbers win and `sizing_source` says so.
+    A guard derives its inputs or it refuses -- it does not assume them.
+    """
+    sz, k = BOOK_SIZING.get(book), HORIZON_REMAP.get(book)
+    if not sz or not k:
+        return None
+    n, notional, src = sz["n"], sz["notional_each"], "declared"
+    port = ((seal or {}).get("portfolios") or {}).get(book) or {}
+    holdings = port.get("holdings") or []
+    if holdings and port.get("max_notional_each") is not None:
+        n, notional, src = len(holdings), float(port["max_notional_each"]), "seal"
+    sz = {**sz, "n": n, "notional_each": notional}
+    gross = n * notional
+    out = {"book": book, "n": sz["n"], "notional_each": sz["notional_each"],
+           "gross_over_equity": round(gross, 4), "stop_frac": k["stop_frac"],
+           "worst_case_frac": round(gross * k["stop_frac"], 4),
+           "min_normal_hold_sessions": k["min_normal_hold_sessions"],
+           "expected_horizon_sessions": k["expected_horizon_sessions"],
+           "sizing_source": src}
+    if sz.get("premium_at_risk"):
+        # A LONG OPTION'S STOP IS NOT ITS BOUND. `worst_case_frac` above is what
+        # the stop rule charges; the premium can go to zero between two closes
+        # and the stop never gets a chance to fire. Both numbers are reported so
+        # the smaller one can never be quoted as if it were the bound.
+        out["absolute_bound_frac"] = round(gross, 4)
+        out["bound_note"] = ("long premium: the stop charges "
+                             f"{gross * k['stop_frac']:.2%}, but the true bound is the whole "
+                             f"premium, {gross:.2%} of equity")
+    return out
+
+
 def defaults_for(book: str, *, profile: str | None = None) -> dict:
     """The contract shape a book gets when it does not declare one."""
     b = (book or "").strip().lower()
+    if b in HORIZON_REMAP:
+        # THE REMAP WINS OVER BOTH SHAPES BELOW. A book named here has a
+        # DECLARED horizon, hold and stop width; the tracker/event shapes are
+        # what a book gets when nothing was declared for it, and a declared
+        # term that a default could override is not a declaration.
+        d = dict(HORIZON_REMAP[b])
+        d["hard_falsifiers"] = TRACKER_FALSIFIERS if b in TRACKER_BOOKS else EVENT_FALSIFIERS
+        d["min_edge_over_stop"] = None
+        d["profile"] = profile
+        return d
     if b in TRACKER_BOOKS:
         return {
             "expected_horizon_sessions": 21,
@@ -222,13 +367,26 @@ def for_book(book: str, *, day: str, risk_budget_usd: float,
     that knows the equity, never guessed here."""
     d = defaults_for(book, profile=profile)
     d.update({k: v for k, v in overrides.items() if v is not None})
+
+    # THE DECLARED FLOOR OUTRANKS THE FORECAST (2026-09-07).
+    # `runner.contract_for` overrides `expected_horizon_sessions` with the
+    # forecast's own `horizon_days` for any book outside TRACKER_BOOKS. Once the
+    # event book carries a 2-session minimum hold, a forecast that says "one
+    # session" would produce hold 2 > horizon 1 -- which `validate` refuses
+    # outright, and which would otherwise mean a book could be handed a horizon
+    # shorter than the floor it just declared. The minimum hold is a POLICY the
+    # book published; the horizon is an ESTIMATE a brain produced this morning,
+    # so the policy is the one that survives the collision and the horizon is
+    # lifted to meet it rather than the floor being quietly cut to fit.
+    _hold = int(d["min_normal_hold_sessions"])
+    _horizon = max(int(d["expected_horizon_sessions"]), _hold)
+
     start = date.fromisoformat(day)
     return Contract(
         book=book,
-        expected_horizon_sessions=int(d["expected_horizon_sessions"]),
-        min_normal_hold_sessions=int(d["min_normal_hold_sessions"]),
-        thesis_expiry=str(d.get("thesis_expiry")
-                          or sessions_ahead(start, int(d["expected_horizon_sessions"]))),
+        expected_horizon_sessions=_horizon,
+        min_normal_hold_sessions=_hold,
+        thesis_expiry=str(d.get("thesis_expiry") or sessions_ahead(start, _horizon)),
         hard_falsifiers=tuple(d["hard_falsifiers"]),
         risk_budget_usd=round(float(risk_budget_usd), 2),
         emergency_exit_reasons=EMERGENCY_EXIT_REASONS,

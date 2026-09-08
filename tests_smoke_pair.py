@@ -29,8 +29,21 @@ def check(name, cond, detail=""):
         fails.append(name)
 
 
-_TODAY = datetime.now(timezone.utc).date()
-EXPIRY = (_TODAY + timedelta(days=1)).isoformat()
+# ONE CLOCK, AND THE CALENDAR (X3, 2026-09-07). These three lines used to mix
+# `datetime.now(timezone.utc).date()` for the expiry with `datetime.now().date()`
+# for the session clock -- a LOCAL date on a UTC+8 box. Between 20:00 and 08:00
+# local the two disagree by a day, the derived session lands ON the expiry,
+# `run_pass` correctly refuses the whole session as its own expiry day, and the
+# suite reads `considered=0` it cannot explain. That is what turned four suites
+# red at ET Sunday 13:34 on 2026-09-06 and green again the next afternoon with
+# nothing changed but the wall clock. `tests_fixtures` derives BOTH from
+# `alpha.exits.now_et()` and steps the expiry past every weekend AND holiday --
+# 2026-09-07 is a Monday and Labor Day, and a weekday is not a session.
+from tests_fixtures import expiry_after_session, open_clock, session_clock  # noqa: E402
+
+_SESSION = session_clock()
+_TODAY = _SESSION.date()
+EXPIRY = expiry_after_session()
 EVENT_DATE = (_TODAY - timedelta(days=1)).isoformat()
 
 # ------------------------------------------------------------------ builder
@@ -39,15 +52,7 @@ EVENT_DATE = (_TODAY - timedelta(days=1)).isoformat()
 # injectable these suites went red for fifteen minutes every day and green again
 # at 09:45 with nothing changed but the wall clock. Derive from `today` so the
 # fixture cannot rot -- the rule CLAUDE.md states after three literal expiries.
-def _mid_session_et():
-    from datetime import datetime, time as _time, timedelta
-    d = datetime.now().date()
-    while d.weekday() >= 5:
-        d -= timedelta(days=1)
-    return datetime.combine(d, _time(10, 30))
-
-
-NOW_ET = _mid_session_et()
+NOW_ET = _SESSION
 
 
 print("\n-- equity.pair_short_vs_hedge: dollar-neutral, charged on the spread")
@@ -113,7 +118,7 @@ class FakeClient:
             return list(self._p) + [{"asset_class": "us_equity", "symbol": "LOSER", "qty": "-40", "cost_basis": "-799"}]
         return list(self._p)
     def orders(self, status="open", limit=200): return []
-    def clock(self): return {"is_open": True}
+    def clock(self): return open_clock()
     def stock_quote(self, syms):
         return {"quotes": {s: {"bp": self._q[s][0], "ap": self._q[s][1], "bs": 5, "as": 5, "t": "now"} for s in syms if s in self._q}}
     def stock_bars(self, symbol, **kw): return {"bars": {symbol: []}}

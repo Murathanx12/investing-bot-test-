@@ -69,6 +69,36 @@ log = logging.getLogger("loop")
 #: slow pass, it is a stuck one, and the next cycle re-reads the venue anyway.
 #: (Audit defect 4 -- see docs/FINDING_2026-08-26_DEFECT_4_IS_SLIPPAGE_NOT_RUIN.md
 #: for why this is the proportionate fix and venue-side structure stops are not.)
+#: PRE-MARKET PASSES ARE OFF (Murat, 2026-09-07: "we dont run premarket runs
+#: anymore, the more project improves the more things we lose and gets missed").
+#:
+#: Two passes ran before the open and both are covered by this one switch:
+#:
+#:   `scripts.premarket_digest`  the whole-universe overnight LLM digest. It is
+#:       the loop's largest DeepSeek consumer (~6 calls per run, per role, per
+#:       day) and the balance is ~$9. Its output fed the council's ranking; the
+#:       council still runs on `scripts.candidates` without it.
+#:   `scripts.open_auction`      the entry-timing tournament's pre-open arm
+#:       (hack4 `open_auction`, hack6 `staggered`). Turning this off does NOT
+#:       stop those books trading -- the ordinary in-session entry pass still
+#:       fills them; it only stops them entering BEFORE the open, which is the
+#:       window nothing here can verify because the venue is shut.
+#:
+#: A CONSTANT AND A FLAG, NOT AN ENV VAR NOBODY READS. `AAT_MANAGE_ONLY=1` sat
+#: in the runbook for days meaning nothing, because no code looked at it
+#: (`alpha/fleet.py` Mandate.manage_only docstring). So this is a module
+#: constant the scheduler reads, `--premarket` flips it back on for one run, and
+#: the skip is LOGGED every time rather than being an absence.
+PREMARKET_PASSES_ENABLED = False
+
+
+def _premarket_on(args) -> bool:
+    """May the loop run a pass BEFORE the open? Constant first, flag to override.
+
+    Both callers ask this rather than reading the constant directly, so there is
+    exactly one place that decides and exactly one place a test has to pin."""
+    return bool(PREMARKET_PASSES_ENABLED or getattr(args, "premarket", False))
+
 TIMEOUTS_S = {"scripts.run_pass": 600, "scripts.dislocation_scan": 1500, "scripts.premarket_digest": 600, "scripts.manage": 300, "scripts.counterfactual": 600, "scripts.candidates": 900, "scripts.daily_autopsy": 900, "scripts.decision_writeback": 600,
               "scripts.fill_audit": 300,
               # The opening auction has a HARD venue deadline (09:28 ET). A pass
@@ -189,6 +219,9 @@ def main() -> int:
                    help="every 6h run scripts.dislocation_scan --deep 3 on the day's printers so "
                         "council_vector has packets on THIS host's volume (the council brain reads "
                         "state/council/<day>/; a scan on the laptop writes to the laptop)")
+    p.add_argument("--premarket", action="store_true",
+                   help="re-enable the pre-open passes (premarket digest + opening auction). "
+                        "OFF by default since 2026-09-07; see PREMARKET_PASSES_ENABLED.")
     p.add_argument("--manage-only", action="store_true",
                    help="LEGACY MODE: run exits, fills, counterfactual and autopsy, but NEVER "
                         "an entry pass. The book can only get smaller. Use for a book that is "
@@ -339,7 +372,12 @@ def _cycle(client, args, last: dict) -> int:
             # Whole-universe overnight digest FIRST (East -> West, ~130 names,
             # ~6 LLM calls), so the council's four slots go to the digest's
             # ranking rather than to whoever printed last. Shadow; places nothing.
-            _run("scripts.premarket_digest", live=False)
+            if _premarket_on(args):
+                _run("scripts.premarket_digest", live=False)
+            else:
+                log.info("PRE-MARKET DIGEST SKIPPED: pre-open passes are off "
+                         "(PREMARKET_PASSES_ENABLED=False; --premarket re-enables). "
+                         "The council still ranks from scripts.candidates.")
             _run("scripts.dislocation_scan", "--max", "4", "--deep", "2", live=False); last["council"] = now
         # -- THE OPENING AUCTION (2026-09-02, entry-timing tournament) --------
         # Fires only when AAT_ENTRY_STYLE is set, the market is closed, and the
@@ -351,7 +389,11 @@ def _cycle(client, args, last: dict) -> int:
         try:
             from alpha import entry_open, exits as _exits
 
-            _style = entry_open.entry_style()
+            _style = entry_open.entry_style() if _premarket_on(args) else None
+            if _style is None and entry_open.entry_style() is not None:
+                log.info("PRE-OPEN AUCTION SKIPPED: pre-open passes are off "
+                         "(PREMARKET_PASSES_ENABLED=False; --premarket re-enables). "
+                         "This book still enters on the ordinary in-session pass.")
             _ok, _why = entry_open.should_run(
                 style=_style, is_open=is_open, mins_to_open=mins_to_open,
                 day=_exits.session_day(),

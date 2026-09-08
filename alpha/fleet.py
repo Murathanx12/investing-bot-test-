@@ -106,13 +106,28 @@ FLEET: dict[str, Mandate] = {
         question="Does the one brain with a positive live counterfactual (+1-open post-print drift, +1.08%, t 2.82) pay at aggressive size?",
         brains=("post_event_drift",), shadow=("narrative_dispersion",), profile="aggressive", universe="window",
         rank_objective="median", extra_args=("--window-universe",),
-        manage_only=True,
-        caveat="MANAGE-ONLY since 2026-09-06 (Fable, Murat's decision): this book's contract "
+        # UN-MANAGE-ONLY 2026-09-07, BY THE CONDITION THIS CAVEAT ITSELF SET.
+        # The caveat below said hack2 "stays manage-only until its own contract
+        # is frozen". It is now frozen, in `contract.HORIZON_REMAP`: horizon 5,
+        # minimum hold 2, NO profit target, and an 8% stop instead of the
+        # aggressive profile's 3%. Every clause of the stated objection is
+        # answered -- the zero minimum hold, the +2.5% target and the 3% stop
+        # were the three things named -- so the flag is lifted rather than left
+        # standing out of habit. A gate whose condition has been met and which
+        # stays shut is not caution, it is an unread gate.
+        manage_only=False,
+        caveat="MANAGE-ONLY from 2026-09-06 to 2026-09-07, now LIFTED. The original objection (Fable, Murat's decision): this book's contract "
                "is the EVENT defaults field-for-field (horizon 3, min hold 0, +2.5% target on a "
                "3% stop) -- the same-day churn B2 was built to stop. It stays manage-only until "
-               "its own contract is frozen (docs/CONTRACT_DRAFT_2026-09-06_REVISION_BOOK.md or a "
+               "its own contract is frozen (aegis-finance/docs/"
+               "CONTRACT_DRAFT_2026-09-06_REVISION_BOOK.md -- the OTHER repo; that file has "
+               "never existed here and a reader who trusted this path got a 404 -- or a "
                "successor). The runbook's AAT_MANAGE_ONLY=1 line was inert: nothing reads that "
-               "variable; Mandate.manage_only is the only switch that exists."),
+               "variable; Mandate.manage_only is the only switch that exists. "
+               "RESOLVED 2026-09-07: contract.HORIZON_REMAP['hack2'] freezes horizon 5, "
+               "min hold 2, no profit target, 8% stop -- so the book can no longer round-trip "
+               "inside a session, which was the whole objection. Worst case, printed: "
+               "8 names x 6% x 8% = -3.84% of equity, gross 48%."),
     "hack3": Mandate(
         role="hack3", tier="RISKY", label="TRACKER BALANCED: sealed upside x consensus, k=10, shares only",
         question="Same sealed-tracker artery as hack4 at double the breadth (k=10 x 8.3%): does balanced breadth beat profit-max k=5 (hack4) and diversified k=15 (hack6) on REAL FILLS? T13 found a ridge (prose arms beat at k=5, collapsed at k=10) -- this is the live test of that ridge.",

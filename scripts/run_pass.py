@@ -275,8 +275,18 @@ def main() -> int:
     # from the environment; a `--role` that never reaches it writes rows under
     # the wrong name. `config.credentials` REFUSES if the two disagree, so this
     # only ever fills in a blank. (Audit defect 6.)
+    # `os` IS ALREADY IMPORTED AT MODULE LEVEL (line 18) AND MUST NOT BE
+    # RE-IMPORTED HERE. Python binds names per FUNCTION at compile time, so a
+    # single `import os` anywhere inside `main()` makes `os` a local for the
+    # whole body -- and this one sits behind `if args.role:`, so the local is
+    # only ASSIGNED when --role is passed. Every invocation WITHOUT --role
+    # therefore reached line ~431 and died with
+    #     UnboundLocalError: cannot access local variable 'os'
+    # which is exactly how `scripts.agent_loop` calls this module: it passes the
+    # role through the ENVIRONMENT, never as a flag. Introduced 2026-08-26 in
+    # f741211 while closing audit defect 6; found 2026-09-07 by running the
+    # entry pass by hand.
     if args.role:
-        import os
         os.environ["AAT_ACCOUNT_ROLE"] = args.role.strip().lower()
     client = AlpacaPaper(role=args.role)
 

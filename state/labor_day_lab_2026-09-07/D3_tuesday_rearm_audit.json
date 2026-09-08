@@ -1,7 +1,11 @@
 {
- "at": "2026-09-05T15:32:33.435143+00:00",
+ "at": "2026-09-08T04:51:06.987967+00:00",
+ "git_commit": "c413796e945ea31025a50a60a4de93f15bb6d820",
  "headline": {
-  "AAT_MANDATE_END_UTC_set_anywhere_today": [],
+  "changed_since_previous_receipt": [
+   "(none)"
+  ],
+  "previous_receipt_at": "2026-09-08T04:51:06.695766+00:00",
   "roles_armed_by_the_deploy": [
    "hack2",
    "hack3",
@@ -9,16 +13,22 @@
    "hack5",
    "hack6"
   ],
-  "roles_disarmed_today": [
-   "hack1",
-   "hack2",
-   "hack3",
-   "hack4",
-   "hack5",
-   "hack6"
+  "roles_disarmed_by_the_deploy": [
+   "hack1"
   ]
  },
- "method": "READ-ONLY. `railway variables --service <svc> --json` per service, filtered to an allowlist of non-secret names; every other name is recorded by NAME only and no value is read into anything printed. The 'after deploy' column is computed from alpha.fleet.env_for(), not from a deploy.",
+ "manage_only_env": {
+  "env_var": "AAT_MANAGE_ONLY",
+  "mentions_only": [
+   "alpha/fleet.py:125",
+   "scripts/agent_loop.py:87",
+   "tests_smoke_premarket_off.py:8"
+  ],
+  "readers": [],
+  "the_only_switch": "alpha.fleet.Mandate.manage_only -> loop_args() -> '--manage-only' in AAT_LOOP_ARGS -> scripts.agent_loop's args.manage_only, which gates the ENTRY branch only",
+  "verdict": "INERT -- nothing reads it; setting it disarms nothing"
+ },
+ "method": "OFFLINE AND READ-ONLY. The ARMED/DISARMED column is DERIVED from alpha.fleet.env_for() -- the same function `scripts.fleet --deploy` uses -- so it cannot drift from the deploy. No network call, no `railway` invocation, no venue. The live column is carried forward from the previous receipt and labelled LIVE_NOT_RE_READ.",
  "non_fleet_services": {
   "aat-loop-staging": {
    "in_fleet_deploy_path": false,
@@ -47,194 +57,123 @@
    }
   }
  },
+ "producer": "scripts/labor_d3_rearm_audit.py (re-runnable; the 2026-09-05 receipt was made by hand and went stale within a day)",
  "railway_project": "loving-elegance",
  "receipt": "LABOR-D3-TUESDAY-REARM-AUDIT",
  "roles": [
   {
    "ENTRY_STATE_AFTER_DEPLOY": "DISARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": true,
+   "deploy_sets_entry_style": null,
+   "deploy_sets_loop_args": "--profile conservative --manage-only --universe SPY QQQ IWM NVDA AVGO PANW",
+   "deploy_sets_loop_expiry": "2026-10-16",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": true,
    "role": "hack1",
-   "service": "aat-loop-hack1",
-   "variables_added_by_deploy": {
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile conservative --universe SPY QQQ IWM NVDA AVGO PANW",
-     "to": "--profile conservative --manage-only --universe SPY QQQ IWM NVDA AVGO PANW"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2026-10-16"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT"
-   ]
+   "service": "aat-loop-hack1"
   },
   {
    "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": false,
+   "deploy_sets_entry_style": null,
+   "deploy_sets_loop_args": "--profile aggressive --window-universe",
+   "deploy_sets_loop_expiry": "2026-10-16",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": false,
    "role": "hack2",
-   "service": "aat-loop-hack2",
-   "variables_added_by_deploy": {
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile aggressive --window-universe",
-     "to": "--profile aggressive --window-universe"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2026-10-16"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT"
-   ]
+   "service": "aat-loop-hack2"
   },
   {
    "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": false,
+   "deploy_sets_entry_style": null,
+   "deploy_sets_loop_args": "--profile basket --universe AG AMPX ARRY BE BWXT CDE DKNG DNN ENPH EOSE FCEL FLNC FSLR HL HUBS IONQ KTOS LEU MP NTLA NXE NXT OKLO ONDS OUST PLUG POWL QBTS QS QUBT RCAT RGTI RUN SHLS SMR SYM TER UEC USAR UUUU",
+   "deploy_sets_loop_expiry": "2027-12-31",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": false,
    "role": "hack3",
-   "service": "aat-loop-hack3",
-   "variables_added_by_deploy": {
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile basket --universe ABAT AG ALMU AMPX ARRY AVAV BE BWXT CDE DKNG DNN ENPH EOSE FCEL FLNC FPS FSLR HL HUBS IONQ KTOS LAES LEU LOVE LPTH MP MU NB NTLA NXE NXT OKLO ONDS OUST PLUG POWL QBTS QS QUBT RCAT RFIL RGTI RUN RZLT SHLS SMR SYM TER UEC USAR UUUU",
-     "to": "--profile basket --universe AG AMPX ARRY BE BWXT CDE DKNG DNN ENPH EOSE FCEL FLNC FSLR HL HUBS IONQ KTOS LEU MP NTLA NXE NXT OKLO ONDS OUST PLUG POWL QBTS QS QUBT RCAT RGTI RUN SHLS SMR SYM TER UEC USAR UUUU"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2027-12-31"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT",
-    "AAT_PREDICTION_BOOK_BASE_URL",
-    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
-   ]
+   "service": "aat-loop-hack3"
   },
   {
    "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": false,
+   "deploy_sets_entry_style": "open_auction",
+   "deploy_sets_loop_args": "--profile maximum --window-universe",
+   "deploy_sets_loop_expiry": "2027-12-31",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": false,
    "role": "hack4",
-   "service": "aat-loop-hack4",
-   "variables_added_by_deploy": {
-    "AAT_ENTRY_STYLE": "open_auction",
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile maximum --window-universe",
-     "to": "--profile maximum --window-universe"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2027-12-31"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT",
-    "AAT_PREDICTION_BOOK_BASE_URL",
-    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
-   ]
+   "service": "aat-loop-hack4"
   },
   {
    "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": false,
+   "deploy_sets_entry_style": null,
+   "deploy_sets_loop_args": "--profile convex --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
+   "deploy_sets_loop_expiry": "2026-10-16",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": false,
    "role": "hack5",
-   "service": "aat-loop-hack5",
-   "variables_added_by_deploy": {
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile convex --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
-     "to": "--profile convex --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2026-10-16"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT"
-   ]
+   "service": "aat-loop-hack5"
   },
   {
    "ENTRY_STATE_AFTER_DEPLOY": "ARMED",
-   "ENTRY_STATE_TODAY": "DISARMED",
+   "LIVE_NOT_RE_READ": {
+    "ENTRY_STATE_TODAY": "DISARMED",
+    "live_has_manage_only_flag": true,
+    "live_mandate_end_utc": "CANNOT_DETERMINE",
+    "note": "copied from the previous receipt; a local process cannot see a Railway variable and this script deliberately does not shell out to `railway`. Re-read with `railway variables --service aat-loop-<role>` when it matters.",
+    "read_at": "2026-09-05T15:32:33.435143+00:00"
+   },
    "declared_allow_short": false,
    "declared_manage_only": false,
+   "deploy_sets_entry_style": "staggered",
+   "deploy_sets_loop_args": "--profile aggressive --window-universe --council --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
+   "deploy_sets_loop_expiry": "2027-12-31",
    "deploy_sets_mandate_end_utc": "2027-12-31T15:00:00Z",
-   "live_has_manage_only_flag": true,
-   "live_mandate_end_utc": null,
    "post_deploy_has_manage_only_flag": false,
    "role": "hack6",
-   "service": "aat-loop-hack6",
-   "variables_added_by_deploy": {
-    "AAT_ENTRY_STYLE": "staggered",
-    "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z"
-   },
-   "variables_changed_by_deploy": {
-    "AAT_LOOP_ARGS": {
-     "from": "--manage-only --profile aggressive --window-universe --council --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
-     "to": "--profile aggressive --window-universe --council --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA"
-    },
-    "AAT_LOOP_EXPIRY": {
-     "from": "2026-09-04",
-     "to": "2027-12-31"
-    }
-   },
-   "variables_deploy_does_NOT_manage": [
-    "AAT_BUILD_COMMIT",
-    "AAT_PREDICTION_BOOK_BASE_URL",
-    "AAT_PREDICTION_BOOK_SYNC_SECONDS"
-   ]
+   "service": "aat-loop-hack6"
   }
- ],
- "services_seen": [
-  "aat-loop-hack1",
-  "aat-loop-hack2",
-  "aat-loop-hack3",
-  "aat-loop-hack4",
-  "aat-loop-hack5",
-  "aat-loop-hack6",
-  "aat-loop-staging",
-  "seal-authority"
  ]
 }

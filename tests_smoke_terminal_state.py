@@ -57,8 +57,16 @@ print("-- the enum is closed, and every class lands inside it")
 REQUIRED = {"ADMITTED", "ALREADY_HELD", "RANKED_OUT", "NEGATIVE_EV", "CONFIDENCE",
             "LIQUIDITY", "CAPACITY", "GROSS", "CONCENTRATION", "OPENING_RANGE",
             "MANDATE", "STRUCTURE", "DATA_STALE", "DATA_MISSING", "RISK",
-            "DUPLICATE", "OTHER_TYPED"}
-check("the declared enum is exactly the seventeen states", set(rc.TERMINAL_STATES) == REQUIRED,
+            "DUPLICATE",
+            # X4, 2026-09-07. The eighteenth, and the only one the VENUE owns:
+            # until it existed an order rejected with HTTP 503/502/422 sat in
+            # OTHER_TYPED beside prose from gates nobody had typed, so the daily
+            # census could not separate "the venue refused us" (retry, re-route,
+            # check the account) from "a rule of ours refused us" (change the
+            # rule or the alpha) -- opposite work, one bucket.
+            "VENUE_REJECTED",
+            "OTHER_TYPED"}
+check("the declared enum is exactly the eighteen states", set(rc.TERMINAL_STATES) == REQUIRED,
       str(REQUIRED.symmetric_difference(rc.TERMINAL_STATES)))
 check("the enum has no duplicates", len(rc.TERMINAL_STATES) == len(set(rc.TERMINAL_STATES)))
 check("every post-hoc class maps to a declared state",
@@ -89,6 +97,12 @@ _SENTENCES = {
     "8 structures enumerated at 2026-08-28, none cleared the gates. aggregate convex risk is already 61%": "STRUCTURE",
     "CROSS-BOOK: NVDA is held by a peer book this session": "DUPLICATE",
     "CANNOT DETERMINE the day's drawdown": "DATA_MISSING",
+    # X1/X3/X4, 2026-09-07. Three session-level sentences and the venue's own.
+    "CLOCK SKEW: the local clock is +1200s from the venue's (tolerance 300s)": "DATA_STALE",
+    "SESSION CLOSED: the venue is shut and its next open is 2026-09-08, not today": "MANDATE",
+    'POST /v2/orders -> HTTP 503: {"message":"service unavailable"}': "VENUE_REJECTED",
+    "DELETE /v2/positions/NVDA -> HTTP 502: bad gateway": "VENUE_REJECTED",
+    "GET /v2/clock -> transport failure: getaddrinfo failed": "VENUE_REJECTED",
     # live-only sentences: never in the counterfactual ledger, so never in PATTERNS
     "MU has 1 order(s) IN FLIGHT at the venue and unfilled": "DUPLICATE",
     "ABAT: a protective stop closed this name earlier today; no same-session re-entry": "DUPLICATE",

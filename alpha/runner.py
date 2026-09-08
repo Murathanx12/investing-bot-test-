@@ -210,6 +210,8 @@ REFUSAL_CLASSES = (
     "capital",            # approved size does not buy one unit
     "insufficient_data",  # the inputs to decide were not there
     "cash",               # a structure cleared and CASH still beat it on EV
+    "clock_skew",         # the local clock disagrees with the VENUE's beyond tolerance (X1)
+    "session_closed",     # no session to enter into: holiday, weekend, after the close (X3)
 )
 
 
@@ -324,6 +326,151 @@ def in_opening_range(now_et=None) -> bool:
         return False
     t = t_et.time()
     return (t.hour == 9 and 30 <= t.minute < 45)
+
+
+# ===========================================================================
+# X1 -- THE CLOCK IS AN INPUT, AND IT IS CHECKED
+# ===========================================================================
+# This machine runs UTC+8 and the scheduler runs US/Eastern; the machine has
+# been measured ~15 minutes FAST (S33b). `client.clock()` is the venue's own
+# clock and is the only authority in the building. Every other ET gate --
+# `in_opening_range`, `exits.deadline_liquidation_due`, `exits.session_day` --
+# is the LOCAL wall clock plus a fixed -4h, and until 2026-09-07 nothing ever
+# compared the two. C1-8 measured what that buys:
+#
+#   +20 min fast  -> the opening-range guard is silently OFF at a true 09:32 ET
+#                    (the fifteen minutes that produced every 28-Aug stop-out)
+#   +20 min fast  -> the whole book is liquidated 20 minutes EARLY
+#   -20 min slow  -> a legitimate 09:50 ET entry is refused
+#
+# None of those printed anything. So: ONE probe per pass, and a skew past
+# CLOCK_SKEW_LIMIT_S REFUSES ENTRIES with a typed class.
+#
+# EXITS ARE DELIBERATELY UNAFFECTED, and that asymmetry is the load-bearing
+# half of the design. A skewed clock must never be able to trap us in a
+# position: `alpha.exits` does not import this, `manage` never consults it, and
+# the protective stop at the venue is the venue's regardless of what any local
+# clock believes. Refusing to OPEN risk on an unverifiable clock costs one
+# pass; refusing to CLOSE it costs the position.
+CLOCK_SKEW_LIMIT_S = 300.0
+
+
+def _skew_strict() -> bool:
+    """Whether an UNREADABLE venue clock also refuses (default: no).
+
+    `/v2/clock` is unreachable exactly when the venue is unreachable, and a pass
+    that cannot reach the venue already fails at the order -- turning a
+    transport blip into a fleet-wide entry freeze buys nothing and hides the
+    real fault. Either way the state is LOGGED and carried on the result, so
+    "we could not check" never reads as "we checked and it was fine"."""
+    return os.getenv("AAT_CLOCK_SKEW_STRICT", "").strip().lower() in ("1", "true", "yes")
+
+
+@dataclass(frozen=True)
+class ClockSkew:
+    """Local UTC minus venue UTC, in seconds, or an honest CANNOT DETERMINE."""
+    seconds: float | None
+    venue_utc: str | None
+    local_utc: str
+    note: str
+
+    @property
+    def verified(self) -> bool:
+        return self.seconds is not None
+
+    @property
+    def refuses(self) -> bool:
+        if self.seconds is None:
+            return _skew_strict()
+        return abs(self.seconds) > CLOCK_SKEW_LIMIT_S
+
+    @property
+    def reason(self) -> str:
+        """The sentence written onto every refused row. `refusal_classes`
+        matches its PREFIX, so the prefix is not decoration."""
+        if self.seconds is None:
+            return ("CLOCK SKEW: the venue clock could not be read (" + self.note + "), so no "
+                    "ET gate in this pass can be verified. AAT_CLOCK_SKEW_STRICT is set, so "
+                    "entries are refused. Exits are unaffected.")
+        return (f"CLOCK SKEW: the local clock is {self.seconds:+.0f}s from the venue's "
+                f"(local {self.local_utc}, venue {self.venue_utc}), past the "
+                f"{CLOCK_SKEW_LIMIT_S:.0f}s tolerance. Every ET gate in this pass -- the "
+                f"opening range, the liquidation curfew, the session day -- is derived from "
+                f"the local clock, so none of them can be trusted. Entries refused; exits "
+                f"are unaffected by design.")
+
+
+def venue_clock_skew(client, *, now: datetime | None = None) -> ClockSkew:
+    """Compare the LOCAL clock with the VENUE's, once. Never raises.
+
+    `client` may be anything; a client with no `clock()` -- every offline
+    fixture in this repo -- returns CANNOT DETERMINE rather than an exception,
+    which is why adding this guard did not turn eighty suites red."""
+    local = now or datetime.now(timezone.utc)
+    if local.tzinfo is None:
+        local = local.replace(tzinfo=timezone.utc)
+    fn = getattr(client, "clock", None)
+    if not callable(fn):
+        return ClockSkew(None, None, local.isoformat(),
+                         "this client has no clock() endpoint")
+    try:
+        payload = fn() or {}
+        raw = str(payload.get("timestamp") or "")
+        venue = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if venue.tzinfo is None:
+            venue = venue.replace(tzinfo=timezone.utc)
+    except Exception as exc:                                            # noqa: BLE001
+        return ClockSkew(None, None, local.isoformat(),
+                         (type(exc).__name__ + ": " + str(exc))[:160])
+    return ClockSkew((local - venue).total_seconds(), venue.isoformat(),
+                     local.isoformat(), "read from GET /v2/clock")
+
+
+# ===========================================================================
+# X3 -- THERE IS NO SESSION TO ENTER INTO
+# ===========================================================================
+# A pass on a day the venue never opens (a weekend, an exchange holiday --
+# Labor Day 2026-09-07 is one) used to walk the whole gate stack and arrive at
+# `considered=0 submitted=0 refused=0`. A SILENT ZERO reads in every census as
+# "the alpha layer produced nothing", which is the opposite diagnosis from "we
+# were never allowed to trade". This says which one it was.
+#
+# `is_open == False` ALONE is not the test and must not be: the pre-open
+# auction pass (`scripts.open_auction`, entry_style="open_auction") runs
+# deliberately while the venue is shut, and refusing on `is_open` would delete
+# a live entry route. The test is "no session will happen today at all" -- the
+# venue's own `next_open` falls on a LATER ET date than now -- which is true on
+# a holiday, at a weekend and after the close, and false pre-open.
+def venue_session_closed(client, *, now: datetime | None = None) -> tuple[bool, str]:
+    """(closed_for_entries, why). An unreadable clock is (False, why): CANNOT
+    DETERMINE never invents a refusal, it says so and lets the pass proceed."""
+    from alpha import exits as _exits
+    fn = getattr(client, "clock", None)
+    if not callable(fn):
+        return False, "no clock() endpoint on this client; the venue session is UNVERIFIED"
+    try:
+        payload = fn() or {}
+        if bool(payload.get("is_open")):
+            return False, "the venue is open"
+        raw = str(payload.get("next_open") or "")
+        nxt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if nxt.tzinfo is None:
+            nxt = nxt.replace(tzinfo=timezone.utc)
+    except Exception as exc:                                            # noqa: BLE001
+        return False, ("the venue session is UNVERIFIED (" + type(exc).__name__ +
+                       ": " + str(exc) + ")")[:200]
+    local = now or datetime.now(timezone.utc)
+    if local.tzinfo is None:
+        local = local.replace(tzinfo=timezone.utc)
+    today_et = (local + _exits.ET_OFFSET).date()
+    next_et = (nxt + _exits.ET_OFFSET).date()
+    if next_et <= today_et:
+        return False, f"the venue is shut but opens again today ({next_et.isoformat()})"
+    return True, (f"SESSION CLOSED: the venue is shut and its next open is "
+                  f"{next_et.isoformat()}, not today ({today_et.isoformat()}). There is no "
+                  f"session to enter into -- a weekend, an exchange holiday, or after the "
+                  f"close. Entries are refused with a reason rather than counted as zero "
+                  f"candidates. Exits are unaffected.")
 
 
 def _driver_args(gross: dict | None, symbol: str, risk_profile: str | None) -> dict:
@@ -1015,23 +1162,91 @@ def run_pass(client: AlpacaPaper, forecasts: list[Forecast], *, expiry: str,
     is the byte-identical path every existing caller takes.
     """
     result = PassResult()
+
+    def _refuse_whole_pass(why: str, reason: str) -> PassResult:
+        """Every forecast in this pass, counted and typed, then return.
+
+        The alternative -- which is what the expiry-day branch did until
+        2026-09-07 -- is `considered=0 refused=0`, and a zero with no reason
+        beside it is read by every census as "the alpha layer produced
+        nothing". That is the opposite diagnosis from "we were not allowed to
+        trade", and they call for opposite work."""
+        for _f in forecasts:
+            result.considered += 1
+            result.refuse(why)
+            _record(ledger.new_decision_id(_f.symbol, _f.brain), _f, None, None, None,
+                    None, action="refused", reason=reason)
+        logger.error("%s (%d forecast(s) recorded)", reason, len(forecasts))
+        return result
+
     # EXPIRY DAY IS EXIT-ONLY (red-team R1, 2026-09-02). The 10:45 ET deadline
     # liquidation flattens the book, and nothing on the entry side knew the
     # deadline existed -- so the 11:00 pass re-bought the book it had just
     # sold, ~9 round trips of 50-90%% gross on the one judged session. An
     # entry on the expiry session is churn into the judged window by
     # construction, before liquidation as well as after.
+    _expiry_today = None
     try:
         from alpha import exits as _exits  # local, like in_opening_range: runner stays broker-light
         _today_et = now_et or _exits.now_et()
         if str(expiry)[:10] == _today_et.date().isoformat():
-            logger.warning("EXPIRY DAY: entries refused for the whole session "
-                           "(the 10:45 ET liquidation owns today; %d forecast(s) recorded)",
-                           len(forecasts))
-            record_forecasts(forecasts, note=f"expiry-day exit-only expiry={expiry}")
-            return result
+            _expiry_today = _today_et.date().isoformat()
     except (TypeError, ValueError, AttributeError):
         pass  # an unreadable clock must not stop an ordinary session's pass
+    # OUTSIDE the try, deliberately: `_refuse_whole_pass` writes ledger rows and
+    # `PassResult.refuse` raises ValueError on an unregistered class. Inside the
+    # handler above, either would have been swallowed and the pass would have
+    # carried on entering on its own expiry day -- the exact failure R1 closed.
+    if _expiry_today is not None:
+        record_forecasts(forecasts, note=f"expiry-day exit-only expiry={expiry}")
+        # X3: this branch used to `return result` with considered=0 and refused=0
+        # -- a silent zero indistinguishable from "no brain produced anything".
+        # SESSION CLOSED is the same authority limit the venue-closed gate above
+        # reports, so it carries the same prefix and the same class.
+        return _refuse_whole_pass(
+            "session_closed",
+            f"SESSION CLOSED: {_expiry_today} is this pass's own expiry ({expiry}); the "
+            f"10:45 ET liquidation owns the session and an entry today is churn into the "
+            f"judged window by construction. Exits are unaffected.")
+
+    # ---------------------------------------------------------------- X1 / X3
+    # ORDER IS LOAD-BEARING, AND IT IS THE OPPOSITE OF WHAT IT LOOKS LIKE.
+    #
+    # The first cut probed the venue clock BEFORE the expiry gate above, on the
+    # reasoning that the expiry gate is itself derived from the local clock. It
+    # broke `tests_smoke_expiry_day`, whose stub raises on ANY attribute access,
+    # and the suite was RIGHT: R1's guard is decided from local knowledge alone
+    # (an expiry string against an ET date) and an expiry-day pass must not need
+    # a venue at all.
+    #
+    # Nothing is lost by probing second. A skew large enough to move the ET DATE
+    # is hours, not the ~15 minutes this box drifts; and both directions are
+    # safe. If skew makes today look like the expiry day we refuse -- safe. If
+    # it HIDES the expiry day we fall through to exactly this probe, which
+    # refuses the whole pass on a skew that large. There is no ordering in which
+    # a skewed clock buys an entry.
+    #
+    # The probe deliberately does NOT skip on dry_run. `scripts.monday_dry_run`
+    # exists to show what the live pass would do; a guard that switches itself
+    # off in the rehearsal makes the rehearsal lie, which is the silent-no-op
+    # failure this repo keeps paying for.
+    _skew = venue_clock_skew(client)
+    if _skew.verified:
+        logger.info("venue clock skew %+.1fs (tolerance %.0fs)", _skew.seconds, CLOCK_SKEW_LIMIT_S)
+    else:
+        logger.warning("venue clock UNVERIFIED (%s); every ET gate this pass is the local "
+                       "clock alone. strict=%s", _skew.note, _skew_strict())
+    if _skew.refuses:
+        record_forecasts(forecasts, note="clock skew")
+        return _refuse_whole_pass("clock_skew", _skew.reason)
+
+    # Is there a session at all? Never on `is_open` alone -- the pre-open
+    # auction pass runs deliberately while the venue is shut.
+    if entry_style is None:
+        _closed, _why = venue_session_closed(client)
+        if _closed:
+            record_forecasts(forecasts, note="venue closed")
+            return _refuse_whole_pass("session_closed", _why)
     state = tournament_state(client, field_leader_estimate=field_leader_estimate)
     book = book_mod.read(client)
     risk = book.fraction
@@ -1866,7 +2081,7 @@ def contract_for(forecast: Forecast, structure, contracts: int) -> dict:
 
 
 def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
-            state: sizing.TournamentState, *, action: str, reason: str,
+            state: sizing.TournamentState | None, *, action: str, reason: str,
             order: dict | None = None, contracts: int = 0,
             alpaca_order_id: str | None = None) -> None:
     ledger.record(ledger.Decision(
@@ -1907,7 +2122,12 @@ def _record(decision_id: str, forecast: Forecast, structure, verdict, snapshot,
         max_loss_per_unit=structure.max_loss if structure else None,
         legs=tuple(structure.legs) if structure else (),
         account_role=os.getenv("AAT_ACCOUNT_ROLE", "").strip().lower() or None,
-        tournament_state={
+        # `state` is None ONLY for a refusal of the WHOLE PASS decided before the
+        # venue was read at all (clock skew, no session today, expiry day). An
+        # empty dict there is honest -- we never asked the venue where we stood --
+        # and it is what lets those refusals be typed rows instead of a silent
+        # `considered=0`. Every per-candidate row still carries a real state.
+        tournament_state={} if state is None else {
             "equity": state.equity, "return": state.total_return,
             "phase": state.phase.value,
             "window_remaining": state.fraction_of_window_remaining,

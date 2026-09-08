@@ -225,9 +225,15 @@ check("the equity it computes against is FROZEN and stated, not a live balance",
 check("the stop width comes from the FLEET's profile, not the Personality",
       dr.profile_for("hack3") == "basket" and dr.profile_for("hack6") == "aggressive")
 _c = dr.contract_for("hack3", "2026-09-08", 0.083, 0.08)
-check("the contract it prints is the TRACKER contract: 21 sessions, min hold 10",
-      _c["expected_horizon_sessions"] == 21 and _c["min_normal_hold_sessions"] == 10, str(_c))
-check("and it carries no profit target -- a +2.5% target on a 21-session thesis is noise",
+# REMAPPED 2026-09-07 (contract.HORIZON_REMAP): hack3 is the THREE-MONTH hold
+# book, 63 sessions with a 21-session floor. The dry run must print the book's
+# DECLARED contract, not the generic tracker shape it used to inherit -- the
+# point of the dry run is to show the terms the book will actually trade under.
+check("the contract it prints is hack3's DECLARED contract: 63 sessions, min hold 21",
+      _c["expected_horizon_sessions"] == 63 and _c["min_normal_hold_sessions"] == 21, str(_c))
+check("and the declared 12% stop width, not the basket profile's 8%",
+      abs(float(_c["stop_frac"]) - 0.12) < 1e-9, str(_c["stop_frac"]))
+check("and it carries no profit target -- a +2.5% target on a 63-session thesis is noise",
       _c["profit_target_frac"] is None)
 
 _src = Path("scripts/monday_dry_run.py").read_text(encoding="utf-8")

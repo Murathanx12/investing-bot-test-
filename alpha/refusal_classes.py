@@ -38,6 +38,21 @@ PATTERNS: tuple[tuple[str, str], ...] = (
     # as entry refusals -- rewriting finished tables to gain a label.
     # SECOND, never first: NO_STRUCTURE_CLEARED owns position 0 (473 rows).
     ("PAST_LIQUIDATION_DEADLINE", r"PAST_LIQUIDATION_DEADLINE"),
+    # -- THE CLOCK ITSELF IS NOT TRUSTWORTHY (X1, 2026-09-07) ------------------
+    # This machine runs UTC+8 and has been measured ~15 minutes fast (S33b),
+    # while every ET gate but `is_open` is derived from the LOCAL wall clock. A
+    # +20min skew silently DISARMS the opening-range guard and liquidates the
+    # book twenty minutes early; a -20min skew refuses a legitimate 09:50 entry.
+    # Neither prints anything today. Session-level, like the two above: no
+    # candidate was judged when this fired.
+    ("CLOCK_SKEW", r"^CLOCK SKEW:"),
+    # -- THERE IS NO SESSION TO ENTER INTO (X3, 2026-09-07) ---------------------
+    # A weekend, an exchange holiday (Labor Day 2026-09-07), after the close, or
+    # the pass's own expiry day. Before this class the expiry-day branch returned
+    # `considered=0 refused=0` -- a SILENT ZERO, which reads in every census as
+    # "the alpha layer produced nothing" rather than "we were not allowed to
+    # trade". Those two call for opposite work.
+    ("SESSION_CLOSED", r"^SESSION CLOSED:"),
     # -- the 2026-08-29 Monday-safety gates -----------------------------------
     ("GROSS_NOTIONAL", r"^GROSS:|ADMISSION: GROSS:"),
     ("DRIVER_CONCENTRATION", r"^DRIVER:|ADMISSION: DRIVER:"),
@@ -74,6 +89,21 @@ PATTERNS: tuple[tuple[str, str], ...] = (
     ("BOOK_UNBOUNDED", r"BOOK UNBOUNDED"),
     ("EVENT_NODE_CAP", r"event node .* already carries"),
     ("CHAIN_UNUSABLE", r"chain pro|no quotable chain|quote unusable"),
+    # -- THE VENUE REFUSED US, NOT THE OTHER WAY ROUND (X4, 2026-09-07) --------
+    # LAST on purpose: this must only claim sentences no in-house gate wrote, so
+    # adding it can never re-label a rule of ours as a venue rejection. The shape
+    # is `AlpacaPaper._request`'s own two refusal formats and nothing else --
+    # "<METHOD> <path> -> HTTP <code>: <body>" and "... -> transport failure: ...".
+    #
+    # Until 2026-09-07 these 7 sentences landed in UNCLASSIFIED / OTHER_TYPED
+    # together with prose from gates nobody had typed, so the daily census could
+    # not separate "the venue refused us" (retry, re-route, check the account)
+    # from "a rule of ours refused us" (change the rule or the alpha) -- opposite
+    # work, one bucket. C1-14 reported the gap on 2026-09-07 and declined to fix
+    # it in a lab commit because it changes the grouping every finished report
+    # uses; the roadmap's X4 row is that attended decision.
+    ("VENUE_REJECTED",
+     r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/v\d\S*\s*->\s*(?:HTTP\s+\d{3}|transport failure)"),
 )
 
 _COMPILED = tuple((name, re.compile(pat, re.IGNORECASE)) for name, pat in PATTERNS)
@@ -90,8 +120,15 @@ BOOK_STATE_CLASSES = frozenset({
     "DAILY_LOSS_LATCH", "AGGREGATE_RISK", "CAPITAL_ROUNDS_TO_ZERO", "ALREADY_HELD",
     "BOOK_UNBOUNDED", "EVENT_NODE_CAP", "DRAWDOWN_UNKNOWN",
     # The session, not the candidate: no idea was evaluated when this fired.
-    "PAST_LIQUIDATION_DEADLINE",
+    "PAST_LIQUIDATION_DEADLINE", "CLOCK_SKEW", "SESSION_CLOSED",
 })
+
+#: The VENUE refused, and no rule of ours was consulted. Its own kind because a
+#: counterfactual on it asks "would the order have paid if it had reached the
+#: book", which is neither "should the book have had room" nor "was the idea
+#: good" -- and because a venue rejection is FIXED by retrying, re-routing or
+#: repairing the account, never by loosening a gate.
+VENUE_CLASSES = frozenset({"VENUE_REJECTED"})
 
 #: The ranker preferring a SIBLING structure on the same forecast, or preferring
 #: cash. Neither a book-state limit nor a judgement on the idea: the idea was
@@ -139,14 +176,16 @@ def sub_classify(reason: str | None) -> str | None:
 
 
 def kind_of(cls: str) -> str:
-    """'book state', 'merit', or 'unknown' -- which question a counterfactual on
-    this class is actually asking."""
+    """'book state', 'merit', 'tournament', 'venue', or 'unknown' -- which
+    question a counterfactual on this class is actually asking."""
     if cls in BOOK_STATE_CLASSES:
         return "book state"
     if cls in MERIT_CLASSES:
         return "merit"
     if cls in TOURNAMENT_CLASSES:
         return "tournament"
+    if cls in VENUE_CLASSES:
+        return "venue"
     return "unknown"
 
 
@@ -196,6 +235,7 @@ TERMINAL_STATES: tuple[str, ...] = (
     "DATA_MISSING",     # the input to decide was not there at all
     "RISK",             # the risk envelope: latch, theta, delta stress, unbounded book
     "DUPLICATE",        # a peer book, a resting order, or a stop already spoke today
+    "VENUE_REJECTED",   # the VENUE refused the order; no rule of ours was consulted
     "OTHER_TYPED",      # UNMAPPED, and counted -- never a silent catch-all
 )
 
@@ -213,6 +253,14 @@ CLASS_TO_TERMINAL: dict[str, str] = {
     # The pass had no authority to open risk at all -- a MANDATE limit on the
     # session, not a judgement about any candidate.
     "PAST_LIQUIDATION_DEADLINE": "MANDATE",
+    # SESSION_CLOSED is the same shape: a limit on the SESSION's authority to
+    # open risk, decided before any candidate was priced.
+    "SESSION_CLOSED": "MANDATE",
+    # DATA_STALE, deliberately, and not a state of its own: the clock IS an
+    # input, it was there, and it was too far out of date to act on. Adding an
+    # eighteenth state for one gate would split "we could not trust our inputs"
+    # across two buckets in every census that already exists.
+    "CLOCK_SKEW": "DATA_STALE",
     "NO_STRUCTURE_CLEARED": "STRUCTURE",
     "GROSS_NOTIONAL": "GROSS",
     "DRIVER_CONCENTRATION": "CONCENTRATION",
@@ -242,6 +290,7 @@ CLASS_TO_TERMINAL: dict[str, str] = {
     "BOOK_UNBOUNDED": "RISK",
     "EVENT_NODE_CAP": "CONCENTRATION",
     "CHAIN_UNUSABLE": "DATA_MISSING",
+    "VENUE_REJECTED": "VENUE_REJECTED",
 }
 
 #: Sentences the post-hoc table never had to name, because they never reached

@@ -49,8 +49,21 @@ from alpha.brains.base import Forecast
 from alpha.broker.alpaca import client_order_id
 from alpha.engine import equity, sizing
 
-_TODAY = datetime.now(timezone.utc).date()
-EXPIRY = (_TODAY + timedelta(days=1)).isoformat()
+# ONE CLOCK, AND THE CALENDAR (X3, 2026-09-07). These three lines used to mix
+# `datetime.now(timezone.utc).date()` for the expiry with `datetime.now().date()`
+# for the session clock -- a LOCAL date on a UTC+8 box. Between 20:00 and 08:00
+# local the two disagree by a day, the derived session lands ON the expiry,
+# `run_pass` correctly refuses the whole session as its own expiry day, and the
+# suite reads `considered=0` it cannot explain. That is what turned four suites
+# red at ET Sunday 13:34 on 2026-09-06 and green again the next afternoon with
+# nothing changed but the wall clock. `tests_fixtures` derives BOTH from
+# `alpha.exits.now_et()` and steps the expiry past every weekend AND holiday --
+# 2026-09-07 is a Monday and Labor Day, and a weekday is not a session.
+from tests_fixtures import expiry_after_session, open_clock, session_clock  # noqa: E402
+
+_SESSION = session_clock()
+_TODAY = _SESSION.date()
+EXPIRY = expiry_after_session()
 DAY = _TODAY.isoformat()
 
 
@@ -241,7 +254,7 @@ class FakeClient:
     def account(self): return {"equity": str(EQ), "last_equity": str(EQ)}
     def positions(self): return self._p
     def orders(self, status="open", limit=200): return []
-    def clock(self): return {"is_open": True}
+    def clock(self): return open_clock()
     def stock_quote(self, syms):
         return {"quotes": {s: {"bp": 179.98, "ap": 180.02, "bs": 5, "as": 5, "t": "now"} for s in syms}}
     def asset(self, sym): return {"shortable": True, "easy_to_borrow": True, "tradable": True}
@@ -263,21 +276,11 @@ ledger.LEDGER_DIR = Path(tempfile.mkdtemp())
 os.environ["AAT_LEDGER_DIR"] = str(ledger.LEDGER_DIR)
 
 
-def _mid_session_et():
-    d = datetime.now().date()
-    while d.weekday() >= 5:
-        d -= timedelta(days=1)
-    return datetime.combine(d, _time(10, 30))
-
-
 def _opening_range_et():
-    d = datetime.now().date()
-    while d.weekday() >= 5:
-        d -= timedelta(days=1)
-    return datetime.combine(d, _time(9, 35))
+    return session_clock(9, 35)
 
 
-NOW_ET = _mid_session_et()
+NOW_ET = _SESSION
 
 # THE SAME admission function, counted rather than asserted from the source.
 import alpha.admission as _admission_mod
