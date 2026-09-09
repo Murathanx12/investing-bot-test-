@@ -62,7 +62,9 @@ check("fifth 25% name refused with GROSS", (not a.ok) and a.reason.startswith("G
 # multi-week thesis run. That is the declared trade, not an accident.
 FLEET_WORST_CASE_CEILING = 0.125
 for _prof, _expected in (("conservative", 0.018), ("aggressive", 0.100),
-                         ("maximum", 0.090), ("basket", 0.120), ("convex", 0.080)):
+                         # `maximum` 0.090 -> 0.120 on 2026-09-09: cap 0.60 -> 1.00 to use
+                         # the buying power, stop 0.15 -> 0.12 to pay for it; still under the ceiling.
+                         ("maximum", 0.120), ("basket", 0.120), ("convex", 0.080)):
     _bound = sizing.gross_cap(_prof) * equity.stop_fraction(_prof)
     check(f"{_prof}: gross_cap x stop = {_bound:.2%}, as declared",
           abs(_bound - _expected) < 1e-9, f"{_bound:.4f} vs {_expected}")

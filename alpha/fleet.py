@@ -95,12 +95,16 @@ class Mandate:
 
 FLEET: dict[str, Mandate] = {
     "hack1": Mandate(
-        role="hack1", tier="SAFE", label="ANCHOR: beta core + defined-risk sleeve",
-        question="Does the attended book (SPY/QQQ/IWM shares + one ATM index call at 5%) hold +0.3% median over five sessions?",
-        brains=("post_event_drift",), profile="conservative", universe="index",
-        fixed_symbols=("SPY", "QQQ", "IWM", "NVDA", "AVGO", "PANW"), rank_objective="median",
-        manage_only=True,
-        caveat="Entered by hand via scripts.competition_book after 15:45 ET; the loop only manages exits and the +1-open drift on the index-linked printers. ENFORCED by manage_only=True since 2026-09-04 -- it was prose alone until then, and the book shorted PANW twice against it."),
+        role="hack1", tier="RISKY", label="THEME BASKET: the human-heuristic themes, shares only",
+        question="Does the theme basket -- the one brain with a positive live counterfactual on the marks (+$3,564 on 7, hit 0.43, fresh) -- pay as a fully invested 21-session book?",
+        brains=("theme_basket",), shadow=("post_event_drift", "murat_rule"), profile="aggressive", universe="themes",
+        rank_objective="median", structure_kinds=("long_shares",),
+        manage_only=False,
+        caveat="v2, 2026-09-09 (Murat: 'make sure the paper accounts are all active and using their buying power'). "
+               "Until then this was the hand-entered SAFE anchor (SPY/QQQ/IWM + one index call), manage-only since "
+               "2026-09-04 and EMPTY since. Contract in contract.HORIZON_REMAP['hack1']: horizon 21, min hold 5, "
+               "10% stop, no target; sizing intent 8 x 12.5% = 100% gross, no leverage. Worst case, printed: -10% of "
+               "equity. Shares only; the old index anchor is retired, not shadowed."),
     "hack2": Mandate(
         role="hack2", tier="SAFE", label="DRIFT: measured edge only",
         question="Does the one brain with a positive live counterfactual (+1-open post-print drift, +1.08%, t 2.82) pay at aggressive size?",

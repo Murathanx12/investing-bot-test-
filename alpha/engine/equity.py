@@ -96,7 +96,11 @@ STOP_FRACTION = 0.03
 #: (CLAUDE.md rule 4) and it feeds `runner.py`'s `stop_loss_usd`, so the sizer
 #: buys FEWER shares per name -- which is the self-correcting half of the
 #: trade and the reason gross does not rise with the width.
-STOP_FRACTION_BY_PROFILE = {"conservative": 0.03, "aggressive": 0.10, "maximum": 0.15, "basket": 0.12, "convex": 0.08}
+# `maximum` 0.15 -> 0.12 on 2026-09-09: its gross cap went 0.60 -> 1.00 (Murat:
+# use the buying power), and 1.00 x 0.15 = 15% breaches the 12.5% fleet
+# worst-case ceiling (tests_smoke_monday). 1.00 x 0.12 = 12.0% is inside it.
+# A wider gross pays with a tighter stop, never the reverse (CLAUDE.md rule 4).
+STOP_FRACTION_BY_PROFILE = {"conservative": 0.03, "aggressive": 0.10, "maximum": 0.12, "basket": 0.12, "convex": 0.08}
 
 
 def stop_fraction(profile: str | None = None) -> float:

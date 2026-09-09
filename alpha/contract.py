@@ -231,14 +231,18 @@ EVENT_FALSIFIERS = (
 #: means, and Murat has asked for it to stop everywhere, so the event book
 #: expresses its +1..+3 drift with a floor under it instead of without one.
 HORIZON_REMAP: dict[str, dict] = {
-    "hack1": {"expected_horizon_sessions": 126, "min_normal_hold_sessions": 21,
-              "stop_frac": 0.35, "profit_target_frac": None},
+    # hack1 v2 (2026-09-09): from the hand-entered index anchor (one 95% SPY/QQQ/
+    # IWM position, 35% stop) to the THEME BASKET book -- the one brain with a
+    # positive live counterfactual on the marks (+$3,564 on 7, hit 0.43, fresh).
+    # 21 sessions, hold 5, a 10% stop: 8 x 12.5% at 10% = -10% of equity.
+    "hack1": {"expected_horizon_sessions": 21, "min_normal_hold_sessions": 5,
+              "stop_frac": 0.10, "profit_target_frac": None},
     "hack2": {"expected_horizon_sessions": 5, "min_normal_hold_sessions": 2,
               "stop_frac": 0.08, "profit_target_frac": None},
     "hack3": {"expected_horizon_sessions": 63, "min_normal_hold_sessions": 21,
               "stop_frac": 0.12, "profit_target_frac": None},
     "hack4": {"expected_horizon_sessions": 126, "min_normal_hold_sessions": 42,
-              "stop_frac": 0.15, "profit_target_frac": None},
+              "stop_frac": 0.12, "profit_target_frac": None},   # 0.15 -> 0.12 on 09-09: pays for 1x gross
     "hack6": {"expected_horizon_sessions": 42, "min_normal_hold_sessions": 21,
               "stop_frac": 0.10, "profit_target_frac": None},
     # THE OPTIONS BOOK IS IN THE REMAP TOO, and for the same reason: it was the
@@ -254,12 +258,17 @@ HORIZON_REMAP: dict[str, dict] = {
 #: Gross and worst case per book, as declared above. Kept beside the remap so a
 #: future edit to one cannot silently disagree with the other -- the suite reads
 #: BOTH and recomputes `n x notional x stop`.
+# 2026-09-09 (Murat: "make sure all of them are active and using their buying
+# power"): every share book INTENDS 1.00 of equity gross, no leverage. Worst
+# cases at the declared stops: hack1 -10%, hack2 -8%, hack3 -12%, hack4 -12%,
+# hack6 -10%; hack5 keeps its premium bound. 2x gross (paper margin) is a
+# SEPARATE flip: it doubles every number in this line.
 BOOK_SIZING: dict[str, dict] = {
-    "hack1": {"n": 1, "notional_each": 0.95},
-    "hack2": {"n": 8, "notional_each": 0.06},
-    "hack3": {"n": 10, "notional_each": 0.055},
-    "hack4": {"n": 5, "notional_each": 0.08},
-    "hack6": {"n": 15, "notional_each": 0.04},
+    "hack1": {"n": 8, "notional_each": 0.125},
+    "hack2": {"n": 8, "notional_each": 0.125},
+    "hack3": {"n": 10, "notional_each": 0.10},
+    "hack4": {"n": 5, "notional_each": 0.20},
+    "hack6": {"n": 15, "notional_each": 1.0 / 15.0},
     "hack5": {"n": 6, "notional_each": 0.03, "premium_at_risk": True},
 }
 

@@ -236,7 +236,12 @@ GROSS_NOTIONAL_CAP = {
     # no book was using -- hack4's sealed target is k=5 x 10% = 50% gross, and
     # its declared sizing is 5 x 8% = 40%. The cap now binds above both and
     # below leverage, which is where a cap belongs.
-    "maximum": 0.60,
+    # RAISED 0.60 -> 1.00 on 2026-09-09 (Murat: use the buying power), and the
+    # `maximum` stop went 0.15 -> 0.12 to PAY for it: 1.00 x 0.12 = 12.00% of
+    # equity structurally at risk on hack4 (was 0.60 x 0.15 = 9.00%), inside
+    # the 12.5% fleet ceiling. The seal now targets k=5 x 20% = 100% gross.
+    # Still NOT leverage: paper margin allows 4x and none of it is used.
+    "maximum": 1.00,
     "basket": 1.00,
     "convex": 1.00,
 }

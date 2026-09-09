@@ -940,7 +940,15 @@ class Personality:
 #: on real paper money, and the books settle it -- which is the only way this
 #: project has ever settled anything.
 PERSONALITIES: tuple[Personality, ...] = (
-    Personality("hack3", "balanced", k=10, max_notional=0.083,
+    # FULLY INVESTED (Murat, 2026-09-09: "make sure ... they are using their
+    # buying power ... I saw they are still using 30k"). k x max_notional = 1.00
+    # of equity on every tracker book, NO leverage: 1x gross is the whole
+    # buying-power question this side of margin, and margin is a separate flip
+    # with its own worst case (2x at these stops = -24% / -30% / -20%).
+    # Worst cases at 1x, printed (alpha/contract.worst_case recomputes them):
+    #   hack3 10 x 10.0% at a 12% stop = -12.0% ; hack4 5 x 20% at 12% = -12.0% ;
+    #   hack6 15 x 6.67% at 10% = -10.0%.
+    Personality("hack3", "balanced", k=10, max_notional=0.10,
                 rank="risk_adjusted_ratio", exclude_past_winners=True,
                 min_dollar_volume=1_000_000.0,
                 max_sector_share=0.30, max_downside=0.30),
@@ -954,13 +962,13 @@ PERSONALITIES: tuple[Personality, ...] = (
     # it no longer decides admission. Worst case, printed (alpha/contract):
     # 5 x 10% = 50% gross at a 15% stop = -7.5%; the all-names-gap case was
     # ~-18.4% on the 08-31 seal and is a stated property of profit_max.
-    Personality("hack4", "profit_max", k=5, max_notional=0.10, rank="upside_x_consensus",
+    Personality("hack4", "profit_max", k=5, max_notional=0.20, rank="upside_x_consensus",
                 exclude_past_winners=False, requires_catalyst=False,
-                min_dollar_volume=1_000_000.0, max_sector_share=0.20),
-    Personality("hack6", "preservation", k=15, max_notional=0.06,
+                min_dollar_volume=1_000_000.0, max_sector_share=0.40),
+    Personality("hack6", "preservation", k=15, max_notional=1.0 / 15.0,
                 rank="upside_downside_ratio", exclude_past_winners=False,
                 min_coverage_bucket="4-10", max_coverage_bucket="11-25",
-                min_dollar_volume=5_000_000.0, max_sector_share=0.18,
+                min_dollar_volume=5_000_000.0, max_sector_share=3.0 / 15.0,
                 max_downside=0.20),
 )
 

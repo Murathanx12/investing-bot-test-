@@ -60,8 +60,14 @@ check("a tracker book declares NO profit target -- 2.5% of a 21-session thesis i
 # (docs/RECEIPT_2026-09-07_STOP_WIDTH_VS_HOLD.json): at the profile widths, 31%
 # of hack3's entries and 56% of hack6's were stopped out before their own
 # minimum hold -- an exit rule that terminates the thesis before it can run.
-check("the stop width is the BOOK'S DECLARED width, not the profile's and not a flat 3%",
-      abs(k.stop_fraction() - 0.15) < 1e-9, f"{k.stop_fraction():.3f}")
+# 0.15 -> 0.12 on 2026-09-09: the `maximum` gross cap went 0.60 -> 1.00 (Murat:
+# use the buying power) and the stop was tightened to pay for it, so that
+# 1.00 x 0.12 = 12% stays inside the 12.5% fleet ceiling. The declared width
+# and the profile width now COINCIDE at 0.12 by design; the check below reads
+# the declaration itself, so the two cannot drift apart unnoticed.
+check("the stop width is the BOOK'S DECLARED width (HORIZON_REMAP), not a flat 3%",
+      abs(k.stop_fraction() - contract.HORIZON_REMAP["hack4"]["stop_frac"]) < 1e-9
+      and abs(k.stop_fraction() - 0.12) < 1e-9, f"{k.stop_fraction():.3f}")
 check("the expiry is derived from the horizon in SESSIONS (weekends skipped)",
       k.thesis_expiry == "2027-03-03", k.thesis_expiry)
 check("a complete contract validates", contract.validate(k.as_dict()) == [],
