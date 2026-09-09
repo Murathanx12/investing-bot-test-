@@ -944,8 +944,18 @@ PERSONALITIES: tuple[Personality, ...] = (
                 rank="risk_adjusted_ratio", exclude_past_winners=True,
                 min_dollar_volume=1_000_000.0,
                 max_sector_share=0.30, max_downside=0.30),
+    # hack4 v2 (Fable decision 2026-09-08, Murat's flip = the seal-authority
+    # redeploy): `requires_catalyst` is OFF. The clause tested `days_to_catalyst`
+    # -- a clause `murat_rule` itself lists under `clauses_not_measured` --
+    # against a calendar that was empty until 2026-08-30, so the book sealed
+    # ZERO names on every day since (09-08: "0 names: none"). A gate that
+    # cannot go green is a broken gate. The catalyst stays on the row as an
+    # UNVALIDATED indicator (tracker rows still carry `days_to_catalyst`);
+    # it no longer decides admission. Worst case, printed (alpha/contract):
+    # 5 x 10% = 50% gross at a 15% stop = -7.5%; the all-names-gap case was
+    # ~-18.4% on the 08-31 seal and is a stated property of profit_max.
     Personality("hack4", "profit_max", k=5, max_notional=0.10, rank="upside_x_consensus",
-                exclude_past_winners=False, requires_catalyst=True,
+                exclude_past_winners=False, requires_catalyst=False,
                 min_dollar_volume=1_000_000.0, max_sector_share=0.20),
     Personality("hack6", "preservation", k=15, max_notional=0.06,
                 rank="upside_downside_ratio", exclude_past_winners=False,

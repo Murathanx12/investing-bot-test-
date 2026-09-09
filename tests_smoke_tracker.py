@@ -477,14 +477,33 @@ def test_the_balanced_book_respects_its_sector_cap():
     assert any("cap" in k for k in port["excluded_by_reason"])
 
 
-def test_profit_max_requires_a_readable_catalyst():
+def test_a_catalyst_gate_refuses_an_unreadable_catalyst():
+    """The gate machinery still exists and is tested on a personality that
+    DECLARES it -- not on hack4, whose v2 declaration turned it off."""
+    import dataclasses
     rows = _candidates()
     for r in rows:
         r["days_to_catalyst"] = None
-    p = [x for x in T.PERSONALITIES if x.book == "hack4"][0]
+    base = [x for x in T.PERSONALITIES if x.book == "hack4"][0]
+    p = dataclasses.replace(base, requires_catalyst=True)
     port = T.build_portfolio(rows, p)
     assert port["n_selected"] == 0
     assert port["excluded_by_reason"].get("no readable catalyst") == len(rows)
+
+
+def test_hack4_v2_no_longer_gates_on_the_catalyst():
+    """2026-09-08 decision: `requires_catalyst` tested a clause `murat_rule`
+    lists under `clauses_not_measured` against a calendar that was empty until
+    2026-08-30, so hack4 sealed ZERO names every day. A gate that cannot go
+    green is a broken gate. v2: the catalyst is carried on the row, never
+    decides admission."""
+    p = [x for x in T.PERSONALITIES if x.book == "hack4"][0]
+    assert p.requires_catalyst is False
+    rows = _candidates()
+    for r in rows:
+        r["days_to_catalyst"] = None
+    port = T.build_portfolio(rows, p)
+    assert "no readable catalyst" not in port["excluded_by_reason"]
 
 
 def test_preservation_excludes_the_thinnest_coverage_bucket():
@@ -979,7 +998,10 @@ def test_excluded_marginal_is_not_first_fired():
     `fails` twice and toward `fails_only` not at all. Relaxing either rule
     alone does not buy D back.
     """
-    hack4 = next(x for x in T.PERSONALITIES if x.book == "hack4")
+    import dataclasses
+    # a personality that DECLARES the catalyst gate: hack4 v2 turned it off
+    hack4 = dataclasses.replace(next(x for x in T.PERSONALITIES if x.book == "hack4"),
+                                requires_catalyst=True)
 
     def row(sym, cat, exp):
         r = _row(symbol=sym, days_to_catalyst=cat)

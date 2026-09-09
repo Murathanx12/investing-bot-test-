@@ -587,13 +587,15 @@ CANON: list[dict] = [
     },
     {
         "id": "L1-13-no-readable-catalyst",
-        "why": ("hack4 alone requires a dated catalyst. Absent one the status must fall from "
-                "STRONG_BUY to BUY -- blocked, not failed -- and only hack4 must lose the name."),
+        "why": ("An unreadable catalyst drops the STATUS from STRONG_BUY to BUY -- blocked, "
+                "not failed -- and, since hack4 v2 (2026-09-08: the catalyst clause tested a "
+                "field `murat_rule` lists under `clauses_not_measured` against a calendar that "
+                "was empty until 08-30, so hack4 sealed zero names every day), NO book loses "
+                "the name for it. The catalyst is carried on the row, never decides admission."),
         "rows": [_row(symbol="ZZTESTD", days_to_catalyst=None)],
         "expected": {
             "status": "BUY",
-            "books": {"hack3": "ADMITTED", "hack4": "EXCLUDED", "hack6": "ADMITTED"},
-            "book_reasons": {"hack4": "no readable catalyst"},
+            "books": {"hack3": "ADMITTED", "hack4": "ADMITTED", "hack6": "ADMITTED"},
         },
     },
     {
