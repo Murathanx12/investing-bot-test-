@@ -1,0 +1,137 @@
+{
+ "receipt": "DEPLOY_2026-09-09_FULLY_INVESTED_AND_SIX_BOOKS",
+ "written_utc": "2026-09-09T03:14:41+00:00",
+ "by": "Claude Fable 5.1 on Murat's 2026-09-09 delegation: 'you can do them as well, do them. make sure the paper accounts all of them are active and they are using their buy power'",
+ "code": {
+  "terminal_commits": [
+   "c96d146 hack4 v2 (requires_catalyst off)",
+   "5705648 fully invested at 1x; hack1 theme basket; maximum cap 1.00 / stop 0.12"
+  ],
+  "finance_commits": [
+   "9bc271b TRIAL-H5 pre-registered",
+   "c8cfe48 roadmap 10.3"
+  ]
+ },
+ "before_02_10Z": {
+  "hack1": {
+   "equity": 98859.47,
+   "invested": 0
+  },
+  "hack2": {
+   "equity": 98820.5,
+   "invested": 0
+  },
+  "hack3": {
+   "equity": 89976.16,
+   "invested": 59272,
+   "cash": 30704
+  },
+  "hack4": {
+   "equity": 99475.52,
+   "invested": 0
+  },
+  "hack5": {
+   "equity": 95734.81,
+   "invested": 2720
+  },
+  "hack6": {
+   "equity": 90529.5,
+   "invested": 65236,
+   "cash": 25294
+  },
+  "buying_power_multiplier": 4,
+  "buying_power_used_beyond_1x": 0
+ },
+ "target_after": {
+  "every share book": "100% of equity gross at 1x, no margin",
+  "hack1": "8 x 12.5% theme basket, 21/5/10%",
+  "hack2": "risk-sized up to 100% gross, 5/2/8%",
+  "hack3": "10 x 10%, 63/21/12%",
+  "hack4": "5 x 20%, 126/42/12%",
+  "hack5": "premium bound 15% (unchanged)",
+  "hack6": "15 x 6.67%, 42/21/10%"
+ },
+ "worst_case_printed": {
+  "hack1": "-10% (-$9.9k)",
+  "hack2": "-8% (-$7.9k)",
+  "hack3": "-12% (-$10.8k)",
+  "hack4": "-12% (-$11.9k)",
+  "hack5": "-15% premium bound (-$14.4k)",
+  "hack6": "-10% (-$9.1k)",
+  "fleet": "~ -$64k of $573k paper",
+  "2x_flip_not_taken": "would double every number above (~ -$128k) and needs the tests_smoke_monday pins ('gross cap is not LEVERAGE' <= 1.0, 12.5% ceiling) changed on purpose"
+ },
+ "deploys_03_12Z": {
+  "seal-authority": "railway up -d; no volume, so it rebuilds the seal: 2026-09-08 first (closed session), then 2026-09-09 after 00:00 ET, both with hack4 v2 and the new notionals; the loops fetch 09-09 when it exists",
+  "aat-loop-hack1": "variables set (brains theme_basket, profile aggressive, shadow post_event_drift,murat_rule, no --manage-only, expiry/mandate 2027-12-31, build 5705648) then railway up -d",
+  "aat-loop-hack4": "AAT_BUILD_COMMIT=5705648 then railway up -d (its cap and stop tables are in the loop's code)",
+  "not_redeployed": "hack2, hack3, hack5, hack6 (hack3/hack6 read the seal; hack2/hack5 unchanged)"
+ },
+ "verify_at_the_open_13_30Z": "python -m scripts.fleet --check-all: hack1 and hack4 non-empty; hack3/hack6 topped up toward 100%; railway logs --service seal-authority shows 'SEAL AUTHORITY SEALED day=2026-09-09'",
+ "variables_redacted": {
+  "seal-authority": {
+   "AAT_ACCOUNT_ROLE": "hack3",
+   "AAT_DATA_BASE": "https://data.alpaca.markets",
+   "AAT_FINNHUB_API_KEY": "<redacted>",
+   "AAT_FRED_API_KEY": "<redacted>",
+   "AAT_HACK3_KEY_ID": "<redacted>",
+   "AAT_HACK3_SECRET_KEY": "<redacted>",
+   "AAT_LEDGER_DIR": "/app/state",
+   "AAT_TRADING_BASE": "https://paper-api.alpaca.markets"
+  },
+  "aat-loop-hack1": {
+   "AAT_ACCOUNT_ROLE": "hack1",
+   "AAT_BUILD_COMMIT": "5705648",
+   "AAT_DATA_BASE": "https://data.alpaca.markets",
+   "AAT_DEEPSEEK_API_KEY": "<redacted>",
+   "AAT_FEATHERLESS_API_KEY": "<redacted>",
+   "AAT_FINNHUB_API_KEY": "<redacted>",
+   "AAT_FRED_API_KEY": "<redacted>",
+   "AAT_HACK1_KEY_ID": "<redacted>",
+   "AAT_HACK1_SECRET_KEY": "<redacted>",
+   "AAT_HF_TOKEN": "<redacted>",
+   "AAT_LEDGER_DIR": "/app/state",
+   "AAT_LOOP_ARGS": "--profile aggressive --universe OUST SYM RCAT ONDS KTOS TER QUBT IONQ RGTI QBTS OKLO SMR LEU UEC UUUU DNN NXE BWXT QS EOSE FLNC AMPX FSLR ENPH RUN ARRY NXT SHLS PLUG BE FCEL POWL MP USAR CDE HL AG DKNG HUBS NTLA",
+   "AAT_LOOP_BRAINS": "theme_basket",
+   "AAT_LOOP_EXPIRY": "2027-12-31",
+   "AAT_LOOP_SHADOW": "post_event_drift,murat_rule",
+   "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z",
+   "AAT_NVIDIA_API_KEY": "<redacted>",
+   "AAT_OPTIONS_FEED": "indicative",
+   "AAT_RANK_OBJECTIVE": "median",
+   "AAT_RISK_PROFILE": "aggressive",
+   "AAT_STOCK_FEED": "iex",
+   "AAT_STRUCTURE_KINDS": "long_shares",
+   "AAT_TRADING_BASE": "https://paper-api.alpaca.markets"
+  },
+  "aat-loop-hack4": {
+   "AAT_ACCOUNT_ROLE": "hack4",
+   "AAT_ALLOW_MAXIMUM": "1",
+   "AAT_BUILD_COMMIT": "5705648",
+   "AAT_DATA_BASE": "https://data.alpaca.markets",
+   "AAT_DEEPSEEK_API_KEY": "<redacted>",
+   "AAT_ENTRY_STYLE": "open_auction",
+   "AAT_FEATHERLESS_API_KEY": "<redacted>",
+   "AAT_FINNHUB_API_KEY": "<redacted>",
+   "AAT_FRED_API_KEY": "<redacted>",
+   "AAT_HACK4_KEY_ID": "<redacted>",
+   "AAT_HACK4_SECRET_KEY": "<redacted>",
+   "AAT_HF_TOKEN": "<redacted>",
+   "AAT_LEDGER_DIR": "/app/state",
+   "AAT_LOOP_ARGS": "--profile maximum --window-universe",
+   "AAT_LOOP_BRAINS": "tracker_portfolio",
+   "AAT_LOOP_EXPIRY": "2027-12-31",
+   "AAT_LOOP_SHADOW": "post_event_drift",
+   "AAT_MANDATE_END_UTC": "2027-12-31T15:00:00Z",
+   "AAT_NVIDIA_API_KEY": "<redacted>",
+   "AAT_OPTIONS_FEED": "indicative",
+   "AAT_PREDICTION_BOOK_BASE_URL": "http://seal-authority.railway.internal:8080",
+   "AAT_PREDICTION_BOOK_SYNC_SECONDS": "120",
+   "AAT_RANK_OBJECTIVE": "median",
+   "AAT_RISK_PROFILE": "maximum",
+   "AAT_STOCK_FEED": "iex",
+   "AAT_STRUCTURE_KINDS": "long_shares",
+   "AAT_TRADING_BASE": "https://paper-api.alpaca.markets"
+  }
+ }
+}
