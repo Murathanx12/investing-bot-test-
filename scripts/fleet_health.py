@@ -144,12 +144,25 @@ def check_seal(s: Sweep) -> None:
             r = subprocess.run([railway, "logs", "--service", "seal-authority"],
                                cwd=ROOT, capture_output=True, text=True,
                                encoding="utf-8", errors="replace", timeout=60, check=False)
-            sealed = [ln for ln in (r.stdout or "").splitlines()
+            lines = (r.stdout or "").splitlines()
+            sealed = [ln for ln in lines
                       if f"SEAL AUTHORITY SEALED day={day}" in ln or
                       (f"SEAL AUTHORITY ready day={day}" in ln)]
+            # The seal is written once, at ~00:00 ET. `railway logs` returns a
+            # RECENT buffer, so by mid-morning that line has rotated away and
+            # this check went red on a perfectly healthy fleet -- a gate that can
+            # only be green for a few hours a day is a broken gate, not a strict
+            # one. A 200 on today's artifact is STRONGER evidence anyway: it says
+            # the seal exists AND that runners are being served it right now.
+            served = [ln for ln in lines
+                      if f"/{day}.json" in ln and '" 200' in ln]
             if sealed:
                 s.add(OK, f"sealed book {day}",
                       "SOLO seal on authority: " + sealed[-1].split("SEAL AUTHORITY ")[-1][:70])
+            elif served:
+                s.add(OK, f"sealed book {day}",
+                      f"authority is SERVING {day}.json (HTTP 200 x{len(served)}); the seal "
+                      f"line itself has rotated out of the log buffer")
             else:
                 s.add(FAIL, f"sealed book {day}",
                       "no laptop copy AND no authority seal line -- runners will decline everything")
