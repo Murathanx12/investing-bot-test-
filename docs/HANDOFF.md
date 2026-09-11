@@ -1,9 +1,177 @@
 > **SKIM LAYER (updated 2026-09-02) — read this block, then `docs/INDEX.md`, then the session below.**
 > 1. **Start at `docs/INDEX.md`** (TIER 0 = what this repo is + the four non-negotiables; the MAP answers "how does a day get sealed / how do orders happen / how do I check everything / what grades us / where are the receipts"). This file is a reverse-chronological DIARY, not authority.
-> 2. **Mandates:** six paper accounts — hack1 anchor · hack2 drift · hack3 thesis · hack4 predator · hack5 convexity · hack6 blend (`alpha/fleet.py`, table in `docs/FLEET_2026-08-28.md`). **Expiry `AAT_LOOP_EXPIRY=2026-09-04`: books liquidate 10:45 ET, judging 11:00 ET.**
+> 2. **Mandates:** six paper accounts — hack1 anchor · hack2 drift · hack3 thesis · hack4 predator · hack5 convexity · hack6 blend (`alpha/fleet.py`, table in `docs/FLEET_2026-08-28.md`). **Expiry `AAT_LOOP_EXPIRY=2027-12-31`, `AAT_MANDATE_END_UTC=2027-12-31T15:00:00Z` — corrected 2026-09-11 from the 09-09 deploy receipt; this line said `2026-09-04, books liquidate 10:45 ET` for two days after the mandates were extended, and a reader who trusted it expected six flat books.**
 > 3. **Seal artery (updated 09-03):** the authority now SOLO-SEALS unattended (09-03 sha `4fdc008f12d3b769`, tgt=ok x3129, runners installed); the laptop is optional. Previous laptop seal `2026-09-02` sha `6e69c0af80` IS SEALED — `state/predictions/2026-09-02.json`, sha `6e69c0af80`, 806 considered / 11 claims, first book under BAND_PRIOR v2, committed as `c525618`. Books match the replay exactly: hack3 10 @ 8.3% · hack4 5 @ 10% · hack6 15 @ 6%. Still to verify by hand: `--publish` landed, and `fleet --deploy` stamped the running services.
 > 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
 > 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
+
+## SESSION 2026-09-09 → 09-11 (written 2026-09-11 from commits and receipts, not from memory)
+
+**Who wrote this and how.** An Opus build agent in `../aegis-finance`, from this
+repo's `git log`, `alpha/fleet.py` and `state/deploy_receipts/`. Nothing here was
+read from the venue and no broker call was made: the equity numbers below are the
+**pre-deploy** snapshot the 09-09 receipt recorded, with its own timestamp, and
+there is no post-deploy venue read in this repo. Reading the six books from the
+venue once, with standard errors, is lane **F2** and is still open.
+
+**Why it exists.** This file stopped at 2026-09-03. Twenty-seven commits landed
+after it, including the re-arm of a fleet that had been empty for four sessions
+and the move to fully-invested six-book mandates running to **2027-12-31**. All
+of that lived in commit messages only, which is the failure mode the SKIM LAYER
+above warns about one paragraph before it goes stale itself.
+
+### 0. THE CORRECTION TO THE SKIM LAYER
+
+Point 2 above still says **`AAT_LOOP_EXPIRY=2026-09-04`, books liquidate 10:45
+ET**. That has been false since 09-09. Every deployed loop now carries
+`AAT_LOOP_EXPIRY=2027-12-31` and `AAT_MANDATE_END_UTC=2027-12-31T15:00:00Z`
+(`state/deploy_receipts/2026-09-09_fully_invested_and_six_books.json`). The line
+has been corrected in place; this paragraph records that it was wrong, because a
+reader who trusted it would have expected six flat books and found six invested
+ones.
+
+### 1. THE SIX BOOKS AS DEPLOYED (`alpha/fleet.py`, 09-09 receipt)
+
+| role | tier | mandate | sizing intent | worst case, as printed 09-09 |
+|---|---|---|---|---|
+| hack1 | RISKY | **THEME BASKET** — `theme_basket` brain, shares only; shadow `post_event_drift, murat_rule`; profile `aggressive`; 39-name theme universe | 8 × 12.5% = 100% gross, no leverage; horizon 21, min hold 5, 10% stop, no target | **−10% (−$9.9k)** |
+| hack2 | SAFE | **DRIFT** — `post_event_drift`, window universe; manage-only LIFTED 09-07 once `contract.HORIZON_REMAP['hack2']` froze horizon 5 / min hold 2 / no target / 8% stop | risk-sized up to 100% gross, 5/2/8% | **−8% (−$7.9k)** (the caveat's own arithmetic, 8 × 6% × 8%, gives −3.84% at 48% gross) |
+| hack3 | RISKY | **TRACKER BALANCED** — sealed upside × consensus, k=10 × 8.3%, shares only; the 10:01 control arm of the entry-timing tournament | 10 × 10%, 63/21/12% | **−12% (−$10.8k)** stop-based; the 08-31 seal's gap case was ~**−23.3%** |
+| hack4 | RISKY | **TRACKER PROFIT-MAX** — same artery at k=5 × 10%, `AAT_ENTRY_STYLE=open_auction`; `requires_catalyst` removed in `c96d146` (it was a gate that could not go green) | 5 × 20%, 126/42/12% | **−12% (−$11.9k)** stop-based; profit-max has no `max_downside`, so report the gap case too (~−18.4% on 08-31) |
+| hack5 | RISKY | **CONVEXITY** — options only, EV-ranked, `long_call` + `bull_call_spread` on high-vol theme names | premium bound 15% (unchanged) | **−15% premium bound (−$14.4k)** |
+| hack6 | RISKY | **TRACKER DIVERSIFIED** — k=15 × 6.67%, `AAT_ENTRY_STYLE=staggered` (half into the auction, remainder at 10:01) | 15 × 6.67%, 42/21/10% | **−10% (−$9.1k)** stop-based; 08-31 gap case ~−13.0% |
+
+**Fleet worst case as printed: ~ −$64k of ~$573k paper.** The 2× flip was priced
+and **not taken**: it would double every number above (~ −$128k) and would
+require changing the `tests_smoke_monday` pins on purpose ("gross cap is not
+LEVERAGE" ≤ 1.0, and the 12.5% fleet ceiling).
+
+**Account snapshot, 2026-09-09 02:10Z — BEFORE the re-arm, not after:**
+
+| role | equity | invested | cash |
+|---|---|---|---|
+| hack1 | $98,859.47 | 0 | — |
+| hack2 | $98,820.50 | 0 | — |
+| hack3 | $89,976.16 | $59,272 | $30,704 |
+| hack4 | $99,475.52 | 0 | — |
+| hack5 | $95,734.81 | $2,720 | — |
+| hack6 | $90,529.50 | $65,236 | $25,294 |
+
+Buying-power multiplier 4; **buying power used beyond 1× = 0**. Three books held
+nothing at that moment, which is what the re-arm addressed; whether they are
+invested now is a venue question this file does not answer.
+
+**Deployed at 03:12Z on 09-09:** `seal-authority` (no volume, so the redeploy
+rebuilt the seal — 09-08 first, then 09-09 after 00:00 ET), `aat-loop-hack1`
+(variables set: `theme_basket`, profile aggressive, shadow
+`post_event_drift,murat_rule`, no `--manage-only`, build `5705648`) and
+`aat-loop-hack4` (`AAT_BUILD_COMMIT=5705648`). hack2, hack3, hack5 and hack6
+were **not** redeployed: hack3/hack6 read the seal, hack2/hack5 were unchanged.
+
+### 2. THE COMMITS SINCE `2ff6a07`, ONE LINE EACH (27, newest first)
+
+- `637e661` the seal check reads a rotating log buffer, so it went red on a healthy fleet; a 200 on today's artifact is the better evidence
+- `5e27c9d` deploy receipt 2026-09-09: seal-authority, hack1 and hack4 redeployed for the fully-invested six-book fleet (variables redacted, worst cases printed, the 2× flip priced and not taken)
+- `5705648` fully invested at 1×, six books armed: every share book targets 100% of equity gross (no leverage); hack1 becomes the theme-basket book; the maximum profile's cap goes to 1.00 and its stop to 12% to stay under the 12.5% fleet ceiling
+- `c96d146` hack4 v2: the catalyst clause no longer decides admission (a gate that cannot go green); Murat's flip is the seal-authority redeploy
+- `94b292c` deploy receipt: hack3 redeployed on `329adb5` with the sentinel fix; first pass after it filled
+- `329adb5` the sentinel judged a DIRECTION brain on a width it never claimed: hack3 opened EMPTY on the first live pass after the re-arm
+- `1281486` the driver-sector suite must not silently shrink on a fresh checkout
+- `382a6c4` the driver cap was refusing 6 of 10 sealed names on a DATA GAP, not on risk
+- `9519bfd` re-arm the fleet: all six loops were disarmed four ways, and the stop made every declared hold unreachable
+- `c413796` N3 (finance night lab): `execution_authority` learns the book's size — an OPT-IN floor at 1% ADV, and CANNOT_DETERMINE when it cannot resolve one
+- `5875483` hack2 is manage-only BY DECLARATION until its contract is frozen; the runbook's `AAT_MANAGE_ONLY` line was inert (nothing reads it)
+- `1f39189` lane D: 16 of 16 connections answer, and THREE lines in the Tuesday runbook do not do what they say
+- `bf55c32` C1 receipt: the torn-line count is captured where it was OBSERVED, and a venue refusal has no type of its own
+- `1034c29` C3+C4: 19 silent-fragility findings (2 fixed), and the secrets sweep is clean in both repos
+- `0bcc4b6` B2: fantasy stress exams — the decider moves the right way on 40 of 40 pairs, three draws running, for four and a half cents
+- `3a6a67c` C1+C2: fault injection found five defects the venue would have found for us — and the seal's contract was read by nothing
+- `00100d8` runbook: 2026-09-08 is Tuesday; Monday 09-07 is Labor Day (markets closed)
+- `85d117f` item 7 (Monday prep, read-only): a third band mode that keeps hack6 non-empty AND labels the constant
+- `d28742b` B3.3: the Monday dry run — and hygiene-only, implemented literally, would EMPTY hack6
+- `c01043d` B3.2: a receipt every night, and the second autopsy question becomes a typed opportunity-recall ledger
+- `c253ede` B3.1b: the test suite was writing into two production ledgers, and nothing said so
+- `5e27070` B3.1: every CANNOT DETERMINE on the daily learning report now names whose fault it is, and SPY has one tape
+- `c190351` B2 build doc: what shipped, the instruction I changed with its measurement, and five claims to attack
+- `f7f9ad7` B2 follow-up: the expiry refusal names the mandate-end VARIABLE, not "the judging deadline"
+- `1cea12d` B2 §1-6: books hold a thesis — strategy contracts, contract-aware exits, and the curfew keyed to its own date
+- `fd0c75b` the entry pass had no deadline: gate it on the same predicate the exit pass uses, and make hack1's manage-only caveat enforceable
+- `c57c409` night watch: the fleet's 40% deployment ceiling is the UNCLASSIFIED driver bucket, and the BUR stop id outlives its order
+
+`c253ede` is worth re-reading beside this session's work in the other repo: the
+test suite was writing into two production ledgers here, and on 2026-09-11 the
+finance repo found the same shape — its fast suite appending a fake row to a
+tracked 65 MB evidence ledger on every run. Same defect, two repos, three weeks
+apart: a test drives a real writer whose destination is a module constant nobody
+redirected.
+
+### 3. THE SEAL CHECK (`637e661`, 09-09 23:26 +0800)
+
+`fleet_health`'s `sealed book 2026-09-09` reported **FAIL — "runners will decline
+everything"** while the authority was serving that exact artifact and five books
+were trading on it. The check grepped `railway logs` for the line the authority
+writes at ~00:00 ET; `railway logs` returns a **rotating buffer**, so by
+mid-morning the line has aged out and the check could only be green for the first
+few hours of a session. That is the 2026-08 `monday_gate` lesson again — **a gate
+that cannot go green is a broken gate**, and a permanent red line beside ten real
+checks teaches the reader to skim red lines. The fallback now looks for a **200 on
+`<day>.json`** in the same buffer, which is strictly stronger evidence: it says
+the artifact exists *and* that runners are being served it right now.
+
+### 4. WHAT IS ON THIS LAPTOP AND NOT IN GIT
+
+79 untracked entries under `state/`, and **not one of them is gitignored** — they
+are merely untracked, which means a `git add -A` here sweeps all of them in and a
+fresh checkout has none of them. The families:
+
+`autopsy/` · `candidates/` · `company_state/` · `decomposition/` ·
+`entry_timing/` · `era_replay/` · `lab/` · `learning_report/` · `leverage_lab/` ·
+`logic_brain/` · `opportunity_recall/` · `predictions/` · `premarket/` ·
+`pulls/` · `research/` · `scenario_lab/` · `tournament/` · `tracker/` ·
+`universe/` · `variant_books/` · `genesis_hack{1..6}.json` ·
+`tradable_universe.json` · `auction_check.py`
+
+Several of those directories are *partly* tracked, which is the state that misleads:
+`state/predictions/` has **1 tracked file and 13 untracked entries**;
+`state/tournament/` 1 tracked and 3 untracked; `state/research/` 12 and 10;
+`state/lab/` 5 and 26; `state/autopsy/` 3 and 4. `state/learning_report/`,
+`state/opportunity_recall/`, `state/premarket/`, `state/pulls/` and
+`state/tracker/` are entirely untracked. Two tracked files are modified and
+uncommitted: `state/labor_day_lab_2026-09-07/C1_fault_injection.json` and
+`C2_exit_adversary.json`.
+
+Nothing was committed, ignored or deleted here by this write-up — the list is the
+finding. The decision that is owed: for each family, *tracked receipt* or
+*ignored runtime state*. "Untracked and unignored" is the one option that
+silently loses work, and `state/predictions/` — the sealed books the whole
+fail-closed rule rests on — is currently in it.
+
+### 5. WHAT THE RESEARCH REPO NOW EXPECTS OF THIS ONE
+
+`../aegis-finance/docs/ROADMAP_2026-09-11_ROOT_FIRST_THE_OPERATOR_BOARD_AND_THE_LEARNING_LOOP.md`
+is the single TIER 1 roadmap there. Its **lane F** is the fleet, and it asks this
+repo for exactly two things, both attended:
+
+- **F1** — this block. Done.
+- **F2** — read the six books from the venue **once** (one GET per book, cached,
+  opt-in, through the existing `paper-snapshot` route) and put the numbers on the
+  finance repo's operator board **with their standard errors**. The card must say
+  that **beta is not estimable under 20 sessions**; the fleet's first week was
+  −4.43% aggregate against SPY −0.12% on four sessions, which is not an estimate
+  of anything yet.
+
+Two constraints from the finance side that bind here. The roadmap's lane **B**
+("books as data") builds thousands of *paper books marked from local bars* — a
+frozen contract + a cadence + a control twin + a forecast row — precisely because
+thousands of Alpaca accounts is impossible; that work happens in the finance repo
+and must not turn into more venue accounts here. And **no LLM has authority over
+capital**, real or paper: the local model may propose a contract, the engine
+allocates, a human freezes it. Nothing in this repo's order path changes for
+either lane.
+
+The `docs/INDEX.md` here remains this repo's map; this file remains a diary.
+
+---
 
 ## SESSION 36 (2026-09-03 daytime HK / overnight-to-preopen ET, Fable + eight Opus agents) -- THE GATE, THE CLOCK, AND THE NULL
 
