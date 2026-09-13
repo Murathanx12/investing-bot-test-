@@ -148,6 +148,10 @@ It runs **here**, not on Railway: reading six accounts needs six key pairs, and
 `--deploy` gives each service exactly one role's keys and its own volume, so no
 Railway service could read the fleet or write into the loops' state.
 
+## 4b. FABLE'S CHECK, 2026-09-13 16:40 HKT — what Monday's deploy does and does not carry
+
+The engine switch is complete and safe: hack3's worst case is byte-identical, the engine file is hash-verified in the order path, and the loop fails closed without it. **The allocator's daily cut does NOT reach the loops yet.** Its record ships in the image (`docs/seed/allocator/`), so a budget computed on the laptop on Tuesday would only take effect at the next `--deploy`; the laptop also holds no role keys (`AAT_<ROLE>_KEY_ID` live only in each Railway service), so the "daily run from Monday" line in §4 cannot read the six accounts as written. Monday therefore carries **day-one budgets of 1.00 only**, which is exactly today's exposure. **Chunk 13c (tonight) moves the allocator into `seal-authority`'s maintainer**, which already serves one daily file to every loop over HTTP: it reads the six equities with Railway variable references to the loops' own keys (no pasting), computes the record after the 16:00 ET close, serves `/allocator/<date>.json`, and the loops sync it hash-verified exactly as they sync the seal. Until 13c is deployed, the fleet's protection is the stops in §2, not the allocator. The 17:15 schtasks line in §4 is withdrawn: 17:15 local is 05:15 ET, before the session, and the machine has no keys.
+
 ## 5. THE DEPLOY LINES, IN ORDER
 
 Run from `C:\Users\mrthn\aegis-alpha-terminal` with the repo **pushed** (the
