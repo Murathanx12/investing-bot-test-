@@ -215,7 +215,25 @@ check("the deploy variables carry the engine's universe, not a window",
 check("every symbol in AAT_LOOP_ARGS is one the engine selected",
       set(env["AAT_LOOP_ARGS"].split("--universe")[1].split())
       == set(F.universe_symbols()))
-check("the caveat states the monthly redeploy", "REDEPLOY EVERY CALENDAR MONTH" in m.caveat.upper())
+# CHUNK 15b FLIPPED THIS CHECK WITH THE FACT IT ASSERTS. It used to require the
+# caveat to say "REDEPLOY EVERY CALENDAR MONTH", which was the truth while the
+# engine file could only arrive in an image. The authority now serves the month's
+# file and `--engine-universe` re-reads it every cycle, so the caveat says a
+# redeploy is needed when the CODE changes -- and a test still asserting the old
+# sentence would be a test demanding that the fixed bug be re-introduced.
+check("the caveat no longer claims a monthly redeploy",
+      "REDEPLOY EVERY CALENDAR MONTH" not in m.caveat.upper()
+      or "AMENDED BY CHUNK 15b" in m.caveat)
+check("the caveat names the delivery route that replaced it",
+      "/engines/F_seasonality_" in m.caveat and "engine_sync" in m.caveat)
+check("the caveat says a redeploy is now a CODE event",
+      "ONLY NEEDED WHEN THE CODE CHANGES" in m.caveat.upper())
+check("and it still names the one manual case (correcting an installed month)",
+      "CORRECTING" in m.caveat.upper() and "delete it" in m.caveat)
+check("loop_args asks the loop to re-derive the universe each cycle",
+      "--engine-universe" in fleet.loop_args(m))
+check("...and the flag cannot break the AAT_LOOP_ARGS split on '--universe'",
+      "--universe" not in "--engine-universe")
 check("the caveat prints the unchanged worst case", "-12% of equity" in m.caveat)
 
 check("as_dict survives a role whose universe can refuse",

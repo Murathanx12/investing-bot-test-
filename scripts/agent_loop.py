@@ -207,6 +207,10 @@ def main() -> int:
     p.add_argument("--brains", default=None, help="comma list passed to run_pass (the account's CHAMPION set)")
     p.add_argument("--shadow", default=None, help="comma list passed to run_pass (recorded, never executed)")
     p.add_argument("--profile", default=None, help="risk profile passed to run_pass")
+    p.add_argument("--engine-universe", action="store_true",
+                   help=("re-derive the universe from the INSTALLED Book F engine file "
+                         "every cycle instead of trading the list baked into "
+                         "AAT_LOOP_ARGS at deploy time; --universe stays the fallback"))
     p.add_argument("--universe", nargs="*", default=None, help="symbols passed to run_pass")
     p.add_argument("--window-universe", action="store_true",
                    help=("pass --window-universe to every entry pass, so the universe is the "
@@ -292,6 +296,52 @@ def main() -> int:
         time.sleep(60)
 
 
+def cycle_universe(args) -> list[str] | None:
+    """The symbols THIS cycle passes to `run_pass`.
+
+    For every book but the seasonality one this is `args.universe` unchanged --
+    the list a deploy baked into `AAT_LOOP_ARGS`. For hack3 (`--engine-universe`)
+    it is the INSTALLED engine file's own selection, read fresh each cycle.
+
+    Why it matters, and why a docstring is not enough: the engine file is
+    per-calendar-month and the brain refuses any name outside the month's
+    ranking. Chunk 15b made the FILE arrive without a redeploy; without this the
+    LIST would still be September's on 1 October, the brain would refuse all
+    thirty names, and hack3 would look exactly like a working book that happened
+    to find nothing. An empty book that reads as a decision is the failure this
+    repo has paid for twice (`--manage-only`'s hourly line says so out loud).
+
+    Falls back to the baked list, LOUDLY, when the file cannot be read -- that
+    is the same "keep the last known good, never a silent default" contract the
+    allocator's STALE branch uses, and the brain still refuses every name that
+    is not in the month it verified, so a stale list cannot trade.
+    """
+    baked = getattr(args, "universe", None)
+    if not getattr(args, "engine_universe", False):
+        return baked
+    try:
+        from alpha import fleet as _fleet
+
+        syms = list(_fleet.engine_f_symbols())
+    except Exception as exc:  # noqa: BLE001
+        log.warning("ENGINE UNIVERSE unavailable (%s: %s); falling back to the %d "
+                    "names baked at deploy time. The brain still refuses any name "
+                    "outside the month it verified, so this cannot trade a stale "
+                    "ranking -- it can only decline.",
+                    type(exc).__name__, exc, len(baked or []))
+        return baked
+    if not syms:
+        log.warning("ENGINE UNIVERSE empty; keeping the baked list")
+        return baked
+    if baked and set(syms) != set(baked):
+        log.info("ENGINE UNIVERSE refreshed from the installed engine file: %d names, "
+                 "%d not in the list baked at deploy time (%d of the baked names are "
+                 "gone). This is what a month change looks like and it needs no "
+                 "redeploy.", len(syms), len(set(syms) - set(baked)),
+                 len(set(baked) - set(syms)))
+    return syms
+
+
 def _cycle(client, args, last: dict) -> int:
     """One pass of the schedule. Returns the consecutive-error count (0 = fine)."""
     if True:
@@ -312,6 +362,19 @@ def _cycle(client, args, last: dict) -> int:
         # keeps its last known budget and `gross_scale` says which one and why.
         # The answer is recomputed EVERY cycle rather than once at startup,
         # because a loop stays up across the 16:30 ET cut that changes it.
+        # THE THIRD ARTERY (chunk 15b): Book F's monthly engine file. Same
+        # shape, same failure contract. An exact no-op for every book but the
+        # seasonality one (the file is simply never asked for), a no-op again
+        # when the month is already installed, and a failure here is NOT a
+        # tradeless loop: `seasonality_f` declines that book with a reason and
+        # every other brain runs. This is the CYCLE-LEVEL call; the brain also
+        # asks once itself before the order path, because a sync that only ever
+        # runs here is a sync that can be unreachable (tests_smoke_seal_delivery).
+        try:
+            from scripts import engine_sync
+            engine_sync.sync_once()
+        except Exception as exc:  # noqa: BLE001
+            log.warning("engine sync failed: %s", exc)
         gross_scale = getattr(args, "gross_scale", None)
         try:
             from scripts import allocator_sync
@@ -461,8 +524,9 @@ def _cycle(client, args, last: dict) -> int:
                 extra += ["--profile", args.profile]
             if gross_scale is not None:
                 extra += ["--gross-scale", str(gross_scale)]
-            if args.universe:
-                extra += ["--universe", *args.universe]
+            _universe = cycle_universe(args)
+            if _universe:
+                extra += ["--universe", *_universe]
             _run("scripts.run_pass", "--expiry", args.expiry, *extra, live=args.live); last["entry"] = now
             # EXITS IMMEDIATELY AFTER, not on the next tick. The entry pass has
             # just held this loop for ~6 minutes (measured median 368s), so the

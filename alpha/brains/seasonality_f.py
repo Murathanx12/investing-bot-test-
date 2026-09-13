@@ -90,6 +90,20 @@ REGISTRATION = "TRIAL-DRAFT-F-calendar-seasonality-v0 (UNSIGNED)"
 #: volume copy removed (or the file installed there directly) -- it is not a
 #: redeploy away. Said here because the failure is silent: the stale file
 #: verifies against its own hash perfectly.
+#:
+#: AMENDED BY CHUNK 15b: a NEW month no longer needs a redeploy at all. The seal
+#: authority serves `/engines/F_seasonality_<YYYY-MM>.json` and
+#: `scripts/engine_sync.py` installs it into `ENGINES` (the volume), which is
+#: checked first below -- so October arrives on 1 October without a human.
+#:
+#: WHAT IS STILL NOT AUTOMATIC, SAID PLAINLY RATHER THAN IMPLIED: a CORRECTED
+#: file for a month this loop already holds. `engine_sync.sync_once` short-
+#: circuits on a local copy that passes its own hash, and a stale file passes
+#: its own hash perfectly, so it is never re-fetched. Correcting an installed
+#: month still means deleting the volume copy (the authority will then serve the
+#: corrected one on the next cycle). That is one deliberate hole, not a silent
+#: one, and it is the same hole `cp -rn` has -- the chunk removed the CALENDAR
+#: dependency, not the correction one.
 ENGINES = Path(os.getenv("AAT_LEDGER_DIR") or (ROOT / "state")) / "engines"
 SEED_ENGINES = ROOT / "docs" / "seed" / "engines"
 
@@ -167,6 +181,36 @@ def _engine_path(month: str) -> Path | None:
     return None
 
 
+def _fetch_from_authority(month: str) -> None:
+    """Ask the seal authority for `month`'s file, ONCE, before declining.
+
+    THE REASON THIS EXISTS (chunk 15b): until now the only delivery path for a
+    month's ranking was the image, so `docs/DEPLOY_PLAN_2026-09-14.md` 3 said in
+    capitals that this book needs a redeploy every calendar month. A book whose
+    liveness depends on a human remembering a date is a book that stops on the
+    first busy first-of-the-month. The authority now serves the file
+    (`/engines/F_seasonality_<YYYY-MM>.json`) and `scripts/engine_sync.py`
+    installs it; this call is the hook that makes the fetch happen BEFORE the
+    order path rather than only in a loop step that could be unreachable --
+    `tests_smoke_seal_delivery` exists because a sync that nothing called was
+    green for a whole trading morning.
+
+    IT RELAXES NOTHING. The import is lazy so the brain's own import stays free
+    of `urllib`; the call cannot raise; and everything after it in `engine()` --
+    the hash, the month, the engine name, the non-empty selection -- runs on the
+    installed bytes exactly as it ran on the seeded ones. A file fetched here
+    and a file shipped in the image are checked by the same four refusals.
+    """
+    try:
+        from scripts import engine_sync
+
+        engine_sync.ensure_month(month)
+    except Exception as exc:                                        # noqa: BLE001
+        print(f"SEASONALITY F: engine fetch for {month} failed "
+              f"({type(exc).__name__}: {exc}); declining on the local state",
+              flush=True)
+
+
 def engine(day: str | None = None, *, month: str | None = None) -> dict:
     """This month's verified ranking. Raises `EngineDeclined` with the reason.
 
@@ -177,12 +221,19 @@ def engine(day: str | None = None, *, month: str | None = None) -> dict:
     m = month or month_for(day)
     path = _engine_path(m)
     if path is None:
+        # The volume and the image both lack this month. Try the authority once
+        # (chunk 15b) and then decide on what is actually on disk.
+        _fetch_from_authority(m)
+        path = _engine_path(m)
+    if path is None:
         raise EngineDeclined(
-            f"no seasonality engine file for {m} under {ENGINES} or {SEED_ENGINES}. "
+            f"no seasonality engine file for {m} under {ENGINES} or {SEED_ENGINES}, "
+            f"and the seal authority did not serve one either. "
             f"Book F trades a ranking computed in the research repo "
-            f"(`python -m scripts.night_f_seasonality_export`) and installed here; "
+            f"(`python -m scripts.night_f_seasonality_export`), published at "
+            f"`/engines/F_seasonality_{m}.json` and installed here; "
             f"it does not re-derive a twenty-year seasonality average at the open. "
-            f"A missed monthly install stops this book, which is the designed "
+            f"A month with no engine file stops this book, which is the designed "
             f"failure -- trading last month's names would be worse.")
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))

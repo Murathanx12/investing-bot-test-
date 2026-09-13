@@ -94,26 +94,53 @@ promising it in prose.
 
 ## 3. WHAT SHIPS, AND HOW
 
-**The Book F engine file ships IN THE IMAGE, not through the seal authority.**
+**AMENDED BY CHUNK 15b (2026-09-13, overnight).** This section used to end with
+"**THIS BOOK NEEDS A REDEPLOY EVERY CALENDAR MONTH**". It does not any more.
+The engine file now travels the artery the sealed book and the allocator record
+already travel, and **a redeploy is needed only when the CODE changes.**
+
+**The Book F engine file ships in the image AND is served by the seal authority.**
 
 - `docs/seed/engines/F_seasonality_2026-09.json` (sha `141b01cd6344b43d`) and
   `F_seasonality_2026-10.json` (sha `dae6f7db5aa2ff48`).
 - The Dockerfile does `COPY docs/seed/ /app/seed/` and the container start does
   `cp -rn /app/seed/. /app/state/`, so the file lands on the volume at
   `/app/state/engines/` where `alpha/brains/seasonality_f.py` looks first, and
-  the repo copy at `/app/docs/seed/engines/` is the fallback.
-- It does **not** go through `scripts/seal_authority.py`. The **Book F engine
-  file** is an image artefact and nothing about it needs that service.
-  (**Amended by chunk 13c:** the sentence that stood here — "no seal-authority
-  redeploy is required" — was true of chunk 13b and is false of 13c. The
-  authority now serves a SECOND artefact, `state/allocator/<day>.json`, and
-  **its redeploy is step 1a of §5.** The engine file's own delivery is
-  unchanged.)
-- **`cp -rn` NEVER OVERWRITES.** A *new* month's file is a new name and arrives
-  normally. A *corrected* file for a month already on the volume does **not**
-  arrive, and the stale copy keeps winning silently because it verifies against
-  its own hash perfectly. If an engine file for a month already seeded is ever
-  re-exported, the volume copy must be removed by hand.
+  the repo copy at `/app/docs/seed/engines/` is the fallback. **That path is
+  unchanged and is still the day-one delivery.**
+- **New (15b): `GET /engines/F_seasonality_<YYYY-MM>.json` and
+  `GET /engines/latest/F_seasonality.json`** on `seal-authority`, a whitelisted
+  route with exactly the shape `/allocator/` got in 13c (basename only, one
+  literal pattern, everything else resolves to a name that cannot exist). The
+  bytes come from the authority's `state/engines/` first and its image's
+  `docs/seed/engines/` second, **each hash-verified before it is served** — a
+  corrupted push falls back to the image rather than taking the book down.
+- The consumer is **`scripts/engine_sync.py`** (the twin of
+  `allocator_sync.py`): it fetches the current month, verifies
+  `content_sha256` with the exporter's own arithmetic, refuses a payload whose
+  *hashed content* names another month or another engine, and installs it
+  atomically at `AAT_LEDGER_DIR/engines/`. It is called from
+  `agent_loop._cycle` **and** once from `seasonality_f.engine()` itself before
+  the order path — the second call exists because a sync that only a loop step
+  calls is a sync that can be unreachable, which is the exact failure
+  `tests_smoke_seal_delivery.py` was written about.
+- **Nothing fails OPEN.** The brain's four refusals are untouched and run on the
+  fetched bytes exactly as on the seeded ones: no file for THIS month → decline;
+  hash mismatch → decline; symbol outside the month's prefix → decline; fewer
+  than 30 bars → decline. A month the authority cannot serve stops Book F and
+  leaves every other book running.
+- **The one hole that remains, named rather than implied:** `cp -rn` NEVER
+  OVERWRITES, and neither does `engine_sync` — a *corrected* file for a month
+  already on the volume is never re-fetched, because the stale copy verifies
+  against its own hash perfectly. A *new* month arrives by itself now; a
+  *correction* still means deleting the volume copy by hand, after which the
+  authority serves the corrected one on the next cycle. 15b removed the
+  **calendar** dependency, not the **correction** one.
+- **A redeploy of `seal-authority` is needed for this route to exist** (it is
+  code), and a redeploy of each loop for `engine_sync` to be called (also code).
+  After that, October arrives without anybody.
+  (**Chunk 13c's note stands:** the authority also serves
+  `state/allocator/<day>.json`, and **its redeploy is step 1a of §5.**)
 
 **The allocator's record ships the same way:**
 `docs/seed/allocator/anchor.json` and `docs/seed/allocator/2026-09-11.json`.
@@ -312,20 +339,42 @@ the template — so the read-back in `--deploy` skips every `_KEY_ID` /
 `_SECRET_KEY` deliberately (it would otherwise re-set them for ever), and the
 log line above is the only honest proof.
 
-## 7. THE CALENDAR ITEM THIS CREATES
+## 7. THE CALENDAR ITEM THIS CREATED, AND HOW CHUNK 15b CLOSED IT
 
-**hack3 needs a redeploy every calendar month.** The engine file is per month
-and the brain refuses a month it has no file for. `F_seasonality_2026-10.json`
-is already installed, so the October redeploy only refreshes
-`AAT_LOOP_ARGS`' universe — but it is not optional: without it the October
-universe would still be September's thirty names while the brain declined every
-one of them.
+**This section used to open "hack3 needs a redeploy every calendar month."**
+Two things made that true and 15b removed both:
+
+1. **the FILE only arrived in an image** — now the seal authority serves it and
+   `scripts/engine_sync.py` installs it (§3);
+2. **the LIST was baked into `AAT_LOOP_ARGS` at deploy time** — `loop_args`
+   now also emits `--engine-universe`, and `agent_loop.cycle_universe` re-reads
+   the installed engine file every cycle. Without (2), October would have had
+   the file and still traded September's thirty names into a brain that refuses
+   every one of them: a working-looking book that finds nothing, which is the
+   failure shape `--manage-only` shouts about hourly.
+
+**So the monthly job is now: export, publish, and nothing else.**
 
     # first business day of each month, in the research repo:
     python -m scripts.night_factory_jobs F_seasonality_export
-    # then copy the new month's file into aegis-alpha-terminal/docs/seed/engines/,
-    # commit, push, and:
-    python -m scripts.fleet --deploy hack3 --up
+    # then put the new month's file where the authority can serve it -- either
+    #   (a) commit it to aegis-alpha-terminal/docs/seed/engines/ and redeploy
+    #       seal-authority (it ships in that service's image), or
+    #   (b) place it in the authority's state/engines/, which wins over the image
+    #       and needs no deploy at all.
+    # The LOOPS need nothing. `python -m scripts.fleet --deploy hack3 --up` is
+    # for a CODE change now, not for a calendar one.
+
+**What still needs a human, named rather than implied:** a *corrected* file for
+a month already installed on a loop's volume. `engine_sync` short-circuits on a
+local copy that passes its own hash, and a stale file passes its own hash
+perfectly, so it is never re-fetched — delete the volume copy and the next cycle
+installs the corrected one. 15b removed the calendar dependency, not this one.
+
+**Verification after the October rollover** (run it on 1 October, do not assume):
+
+    railway logs --service seal-authority | grep "verified months"
+    railway logs --service aat-loop-hack3 | grep -E "ENGINE SYNC|ENGINE UNIVERSE"
 
 ## 8. WHAT THIS PLAN DOES NOT DO
 

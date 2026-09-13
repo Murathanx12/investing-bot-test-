@@ -156,9 +156,16 @@ FLEET: dict[str, Mandate] = {
                "registered falsifiers passed (shift placebo +0.08%/month t 0.59; ex-January "
                "+0.38% t 2.44) and its primary did NOT clear the declared 0.65%/month effect "
                "size. The ranking is a FROZEN MONTHLY FILE exported by the research repo "
-               "(`docs/seed/engines/F_seasonality_<YYYY-MM>.json`) and hash-verified in the "
+               "(`F_seasonality_<YYYY-MM>.json`) and hash-verified in the "
                "order path; there is no engine file for a month, there is no book that month -- "
-               "the loop fails CLOSED, so THIS BOOK NEEDS A REDEPLOY EVERY CALENDAR MONTH. "
+               "the loop fails CLOSED. DELIVERY, AMENDED BY CHUNK 15b: the seal authority serves "
+               "the month's file at `/engines/F_seasonality_<YYYY-MM>.json` and "
+               "`scripts/engine_sync.py` installs and hash-verifies it on the volume, so A "
+               "REDEPLOY IS ONLY NEEDED WHEN THE CODE CHANGES -- not every calendar month, which "
+               "is what this line said until a new month's file could reach a running loop. The "
+               "image's `docs/seed/engines/` copy remains the fallback, and the one thing still "
+               "manual is CORRECTING a month already on the volume (a stale file passes its own "
+               "hash, so it is never re-fetched; delete it). "
                "Deviation from the receipt, printed on every forecast: the replay measured "
                "k=30 over the CRSP $10M band; this mandate holds the first k=10 of the same "
                "ranking over the venue's own tradable universe. Worst case UNCHANGED: "
@@ -231,6 +238,11 @@ COMMON_ENV = {
     #: the two nobody would have thought to check. Named here so every deploy
     #: sets it and the fleet is uniform.
     "AAT_ALLOCATOR_BASE_URL": "http://seal-authority.railway.internal:8080",
+    #: BOOK F'S MONTHLY ENGINE FILE, over the same artery again (chunk 15b).
+    #: `scripts/engine_sync.py` falls back to the two variables above, so this
+    #: is belt and braces -- but the fleet is uniform when every delivery path
+    #: names its own variable, and hack3 is the one book that STOPS without it.
+    "AAT_ENGINE_BASE_URL": "http://seal-authority.railway.internal:8080",
     #: THE MANDATE END, and the fleet's dated liquidation (`config.deadline_utc`).
     #: Moved out from the hackathon deadline on 2026-09-05: judging closed on
     #: 09-04 and the books keep trading, so a 09-04 deadline would have been a
@@ -356,6 +368,21 @@ def loop_args(m: Mandate) -> list[str]:
     if m.shadow:
         args += ["--shadow", ",".join(m.shadow)]
     args += list(m.extra_args)
+    if m.universe == "engine_f":
+        # RE-DERIVE THE UNIVERSE EVERY CYCLE, don't trade the list baked here
+        # (chunk 15b). The symbol list below is a snapshot of THIS month's
+        # ranking taken at DEPLOY time; on 1 October the brain would refuse all
+        # thirty of September's names and the book would be silently empty until
+        # a human redeployed. With the engine file now delivered over HTTP, the
+        # only thing left holding hack3 to a calendar was this list, so the loop
+        # is told to read the installed file instead. The baked list stays as
+        # the fallback for the cycle where the file cannot be read at all.
+        #
+        # The flag is spelled `--engine-universe`, NOT `--universe-source`:
+        # `--universe` takes nargs="*" and `tests_smoke_engine_seasonality`
+        # splits AAT_LOOP_ARGS on the literal "--universe", which a flag
+        # containing that substring would break.
+        args += ["--engine-universe"]
     syms = universe_for(m)
     if syms:
         args += ["--universe", *syms]

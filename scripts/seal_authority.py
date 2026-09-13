@@ -30,6 +30,33 @@ It STILL submits no orders: the curves come from
 `GET /v2/account/portfolio/history` through `scripts/allocator_venue.py`, whose
 client exposes reads only, and the allocator itself is pinned by
 `tests_smoke_allocator.py` to have no order path.
+
+THIRD ARTEFACT: BOOK F'S MONTHLY ENGINE FILE (chunk 15b, 2026-09-13)
+====================================================================
+`docs/DEPLOY_PLAN_2026-09-14.md` 3 said, in capitals, "THIS BOOK NEEDS A
+REDEPLOY EVERY CALENDAR MONTH": `F_seasonality_<YYYY-MM>.json` reached a loop
+only inside the image, so 1 October stopped hack3 unless a human remembered.
+A calendar dependency on a person is the failure this service was built to
+remove for the prediction book, so the engine file joins it:
+
+  * `GET /engines/F_seasonality_<YYYY-MM>.json` and
+    `GET /engines/latest/F_seasonality.json` are served from a WHITELIST with
+    the same shape as `/allocator/` -- basename only, matched against a literal
+    pattern, so nothing above the engines directory is nameable;
+  * the bytes come from `state/engines/` FIRST and `docs/seed/engines/` second.
+    The seed copy is the one in the image today (the authority has no volume by
+    design, `tests_smoke_allocator_artery` 7), so on a fresh boot the image IS
+    the source; `state/engines/` is the path a later research-side push writes
+    into, and a verified copy there WINS, which is the correction path `cp -rn`
+    never had;
+  * every candidate is HASH-VERIFIED before it is served. A file that fails its
+    own `content_sha256` is not offered at all and the other location is tried,
+    so a corrupted push cannot displace a good seed copy.
+
+`scripts/engine_sync.py` is the consumer, `alpha/brains/seasonality_f.py` calls
+it before the order path when the volume lacks the month, and the brain's own
+fail-closed checks are unchanged: this artery can only put a file where the
+brain will look, never make the brain accept one.
 """
 from __future__ import annotations
 
@@ -56,6 +83,14 @@ STATE = Path(os.getenv("AAT_LEDGER_DIR") or (ROOT / "state"))
 BOOKS = STATE / "predictions"
 ALLOC = STATE / "allocator"
 
+#: Book F's monthly engine files. `ENGINES` is where a later research-side push
+#: lands (and is empty on a fresh boot, because this service deliberately has no
+#: volume); `SEED_ENGINES` is the copy that ships in the image and is therefore
+#: the live source today. A VERIFIED file in `ENGINES` wins, which is the
+#: correction path `cp -rn` never had on the loop side.
+ENGINES = STATE / "engines"
+SEED_ENGINES = ROOT / "docs" / "seed" / "engines"
+
 #: The earliest ET time the allocator record may be computed. The venue closes
 #: 16:00 ET and `_in_session` already forbids 09:25-16:05; 16:30 is twenty-five
 #: minutes of daylight past the bell so a late print cannot land inside the mark,
@@ -65,6 +100,14 @@ ALLOCATOR_AFTER_ET = dtime(16, 30)
 
 #: `state/allocator/<day>.json`, and nothing else, is reachable under /allocator/.
 _DAY_JSON = re.compile(r"^\d{4}-\d{2}-\d{2}\.json$")
+
+#: `F_seasonality_<YYYY-MM>.json`, and nothing else, is reachable under
+#: /engines/ -- plus the literal `F_seasonality.json`, which resolves to the
+#: newest verified month exactly as `/allocator/latest.json` resolves to the
+#: newest record. Same whitelist shape, same reason: a name this cannot admit is
+#: a name that cannot escape the directory.
+_ENGINE_JSON = re.compile(r"^F_seasonality_(\d{4}-\d{2})\.json$")
+_ENGINE_LATEST = "F_seasonality.json"
 
 
 def _day() -> str:
@@ -346,6 +389,13 @@ class QuietHandler(SimpleHTTPRequestHandler):
     than `translate_path`'s own traversal filter -- the audit noted symlinks as
     the one escape `translate_path` does not close, and a whitelist closes it
     because no name it admits can be one.
+
+    `/engines/...` (chunk 15b) is the second such whitelist and is written the
+    same way on purpose: basename only, one literal pattern
+    (`F_seasonality_<YYYY-MM>.json`) plus the literal `F_seasonality.json` for
+    "latest". It differs from `/allocator/` in exactly one respect -- it may
+    resolve into EITHER `state/engines/` or `docs/seed/engines/`, whichever
+    holds a copy that passes its own content hash, volume first.
     """
 
     def log_message(self, fmt: str, *args) -> None:
@@ -355,6 +405,8 @@ class QuietHandler(SimpleHTTPRequestHandler):
         raw = unquote(urlsplit(path).path)
         if raw.startswith("/allocator/"):
             return str(ALLOC / _allocator_name(raw))
+        if raw.startswith("/engines/"):
+            return str(_engine_served_path(raw))
         return super().translate_path(path)
 
 
@@ -376,6 +428,95 @@ def _allocator_name(raw: str) -> str:
     return "__refused__"
 
 
+# ---------------------------------------------------------------------------
+# BOOK F'S MONTHLY ENGINE FILE (chunk 15b)
+# ---------------------------------------------------------------------------
+
+def _engine_verifies(path: Path) -> bool:
+    """True when the file matches its OWN `content_sha256` and names a month.
+
+    The arithmetic is `prediction_book._sha` over the payload with the key
+    removed -- the same function the sealed book and the allocator record are
+    stamped with, and the same one `alpha/brains/seasonality_f._sha_of` and
+    `scripts/engine_sync._canonical_sha` recompute on the consumer side. Four
+    copies of one hash is a thing to keep in step and it is pinned by
+    `tests_smoke_engine_artery`; four DIFFERENT hashes would be worse.
+    """
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    claimed = payload.pop("content_sha256", None)
+    if not claimed or claimed != prediction_book._sha(payload):
+        return False
+    m = _ENGINE_JSON.match(path.name)
+    return bool(m and payload.get("month") == m.group(1) and payload.get("selected"))
+
+
+def engine_file(month: str) -> Path | None:
+    """The file to serve for `month`: the volume's copy, else the image's, else None.
+
+    ORDER MATTERS AND IS THE WHOLE POINT. `state/engines/` is checked first so a
+    corrected export can override a month the image already carries -- the exact
+    move `cp -rn` refuses on the loop side, recorded in
+    `docs/DEPLOY_PLAN_2026-09-14.md` 3 as a silent failure. A copy that does not
+    verify is SKIPPED rather than served, so a half-written push falls back to
+    the image instead of taking the book down.
+    """
+    for base in (ENGINES, SEED_ENGINES):
+        p = base / f"F_seasonality_{month}.json"
+        if p.is_file() and _engine_verifies(p):
+            return p
+    return None
+
+
+def engine_months() -> list[str]:
+    """Every month with a verified file anywhere, ascending. Never guesses one."""
+    months = set()
+    for base in (ENGINES, SEED_ENGINES):
+        if not base.is_dir():
+            continue
+        for p in base.glob("F_seasonality_*.json"):
+            m = _ENGINE_JSON.match(p.name)
+            if m and _engine_verifies(p):
+                months.add(m.group(1))
+    return sorted(months)
+
+
+def _engine_served_path(raw: str) -> Path:
+    """The ONE file `/engines/<...>` may name, or a path that cannot exist.
+
+    Basename-only, like `_allocator_name`: `posixpath.normpath` then
+    `posixpath.basename` drops every directory component including `..`, so
+    `/engines/latest/F_seasonality.json` and `/engines/../../.env` are decided by
+    the last segment alone. A refusal resolves INSIDE the engines directory
+    under a name nothing can create, so the handler 404s instead of reaching
+    `translate_path`'s own (weaker) traversal filter.
+
+    `latest` is resolved to the newest VERIFIED month's real file rather than
+    written as a second copy on disk, for the reason `/allocator/latest.json`
+    gives: two files claiming to be one artefact is how the stale half gets
+    served for ever.
+    """
+    name = posixpath.basename(posixpath.normpath(unquote(urlsplit(raw).path)))
+    if name == _ENGINE_LATEST:
+        months = engine_months()
+        if not months:
+            return ENGINES / "__no_engine_file__"
+        name = f"F_seasonality_{months[-1]}.json"
+    m = _ENGINE_JSON.match(name)
+    if not m:
+        return ENGINES / "__refused__"
+    path = engine_file(m.group(1))
+    # A month that exists but fails its own hash is NOT served from the other
+    # side of the pair silently -- `engine_file` already tried both and refused
+    # both, and an unverified engine file is exactly the thing this artery is
+    # for refusing.
+    return path if path is not None else ENGINES / "__refused_unverified__"
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--port", type=int, default=int(os.getenv("PORT", "8080")))
@@ -383,6 +524,7 @@ def main(argv: list[str] | None = None) -> int:
     a = p.parse_args(argv)
     BOOKS.mkdir(parents=True, exist_ok=True)
     ALLOC.mkdir(parents=True, exist_ok=True)
+    ENGINES.mkdir(parents=True, exist_ok=True)
 
     # Serve immediately so consumers get a deterministic 404 while a long
     # whole-market refresh is running, instead of a connection failure that is
@@ -394,6 +536,14 @@ def main(argv: list[str] | None = None) -> int:
     print(f"SEAL AUTHORITY serving {BOOKS} on :{a.port}", flush=True)
     print(f"SEAL AUTHORITY serving {ALLOC} at /allocator/<day>.json and "
           f"/allocator/latest.json on :{a.port}", flush=True)
+    _months = engine_months()
+    _note = ", ".join(_months) if _months else (
+        "NONE -- every /engines/ request will 404 and hack3 declines, "
+        "which is the designed failure")
+    print(f"SEAL AUTHORITY serving Book F engines at "
+          f"/engines/F_seasonality_<YYYY-MM>.json and "
+          f"/engines/latest/F_seasonality.json on :{a.port}; verified months: "
+          f"{_note} (volume {ENGINES}, image {SEED_ENGINES})", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
