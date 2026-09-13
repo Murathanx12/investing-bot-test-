@@ -299,6 +299,25 @@ for attack in ("/allocator/../../.env", "/allocator/..%2f..%2fdecisions.jsonl",
           and attack.endswith(f"/{name}"), name)
 check("the whitelist admits exactly two shapes and nothing above the allocator dir",
       not any(ch in SA._allocator_name("/allocator/../x") for ch in "/\\"))
+# The ROUTE itself, not only the name function: the one line of glue between
+# them is exactly the kind of thing a stage test leaves untested.
+# `__new__`, not `__init__`: BaseHTTPRequestHandler's constructor serves a whole
+# request. This is the real class, so the `super()` fall-through is the real one.
+_h = SA.QuietHandler.__new__(SA.QuietHandler)
+_h.directory = str(SA.BOOKS)
+check("GET /allocator/latest.json resolves INTO state/allocator/",
+      Path(_h.translate_path("/allocator/latest.json")).parent == SA.ALLOC,
+      _h.translate_path("/allocator/latest.json"))
+check("GET /allocator/2026-09-11.json resolves to that exact file",
+      Path(_h.translate_path("/allocator/2026-09-11.json")) == SA.ALLOC / "2026-09-11.json")
+check("a query string does not smuggle a path past the whitelist",
+      Path(_h.translate_path("/allocator/2026-09-11.json?x=../../.env")).parent == SA.ALLOC)
+check("a traversal attempt lands on a name that cannot exist, inside the allocator dir",
+      Path(_h.translate_path("/allocator/../../.env")).parent == SA.ALLOC
+      and not Path(_h.translate_path("/allocator/../../.env")).exists())
+check("every other path still goes to the books directory, unchanged",
+      Path(_h.translate_path("/2026-09-11.json")).parent == SA.BOOKS,
+      _h.translate_path("/2026-09-11.json"))
 check("the served root for books is unchanged", SA.BOOKS == SA.STATE / "predictions")
 check("and the allocator dir sits beside it", SA.ALLOC == SA.STATE / "allocator")
 check("no do_POST anywhere in the handler chain: every write method is still 501",
