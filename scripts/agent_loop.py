@@ -305,6 +305,27 @@ def _cycle(client, args, last: dict) -> int:
             prediction_book_sync.sync_once()
         except Exception as exc:  # noqa: BLE001
             log.warning("prediction book sync failed: %s", exc)
+        # THE SECOND ARTERY (chunk 13c, 2026-09-13): the allocator's daily cut.
+        # Same shape, same failure contract -- install the authority's
+        # hash-verified record if there is a newer one, then ask what budget
+        # this book actually runs at. A delivery failure is NOT a 1.00: the book
+        # keeps its last known budget and `gross_scale` says which one and why.
+        # The answer is recomputed EVERY cycle rather than once at startup,
+        # because a loop stays up across the 16:30 ET cut that changes it.
+        gross_scale = getattr(args, "gross_scale", None)
+        try:
+            from scripts import allocator_sync
+            allocator_sync.sync_once()
+            _role = (os.getenv("AAT_ACCOUNT_ROLE") or "").strip().lower()
+            _scale, _why = allocator_sync.effective_gross_scale(
+                _role, deployed=getattr(args, "gross_scale", None))
+            if _scale != gross_scale or "STALE" in _why or "NO ALLOCATOR" in _why:
+                log.info("ALLOCATOR BUDGET %s: %s -> --gross-scale %s",
+                         _role or "(no role)", _why, _scale)
+            gross_scale = _scale
+        except Exception as exc:  # noqa: BLE001
+            log.warning("allocator sync failed (keeping the deployed "
+                        "--gross-scale %s): %s", gross_scale, exc)
         now = time.time()
         # INITIALISED BEFORE THE TRY, not inside it. A BrokerRefusal below used to
         # leave this name unbound while two later branches read it -- a latent
@@ -411,8 +432,8 @@ def _cycle(client, args, last: dict) -> int:
                 # called from the suite with a SimpleNamespace, and a flag that
                 # only exists on the real parser turns a test into an
                 # AttributeError instead of a check.
-                if getattr(args, "gross_scale", None) is not None:
-                    extra += ["--gross-scale", str(args.gross_scale)]
+                if gross_scale is not None:
+                    extra += ["--gross-scale", str(gross_scale)]
                 _run("scripts.open_auction", *extra, live=args.live)
             elif _style is not None:
                 log.debug("no pre-open pass: %s", _why)
@@ -438,8 +459,8 @@ def _cycle(client, args, last: dict) -> int:
                 extra += ["--shadow", args.shadow]
             if args.profile:
                 extra += ["--profile", args.profile]
-            if getattr(args, "gross_scale", None) is not None:
-                extra += ["--gross-scale", str(args.gross_scale)]
+            if gross_scale is not None:
+                extra += ["--gross-scale", str(gross_scale)]
             if args.universe:
                 extra += ["--universe", *args.universe]
             _run("scripts.run_pass", "--expiry", args.expiry, *extra, live=args.live); last["entry"] = now

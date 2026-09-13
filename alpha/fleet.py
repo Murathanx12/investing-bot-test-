@@ -223,6 +223,14 @@ COMMON_ENV = {
     "AAT_OPTIONS_FEED": "indicative",
     "AAT_STOCK_FEED": "iex",
     "AAT_LEDGER_DIR": "/app/state",
+    #: THE ALLOCATOR'S DAILY CUT, over the same artery as the sealed book
+    #: (chunk 13c). `scripts/allocator_sync.py` falls back to
+    #: AAT_PREDICTION_BOOK_BASE_URL when this is unset, so hack3/4/6 already
+    #: read it -- but hack1 and hack5 never carried the seal variable, and the
+    #: two books the allocator silently could not reach would have been exactly
+    #: the two nobody would have thought to check. Named here so every deploy
+    #: sets it and the fleet is uniform.
+    "AAT_ALLOCATOR_BASE_URL": "http://seal-authority.railway.internal:8080",
     #: THE MANDATE END, and the fleet's dated liquidation (`config.deadline_utc`).
     #: Moved out from the hackathon deadline on 2026-09-05: judging closed on
     #: 09-04 and the books keep trading, so a 09-04 deadline would have been a
