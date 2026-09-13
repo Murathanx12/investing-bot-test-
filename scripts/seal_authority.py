@@ -81,6 +81,19 @@ def _in_session(now_t: dtime | None = None) -> bool:
     return _weekday() and dtime(9, 25) <= now_t < dtime(16, 5)
 
 
+def _in_session_at(now: datetime) -> bool:
+    """The same predicate, but on a GIVEN moment rather than on the wall clock.
+
+    `_in_session` reads today's weekday from `datetime.now`, so a caller that
+    passes a time from another day gets that day's hour checked against TODAY's
+    weekday. That is invisible five days a week and wrong on the other two --
+    `tests_smoke_seal_delivery` works around it by stubbing the function, which
+    is a workaround, not a predicate. Anything that reasons about a moment uses
+    this one; `_in_session` keeps its signature for the callers that mean "now".
+    """
+    return now.weekday() < 5 and dtime(9, 25) <= now.time() < dtime(16, 5)
+
+
 def _book_path(day: str) -> Path | None:
     cands = sorted(BOOKS.glob(f"{day}.json")) + sorted(BOOKS.glob(f"{day}.resealed_*.json"))
     return cands[-1] if cands else None
@@ -181,7 +194,7 @@ def allocator_due(now: datetime | None = None) -> tuple[str | None, str]:
     day = now.date().isoformat()
     if now.weekday() >= 5:
         return None, f"{day}: weekend, no allocator record required"
-    if _in_session(now.time()):
+    if _in_session_at(now):
         return None, (f"{day}: venue session in progress ({now:%H:%M} ET); an "
                       f"allocator mark is a CLOSE and this is not one")
     if now.time() < ALLOCATOR_AFTER_ET:
