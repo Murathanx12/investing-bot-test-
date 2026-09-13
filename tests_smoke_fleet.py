@@ -24,11 +24,22 @@ def check(name, ok, detail=""):
 
 print("\n-- fleet: six mandates, all executable")
 check("six roles named hack1..hack6", list(fleet.FLEET) == [f"hack{i}" for i in range(1, 7)], str(list(fleet.FLEET)))
-check("three tracker books (hack3/4/6) run the sealed selector, shares only",
-      all(fleet.FLEET[r].brains == ("tracker_portfolio",) and fleet.FLEET[r].structure_kinds == ("long_shares",)
-          for r in ("hack3", "hack4", "hack6")))
+# 2026-09-13, chunk 13b: hack3's RANKING moved to Book F (`seasonality_f`) and
+# its construction did not. hack4 and hack6 still run the sealed selector; all
+# three are still shares-only, and hack3's displaced engine keeps marking as a
+# shadow so the switch itself is gradeable. The worst-case arithmetic that the
+# swap must not move is pinned in `tests_smoke_engine_seasonality.py`.
+check("two tracker books (hack4/hack6) still run the sealed selector",
+      all(fleet.FLEET[r].brains == ("tracker_portfolio",) for r in ("hack4", "hack6")),
+      str({r: fleet.FLEET[r].brains for r in ("hack4", "hack6")}))
+check("hack3 runs Book F's engine, and it is a DIFFERENT selector over a different artefact",
+      fleet.FLEET["hack3"].brains == ("seasonality_f",), str(fleet.FLEET["hack3"].brains))
+check("all three share books are still shares-only",
+      all(fleet.FLEET[r].structure_kinds == ("long_shares",) for r in ("hack3", "hack4", "hack6")))
 check("hack6's council blend survives as SHADOW (>=3 comparators)", len(fleet.FLEET["hack6"].shadow) >= 3)
-check("hack3's adjudicated thesis brains survive as SHADOW", set(fleet.FLEET["hack3"].shadow) >= {"theme_basket", "murat_rule"})
+check("hack3's adjudicated thesis brains survive as SHADOW, and so does the engine it displaced",
+      set(fleet.FLEET["hack3"].shadow) >= {"theme_basket", "murat_rule", "tracker_portfolio"},
+      str(fleet.FLEET["hack3"].shadow))
 check("1-2 safe, rest risky", 1 <= len(fleet.SAFE) <= 2 and len(fleet.RISKY) == 6 - len(fleet.SAFE), f"{fleet.SAFE} {fleet.RISKY}")
 for r, m in fleet.FLEET.items():
     check(f"{r}: role name valid", r == r.lower() and r.replace("_", "").isalnum() and r not in ("dev", "competition"))

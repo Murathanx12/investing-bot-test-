@@ -133,12 +133,37 @@ FLEET: dict[str, Mandate] = {
                "inside a session, which was the whole objection. Worst case, printed: "
                "8 names x 6% x 8% = -3.84% of equity, gross 48%."),
     "hack3": Mandate(
-        role="hack3", tier="RISKY", label="TRACKER BALANCED: sealed upside x consensus, k=10, shares only",
-        question="Same sealed-tracker artery as hack4 at double the breadth (k=10 x 8.3%): does balanced breadth beat profit-max k=5 (hack4) and diversified k=15 (hack6) on REAL FILLS? T13 found a ridge (prose arms beat at k=5, collapsed at k=10) -- this is the live test of that ridge.",
-        brains=("tracker_portfolio",), shadow=("theme_basket", "murat_rule"), profile="basket", universe="themes_plus_rule",
+        role="hack3", tier="RISKY", label="SEASONALITY (Book F): same-calendar-month 11-20y tilt, k=10, shares only",
+        question="Does Book F -- the only one of the four 2026-09 night books positive AT THE $10M FLOOR in the current era (+0.4328%/month vs its turnover-matched twin, t 3.1178, 419 blocks; 2017-24 +0.76%/month, t 2.30) -- pay on real fills at hack3's UNCHANGED construction (k=10 x 8.3%, 12% stop)?",
+        # ENGINE SWITCH 2026-09-13 (chunk 13b, roadmap 11c "Third read"). The
+        # sealed tracker artery is the fleet's biggest loser ($83,342 of
+        # $100,000 on 09-13 against SPY -0.66% over the same window) and it has
+        # no historical edge of its own. F replaces the RANKING and nothing
+        # else: `profile`, `structure_kinds`, k, notional% and the stop are
+        # untouched, so `contract.worst_case("hack3")` is byte-identical before
+        # and after (pinned in `tests_smoke_engine_seasonality`).
+        #
+        # `tracker_portfolio` moves to SHADOW rather than being deleted: the
+        # displaced engine keeps marking, so the SWITCH ITSELF is gradeable
+        # instead of being an unmeasured before/after. A book is never shown
+        # without its twin, and an engine swap is a book.
+        brains=("seasonality_f",),
+        shadow=("tracker_portfolio", "theme_basket", "murat_rule"),
+        profile="basket", universe="engine_f",
         allow_maximum=True,
         rank_objective="median", structure_kinds=("long_shares",),
-        caveat="APPROVED by Murat 2026-08-31 ('make sure all the other paper accounts are also wired "
+        caveat="ENGINE F, PRODUCT_EXPERIMENT, 2026-09-13. F is CONDITIONAL, not a claim: its two "
+               "registered falsifiers passed (shift placebo +0.08%/month t 0.59; ex-January "
+               "+0.38% t 2.44) and its primary did NOT clear the declared 0.65%/month effect "
+               "size. The ranking is a FROZEN MONTHLY FILE exported by the research repo "
+               "(`docs/seed/engines/F_seasonality_<YYYY-MM>.json`) and hash-verified in the "
+               "order path; there is no engine file for a month, there is no book that month -- "
+               "the loop fails CLOSED, so THIS BOOK NEEDS A REDEPLOY EVERY CALENDAR MONTH. "
+               "Deviation from the receipt, printed on every forecast: the replay measured "
+               "k=30 over the CRSP $10M band; this mandate holds the first k=10 of the same "
+               "ranking over the venue's own tradable universe. Worst case UNCHANGED: "
+               "10 x 10% = 100% gross at a 12% stop = -12% of equity. "
+               "SUPERSEDES (kept because the question it answered is still open): APPROVED by Murat 2026-08-31 ('make sure all the other paper accounts are also wired "
                "and not empty ... up to the engine'): the thesis basket and murat_rule move to SHADOW "
                "with their adjudicated rules intact (dip cell -0.31%/5d t -2.35 still refused there). "
                "Shares only; sealed notional is a reduce-only ceiling; exact names from "
@@ -237,6 +262,21 @@ def rule_claimed_symbols(day: str | None = None) -> list[str]:
             if r.get("generator") == "murat_rule_v1" and r.get("claims")]
 
 
+def engine_f_symbols(day: str | None = None) -> list[str]:
+    """This calendar month's Book F selection, from the installed engine file.
+
+    Raises `seasonality_f.EngineDeclined` when there is no VERIFIED engine file
+    for the current month. That refusal is deliberate and it is the point of the
+    design: a role whose universe cannot be stated must not be deployed with a
+    universe the loop invents for it. `--deploy hack3` therefore fails loudly in
+    the month before the export has been installed, which is exactly when it
+    should fail -- rather than shipping and trading a window universe under a
+    seasonality mandate's name.
+    """
+    from alpha.brains import seasonality_f as _f
+    return _f.universe_symbols(day)
+
+
 def universe_for(m: Mandate) -> list[str] | None:
     """Explicit symbol list, or None when the loop builds it (`--window-universe`)."""
     if m.universe == "window":
@@ -256,6 +296,16 @@ def universe_for(m: Mandate) -> list[str] | None:
         # names divide the same gross, they do not add to it. Only raising the
         # cap or the stop moves the bound, and neither is touched here.
         return sorted(set(theme_symbols()) | set(rule_claimed_symbols()))
+    if m.universe == "engine_f":
+        # THE ENGINE'S OWN k=30 SELECTION, not the book's k=10 prefix: the loop
+        # is asked about everything the month's ranking chose, so the receipt
+        # records what was considered, and `seasonality_f` admits the prefix.
+        #
+        # This CANNOT raise the worst case, for the same reason
+        # `themes_plus_rule` could not: hack3's bound is
+        # `gross_cap('basket') x stop_fraction('basket')` and that expression
+        # has no name-count term. More names divide the same gross.
+        return engine_f_symbols()
     if m.universe == "themes_with_options":
         return theme_symbols(with_options_only=True)
     if m.universe == "window_plus_themes":
@@ -374,4 +424,22 @@ def railway_commands(m: Mandate) -> str:
 
 
 def as_dict() -> dict:
-    return {r: {**asdict(m), "loop_args": loop_args(m)} for r, m in FLEET.items()}
+    """Every mandate as data, with its loop args -- or the REASON they are absent.
+
+    `loop_args` reaches `universe_for`, and one universe kind (`engine_f`) can
+    honestly refuse: a month with no installed engine file has no Book F
+    universe. A refusal must not take down `--plan`, `--json` or an audit that
+    only wanted to read the table, so it is recorded as a string on the row it
+    belongs to instead of being raised out of a whole-fleet dump. The deploy
+    path still fails: `scripts.fleet --deploy` calls `env_for` directly.
+    """
+    out = {}
+    for r, m in FLEET.items():
+        row = asdict(m)
+        try:
+            row["loop_args"] = loop_args(m)
+        except Exception as exc:                                    # noqa: BLE001
+            row["loop_args"] = None
+            row["loop_args_refused"] = f"{type(exc).__name__}: {str(exc)[:200]}"
+        out[r] = row
+    return out

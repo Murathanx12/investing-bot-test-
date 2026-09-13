@@ -18,8 +18,8 @@ import logging
 from typing import Any, Callable
 
 from alpha.brains import (council_vector, event_move, murat_rule, narrative_dispersion,
-                          options_attention, post_event_drift, relay, theme_basket,
-                          tracker_portfolio, vol_gap)
+                          options_attention, post_event_drift, relay, seasonality_f,
+                          theme_basket, tracker_portfolio, vol_gap)
 from alpha.brains.base import Forecast
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,12 @@ BRAINS: dict[str, Callable[..., Forecast]] = {
     # purpose: enabling one does NOT enable the other, and a handoff that says
     # "the tracker portfolio is live" is only true of this one.
     "tracker_portfolio": lambda client, sym, h, **kw: tracker_portfolio.forecast(client, sym, h),
+    # BOOK F (2026-09-13, chunk 13b). A SEPARATE SELECTOR over a frozen monthly
+    # ranking exported by the research repo -- the same install-and-verify shape
+    # as `tracker_portfolio`, over a different artefact and a different error
+    # type. Registered apart on purpose: it reads no seal, and enabling the
+    # tracker does not enable it.
+    "seasonality_f": lambda client, sym, h, **kw: seasonality_f.forecast(client, sym, h),
 }
 
 

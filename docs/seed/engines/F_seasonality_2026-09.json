@@ -1,0 +1,6874 @@
+{
+ "engine": "seasonality_11_20_v0",
+ "engine_key": "F",
+ "registration": "TRIAL-DRAFT-F-calendar-seasonality-v0 (UNSIGNED)",
+ "family": "NIGHT_JOB_BOOKS_2026_09_13",
+ "licence": "PRODUCT_EXPERIMENT",
+ "job": "F_seasonality_export",
+ "month": "2026-09",
+ "as_of": "2026-09-13T08:04:18+00:00",
+ "panel_last_month": "2015-12",
+ "receipt": "night_factory_2026-09-13/B_books_efg_replay_run01.json",
+ "receipt_cell": {
+  "floor_usd": 10000000.0,
+  "n_blocks": 419,
+  "mean_book_net_monthly": 0.008996,
+  "mean_twin_net_monthly": 0.004668,
+  "mean_excess_net_monthly": 0.004328,
+  "nw_lag2_t": 3.1178,
+  "p_two_sided": 0.001822,
+  "cost_curve": "flat_25bps_pending_5c",
+  "by_era_2017_2024": {
+   "mean_excess_net_monthly": 0.007637,
+   "nw_lag2_t": 2.2972
+  },
+  "verdict": "CONDITIONAL"
+ },
+ "construction": {
+  "k": 30,
+  "tercile": 0.6666666666666666,
+  "floor_usd": 10000000.0,
+  "min_price_usd": 5.0,
+  "columns": [
+   "seas_11_15an",
+   "seas_16_20an"
+  ],
+  "both_columns_required": true,
+  "lag_years": {
+   "seas_11_15an": [
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "seas_16_20an": [
+    16,
+    17,
+    18,
+    19,
+    20
+   ]
+  },
+  "required_years_per_window": 5,
+  "share_codes": [
+   10,
+   11
+  ],
+  "cut": "top tercile of the equal-weight mean of the within-month z-scores",
+  "hold": "one month, monthly rebalance",
+  "selector": "backend.services.book_signals.seasonality_score",
+  "deviations_from_the_replay": [
+   "universe: the EXECUTION repo's current tradable universe (Alpaca assets at the $10M median-dollar-volume floor, ETFs excluded, price >= $5), not the replay's CRSP eligible band. A book has to trade names the venue lists.",
+   "columns: seas_11_15an / seas_16_20an are DERIVED from the CRSP monthly panel's own same-calendar-month returns at the registered year lags, because JKP's panel ends 2024-12 and cannot stamp a 2026 month. The combination, the both-columns rule and the tercile cut are the registered code path (`book_signals.seasonality_score`), not a second implementation.",
+   "k: this file ranks and cuts at the registered k=30. The mandate that runs it (hack3) holds k=10 x 8.3%, which is a PREFIX of this ranking and not a different selection rule -- but it is not the k the receipt measured."
+  ]
+ },
+ "universe_source": {
+  "path": "C:\\Users\\mrthn\\aegis-alpha-terminal\\state\\universe\\HIGH_DISPERSION_US_v1_2026-09-01.json",
+  "asof": "2026-09-01",
+  "screen": {
+   "exchanges": [
+    "AMEX",
+    "ARCA",
+    "BATS",
+    "NASDAQ",
+    "NYSE"
+   ],
+   "min_price": 2.0,
+   "min_median_dollar_volume": 3000000.0,
+   "window_sessions": 60,
+   "market_cap_screen": "NOT APPLIED (no cap in the venue's asset record)"
+  }
+ },
+ "coverage": {
+  "universe_members": 9668,
+  "universe_after_floor": 2362,
+  "universe_dropped": {
+   "etf_like": 5013,
+   "below_floor": 2226,
+   "below_price": 67
+  },
+  "mapped_to_permno": 1948,
+  "mapped_share_of_universe": 0.8247,
+  "unmapped_symbols": [
+   "AADX",
+   "AAMI",
+   "AAUC",
+   "ABVX",
+   "ADC",
+   "ADNT",
+   "AEM",
+   "AER",
+   "AHR",
+   "ALH",
+   "ALM",
+   "AMBA",
+   "AMBQ",
+   "AMRZ",
+   "ANDG",
+   "AOSL",
+   "APLE",
+   "AQN",
+   "ARE",
+   "ARR",
+   "ARXS",
+   "ASML",
+   "ASR",
+   "ATAI",
+   "ATAT",
+   "AUGO",
+   "AUPH",
+   "AVEX",
+   "AXS",
+   "AXTA",
+   "AZN",
+   "BABA",
+   "BAP",
+   "BBNX",
+   "BBVA",
+   "BCH",
+   "BCS",
+   "BEKE",
+   "BEP",
+   "BEPC"
+  ],
+  "unmapped_count": 414,
+  "carrying_both_windows": 956,
+  "carrying_both_windows_share_of_mapped": 0.4908,
+  "per_window_names_in_panel": {
+   "seas_11_15an": 2925,
+   "seas_16_20an": 3334
+  },
+  "top_tercile_names": 319,
+  "selected": 30,
+  "mapping": "CRSP dsenames, last-known ticker (greatest nameendt), share codes [10, 11]"
+ },
+ "selected": [
+  "THO",
+  "AEHR",
+  "ALGN",
+  "NKE",
+  "EVR",
+  "RDN",
+  "SNDK",
+  "SFNC",
+  "RMBS",
+  "OXM",
+  "IPAR",
+  "EXTR",
+  "NXST",
+  "PAR",
+  "NEOG",
+  "AEO",
+  "CBRL",
+  "HURN",
+  "AXON",
+  "AMZN",
+  "TCBK",
+  "AZZ",
+  "STAA",
+  "QDEL",
+  "MGM",
+  "MANH",
+  "GIII",
+  "MNST",
+  "EVC",
+  "EEFT"
+ ],
+ "rows": [
+  {
+   "symbol": "THO",
+   "permno": 76081,
+   "score": 2.34355,
+   "rank": 1,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AEHR",
+   "permno": 85272,
+   "score": 2.341823,
+   "rank": 2,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ALGN",
+   "permno": 88860,
+   "score": 2.310609,
+   "rank": 3,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NKE",
+   "permno": 57665,
+   "score": 2.242412,
+   "rank": 4,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EVR",
+   "permno": 91413,
+   "score": 2.054246,
+   "rank": 5,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RDN",
+   "permno": 78038,
+   "score": 1.99406,
+   "rank": 6,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SNDK",
+   "permno": 82618,
+   "score": 1.926241,
+   "rank": 7,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SFNC",
+   "permno": 91855,
+   "score": 1.8658,
+   "rank": 8,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RMBS",
+   "permno": 84827,
+   "score": 1.770099,
+   "rank": 9,
+   "tercile": "top"
+  },
+  {
+   "symbol": "OXM",
+   "permno": 34948,
+   "score": 1.724771,
+   "rank": 10,
+   "tercile": "top"
+  },
+  {
+   "symbol": "IPAR",
+   "permno": 11884,
+   "score": 1.580108,
+   "rank": 11,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EXTR",
+   "permno": 86822,
+   "score": 1.5784,
+   "rank": 12,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NXST",
+   "permno": 89916,
+   "score": 1.569854,
+   "rank": 13,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PAR",
+   "permno": 61146,
+   "score": 1.561942,
+   "rank": 14,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NEOG",
+   "permno": 75976,
+   "score": 1.560244,
+   "rank": 15,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AEO",
+   "permno": 80432,
+   "score": 1.491227,
+   "rank": 16,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CBRL",
+   "permno": 27562,
+   "score": 1.485177,
+   "rank": 17,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HURN",
+   "permno": 90409,
+   "score": 1.439461,
+   "rank": 18,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AXON",
+   "permno": 89031,
+   "score": 1.422399,
+   "rank": 19,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AMZN",
+   "permno": 84788,
+   "score": 1.417083,
+   "rank": 20,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TCBK",
+   "permno": 79116,
+   "score": 1.39167,
+   "rank": 21,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AZZ",
+   "permno": 16126,
+   "score": 1.38801,
+   "rank": 22,
+   "tercile": "top"
+  },
+  {
+   "symbol": "STAA",
+   "permno": 72304,
+   "score": 1.342196,
+   "rank": 23,
+   "tercile": "top"
+  },
+  {
+   "symbol": "QDEL",
+   "permno": 76591,
+   "score": 1.337318,
+   "rank": 24,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MGM",
+   "permno": 11891,
+   "score": 1.301126,
+   "rank": 25,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MANH",
+   "permno": 85992,
+   "score": 1.297222,
+   "rank": 26,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GIII",
+   "permno": 75905,
+   "score": 1.295742,
+   "rank": 27,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MNST",
+   "permno": 88031,
+   "score": 1.269101,
+   "rank": 28,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EVC",
+   "permno": 88485,
+   "score": 1.267647,
+   "rank": 29,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EEFT",
+   "permno": 84606,
+   "score": 1.262692,
+   "rank": 30,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MSI",
+   "permno": 22779,
+   "score": 1.259122,
+   "rank": 31,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SNX",
+   "permno": 89900,
+   "score": 1.237848,
+   "rank": 32,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MGRC",
+   "permno": 89915,
+   "score": 1.214419,
+   "rank": 33,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UAL",
+   "permno": 91103,
+   "score": 1.214054,
+   "rank": 34,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FBNC",
+   "permno": 11285,
+   "score": 1.195778,
+   "rank": 35,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MSTR",
+   "permno": 86211,
+   "score": 1.194203,
+   "rank": 36,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ALNY",
+   "permno": 90178,
+   "score": 1.177813,
+   "rank": 37,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FFBC",
+   "permno": 35685,
+   "score": 1.1768,
+   "rank": 38,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WGO",
+   "permno": 51086,
+   "score": 1.17589,
+   "rank": 39,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TYL",
+   "permno": 76185,
+   "score": 1.13157,
+   "rank": 40,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ABCB",
+   "permno": 80498,
+   "score": 1.129952,
+   "rank": 41,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EXPO",
+   "permno": 76261,
+   "score": 1.124912,
+   "rank": 42,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WTW",
+   "permno": 89244,
+   "score": 1.109068,
+   "rank": 43,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FDS",
+   "permno": 83597,
+   "score": 1.096253,
+   "rank": 44,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HWKN",
+   "permno": 41241,
+   "score": 1.094707,
+   "rank": 45,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DECK",
+   "permno": 79686,
+   "score": 1.094114,
+   "rank": 46,
+   "tercile": "top"
+  },
+  {
+   "symbol": "IESC",
+   "permno": 85768,
+   "score": 1.089119,
+   "rank": 47,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MMS",
+   "permno": 85067,
+   "score": 1.087096,
+   "rank": 48,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TCBI",
+   "permno": 89826,
+   "score": 1.076241,
+   "rank": 49,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ONB",
+   "permno": 12068,
+   "score": 1.072216,
+   "rank": 50,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GE",
+   "permno": 12060,
+   "score": 1.068812,
+   "rank": 51,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AORT",
+   "permno": 78876,
+   "score": 1.059398,
+   "rank": 52,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CORT",
+   "permno": 90125,
+   "score": 1.055136,
+   "rank": 53,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ATRC",
+   "permno": 90856,
+   "score": 1.05226,
+   "rank": 54,
+   "tercile": "top"
+  },
+  {
+   "symbol": "INOD",
+   "permno": 79499,
+   "score": 1.047051,
+   "rank": 55,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UAA",
+   "permno": 90979,
+   "score": 1.046024,
+   "rank": 56,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CME",
+   "permno": 89626,
+   "score": 1.045747,
+   "rank": 57,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ANIP",
+   "permno": 89875,
+   "score": 1.041858,
+   "rank": 58,
+   "tercile": "top"
+  },
+  {
+   "symbol": "INSW",
+   "permno": 87074,
+   "score": 1.034768,
+   "rank": 59,
+   "tercile": "top"
+  },
+  {
+   "symbol": "STC",
+   "permno": 72980,
+   "score": 1.031812,
+   "rank": 60,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ORI",
+   "permno": 59396,
+   "score": 1.02778,
+   "rank": 61,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COST",
+   "permno": 87055,
+   "score": 1.024095,
+   "rank": 62,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FNB",
+   "permno": 10629,
+   "score": 1.004594,
+   "rank": 63,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UBSI",
+   "permno": 11369,
+   "score": 0.987567,
+   "rank": 64,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PII",
+   "permno": 75182,
+   "score": 0.987462,
+   "rank": 65,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CB",
+   "permno": 59192,
+   "score": 0.977781,
+   "rank": 66,
+   "tercile": "top"
+  },
+  {
+   "symbol": "OZK",
+   "permno": 85198,
+   "score": 0.975603,
+   "rank": 67,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BCPC",
+   "permno": 10318,
+   "score": 0.957741,
+   "rank": 68,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PRGO",
+   "permno": 77182,
+   "score": 0.951777,
+   "rank": 69,
+   "tercile": "top"
+  },
+  {
+   "symbol": "INSM",
+   "permno": 88351,
+   "score": 0.94824,
+   "rank": 70,
+   "tercile": "top"
+  },
+  {
+   "symbol": "VFC",
+   "permno": 43553,
+   "score": 0.930044,
+   "rank": 71,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BMY",
+   "permno": 19393,
+   "score": 0.927942,
+   "rank": 72,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RNST",
+   "permno": 77526,
+   "score": 0.924359,
+   "rank": 73,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NSP",
+   "permno": 84385,
+   "score": 0.924222,
+   "rank": 74,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NWL",
+   "permno": 60986,
+   "score": 0.924015,
+   "rank": 75,
+   "tercile": "top"
+  },
+  {
+   "symbol": "THRM",
+   "permno": 79248,
+   "score": 0.923646,
+   "rank": 76,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WDFC",
+   "permno": 81294,
+   "score": 0.914912,
+   "rank": 77,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LUV",
+   "permno": 58683,
+   "score": 0.912473,
+   "rank": 78,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COLB",
+   "permno": 77679,
+   "score": 0.909546,
+   "rank": 79,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CCOI",
+   "permno": 89297,
+   "score": 0.904105,
+   "rank": 80,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BKE",
+   "permno": 77584,
+   "score": 0.902898,
+   "rank": 81,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HOMB",
+   "permno": 91356,
+   "score": 0.896209,
+   "rank": 82,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EFSC",
+   "permno": 90591,
+   "score": 0.881693,
+   "rank": 83,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ZION",
+   "permno": 84129,
+   "score": 0.877986,
+   "rank": 84,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GPN",
+   "permno": 88873,
+   "score": 0.877548,
+   "rank": 85,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SKY",
+   "permno": 38850,
+   "score": 0.868106,
+   "rank": 86,
+   "tercile": "top"
+  },
+  {
+   "symbol": "QRVO",
+   "permno": 85035,
+   "score": 0.856763,
+   "rank": 87,
+   "tercile": "top"
+  },
+  {
+   "symbol": "INTU",
+   "permno": 78975,
+   "score": 0.854095,
+   "rank": 88,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BBY",
+   "permno": 85914,
+   "score": 0.852335,
+   "rank": 89,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BFH",
+   "permno": 89002,
+   "score": 0.851038,
+   "rank": 90,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HCSG",
+   "permno": 41292,
+   "score": 0.848405,
+   "rank": 91,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COKE",
+   "permno": 11995,
+   "score": 0.846228,
+   "rank": 92,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RLI",
+   "permno": 65294,
+   "score": 0.845614,
+   "rank": 93,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MLKN",
+   "permno": 54114,
+   "score": 0.839835,
+   "rank": 94,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CVBF",
+   "permno": 20395,
+   "score": 0.834578,
+   "rank": 95,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LYV",
+   "permno": 91041,
+   "score": 0.834317,
+   "rank": 96,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COO",
+   "permno": 65541,
+   "score": 0.826301,
+   "rank": 97,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ATRO",
+   "permno": 15457,
+   "score": 0.825107,
+   "rank": 98,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BBWI",
+   "permno": 64282,
+   "score": 0.817961,
+   "rank": 99,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CMG",
+   "permno": 91068,
+   "score": 0.813882,
+   "rank": 100,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LVS",
+   "permno": 90505,
+   "score": 0.81078,
+   "rank": 101,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BLK",
+   "permno": 87267,
+   "score": 0.80926,
+   "rank": 102,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SYBT",
+   "permno": 79013,
+   "score": 0.808947,
+   "rank": 103,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FNF",
+   "permno": 90925,
+   "score": 0.805591,
+   "rank": 104,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GOOGL",
+   "permno": 90319,
+   "score": 0.803571,
+   "rank": 105,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ECL",
+   "permno": 70578,
+   "score": 0.802602,
+   "rank": 106,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KLAC",
+   "permno": 46886,
+   "score": 0.800934,
+   "rank": 107,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ADSK",
+   "permno": 85631,
+   "score": 0.795286,
+   "rank": 108,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CYTK",
+   "permno": 90126,
+   "score": 0.787908,
+   "rank": 109,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ALL",
+   "permno": 79323,
+   "score": 0.786866,
+   "rank": 110,
+   "tercile": "top"
+  },
+  {
+   "symbol": "VIAV",
+   "permno": 79879,
+   "score": 0.779266,
+   "rank": 111,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HLIT",
+   "permno": 81621,
+   "score": 0.76292,
+   "rank": 112,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CSGP",
+   "permno": 86288,
+   "score": 0.762336,
+   "rank": 113,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ACLS",
+   "permno": 88417,
+   "score": 0.759874,
+   "rank": 114,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PNRG",
+   "permno": 46923,
+   "score": 0.751668,
+   "rank": 115,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TSCO",
+   "permno": 80286,
+   "score": 0.747286,
+   "rank": 116,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ICE",
+   "permno": 90993,
+   "score": 0.746521,
+   "rank": 117,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CTSH",
+   "permno": 86158,
+   "score": 0.742821,
+   "rank": 118,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AIZ",
+   "permno": 90038,
+   "score": 0.739743,
+   "rank": 119,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HEI",
+   "permno": 85945,
+   "score": 0.738286,
+   "rank": 120,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MNRO",
+   "permno": 76750,
+   "score": 0.728495,
+   "rank": 121,
+   "tercile": "top"
+  },
+  {
+   "symbol": "URI",
+   "permno": 85663,
+   "score": 0.726963,
+   "rank": 122,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MWA",
+   "permno": 91234,
+   "score": 0.723664,
+   "rank": 123,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GILD",
+   "permno": 77274,
+   "score": 0.723325,
+   "rank": 124,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PRK",
+   "permno": 76266,
+   "score": 0.720982,
+   "rank": 125,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FAST",
+   "permno": 11618,
+   "score": 0.72004,
+   "rank": 126,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BBT",
+   "permno": 71563,
+   "score": 0.712614,
+   "rank": 127,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DRI",
+   "permno": 81655,
+   "score": 0.707963,
+   "rank": 128,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TAP",
+   "permno": 90562,
+   "score": 0.69987,
+   "rank": 129,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KO",
+   "permno": 11308,
+   "score": 0.695885,
+   "rank": 130,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EW",
+   "permno": 87657,
+   "score": 0.692946,
+   "rank": 131,
+   "tercile": "top"
+  },
+  {
+   "symbol": "VRTX",
+   "permno": 76744,
+   "score": 0.686641,
+   "rank": 132,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CHDN",
+   "permno": 79026,
+   "score": 0.683195,
+   "rank": 133,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NDAQ",
+   "permno": 90601,
+   "score": 0.680864,
+   "rank": 134,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DORM",
+   "permno": 76582,
+   "score": 0.674511,
+   "rank": 135,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JKHY",
+   "permno": 88664,
+   "score": 0.674033,
+   "rank": 136,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EXPD",
+   "permno": 87717,
+   "score": 0.671147,
+   "rank": 137,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SBUX",
+   "permno": 77702,
+   "score": 0.656891,
+   "rank": 138,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TPR",
+   "permno": 88661,
+   "score": 0.656538,
+   "rank": 139,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EXPE",
+   "permno": 90808,
+   "score": 0.650053,
+   "rank": 140,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MCD",
+   "permno": 43449,
+   "score": 0.647926,
+   "rank": 141,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MA",
+   "permno": 91233,
+   "score": 0.645519,
+   "rank": 142,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PEGA",
+   "permno": 83779,
+   "score": 0.64456,
+   "rank": 143,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FLO",
+   "permno": 88924,
+   "score": 0.641236,
+   "rank": 144,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CRI",
+   "permno": 89876,
+   "score": 0.641088,
+   "rank": 145,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LCII",
+   "permno": 87426,
+   "score": 0.637495,
+   "rank": 146,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BUSE",
+   "permno": 86382,
+   "score": 0.637394,
+   "rank": 147,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CTAS",
+   "permno": 23660,
+   "score": 0.634259,
+   "rank": 148,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RL",
+   "permno": 85072,
+   "score": 0.631517,
+   "rank": 149,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WSM",
+   "permno": 83011,
+   "score": 0.626555,
+   "rank": 150,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PZZA",
+   "permno": 79299,
+   "score": 0.622696,
+   "rank": 151,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RBC",
+   "permno": 90870,
+   "score": 0.621071,
+   "rank": 152,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CASH",
+   "permno": 79571,
+   "score": 0.621021,
+   "rank": 153,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JACK",
+   "permno": 77453,
+   "score": 0.619107,
+   "rank": 154,
+   "tercile": "top"
+  },
+  {
+   "symbol": "VSEC",
+   "permno": 79864,
+   "score": 0.618616,
+   "rank": 155,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SKYW",
+   "permno": 10421,
+   "score": 0.616947,
+   "rank": 156,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LMT",
+   "permno": 21178,
+   "score": 0.615547,
+   "rank": 157,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BC",
+   "permno": 10874,
+   "score": 0.607398,
+   "rank": 158,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BANC",
+   "permno": 89482,
+   "score": 0.602464,
+   "rank": 159,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MYE",
+   "permno": 65365,
+   "score": 0.60119,
+   "rank": 160,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TRV",
+   "permno": 59459,
+   "score": 0.600129,
+   "rank": 161,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NBTB",
+   "permno": 77415,
+   "score": 0.596223,
+   "rank": 162,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PFBC",
+   "permno": 90603,
+   "score": 0.594915,
+   "rank": 163,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WLFC",
+   "permno": 83969,
+   "score": 0.591936,
+   "rank": 164,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EAT",
+   "permno": 23297,
+   "score": 0.590983,
+   "rank": 165,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JAN",
+   "permno": 77202,
+   "score": 0.589874,
+   "rank": 166,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WAT",
+   "permno": 82651,
+   "score": 0.589133,
+   "rank": 167,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CASY",
+   "permno": 21742,
+   "score": 0.588486,
+   "rank": 168,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CATY",
+   "permno": 76504,
+   "score": 0.588201,
+   "rank": 169,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KMB",
+   "permno": 17750,
+   "score": 0.588089,
+   "rank": 170,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WULF",
+   "permno": 87759,
+   "score": 0.586117,
+   "rank": 171,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COHU",
+   "permno": 30648,
+   "score": 0.583567,
+   "rank": 172,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MCY",
+   "permno": 52936,
+   "score": 0.583035,
+   "rank": 173,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CHH",
+   "permno": 85517,
+   "score": 0.582728,
+   "rank": 174,
+   "tercile": "top"
+  },
+  {
+   "symbol": "REGN",
+   "permno": 76614,
+   "score": 0.580648,
+   "rank": 175,
+   "tercile": "top"
+  },
+  {
+   "symbol": "COLM",
+   "permno": 85863,
+   "score": 0.580387,
+   "rank": 176,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FCN",
+   "permno": 83509,
+   "score": 0.575692,
+   "rank": 177,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ARWR",
+   "permno": 80069,
+   "score": 0.575105,
+   "rank": 178,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HBNC",
+   "permno": 11565,
+   "score": 0.572733,
+   "rank": 179,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KR",
+   "permno": 16678,
+   "score": 0.570644,
+   "rank": 180,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DKS",
+   "permno": 89540,
+   "score": 0.569626,
+   "rank": 181,
+   "tercile": "top"
+  },
+  {
+   "symbol": "USB",
+   "permno": 66157,
+   "score": 0.567387,
+   "rank": 182,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PATK",
+   "permno": 61496,
+   "score": 0.560567,
+   "rank": 183,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ALK",
+   "permno": 28804,
+   "score": 0.559033,
+   "rank": 184,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CNMD",
+   "permno": 11547,
+   "score": 0.557895,
+   "rank": 185,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ORCL",
+   "permno": 10104,
+   "score": 0.557481,
+   "rank": 186,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EL",
+   "permno": 82642,
+   "score": 0.555979,
+   "rank": 187,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CRM",
+   "permno": 90215,
+   "score": 0.553295,
+   "rank": 188,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TNC",
+   "permno": 75460,
+   "score": 0.553005,
+   "rank": 189,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NI",
+   "permno": 38762,
+   "score": 0.549672,
+   "rank": 190,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WFC",
+   "permno": 38703,
+   "score": 0.547862,
+   "rank": 191,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SCHW",
+   "permno": 75186,
+   "score": 0.541914,
+   "rank": 192,
+   "tercile": "top"
+  },
+  {
+   "symbol": "IONS",
+   "permno": 76661,
+   "score": 0.538194,
+   "rank": 193,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TXT",
+   "permno": 23579,
+   "score": 0.528824,
+   "rank": 194,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DPZ",
+   "permno": 90248,
+   "score": 0.526735,
+   "rank": 195,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AFL",
+   "permno": 57904,
+   "score": 0.525601,
+   "rank": 196,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SANM",
+   "permno": 79108,
+   "score": 0.52391,
+   "rank": 197,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ADBE",
+   "permno": 75510,
+   "score": 0.523863,
+   "rank": 198,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MTN",
+   "permno": 84588,
+   "score": 0.520619,
+   "rank": 199,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WCN",
+   "permno": 86097,
+   "score": 0.512815,
+   "rank": 200,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FLG",
+   "permno": 79859,
+   "score": 0.510789,
+   "rank": 201,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CHRW",
+   "permno": 85459,
+   "score": 0.508837,
+   "rank": 202,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CL",
+   "permno": 18729,
+   "score": 0.50334,
+   "rank": 203,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AGYS",
+   "permno": 63125,
+   "score": 0.497862,
+   "rank": 204,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MU",
+   "permno": 53613,
+   "score": 0.496856,
+   "rank": 205,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CSCO",
+   "permno": 76076,
+   "score": 0.495857,
+   "rank": 206,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CPK",
+   "permno": 23182,
+   "score": 0.495662,
+   "rank": 207,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BANR",
+   "permno": 82575,
+   "score": 0.495543,
+   "rank": 208,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PBI",
+   "permno": 24459,
+   "score": 0.493181,
+   "rank": 209,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HBAN",
+   "permno": 42906,
+   "score": 0.484006,
+   "rank": 210,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WST",
+   "permno": 62498,
+   "score": 0.482974,
+   "rank": 211,
+   "tercile": "top"
+  },
+  {
+   "symbol": "IRM",
+   "permno": 83143,
+   "score": 0.482157,
+   "rank": 212,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MCRI",
+   "permno": 79507,
+   "score": 0.467838,
+   "rank": 213,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UNFI",
+   "permno": 84275,
+   "score": 0.464262,
+   "rank": 214,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FCNCA",
+   "permno": 10777,
+   "score": 0.462618,
+   "rank": 215,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PAYX",
+   "permno": 61621,
+   "score": 0.462404,
+   "rank": 216,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HLIO",
+   "permno": 84438,
+   "score": 0.461282,
+   "rank": 217,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MD",
+   "permno": 82272,
+   "score": 0.458739,
+   "rank": 218,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CLX",
+   "permno": 46578,
+   "score": 0.45849,
+   "rank": 219,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BELFB",
+   "permno": 86242,
+   "score": 0.457985,
+   "rank": 220,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FEIM",
+   "permno": 62228,
+   "score": 0.455584,
+   "rank": 221,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WNC",
+   "permno": 77117,
+   "score": 0.450143,
+   "rank": 222,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BH",
+   "permno": 26607,
+   "score": 0.449043,
+   "rank": 223,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CAKE",
+   "permno": 77902,
+   "score": 0.448077,
+   "rank": 224,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PLPC",
+   "permno": 89141,
+   "score": 0.446635,
+   "rank": 225,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BA",
+   "permno": 19561,
+   "score": 0.441601,
+   "rank": 226,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SAM",
+   "permno": 82634,
+   "score": 0.438175,
+   "rank": 227,
+   "tercile": "top"
+  },
+  {
+   "symbol": "O",
+   "permno": 67029,
+   "score": 0.437024,
+   "rank": 228,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SYK",
+   "permno": 73139,
+   "score": 0.43083,
+   "rank": 229,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MGEE",
+   "permno": 50789,
+   "score": 0.429853,
+   "rank": 230,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FRME",
+   "permno": 75605,
+   "score": 0.42985,
+   "rank": 231,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MTB",
+   "permno": 35554,
+   "score": 0.427729,
+   "rank": 232,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PEP",
+   "permno": 13856,
+   "score": 0.427596,
+   "rank": 233,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AWR",
+   "permno": 71475,
+   "score": 0.427439,
+   "rank": 234,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TTC",
+   "permno": 60580,
+   "score": 0.427288,
+   "rank": 235,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NVDA",
+   "permno": 86580,
+   "score": 0.426213,
+   "rank": 236,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RPM",
+   "permno": 65307,
+   "score": 0.419888,
+   "rank": 237,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JBL",
+   "permno": 79094,
+   "score": 0.418638,
+   "rank": 238,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MAR",
+   "permno": 85913,
+   "score": 0.41694,
+   "rank": 239,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ITIC",
+   "permno": 10901,
+   "score": 0.414871,
+   "rank": 240,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BANF",
+   "permno": 79072,
+   "score": 0.414329,
+   "rank": 241,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TALO",
+   "permno": 79444,
+   "score": 0.408794,
+   "rank": 242,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KSS",
+   "permno": 77606,
+   "score": 0.405034,
+   "rank": 243,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JPM",
+   "permno": 47896,
+   "score": 0.402685,
+   "rank": 244,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SXI",
+   "permno": 43481,
+   "score": 0.399968,
+   "rank": 245,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ROCK",
+   "permno": 79862,
+   "score": 0.399578,
+   "rank": 246,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EBAY",
+   "permno": 86356,
+   "score": 0.394678,
+   "rank": 247,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AX",
+   "permno": 90634,
+   "score": 0.388299,
+   "rank": 248,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MIDD",
+   "permno": 75470,
+   "score": 0.387612,
+   "rank": 249,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BRKR",
+   "permno": 88504,
+   "score": 0.387585,
+   "rank": 250,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CMCSA",
+   "permno": 89525,
+   "score": 0.387306,
+   "rank": 251,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UHAL",
+   "permno": 81073,
+   "score": 0.384338,
+   "rank": 252,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DJCO",
+   "permno": 10355,
+   "score": 0.384228,
+   "rank": 253,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LAMR",
+   "permno": 83879,
+   "score": 0.384024,
+   "rank": 254,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BMRN",
+   "permno": 87056,
+   "score": 0.382923,
+   "rank": 255,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GME",
+   "permno": 89301,
+   "score": 0.380454,
+   "rank": 256,
+   "tercile": "top"
+  },
+  {
+   "symbol": "GS",
+   "permno": 86868,
+   "score": 0.377322,
+   "rank": 257,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PRDO",
+   "permno": 85724,
+   "score": 0.377221,
+   "rank": 258,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UTHR",
+   "permno": 87006,
+   "score": 0.375884,
+   "rank": 259,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CINF",
+   "permno": 23473,
+   "score": 0.373564,
+   "rank": 260,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DUK",
+   "permno": 27959,
+   "score": 0.371674,
+   "rank": 261,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TFX",
+   "permno": 44329,
+   "score": 0.367427,
+   "rank": 262,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CDNS",
+   "permno": 11403,
+   "score": 0.366121,
+   "rank": 263,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HSY",
+   "permno": 16600,
+   "score": 0.36508,
+   "rank": 264,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LKFN",
+   "permno": 85299,
+   "score": 0.363642,
+   "rank": 265,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EZPW",
+   "permno": 76798,
+   "score": 0.362853,
+   "rank": 266,
+   "tercile": "top"
+  },
+  {
+   "symbol": "STE",
+   "permno": 77649,
+   "score": 0.362418,
+   "rank": 267,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BIIB",
+   "permno": 76841,
+   "score": 0.361723,
+   "rank": 268,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DY",
+   "permno": 12008,
+   "score": 0.360699,
+   "rank": 269,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KMX",
+   "permno": 89508,
+   "score": 0.356684,
+   "rank": 270,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HE",
+   "permno": 41187,
+   "score": 0.35634,
+   "rank": 271,
+   "tercile": "top"
+  },
+  {
+   "symbol": "THG",
+   "permno": 82292,
+   "score": 0.355844,
+   "rank": 272,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LRCX",
+   "permno": 48486,
+   "score": 0.355759,
+   "rank": 273,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PG",
+   "permno": 18163,
+   "score": 0.355717,
+   "rank": 274,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ROL",
+   "permno": 36003,
+   "score": 0.354111,
+   "rank": 275,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SBCF",
+   "permno": 69586,
+   "score": 0.351397,
+   "rank": 276,
+   "tercile": "top"
+  },
+  {
+   "symbol": "WMT",
+   "permno": 55976,
+   "score": 0.347956,
+   "rank": 277,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UHS",
+   "permno": 79637,
+   "score": 0.343748,
+   "rank": 278,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CGNX",
+   "permno": 75654,
+   "score": 0.342535,
+   "rank": 279,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CBU",
+   "permno": 86896,
+   "score": 0.340128,
+   "rank": 280,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SMTC",
+   "permno": 50948,
+   "score": 0.339923,
+   "rank": 281,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LAD",
+   "permno": 84319,
+   "score": 0.336251,
+   "rank": 282,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BLKB",
+   "permno": 90276,
+   "score": 0.330283,
+   "rank": 283,
+   "tercile": "top"
+  },
+  {
+   "symbol": "FISV",
+   "permno": 10696,
+   "score": 0.329558,
+   "rank": 284,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ASB",
+   "permno": 15318,
+   "score": 0.328811,
+   "rank": 285,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CNC",
+   "permno": 89269,
+   "score": 0.327221,
+   "rank": 286,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PRGS",
+   "permno": 76752,
+   "score": 0.327068,
+   "rank": 287,
+   "tercile": "top"
+  },
+  {
+   "symbol": "MTD",
+   "permno": 85621,
+   "score": 0.325513,
+   "rank": 288,
+   "tercile": "top"
+  },
+  {
+   "symbol": "JNJ",
+   "permno": 22111,
+   "score": 0.321221,
+   "rank": 289,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NTCT",
+   "permno": 87179,
+   "score": 0.319996,
+   "rank": 290,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ZBH",
+   "permno": 89070,
+   "score": 0.318144,
+   "rank": 291,
+   "tercile": "top"
+  },
+  {
+   "symbol": "LKQ",
+   "permno": 89866,
+   "score": 0.317031,
+   "rank": 292,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TXN",
+   "permno": 15579,
+   "score": 0.314551,
+   "rank": 293,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SLGN",
+   "permno": 84563,
+   "score": 0.314467,
+   "rank": 294,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DHR",
+   "permno": 49680,
+   "score": 0.311891,
+   "rank": 295,
+   "tercile": "top"
+  },
+  {
+   "symbol": "ADP",
+   "permno": 44644,
+   "score": 0.311886,
+   "rank": 296,
+   "tercile": "top"
+  },
+  {
+   "symbol": "UNF",
+   "permno": 65306,
+   "score": 0.310558,
+   "rank": 297,
+   "tercile": "top"
+  },
+  {
+   "symbol": "IBM",
+   "permno": 12490,
+   "score": 0.310271,
+   "rank": 298,
+   "tercile": "top"
+  },
+  {
+   "symbol": "HALO",
+   "permno": 90436,
+   "score": 0.30895,
+   "rank": 299,
+   "tercile": "top"
+  },
+  {
+   "symbol": "TROW",
+   "permno": 10138,
+   "score": 0.308517,
+   "rank": 300,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SWX",
+   "permno": 61188,
+   "score": 0.306714,
+   "rank": 301,
+   "tercile": "top"
+  },
+  {
+   "symbol": "RJF",
+   "permno": 69649,
+   "score": 0.306401,
+   "rank": 302,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EQIX",
+   "permno": 89617,
+   "score": 0.304095,
+   "rank": 303,
+   "tercile": "top"
+  },
+  {
+   "symbol": "PNC",
+   "permno": 60442,
+   "score": 0.302157,
+   "rank": 304,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SR",
+   "permno": 12781,
+   "score": 0.301209,
+   "rank": 305,
+   "tercile": "top"
+  },
+  {
+   "symbol": "NWE",
+   "permno": 90458,
+   "score": 0.300424,
+   "rank": 306,
+   "tercile": "top"
+  },
+  {
+   "symbol": "THC",
+   "permno": 52337,
+   "score": 0.297979,
+   "rank": 307,
+   "tercile": "top"
+  },
+  {
+   "symbol": "DVA",
+   "permno": 82307,
+   "score": 0.295556,
+   "rank": 308,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AMGN",
+   "permno": 14008,
+   "score": 0.291685,
+   "rank": 309,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SEIC",
+   "permno": 68196,
+   "score": 0.291465,
+   "rank": 310,
+   "tercile": "top"
+  },
+  {
+   "symbol": "EFX",
+   "permno": 52476,
+   "score": 0.291396,
+   "rank": 311,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BOKF",
+   "permno": 76892,
+   "score": 0.288319,
+   "rank": 312,
+   "tercile": "top"
+  },
+  {
+   "symbol": "STRA",
+   "permno": 83799,
+   "score": 0.284674,
+   "rank": 313,
+   "tercile": "top"
+  },
+  {
+   "symbol": "KFRC",
+   "permno": 82212,
+   "score": 0.283771,
+   "rank": 314,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SPB",
+   "permno": 38295,
+   "score": 0.283456,
+   "rank": 315,
+   "tercile": "top"
+  },
+  {
+   "symbol": "AKAM",
+   "permno": 87299,
+   "score": 0.278359,
+   "rank": 316,
+   "tercile": "top"
+  },
+  {
+   "symbol": "SNDA",
+   "permno": 85419,
+   "score": 0.275381,
+   "rank": 317,
+   "tercile": "top"
+  },
+  {
+   "symbol": "M",
+   "permno": 77462,
+   "score": 0.274256,
+   "rank": 318,
+   "tercile": "top"
+  },
+  {
+   "symbol": "BPOP",
+   "permno": 16505,
+   "score": 0.274194,
+   "rank": 319,
+   "tercile": "top"
+  },
+  {
+   "symbol": "CALM",
+   "permno": 20598,
+   "score": 0.273253,
+   "rank": 320,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PNFP",
+   "permno": 89395,
+   "score": 0.271726,
+   "rank": 321,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WSBC",
+   "permno": 11293,
+   "score": 0.271507,
+   "rank": 322,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NHC",
+   "permno": 72338,
+   "score": 0.271166,
+   "rank": 323,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RHI",
+   "permno": 52230,
+   "score": 0.270201,
+   "rank": 324,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNS",
+   "permno": 90303,
+   "score": 0.269562,
+   "rank": 325,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BJRI",
+   "permno": 84062,
+   "score": 0.269461,
+   "rank": 326,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GWW",
+   "permno": 52695,
+   "score": 0.269157,
+   "rank": 327,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FORM",
+   "permno": 89753,
+   "score": 0.266829,
+   "rank": 328,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RGA",
+   "permno": 79210,
+   "score": 0.266657,
+   "rank": 329,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ROP",
+   "permno": 77338,
+   "score": 0.264125,
+   "rank": 330,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GIS",
+   "permno": 17144,
+   "score": 0.263706,
+   "rank": 331,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HMN",
+   "permno": 77120,
+   "score": 0.262207,
+   "rank": 332,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SF",
+   "permno": 72996,
+   "score": 0.258906,
+   "rank": 333,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MCO",
+   "permno": 48506,
+   "score": 0.253069,
+   "rank": 334,
+   "tercile": "below"
+  },
+  {
+   "symbol": "A",
+   "permno": 87432,
+   "score": 0.251651,
+   "rank": 335,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CBT",
+   "permno": 46690,
+   "score": 0.249963,
+   "rank": 336,
+   "tercile": "below"
+  },
+  {
+   "symbol": "D",
+   "permno": 64936,
+   "score": 0.248299,
+   "rank": 337,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMG",
+   "permno": 85593,
+   "score": 0.247057,
+   "rank": 338,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TXRH",
+   "permno": 90427,
+   "score": 0.239655,
+   "rank": 339,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EPAC",
+   "permno": 11581,
+   "score": 0.238995,
+   "rank": 340,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MO",
+   "permno": 13901,
+   "score": 0.236982,
+   "rank": 341,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LZB",
+   "permno": 48347,
+   "score": 0.236525,
+   "rank": 342,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HNI",
+   "permno": 42439,
+   "score": 0.236423,
+   "rank": 343,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CHD",
+   "permno": 23393,
+   "score": 0.235442,
+   "rank": 344,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IT",
+   "permno": 79698,
+   "score": 0.228919,
+   "rank": 345,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LINC",
+   "permno": 90735,
+   "score": 0.223826,
+   "rank": 346,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NJR",
+   "permno": 64450,
+   "score": 0.223624,
+   "rank": 347,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FDX",
+   "permno": 60628,
+   "score": 0.223486,
+   "rank": 348,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TDG",
+   "permno": 91152,
+   "score": 0.223048,
+   "rank": 349,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VZ",
+   "permno": 65875,
+   "score": 0.221931,
+   "rank": 350,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INDB",
+   "permno": 10252,
+   "score": 0.219393,
+   "rank": 351,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PAG",
+   "permno": 84042,
+   "score": 0.218905,
+   "rank": 352,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ED",
+   "permno": 11404,
+   "score": 0.218297,
+   "rank": 353,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRVL",
+   "permno": 76721,
+   "score": 0.218164,
+   "rank": 354,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CCI",
+   "permno": 86339,
+   "score": 0.212763,
+   "rank": 355,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GBCI",
+   "permno": 87952,
+   "score": 0.212569,
+   "rank": 356,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ITRI",
+   "permno": 79839,
+   "score": 0.209998,
+   "rank": 357,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OSIS",
+   "permno": 85488,
+   "score": 0.209594,
+   "rank": 358,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DGII",
+   "permno": 75831,
+   "score": 0.209372,
+   "rank": 359,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TTWO",
+   "permno": 84761,
+   "score": 0.20755,
+   "rank": 360,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ACIW",
+   "permno": 81282,
+   "score": 0.204863,
+   "rank": 361,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRL",
+   "permno": 88281,
+   "score": 0.204532,
+   "rank": 362,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AZO",
+   "permno": 76605,
+   "score": 0.204255,
+   "rank": 363,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VLY",
+   "permno": 80072,
+   "score": 0.203717,
+   "rank": 364,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SXT",
+   "permno": 59619,
+   "score": 0.202617,
+   "rank": 365,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HUM",
+   "permno": 48653,
+   "score": 0.202115,
+   "rank": 366,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KALU",
+   "permno": 91403,
+   "score": 0.200456,
+   "rank": 367,
+   "tercile": "below"
+  },
+  {
+   "symbol": "COF",
+   "permno": 81055,
+   "score": 0.199719,
+   "rank": 368,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SO",
+   "permno": 18411,
+   "score": 0.199172,
+   "rank": 369,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AAPL",
+   "permno": 14593,
+   "score": 0.198333,
+   "rank": 370,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ORLY",
+   "permno": 79103,
+   "score": 0.196637,
+   "rank": 371,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MDLZ",
+   "permno": 89006,
+   "score": 0.196402,
+   "rank": 372,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PKG",
+   "permno": 87541,
+   "score": 0.192213,
+   "rank": 373,
+   "tercile": "below"
+  },
+  {
+   "symbol": "XEL",
+   "permno": 23931,
+   "score": 0.191788,
+   "rank": 374,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GPC",
+   "permno": 46674,
+   "score": 0.180845,
+   "rank": 375,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ILMN",
+   "permno": 88446,
+   "score": 0.176889,
+   "rank": 376,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NOC",
+   "permno": 24766,
+   "score": 0.17641,
+   "rank": 377,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CBZ",
+   "permno": 81584,
+   "score": 0.175828,
+   "rank": 378,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WAL",
+   "permno": 90776,
+   "score": 0.173522,
+   "rank": 379,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UPS",
+   "permno": 87447,
+   "score": 0.173495,
+   "rank": 380,
+   "tercile": "below"
+  },
+  {
+   "symbol": "APH",
+   "permno": 84769,
+   "score": 0.169203,
+   "rank": 381,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMP",
+   "permno": 90880,
+   "score": 0.168475,
+   "rank": 382,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VICR",
+   "permno": 76128,
+   "score": 0.168153,
+   "rank": 383,
+   "tercile": "below"
+  },
+  {
+   "symbol": "T",
+   "permno": 66093,
+   "score": 0.165283,
+   "rank": 384,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GD",
+   "permno": 12052,
+   "score": 0.165029,
+   "rank": 385,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AIR",
+   "permno": 54594,
+   "score": 0.163843,
+   "rank": 386,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SSB",
+   "permno": 84389,
+   "score": 0.16303,
+   "rank": 387,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FCF",
+   "permno": 77643,
+   "score": 0.159898,
+   "rank": 388,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LLY",
+   "permno": 50876,
+   "score": 0.156881,
+   "rank": 389,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ALV",
+   "permno": 84656,
+   "score": 0.156065,
+   "rank": 390,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MKTX",
+   "permno": 90454,
+   "score": 0.15512,
+   "rank": 391,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ALNT",
+   "permno": 41188,
+   "score": 0.153853,
+   "rank": 392,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ATO",
+   "permno": 32986,
+   "score": 0.152944,
+   "rank": 393,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IDA",
+   "permno": 21928,
+   "score": 0.151499,
+   "rank": 394,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SWK",
+   "permno": 43350,
+   "score": 0.148325,
+   "rank": 395,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BYD",
+   "permno": 79758,
+   "score": 0.147793,
+   "rank": 396,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PVH",
+   "permno": 13936,
+   "score": 0.146105,
+   "rank": 397,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VYX",
+   "permno": 84372,
+   "score": 0.144511,
+   "rank": 398,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AEIS",
+   "permno": 82547,
+   "score": 0.144428,
+   "rank": 399,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GEF",
+   "permno": 83264,
+   "score": 0.143949,
+   "rank": 400,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ES",
+   "permno": 44206,
+   "score": 0.142968,
+   "rank": 401,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WINA",
+   "permno": 79491,
+   "score": 0.142849,
+   "rank": 402,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EIX",
+   "permno": 15720,
+   "score": 0.13735,
+   "rank": 403,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MSFT",
+   "permno": 10107,
+   "score": 0.136629,
+   "rank": 404,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RSG",
+   "permno": 86228,
+   "score": 0.135391,
+   "rank": 405,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PSMT",
+   "permno": 85394,
+   "score": 0.134688,
+   "rank": 406,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AUB",
+   "permno": 79747,
+   "score": 0.133843,
+   "rank": 407,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PLXS",
+   "permno": 10032,
+   "score": 0.133036,
+   "rank": 408,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DIS",
+   "permno": 26403,
+   "score": 0.132167,
+   "rank": 409,
+   "tercile": "below"
+  },
+  {
+   "symbol": "STZ",
+   "permno": 69796,
+   "score": 0.131317,
+   "rank": 410,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UPBD",
+   "permno": 81222,
+   "score": 0.12897,
+   "rank": 411,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IFF",
+   "permno": 40272,
+   "score": 0.128874,
+   "rank": 412,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NWN",
+   "permno": 58334,
+   "score": 0.127029,
+   "rank": 413,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CBRE",
+   "permno": 90199,
+   "score": 0.125859,
+   "rank": 414,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GEN",
+   "permno": 75607,
+   "score": 0.125636,
+   "rank": 415,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TJX",
+   "permno": 40539,
+   "score": 0.125154,
+   "rank": 416,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ROG",
+   "permno": 35991,
+   "score": 0.124723,
+   "rank": 417,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RMD",
+   "permno": 81736,
+   "score": 0.123976,
+   "rank": 418,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PPG",
+   "permno": 22509,
+   "score": 0.119327,
+   "rank": 419,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WSFS",
+   "permno": 10892,
+   "score": 0.117612,
+   "rank": 420,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KEX",
+   "permno": 59045,
+   "score": 0.115733,
+   "rank": 421,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TGT",
+   "permno": 49154,
+   "score": 0.114847,
+   "rank": 422,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RTX",
+   "permno": 17830,
+   "score": 0.111121,
+   "rank": 423,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNXN",
+   "permno": 85886,
+   "score": 0.108938,
+   "rank": 424,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DLTR",
+   "permno": 81481,
+   "score": 0.108702,
+   "rank": 425,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VSAT",
+   "permno": 84348,
+   "score": 0.105347,
+   "rank": 426,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AVNT",
+   "permno": 88597,
+   "score": 0.103931,
+   "rank": 427,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WLY",
+   "permno": 82924,
+   "score": 0.103687,
+   "rank": 428,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WAFD",
+   "permno": 81577,
+   "score": 0.103586,
+   "rank": 429,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PGR",
+   "permno": 64390,
+   "score": 0.100651,
+   "rank": 430,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CW",
+   "permno": 18091,
+   "score": 0.099822,
+   "rank": 431,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VAL",
+   "permno": 37807,
+   "score": 0.099517,
+   "rank": 432,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ZD",
+   "permno": 87075,
+   "score": 0.098763,
+   "rank": 433,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GRC",
+   "permno": 53604,
+   "score": 0.097251,
+   "rank": 434,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HRL",
+   "permno": 32870,
+   "score": 0.096662,
+   "rank": 435,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BDC",
+   "permno": 79668,
+   "score": 0.092779,
+   "rank": 436,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LSTR",
+   "permno": 78981,
+   "score": 0.092368,
+   "rank": 437,
+   "tercile": "below"
+  },
+  {
+   "symbol": "YUM",
+   "permno": 85348,
+   "score": 0.090549,
+   "rank": 438,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UTI",
+   "permno": 89973,
+   "score": 0.09011,
+   "rank": 439,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ABT",
+   "permno": 20482,
+   "score": 0.087224,
+   "rank": 440,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HAE",
+   "permno": 76837,
+   "score": 0.087076,
+   "rank": 441,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ROST",
+   "permno": 91556,
+   "score": 0.084029,
+   "rank": 442,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BKD",
+   "permno": 90988,
+   "score": 0.083301,
+   "rank": 443,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SCHL",
+   "permno": 77354,
+   "score": 0.081659,
+   "rank": 444,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VRSN",
+   "permno": 85753,
+   "score": 0.076237,
+   "rank": 445,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SYY",
+   "permno": 52038,
+   "score": 0.073655,
+   "rank": 446,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AFG",
+   "permno": 60687,
+   "score": 0.07305,
+   "rank": 447,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MKL",
+   "permno": 10933,
+   "score": 0.069889,
+   "rank": 448,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ITW",
+   "permno": 56573,
+   "score": 0.069883,
+   "rank": 449,
+   "tercile": "below"
+  },
+  {
+   "symbol": "B",
+   "permno": 39693,
+   "score": 0.068874,
+   "rank": 450,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TMO",
+   "permno": 62092,
+   "score": 0.068576,
+   "rank": 451,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LOW",
+   "permno": 61399,
+   "score": 0.068518,
+   "rank": 452,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LFUS",
+   "permno": 77918,
+   "score": 0.068469,
+   "rank": 453,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HD",
+   "permno": 66181,
+   "score": 0.065802,
+   "rank": 454,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HSIC",
+   "permno": 82581,
+   "score": 0.065473,
+   "rank": 455,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VMC",
+   "permno": 15202,
+   "score": 0.064725,
+   "rank": 456,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DGX",
+   "permno": 84373,
+   "score": 0.064695,
+   "rank": 457,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AEE",
+   "permno": 24985,
+   "score": 0.064629,
+   "rank": 458,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NWBI",
+   "permno": 81095,
+   "score": 0.061819,
+   "rank": 459,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DXC",
+   "permno": 40125,
+   "score": 0.061538,
+   "rank": 460,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NBN",
+   "permno": 75556,
+   "score": 0.058236,
+   "rank": 461,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PRU",
+   "permno": 89258,
+   "score": 0.054955,
+   "rank": 462,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DTE",
+   "permno": 11674,
+   "score": 0.054434,
+   "rank": 463,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DCI",
+   "permno": 61313,
+   "score": 0.054366,
+   "rank": 464,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TXNM",
+   "permno": 55511,
+   "score": 0.053998,
+   "rank": 465,
+   "tercile": "below"
+  },
+  {
+   "symbol": "STBA",
+   "permno": 77528,
+   "score": 0.05208,
+   "rank": 466,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PCG",
+   "permno": 13688,
+   "score": 0.052054,
+   "rank": 467,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UFPT",
+   "permno": 80050,
+   "score": 0.051558,
+   "rank": 468,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GPI",
+   "permno": 85427,
+   "score": 0.051144,
+   "rank": 469,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PTC",
+   "permno": 75912,
+   "score": 0.051018,
+   "rank": 470,
+   "tercile": "below"
+  },
+  {
+   "symbol": "USAS",
+   "permno": 11955,
+   "score": 0.04695,
+   "rank": 471,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BG",
+   "permno": 10866,
+   "score": 0.046137,
+   "rank": 472,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BBW",
+   "permno": 90371,
+   "score": 0.044542,
+   "rank": 473,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BAC",
+   "permno": 59408,
+   "score": 0.04454,
+   "rank": 474,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SRE",
+   "permno": 86136,
+   "score": 0.042707,
+   "rank": 475,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EVRG",
+   "permno": 24053,
+   "score": 0.03984,
+   "rank": 476,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BMI",
+   "permno": 53110,
+   "score": 0.038727,
+   "rank": 477,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TDY",
+   "permno": 87445,
+   "score": 0.038719,
+   "rank": 478,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FIZZ",
+   "permno": 76839,
+   "score": 0.037829,
+   "rank": 479,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CECO",
+   "permno": 11499,
+   "score": 0.034265,
+   "rank": 480,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PH",
+   "permno": 41355,
+   "score": 0.033319,
+   "rank": 481,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CTS",
+   "permno": 28564,
+   "score": 0.029906,
+   "rank": 482,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PBH",
+   "permno": 90564,
+   "score": 0.029467,
+   "rank": 483,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GGG",
+   "permno": 39571,
+   "score": 0.027968,
+   "rank": 484,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CHCO",
+   "permno": 11442,
+   "score": 0.027565,
+   "rank": 485,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WRB",
+   "permno": 17743,
+   "score": 0.027212,
+   "rank": 486,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PFG",
+   "permno": 89195,
+   "score": 0.027074,
+   "rank": 487,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MKC",
+   "permno": 89155,
+   "score": 0.024437,
+   "rank": 488,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MHK",
+   "permno": 77496,
+   "score": 0.023455,
+   "rank": 489,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CMS",
+   "permno": 23229,
+   "score": 0.023007,
+   "rank": 490,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DDS",
+   "permno": 49429,
+   "score": 0.022983,
+   "rank": 491,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ERIE",
+   "permno": 82486,
+   "score": 0.022811,
+   "rank": 492,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FUL",
+   "permno": 37875,
+   "score": 0.017336,
+   "rank": 493,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MMM",
+   "permno": 22592,
+   "score": 0.016662,
+   "rank": 494,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OMCL",
+   "permno": 89110,
+   "score": 0.013382,
+   "rank": 495,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AEP",
+   "permno": 24109,
+   "score": 0.013099,
+   "rank": 496,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PNW",
+   "permno": 27991,
+   "score": 0.008669,
+   "rank": 497,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AME",
+   "permno": 85257,
+   "score": 0.007146,
+   "rank": 498,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FFIV",
+   "permno": 86964,
+   "score": 0.006983,
+   "rank": 499,
+   "tercile": "below"
+  },
+  {
+   "symbol": "F",
+   "permno": 25785,
+   "score": 0.0051,
+   "rank": 500,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JJSF",
+   "permno": 10026,
+   "score": 0.00319,
+   "rank": 501,
+   "tercile": "below"
+  },
+  {
+   "symbol": "COR",
+   "permno": 81540,
+   "score": 0.002751,
+   "rank": 502,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SSD",
+   "permno": 80575,
+   "score": 0.001992,
+   "rank": 503,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TTEK",
+   "permno": 77191,
+   "score": 0.001816,
+   "rank": 504,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RAMP",
+   "permno": 20117,
+   "score": -0.002822,
+   "rank": 505,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SNPS",
+   "permno": 77357,
+   "score": -0.003222,
+   "rank": 506,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BKNG",
+   "permno": 86783,
+   "score": -0.004224,
+   "rank": 507,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CACC",
+   "permno": 77660,
+   "score": -0.004674,
+   "rank": 508,
+   "tercile": "below"
+  },
+  {
+   "symbol": "POR",
+   "permno": 91204,
+   "score": -0.004738,
+   "rank": 509,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SHW",
+   "permno": 36468,
+   "score": -0.005796,
+   "rank": 510,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ESE",
+   "permno": 76478,
+   "score": -0.006232,
+   "rank": 511,
+   "tercile": "below"
+  },
+  {
+   "symbol": "XOM",
+   "permno": 11850,
+   "score": -0.006936,
+   "rank": 512,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WYNN",
+   "permno": 89533,
+   "score": -0.008706,
+   "rank": 513,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SCSC",
+   "permno": 80362,
+   "score": -0.008996,
+   "rank": 514,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SRCE",
+   "permno": 36346,
+   "score": -0.009045,
+   "rank": 515,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MSM",
+   "permno": 82777,
+   "score": -0.009224,
+   "rank": 516,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SGI",
+   "permno": 90742,
+   "score": -0.00999,
+   "rank": 517,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BELFA",
+   "permno": 17444,
+   "score": -0.010684,
+   "rank": 518,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ISRG",
+   "permno": 88352,
+   "score": -0.010819,
+   "rank": 519,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ATR",
+   "permno": 79133,
+   "score": -0.012171,
+   "rank": 520,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TBBK",
+   "permno": 90490,
+   "score": -0.013573,
+   "rank": 521,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MSA",
+   "permno": 54253,
+   "score": -0.015695,
+   "rank": 522,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AZTA",
+   "permno": 81241,
+   "score": -0.01626,
+   "rank": 523,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WEC",
+   "permno": 23536,
+   "score": -0.016774,
+   "rank": 524,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MORN",
+   "permno": 90708,
+   "score": -0.021933,
+   "rank": 525,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CWT",
+   "permno": 20750,
+   "score": -0.022483,
+   "rank": 526,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PFE",
+   "permno": 21936,
+   "score": -0.024167,
+   "rank": 527,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BIO",
+   "permno": 61516,
+   "score": -0.02472,
+   "rank": 528,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AJG",
+   "permno": 38093,
+   "score": -0.02479,
+   "rank": 529,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CAG",
+   "permno": 56274,
+   "score": -0.026529,
+   "rank": 530,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IBOC",
+   "permno": 85875,
+   "score": -0.029068,
+   "rank": 531,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CBSH",
+   "permno": 25129,
+   "score": -0.029164,
+   "rank": 532,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FHI",
+   "permno": 86102,
+   "score": -0.030965,
+   "rank": 533,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ICUI",
+   "permno": 77447,
+   "score": -0.031857,
+   "rank": 534,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HAS",
+   "permno": 52978,
+   "score": -0.032141,
+   "rank": 535,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CVCO",
+   "permno": 89792,
+   "score": -0.033044,
+   "rank": 536,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GL",
+   "permno": 62308,
+   "score": -0.033108,
+   "rank": 537,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OMC",
+   "permno": 30681,
+   "score": -0.035477,
+   "rank": 538,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FICO",
+   "permno": 11533,
+   "score": -0.035739,
+   "rank": 539,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HRB",
+   "permno": 49373,
+   "score": -0.037016,
+   "rank": 540,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BHE",
+   "permno": 76224,
+   "score": -0.037487,
+   "rank": 541,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WMK",
+   "permno": 42059,
+   "score": -0.037554,
+   "rank": 542,
+   "tercile": "below"
+  },
+  {
+   "symbol": "QCRH",
+   "permno": 79731,
+   "score": -0.040887,
+   "rank": 543,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TDS",
+   "permno": 63773,
+   "score": -0.043577,
+   "rank": 544,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SWKS",
+   "permno": 45911,
+   "score": -0.05624,
+   "rank": 545,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RIGL",
+   "permno": 88810,
+   "score": -0.056461,
+   "rank": 546,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IDXX",
+   "permno": 76709,
+   "score": -0.05669,
+   "rank": 547,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HWC",
+   "permno": 76684,
+   "score": -0.056901,
+   "rank": 548,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CFR",
+   "permno": 27888,
+   "score": -0.057727,
+   "rank": 549,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FFIN",
+   "permno": 79824,
+   "score": -0.058506,
+   "rank": 550,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RVTY",
+   "permno": 42200,
+   "score": -0.060903,
+   "rank": 551,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MRK",
+   "permno": 22752,
+   "score": -0.06122,
+   "rank": 552,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ETD",
+   "permno": 79037,
+   "score": -0.06294,
+   "rank": 553,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IMKTA",
+   "permno": 11701,
+   "score": -0.064917,
+   "rank": 554,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JEF",
+   "permno": 20415,
+   "score": -0.065194,
+   "rank": 555,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CVX",
+   "permno": 14541,
+   "score": -0.06644,
+   "rank": 556,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INTC",
+   "permno": 59328,
+   "score": -0.069162,
+   "rank": 557,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JCI",
+   "permno": 42534,
+   "score": -0.069342,
+   "rank": 558,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BOH",
+   "permno": 16548,
+   "score": -0.070057,
+   "rank": 559,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TTE",
+   "permno": 79338,
+   "score": -0.071773,
+   "rank": 560,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BDX",
+   "permno": 39642,
+   "score": -0.073262,
+   "rank": 561,
+   "tercile": "below"
+  },
+  {
+   "symbol": "XRAY",
+   "permno": 11600,
+   "score": -0.075578,
+   "rank": 562,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GHC",
+   "permno": 53225,
+   "score": -0.076746,
+   "rank": 563,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BCO",
+   "permno": 18649,
+   "score": -0.077641,
+   "rank": 564,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TECH",
+   "permno": 75694,
+   "score": -0.077827,
+   "rank": 565,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AVA",
+   "permno": 24969,
+   "score": -0.082407,
+   "rank": 566,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PB",
+   "permno": 86432,
+   "score": -0.085802,
+   "rank": 567,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MRCY",
+   "permno": 85738,
+   "score": -0.087517,
+   "rank": 568,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MLM",
+   "permno": 80204,
+   "score": -0.087657,
+   "rank": 569,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NDSN",
+   "permno": 57809,
+   "score": -0.088053,
+   "rank": 570,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PRG",
+   "permno": 10517,
+   "score": -0.089191,
+   "rank": 571,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNP",
+   "permno": 21792,
+   "score": -0.09333,
+   "rank": 572,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WLK",
+   "permno": 90312,
+   "score": -0.094776,
+   "rank": 573,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HON",
+   "permno": 10145,
+   "score": -0.096134,
+   "rank": 574,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MCK",
+   "permno": 81061,
+   "score": -0.098118,
+   "rank": 575,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EMR",
+   "permno": 22103,
+   "score": -0.098647,
+   "rank": 576,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SAFT",
+   "permno": 89575,
+   "score": -0.099993,
+   "rank": 577,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MTX",
+   "permno": 78015,
+   "score": -0.101531,
+   "rank": 578,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LEN",
+   "permno": 89731,
+   "score": -0.102643,
+   "rank": 579,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UNP",
+   "permno": 48725,
+   "score": -0.103959,
+   "rank": 580,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CACI",
+   "permno": 20512,
+   "score": -0.105447,
+   "rank": 581,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MAT",
+   "permno": 39538,
+   "score": -0.106431,
+   "rank": 582,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KMPR",
+   "permno": 76136,
+   "score": -0.108491,
+   "rank": 583,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LNN",
+   "permno": 12211,
+   "score": -0.113878,
+   "rank": 584,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IOSP",
+   "permno": 86026,
+   "score": -0.117294,
+   "rank": 585,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ECPG",
+   "permno": 87077,
+   "score": -0.118206,
+   "rank": 586,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FELE",
+   "permno": 37568,
+   "score": -0.119385,
+   "rank": 587,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NTAP",
+   "permno": 82598,
+   "score": -0.119553,
+   "rank": 588,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SJM",
+   "permno": 42585,
+   "score": -0.119609,
+   "rank": 589,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WEN",
+   "permno": 19828,
+   "score": -0.119803,
+   "rank": 590,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AXTI",
+   "permno": 86051,
+   "score": -0.121549,
+   "rank": 591,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UVV",
+   "permno": 16555,
+   "score": -0.129527,
+   "rank": 592,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LBTYA",
+   "permno": 90227,
+   "score": -0.130333,
+   "rank": 593,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EMN",
+   "permno": 80080,
+   "score": -0.13051,
+   "rank": 594,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CAH",
+   "permno": 21371,
+   "score": -0.131434,
+   "rank": 595,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WHR",
+   "permno": 25419,
+   "score": -0.14332,
+   "rank": 596,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IEX",
+   "permno": 75591,
+   "score": -0.143369,
+   "rank": 597,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JOE",
+   "permno": 76123,
+   "score": -0.144719,
+   "rank": 598,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TILE",
+   "permno": 44768,
+   "score": -0.149074,
+   "rank": 599,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MTZ",
+   "permno": 19880,
+   "score": -0.149451,
+   "rank": 600,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GLW",
+   "permno": 22293,
+   "score": -0.151264,
+   "rank": 601,
+   "tercile": "below"
+  },
+  {
+   "symbol": "POWL",
+   "permno": 63715,
+   "score": -0.15178,
+   "rank": 602,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AAP",
+   "permno": 89217,
+   "score": -0.154606,
+   "rank": 603,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MOD",
+   "permno": 54704,
+   "score": -0.15607,
+   "rank": 604,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GNTX",
+   "permno": 38659,
+   "score": -0.157153,
+   "rank": 605,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EPC",
+   "permno": 87659,
+   "score": -0.157939,
+   "rank": 606,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MLAB",
+   "permno": 53074,
+   "score": -0.15802,
+   "rank": 607,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BAX",
+   "permno": 27887,
+   "score": -0.160672,
+   "rank": 608,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RGEN",
+   "permno": 10200,
+   "score": -0.16205,
+   "rank": 609,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EWBC",
+   "permno": 86719,
+   "score": -0.16321,
+   "rank": 610,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SYNA",
+   "permno": 89290,
+   "score": -0.170098,
+   "rank": 611,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KWR",
+   "permno": 64929,
+   "score": -0.170663,
+   "rank": 612,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CVS",
+   "permno": 17005,
+   "score": -0.170789,
+   "rank": 613,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ABG",
+   "permno": 89327,
+   "score": -0.172292,
+   "rank": 614,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMD",
+   "permno": 61241,
+   "score": -0.174118,
+   "rank": 615,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CPB",
+   "permno": 25320,
+   "score": -0.174668,
+   "rank": 616,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FE",
+   "permno": 23026,
+   "score": -0.178875,
+   "rank": 617,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NP",
+   "permno": 90440,
+   "score": -0.179548,
+   "rank": 618,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WWW",
+   "permno": 42286,
+   "score": -0.179734,
+   "rank": 619,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNA",
+   "permno": 47626,
+   "score": -0.180077,
+   "rank": 620,
+   "tercile": "below"
+  },
+  {
+   "symbol": "C",
+   "permno": 70519,
+   "score": -0.180441,
+   "rank": 621,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NFG",
+   "permno": 25590,
+   "score": -0.181293,
+   "rank": 622,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MAN",
+   "permno": 75285,
+   "score": -0.184529,
+   "rank": 623,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AVY",
+   "permno": 44601,
+   "score": -0.185166,
+   "rank": 624,
+   "tercile": "below"
+  },
+  {
+   "symbol": "USPH",
+   "permno": 77629,
+   "score": -0.185651,
+   "rank": 625,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SMG",
+   "permno": 77300,
+   "score": -0.193613,
+   "rank": 626,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BSX",
+   "permno": 77605,
+   "score": -0.194875,
+   "rank": 627,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JBHT",
+   "permno": 42877,
+   "score": -0.197582,
+   "rank": 628,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMN",
+   "permno": 89215,
+   "score": -0.197809,
+   "rank": 629,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MTG",
+   "permno": 76804,
+   "score": -0.198183,
+   "rank": 630,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LBTYK",
+   "permno": 90866,
+   "score": -0.198328,
+   "rank": 631,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AIT",
+   "permno": 29612,
+   "score": -0.1984,
+   "rank": 632,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HZO",
+   "permno": 86128,
+   "score": -0.199446,
+   "rank": 633,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GAP",
+   "permno": 59010,
+   "score": -0.200025,
+   "rank": 634,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MET",
+   "permno": 87842,
+   "score": -0.201195,
+   "rank": 635,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNO",
+   "permno": 89841,
+   "score": -0.210327,
+   "rank": 636,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UGI",
+   "permno": 17929,
+   "score": -0.212946,
+   "rank": 637,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IART",
+   "permno": 82179,
+   "score": -0.213774,
+   "rank": 638,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SBAC",
+   "permno": 86996,
+   "score": -0.214447,
+   "rank": 639,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MDT",
+   "permno": 60097,
+   "score": -0.218171,
+   "rank": 640,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNOB",
+   "permno": 83642,
+   "score": -0.21859,
+   "rank": 641,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DXCM",
+   "permno": 90664,
+   "score": -0.21977,
+   "rank": 642,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HIG",
+   "permno": 82775,
+   "score": -0.22283,
+   "rank": 643,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AVT",
+   "permno": 27684,
+   "score": -0.227405,
+   "rank": 644,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WTS",
+   "permno": 10606,
+   "score": -0.238191,
+   "rank": 645,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ETR",
+   "permno": 24010,
+   "score": -0.2423,
+   "rank": 646,
+   "tercile": "below"
+  },
+  {
+   "symbol": "L",
+   "permno": 26710,
+   "score": -0.24377,
+   "rank": 647,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CIEN",
+   "permno": 84519,
+   "score": -0.252649,
+   "rank": 648,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ELV",
+   "permno": 89179,
+   "score": -0.254838,
+   "rank": 649,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PFS",
+   "permno": 89653,
+   "score": -0.254979,
+   "rank": 650,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NYT",
+   "permno": 47466,
+   "score": -0.255278,
+   "rank": 651,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ODC",
+   "permno": 59185,
+   "score": -0.256622,
+   "rank": 652,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NSIT",
+   "permno": 81220,
+   "score": -0.258407,
+   "rank": 653,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SCI",
+   "permno": 51625,
+   "score": -0.258625,
+   "rank": 654,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CUZ",
+   "permno": 51692,
+   "score": -0.262912,
+   "rank": 655,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SIGI",
+   "permno": 68292,
+   "score": -0.26389,
+   "rank": 656,
+   "tercile": "below"
+  },
+  {
+   "symbol": "STT",
+   "permno": 72726,
+   "score": -0.265446,
+   "rank": 657,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SRPT",
+   "permno": 85002,
+   "score": -0.267631,
+   "rank": 658,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BEN",
+   "permno": 37584,
+   "score": -0.271193,
+   "rank": 659,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OGE",
+   "permno": 24440,
+   "score": -0.27302,
+   "rank": 660,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WOR",
+   "permno": 83601,
+   "score": -0.274838,
+   "rank": 661,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LNT",
+   "permno": 58819,
+   "score": -0.274926,
+   "rank": 662,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ADI",
+   "permno": 60871,
+   "score": -0.278742,
+   "rank": 663,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMKR",
+   "permno": 86047,
+   "score": -0.27928,
+   "rank": 664,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ALG",
+   "permno": 78950,
+   "score": -0.283358,
+   "rank": 665,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KTOS",
+   "permno": 87430,
+   "score": -0.284118,
+   "rank": 666,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KFY",
+   "permno": 86594,
+   "score": -0.289342,
+   "rank": 667,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KMT",
+   "permno": 44134,
+   "score": -0.29013,
+   "rank": 668,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OCFC",
+   "permno": 83774,
+   "score": -0.2913,
+   "rank": 669,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GFF",
+   "permno": 46463,
+   "score": -0.291351,
+   "rank": 670,
+   "tercile": "below"
+  },
+  {
+   "symbol": "APD",
+   "permno": 28222,
+   "score": -0.292923,
+   "rank": 671,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ENTG",
+   "permno": 88439,
+   "score": -0.295152,
+   "rank": 672,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LUMN",
+   "permno": 60599,
+   "score": -0.295782,
+   "rank": 673,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRUS",
+   "permno": 75603,
+   "score": -0.295907,
+   "rank": 674,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NUE",
+   "permno": 34817,
+   "score": -0.299344,
+   "rank": 675,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GT",
+   "permno": 16432,
+   "score": -0.301726,
+   "rank": 676,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TNL",
+   "permno": 91392,
+   "score": -0.30267,
+   "rank": 677,
+   "tercile": "below"
+  },
+  {
+   "symbol": "POOL",
+   "permno": 82515,
+   "score": -0.304084,
+   "rank": 678,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PEG",
+   "permno": 23712,
+   "score": -0.3054,
+   "rank": 679,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BHP",
+   "permno": 61946,
+   "score": -0.30602,
+   "rank": 680,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CMP",
+   "permno": 89952,
+   "score": -0.308824,
+   "rank": 681,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NPK",
+   "permno": 34497,
+   "score": -0.309899,
+   "rank": 682,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FULT",
+   "permno": 88197,
+   "score": -0.312159,
+   "rank": 683,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HOG",
+   "permno": 70033,
+   "score": -0.316805,
+   "rank": 684,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HOPE",
+   "permno": 85741,
+   "score": -0.316978,
+   "rank": 685,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AXP",
+   "permno": 59176,
+   "score": -0.317085,
+   "rank": 686,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KBH",
+   "permno": 70092,
+   "score": -0.320618,
+   "rank": 687,
+   "tercile": "below"
+  },
+  {
+   "symbol": "QCOM",
+   "permno": 77178,
+   "score": -0.322908,
+   "rank": 688,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BRO",
+   "permno": 63467,
+   "score": -0.322929,
+   "rank": 689,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NKTR",
+   "permno": 80539,
+   "score": -0.323065,
+   "rank": 690,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LHX",
+   "permno": 25582,
+   "score": -0.32333,
+   "rank": 691,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CSX",
+   "permno": 62148,
+   "score": -0.326511,
+   "rank": 692,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WSO",
+   "permno": 66376,
+   "score": -0.326787,
+   "rank": 693,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TER",
+   "permno": 51369,
+   "score": -0.32791,
+   "rank": 694,
+   "tercile": "below"
+  },
+  {
+   "symbol": "COP",
+   "permno": 13928,
+   "score": -0.328914,
+   "rank": 695,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CEVA",
+   "permno": 89572,
+   "score": -0.331966,
+   "rank": 696,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AN",
+   "permno": 76282,
+   "score": -0.334133,
+   "rank": 697,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CXT",
+   "permno": 20204,
+   "score": -0.334339,
+   "rank": 698,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HIFS",
+   "permno": 12189,
+   "score": -0.336696,
+   "rank": 699,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RGLD",
+   "permno": 67847,
+   "score": -0.338414,
+   "rank": 700,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WTRG",
+   "permno": 52898,
+   "score": -0.343809,
+   "rank": 701,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RF",
+   "permno": 35044,
+   "score": -0.343854,
+   "rank": 702,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CHE",
+   "permno": 64194,
+   "score": -0.348705,
+   "rank": 703,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AOS",
+   "permno": 65402,
+   "score": -0.350471,
+   "rank": 704,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMAT",
+   "permno": 14702,
+   "score": -0.355256,
+   "rank": 705,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ITT",
+   "permno": 12570,
+   "score": -0.358875,
+   "rank": 706,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OLED",
+   "permno": 77610,
+   "score": -0.35896,
+   "rank": 707,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WEX",
+   "permno": 90569,
+   "score": -0.360434,
+   "rank": 708,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FCFS",
+   "permno": 76856,
+   "score": -0.364753,
+   "rank": 709,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OXY",
+   "permno": 34833,
+   "score": -0.373395,
+   "rank": 710,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DAR",
+   "permno": 80928,
+   "score": -0.380849,
+   "rank": 711,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WWD",
+   "permno": 84403,
+   "score": -0.381489,
+   "rank": 712,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PIPR",
+   "permno": 89968,
+   "score": -0.383348,
+   "rank": 713,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PPL",
+   "permno": 22517,
+   "score": -0.384379,
+   "rank": 714,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TIGR",
+   "permno": 11781,
+   "score": -0.389741,
+   "rank": 715,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NVR",
+   "permno": 79785,
+   "score": -0.392079,
+   "rank": 716,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ACAD",
+   "permno": 90177,
+   "score": -0.39406,
+   "rank": 717,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HUBB",
+   "permno": 32942,
+   "score": -0.394216,
+   "rank": 718,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DHI",
+   "permno": 77661,
+   "score": -0.399209,
+   "rank": 719,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NEU",
+   "permno": 42550,
+   "score": -0.401089,
+   "rank": 720,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UNM",
+   "permno": 71175,
+   "score": -0.401363,
+   "rank": 721,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PWR",
+   "permno": 85792,
+   "score": -0.404933,
+   "rank": 722,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NSC",
+   "permno": 64311,
+   "score": -0.40995,
+   "rank": 723,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RUSHA",
+   "permno": 89455,
+   "score": -0.411332,
+   "rank": 724,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KEY",
+   "permno": 64995,
+   "score": -0.411801,
+   "rank": 725,
+   "tercile": "below"
+  },
+  {
+   "symbol": "COHR",
+   "permno": 11752,
+   "score": -0.413969,
+   "rank": 726,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MCHP",
+   "permno": 78987,
+   "score": -0.418361,
+   "rank": 727,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MMSI",
+   "permno": 76392,
+   "score": -0.418436,
+   "rank": 728,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UMBF",
+   "permno": 78829,
+   "score": -0.42169,
+   "rank": 729,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SNA",
+   "permno": 60206,
+   "score": -0.423789,
+   "rank": 730,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HUN",
+   "permno": 90558,
+   "score": -0.424356,
+   "rank": 731,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PCAR",
+   "permno": 60506,
+   "score": -0.429096,
+   "rank": 732,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OFG",
+   "permno": 11208,
+   "score": -0.429465,
+   "rank": 733,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CAR",
+   "permno": 25487,
+   "score": -0.430106,
+   "rank": 734,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FMC",
+   "permno": 19166,
+   "score": -0.430782,
+   "rank": 735,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DIOD",
+   "permno": 44943,
+   "score": -0.431201,
+   "rank": 736,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EOG",
+   "permno": 75825,
+   "score": -0.432132,
+   "rank": 737,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IDCC",
+   "permno": 45306,
+   "score": -0.434,
+   "rank": 738,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LPTH",
+   "permno": 83149,
+   "score": -0.435723,
+   "rank": 739,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNR",
+   "permno": 77501,
+   "score": -0.437101,
+   "rank": 740,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GATX",
+   "permno": 12036,
+   "score": -0.439484,
+   "rank": 741,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TRMB",
+   "permno": 76230,
+   "score": -0.44294,
+   "rank": 742,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ANF",
+   "permno": 83976,
+   "score": -0.443437,
+   "rank": 743,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KLIC",
+   "permno": 48144,
+   "score": -0.446086,
+   "rank": 744,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FLS",
+   "permno": 30940,
+   "score": -0.447217,
+   "rank": 745,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HWM",
+   "permno": 24643,
+   "score": -0.45089,
+   "rank": 746,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SCCO",
+   "permno": 82800,
+   "score": -0.456212,
+   "rank": 747,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ZBRA",
+   "permno": 76795,
+   "score": -0.456766,
+   "rank": 748,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EXC",
+   "permno": 21776,
+   "score": -0.462672,
+   "rank": 749,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SM",
+   "permno": 78170,
+   "score": -0.464464,
+   "rank": 750,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ON",
+   "permno": 88182,
+   "score": -0.46628,
+   "rank": 751,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IDT",
+   "permno": 88988,
+   "score": -0.467868,
+   "rank": 752,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SPGI",
+   "permno": 17478,
+   "score": -0.46818,
+   "rank": 753,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INCY",
+   "permno": 79906,
+   "score": -0.472342,
+   "rank": 754,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LH",
+   "permno": 12062,
+   "score": -0.472453,
+   "rank": 755,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MDU",
+   "permno": 23835,
+   "score": -0.478792,
+   "rank": 756,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MTRN",
+   "permno": 55597,
+   "score": -0.483463,
+   "rank": 757,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DVN",
+   "permno": 87137,
+   "score": -0.483644,
+   "rank": 758,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AG",
+   "permno": 77520,
+   "score": -0.485731,
+   "rank": 759,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MRTN",
+   "permno": 75517,
+   "score": -0.486104,
+   "rank": 760,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WDC",
+   "permno": 66384,
+   "score": -0.489526,
+   "rank": 761,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DOV",
+   "permno": 25953,
+   "score": -0.491161,
+   "rank": 762,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LECO",
+   "permno": 81678,
+   "score": -0.493065,
+   "rank": 763,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GBX",
+   "permno": 80719,
+   "score": -0.494739,
+   "rank": 764,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SHOO",
+   "permno": 80034,
+   "score": -0.49617,
+   "rank": 765,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HL",
+   "permno": 32651,
+   "score": -0.498067,
+   "rank": 766,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NVEC",
+   "permno": 89655,
+   "score": -0.510096,
+   "rank": 767,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NEE",
+   "permno": 24205,
+   "score": -0.514602,
+   "rank": 768,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HPQ",
+   "permno": 27828,
+   "score": -0.518583,
+   "rank": 769,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RS",
+   "permno": 80864,
+   "score": -0.519491,
+   "rank": 770,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ORKA",
+   "permno": 85293,
+   "score": -0.520151,
+   "rank": 771,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FHN",
+   "permno": 36397,
+   "score": -0.520208,
+   "rank": 772,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TSN",
+   "permno": 77730,
+   "score": -0.520303,
+   "rank": 773,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BGC",
+   "permno": 87487,
+   "score": -0.527421,
+   "rank": 774,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BKR",
+   "permno": 75034,
+   "score": -0.528321,
+   "rank": 775,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ORA",
+   "permno": 90444,
+   "score": -0.529221,
+   "rank": 776,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WAB",
+   "permno": 81677,
+   "score": -0.539223,
+   "rank": 777,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FTI",
+   "permno": 89004,
+   "score": -0.540088,
+   "rank": 778,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SENEA",
+   "permno": 82279,
+   "score": -0.542856,
+   "rank": 779,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DCO",
+   "permno": 63132,
+   "score": -0.543247,
+   "rank": 780,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ROK",
+   "permno": 84381,
+   "score": -0.544331,
+   "rank": 781,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MATX",
+   "permno": 11691,
+   "score": -0.548191,
+   "rank": 782,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WERN",
+   "permno": 10397,
+   "score": -0.548485,
+   "rank": 783,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UCTT",
+   "permno": 90097,
+   "score": -0.551507,
+   "rank": 784,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AYI",
+   "permno": 89216,
+   "score": -0.554557,
+   "rank": 785,
+   "tercile": "below"
+  },
+  {
+   "symbol": "STRL",
+   "permno": 76927,
+   "score": -0.560108,
+   "rank": 786,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CROX",
+   "permno": 91090,
+   "score": -0.560806,
+   "rank": 787,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UFPI",
+   "permno": 79878,
+   "score": -0.565811,
+   "rank": 788,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SLAB",
+   "permno": 87812,
+   "score": -0.576889,
+   "rank": 789,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AIN",
+   "permno": 11731,
+   "score": -0.577417,
+   "rank": 790,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HUBG",
+   "permno": 83272,
+   "score": -0.578917,
+   "rank": 791,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OKE",
+   "permno": 25232,
+   "score": -0.580347,
+   "rank": 792,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PENN",
+   "permno": 80563,
+   "score": -0.586449,
+   "rank": 793,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BWA",
+   "permno": 79545,
+   "score": -0.587746,
+   "rank": 794,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ITGR",
+   "permno": 88615,
+   "score": -0.594275,
+   "rank": 795,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WOLF",
+   "permno": 78875,
+   "score": -0.598442,
+   "rank": 796,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ALB",
+   "permno": 80191,
+   "score": -0.599005,
+   "rank": 797,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MOH",
+   "permno": 89781,
+   "score": -0.599177,
+   "rank": 798,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SNEX",
+   "permno": 81254,
+   "score": -0.602709,
+   "rank": 799,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OTTR",
+   "permno": 60098,
+   "score": -0.621483,
+   "rank": 800,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ADEA",
+   "permno": 89922,
+   "score": -0.621635,
+   "rank": 801,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ENS",
+   "permno": 90249,
+   "score": -0.622386,
+   "rank": 802,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EME",
+   "permno": 82694,
+   "score": -0.624067,
+   "rank": 803,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HOV",
+   "permno": 65285,
+   "score": -0.624214,
+   "rank": 804,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GHM",
+   "permno": 60468,
+   "score": -0.625033,
+   "rank": 805,
+   "tercile": "below"
+  },
+  {
+   "symbol": "R",
+   "permno": 27633,
+   "score": -0.628168,
+   "rank": 806,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SEB",
+   "permno": 36281,
+   "score": -0.628703,
+   "rank": 807,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CAT",
+   "permno": 18542,
+   "score": -0.629788,
+   "rank": 808,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UNH",
+   "permno": 92655,
+   "score": -0.640545,
+   "rank": 809,
+   "tercile": "below"
+  },
+  {
+   "symbol": "JLL",
+   "permno": 85246,
+   "score": -0.642609,
+   "rank": 810,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FBP",
+   "permno": 11018,
+   "score": -0.644704,
+   "rank": 811,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FIS",
+   "permno": 89003,
+   "score": -0.645802,
+   "rank": 812,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TRN",
+   "permno": 55001,
+   "score": -0.655142,
+   "rank": 813,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CPRT",
+   "permno": 80320,
+   "score": -0.656255,
+   "rank": 814,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GVA",
+   "permno": 76135,
+   "score": -0.657917,
+   "rank": 815,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RRC",
+   "permno": 50017,
+   "score": -0.659777,
+   "rank": 816,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BZH",
+   "permno": 80193,
+   "score": -0.660655,
+   "rank": 817,
+   "tercile": "below"
+  },
+  {
+   "symbol": "USLM",
+   "permno": 65700,
+   "score": -0.673107,
+   "rank": 818,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HXL",
+   "permno": 61567,
+   "score": -0.677384,
+   "rank": 819,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BALL",
+   "permno": 57568,
+   "score": -0.683046,
+   "rank": 820,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CI",
+   "permno": 64186,
+   "score": -0.686146,
+   "rank": 821,
+   "tercile": "below"
+  },
+  {
+   "symbol": "APA",
+   "permno": 39490,
+   "score": -0.688855,
+   "rank": 822,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INVX",
+   "permno": 85424,
+   "score": -0.690908,
+   "rank": 823,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MAS",
+   "permno": 34032,
+   "score": -0.691853,
+   "rank": 824,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TKR",
+   "permno": 14795,
+   "score": -0.693354,
+   "rank": 825,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INVA",
+   "permno": 90423,
+   "score": -0.694571,
+   "rank": 826,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DE",
+   "permno": 19350,
+   "score": -0.695644,
+   "rank": 827,
+   "tercile": "below"
+  },
+  {
+   "symbol": "KAI",
+   "permno": 78077,
+   "score": -0.698135,
+   "rank": 828,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ASH",
+   "permno": 24272,
+   "score": -0.702733,
+   "rank": 829,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TPC",
+   "permno": 50550,
+   "score": -0.710859,
+   "rank": 830,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NNI",
+   "permno": 89964,
+   "score": -0.718168,
+   "rank": 831,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OII",
+   "permno": 58975,
+   "score": -0.739463,
+   "rank": 832,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FSS",
+   "permno": 47706,
+   "score": -0.739612,
+   "rank": 833,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRS",
+   "permno": 20618,
+   "score": -0.742782,
+   "rank": 834,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MKSI",
+   "permno": 86778,
+   "score": -0.753572,
+   "rank": 835,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MPWR",
+   "permno": 90455,
+   "score": -0.758456,
+   "rank": 836,
+   "tercile": "below"
+  },
+  {
+   "symbol": "IP",
+   "permno": 21573,
+   "score": -0.767485,
+   "rank": 837,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AAON",
+   "permno": 76868,
+   "score": -0.772592,
+   "rank": 838,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MLI",
+   "permno": 76573,
+   "score": -0.783414,
+   "rank": 839,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MHO",
+   "permno": 79909,
+   "score": -0.783992,
+   "rank": 840,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GPK",
+   "permno": 89810,
+   "score": -0.789429,
+   "rank": 841,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DMC",
+   "permno": 10253,
+   "score": -0.795942,
+   "rank": 842,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRAI",
+   "permno": 85972,
+   "score": -0.803673,
+   "rank": 843,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ARW",
+   "permno": 29209,
+   "score": -0.805235,
+   "rank": 844,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CMC",
+   "permno": 30680,
+   "score": -0.8062,
+   "rank": 845,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WKC",
+   "permno": 75070,
+   "score": -0.81901,
+   "rank": 846,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CLDX",
+   "permno": 10258,
+   "score": -0.826173,
+   "rank": 847,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SON",
+   "permno": 71176,
+   "score": -0.834517,
+   "rank": 848,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ADM",
+   "permno": 10516,
+   "score": -0.836416,
+   "rank": 849,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NOV",
+   "permno": 84032,
+   "score": -0.839652,
+   "rank": 850,
+   "tercile": "below"
+  },
+  {
+   "symbol": "UCB",
+   "permno": 89323,
+   "score": -0.84423,
+   "rank": 851,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CMI",
+   "permno": 41080,
+   "score": -0.844513,
+   "rank": 852,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WCC",
+   "permno": 86876,
+   "score": -0.847218,
+   "rank": 853,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EQT",
+   "permno": 24328,
+   "score": -0.849854,
+   "rank": 854,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LNC",
+   "permno": 49015,
+   "score": -0.850844,
+   "rank": 855,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NEM",
+   "permno": 21207,
+   "score": -0.850958,
+   "rank": 856,
+   "tercile": "below"
+  },
+  {
+   "symbol": "XPO",
+   "permno": 90175,
+   "score": -0.863275,
+   "rank": 857,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TKO",
+   "permno": 87356,
+   "score": -0.871196,
+   "rank": 858,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PHM",
+   "permno": 54148,
+   "score": -0.871522,
+   "rank": 859,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WMB",
+   "permno": 38156,
+   "score": -0.87714,
+   "rank": 860,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TOL",
+   "permno": 70228,
+   "score": -0.879366,
+   "rank": 861,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MUR",
+   "permno": 28345,
+   "score": -0.880526,
+   "rank": 862,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CSL",
+   "permno": 27334,
+   "score": -0.880762,
+   "rank": 863,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OI",
+   "permno": 77157,
+   "score": -0.881928,
+   "rank": 864,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CF",
+   "permno": 90829,
+   "score": -0.883804,
+   "rank": 865,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FCX",
+   "permno": 81774,
+   "score": -0.902513,
+   "rank": 866,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TEX",
+   "permno": 58318,
+   "score": -0.904553,
+   "rank": 867,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AES",
+   "permno": 76712,
+   "score": -0.906287,
+   "rank": 868,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FIX",
+   "permno": 85059,
+   "score": -0.916783,
+   "rank": 869,
+   "tercile": "below"
+  },
+  {
+   "symbol": "URBN",
+   "permno": 79881,
+   "score": -0.927879,
+   "rank": 870,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ATI",
+   "permno": 43123,
+   "score": -0.931062,
+   "rank": 871,
+   "tercile": "below"
+  },
+  {
+   "symbol": "INGR",
+   "permno": 85645,
+   "score": -0.933217,
+   "rank": 872,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TAL",
+   "permno": 90940,
+   "score": -0.935163,
+   "rank": 873,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SIRI",
+   "permno": 80924,
+   "score": -0.937026,
+   "rank": 874,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FITB",
+   "permno": 34746,
+   "score": -0.941605,
+   "rank": 875,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VSH",
+   "permno": 57808,
+   "score": -0.961098,
+   "rank": 876,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EXP",
+   "permno": 80415,
+   "score": -0.969348,
+   "rank": 877,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OSK",
+   "permno": 90756,
+   "score": -0.971241,
+   "rank": 878,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OPY",
+   "permno": 78451,
+   "score": -0.977686,
+   "rank": 879,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LII",
+   "permno": 87034,
+   "score": -0.983407,
+   "rank": 880,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SLM",
+   "permno": 66325,
+   "score": -1.008988,
+   "rank": 881,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OLN",
+   "permno": 13610,
+   "score": -1.009328,
+   "rank": 882,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DINO",
+   "permno": 32803,
+   "score": -1.02093,
+   "rank": 883,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VMI",
+   "permno": 80128,
+   "score": -1.025775,
+   "rank": 884,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NBIX",
+   "permno": 83534,
+   "score": -1.030623,
+   "rank": 885,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SAH",
+   "permno": 85627,
+   "score": -1.03136,
+   "rank": 886,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CWST",
+   "permno": 85464,
+   "score": -1.031535,
+   "rank": 887,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CE",
+   "permno": 90520,
+   "score": -1.037635,
+   "rank": 888,
+   "tercile": "below"
+  },
+  {
+   "symbol": "J",
+   "permno": 52329,
+   "score": -1.048943,
+   "rank": 889,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CENX",
+   "permno": 83244,
+   "score": -1.05142,
+   "rank": 890,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CDE",
+   "permno": 24441,
+   "score": -1.051531,
+   "rank": 891,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FLR",
+   "permno": 88853,
+   "score": -1.052184,
+   "rank": 892,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MS",
+   "permno": 69032,
+   "score": -1.053385,
+   "rank": 893,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DXPE",
+   "permno": 85176,
+   "score": -1.061282,
+   "rank": 894,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TTMI",
+   "permno": 88648,
+   "score": -1.090227,
+   "rank": 895,
+   "tercile": "below"
+  },
+  {
+   "symbol": "EXEL",
+   "permno": 88159,
+   "score": -1.103746,
+   "rank": 896,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HAL",
+   "permno": 23819,
+   "score": -1.106103,
+   "rank": 897,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SPXC",
+   "permno": 55212,
+   "score": -1.112437,
+   "rank": 898,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GNW",
+   "permno": 90162,
+   "score": -1.118154,
+   "rank": 899,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NPKI",
+   "permno": 34673,
+   "score": -1.124885,
+   "rank": 900,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HP",
+   "permno": 32707,
+   "score": -1.139414,
+   "rank": 901,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CCK",
+   "permno": 17726,
+   "score": -1.147867,
+   "rank": 902,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RRX",
+   "permno": 58771,
+   "score": -1.148235,
+   "rank": 903,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ABM",
+   "permno": 47730,
+   "score": -1.151213,
+   "rank": 904,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ARCB",
+   "permno": 77595,
+   "score": -1.159739,
+   "rank": 905,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TRNS",
+   "permno": 76946,
+   "score": -1.160258,
+   "rank": 906,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BRC",
+   "permno": 18973,
+   "score": -1.173225,
+   "rank": 907,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CLH",
+   "permno": 11809,
+   "score": -1.198331,
+   "rank": 908,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LSCC",
+   "permno": 75854,
+   "score": -1.199761,
+   "rank": 909,
+   "tercile": "below"
+  },
+  {
+   "symbol": "HLX",
+   "permno": 85168,
+   "score": -1.203078,
+   "rank": 910,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DLB",
+   "permno": 90550,
+   "score": -1.21973,
+   "rank": 911,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ODFL",
+   "permno": 77037,
+   "score": -1.242384,
+   "rank": 912,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PTEN",
+   "permno": 79857,
+   "score": -1.248711,
+   "rank": 913,
+   "tercile": "below"
+  },
+  {
+   "symbol": "SAIA",
+   "permno": 89506,
+   "score": -1.254858,
+   "rank": 914,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LPX",
+   "permno": 56223,
+   "score": -1.259143,
+   "rank": 915,
+   "tercile": "below"
+  },
+  {
+   "symbol": "QMCO",
+   "permno": 87043,
+   "score": -1.272965,
+   "rank": 916,
+   "tercile": "below"
+  },
+  {
+   "symbol": "WRLD",
+   "permno": 77114,
+   "score": -1.28001,
+   "rank": 917,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ONTO",
+   "permno": 90377,
+   "score": -1.283234,
+   "rank": 918,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NWPX",
+   "permno": 82599,
+   "score": -1.302634,
+   "rank": 919,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TREX",
+   "permno": 86810,
+   "score": -1.308172,
+   "rank": 920,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VLO",
+   "permno": 85269,
+   "score": -1.308882,
+   "rank": 921,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ARM",
+   "permno": 85349,
+   "score": -1.324018,
+   "rank": 922,
+   "tercile": "below"
+  },
+  {
+   "symbol": "DK",
+   "permno": 91215,
+   "score": -1.33253,
+   "rank": 923,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ANDE",
+   "permno": 83112,
+   "score": -1.335574,
+   "rank": 924,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NPO",
+   "permno": 89406,
+   "score": -1.346376,
+   "rank": 925,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PDFS",
+   "permno": 89044,
+   "score": -1.370045,
+   "rank": 926,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MTH",
+   "permno": 75342,
+   "score": -1.386367,
+   "rank": 927,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ADTN",
+   "permno": 80791,
+   "score": -1.388291,
+   "rank": 928,
+   "tercile": "below"
+  },
+  {
+   "symbol": "PLAB",
+   "permno": 11154,
+   "score": -1.417159,
+   "rank": 929,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CNX",
+   "permno": 86799,
+   "score": -1.477666,
+   "rank": 930,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AMSC",
+   "permno": 77175,
+   "score": -1.488067,
+   "rank": 931,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TDW",
+   "permno": 50606,
+   "score": -1.504899,
+   "rank": 932,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NRG",
+   "permno": 90071,
+   "score": -1.531476,
+   "rank": 933,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ATEC",
+   "permno": 91348,
+   "score": -1.54126,
+   "rank": 934,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LNG",
+   "permno": 84723,
+   "score": -1.565251,
+   "rank": 935,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VECO",
+   "permno": 81116,
+   "score": -1.568727,
+   "rank": 936,
+   "tercile": "below"
+  },
+  {
+   "symbol": "STLD",
+   "permno": 84262,
+   "score": -1.613573,
+   "rank": 937,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LGND",
+   "permno": 78081,
+   "score": -1.615669,
+   "rank": 938,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VCEL",
+   "permno": 84511,
+   "score": -1.706298,
+   "rank": 939,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CRK",
+   "permno": 11644,
+   "score": -1.723314,
+   "rank": 940,
+   "tercile": "below"
+  },
+  {
+   "symbol": "MOS",
+   "permno": 90386,
+   "score": -1.728458,
+   "rank": 941,
+   "tercile": "below"
+  },
+  {
+   "symbol": "TTI",
+   "permno": 76127,
+   "score": -1.837939,
+   "rank": 942,
+   "tercile": "below"
+  },
+  {
+   "symbol": "GPRE",
+   "permno": 91161,
+   "score": -1.925737,
+   "rank": 943,
+   "tercile": "below"
+  },
+  {
+   "symbol": "OPCH",
+   "permno": 83883,
+   "score": -1.950671,
+   "rank": 944,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NVAX",
+   "permno": 82779,
+   "score": -1.976825,
+   "rank": 945,
+   "tercile": "below"
+  },
+  {
+   "symbol": "RPRX",
+   "permno": 79025,
+   "score": -2.009756,
+   "rank": 946,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BLDR",
+   "permno": 90720,
+   "score": -2.043869,
+   "rank": 947,
+   "tercile": "below"
+  },
+  {
+   "symbol": "FCEL",
+   "permno": 77699,
+   "score": -2.16784,
+   "rank": 948,
+   "tercile": "below"
+  },
+  {
+   "symbol": "BCRX",
+   "permno": 80306,
+   "score": -2.168735,
+   "rank": 949,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AIG",
+   "permno": 66800,
+   "score": -2.209917,
+   "rank": 950,
+   "tercile": "below"
+  },
+  {
+   "symbol": "NSSC",
+   "permno": 55993,
+   "score": -2.262662,
+   "rank": 951,
+   "tercile": "below"
+  },
+  {
+   "symbol": "ATLC",
+   "permno": 86819,
+   "score": -2.548641,
+   "rank": 952,
+   "tercile": "below"
+  },
+  {
+   "symbol": "AGM",
+   "permno": 80169,
+   "score": -2.556351,
+   "rank": 953,
+   "tercile": "below"
+  },
+  {
+   "symbol": "CLF",
+   "permno": 27422,
+   "score": -2.600919,
+   "rank": 954,
+   "tercile": "below"
+  },
+  {
+   "symbol": "VG",
+   "permno": 91237,
+   "score": -2.685868,
+   "rank": 955,
+   "tercile": "below"
+  },
+  {
+   "symbol": "LEU",
+   "permno": 86233,
+   "score": -4.195109,
+   "rank": 956,
+   "tercile": "below"
+  }
+ ],
+ "content_sha256": "141b01cd6344b43d64c1ccba419779798b1cf4979dd6ff152b7d888a976df2c4"
+}
