@@ -136,6 +136,23 @@ already travel, and **a redeploy is needed only when the CODE changes.**
   *correction* still means deleting the volume copy by hand, after which the
   authority serves the corrected one on the next cycle. 15b removed the
   **calendar** dependency, not the **correction** one.
+- **VERIFIED OVER A REAL SOCKET, not only in unit tests** (2026-09-13, the
+  authority's own `ThreadingHTTPServer` on localhost, the consumer's volume a
+  different directory from the authority's image):
+
+  | request | result |
+  |---|---|
+  | `GET /engines/F_seasonality_2026-09.json` | 200, installed, sha `141b01cd6344b43d`, 30 names |
+  | `GET /engines/F_seasonality_2026-10.json` | 200, installed, sha `dae6f7db5aa2ff48`, 30 names |
+  | `GET /engines/latest/F_seasonality.json` | 200, resolves to **2026-10** |
+  | `GET /engines/F_seasonality_2027-07.json` | 404; `sync_once` returns False and says so |
+  | `/engines/../../.env`, `/engines/seals.jsonl`, `/engines/` | 404, each |
+
+  Then `seasonality_f.engine()` read the SYNCED file with an EMPTY image
+  directory (so the seed copy could not be what it read), verified its hash, and
+  **declined 2027-07 with a reason** — the fail-closed path, exercised rather
+  than asserted.
+
 - **A redeploy of `seal-authority` is needed for this route to exist** (it is
   code), and a redeploy of each loop for `engine_sync` to be called (also code).
   After that, October arrives without anybody.
