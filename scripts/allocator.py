@@ -70,7 +70,8 @@ def read_equities(roles=A.ROLES, *, supplied: dict | None = None) -> dict:
     so the run is reproducible from its own command line.
     """
     if supplied:
-        return {r: {"equity": float(v), "source": "supplied on the command line"}
+        return {r: {"equity": float(v["equity"]), "account": v.get("account"),
+                    "source": "supplied on the command line"}
                 for r, v in supplied.items() if r in roles}
     from scripts.fleet import check
     out = {}
@@ -249,7 +250,11 @@ def main(argv=None) -> int:
     ap.add_argument("--show", action="store_true", help="compute and print; write nothing")
     ap.add_argument("--day", default=None)
     ap.add_argument("--equity", default=None,
-                    help="role=value,role=value -- skip the venue entirely")
+                    help="role=value[:account],role=value -- skip the venue entirely. The "
+                         "optional :account is the venue ACCOUNT NUMBER and belongs on the "
+                         "anchor: every other piece of state here is keyed by ROLE, and a role "
+                         "pointed at a different account would carry the old one's history "
+                         "forward under the same label (alpha/genesis.py's own warning).")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
 
@@ -259,7 +264,9 @@ def main(argv=None) -> int:
         supplied = {}
         for part in a.equity.split(","):
             k, _, v = part.partition("=")
-            supplied[k.strip().lower()] = float(v)
+            eq, _, acct = v.partition(":")
+            supplied[k.strip().lower()] = {"equity": float(eq),
+                                           "account": acct.strip() or None}
 
     if a.anchor:
         eq = read_equities(supplied=supplied)
