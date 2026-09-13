@@ -130,6 +130,83 @@ def deploy(role: str, *, up: bool) -> None:
         run("up", "--service", svc, "-d")
 
 
+def deploy_seal_authority(*, up: bool) -> None:
+    """Variables for the `seal-authority` service. No volume, no loop flags.
+
+    The five allocated roles' key pairs go up as Railway CROSS-SERVICE
+    REFERENCES -- `${{aat-loop-hack1.AAT_HACK1_KEY_ID}}` -- so the authority's
+    environment resolves to the real keys server-side and **no key value is
+    read, typed, echoed or committed by this function**. `alpha/fleet.py`'s
+    `seal_authority_key_references` is where the syntax lives, with its citation.
+
+    The read-back deliberately skips every `_KEY_ID` / `_SECRET_KEY`, exactly as
+    `deploy()` does. It must: Railway returns the RESOLVED value for a
+    reference, so comparing it against the template would find a "stale"
+    variable on every single call and re-set it for ever -- and the resolved
+    value is a secret, which is the other reason not to read it.
+    """
+    import shutil
+    import subprocess
+
+    railway = shutil.which("railway") or shutil.which("railway.exe") or shutil.which("railway.cmd")
+    if not railway:
+        raise SystemExit("railway CLI not on PATH")
+    svc = fleet.SEAL_AUTHORITY_SERVICE
+    env = dict(fleet.seal_authority_env())
+    for k in fleet.SECRETS:
+        v = os.getenv(k, "")
+        if v:
+            env[k] = v
+    try:
+        sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
+                                      cwd=str(ROOT), text=True, timeout=10).strip()
+        dirty = subprocess.check_output(["git", "status", "--porcelain"],
+                                        cwd=str(ROOT), text=True, timeout=20).strip()
+        env["AAT_BUILD_COMMIT"] = sha + ("+dirty" if dirty else "")
+    except (OSError, subprocess.SubprocessError):
+        env["AAT_BUILD_COMMIT"] = "UNKNOWN"
+
+    def run(*cmd, ok_fail=False):
+        r = subprocess.run([railway, *cmd], capture_output=True, text=True)
+        line = (r.stdout + r.stderr).strip().splitlines()
+        print(f"  $ railway {' '.join(c if not c.startswith('AAT_') else c.split('=')[0] + '=...' for c in cmd)[:110]}"
+              + (f"  -> {line[-1][:100]}" if line else ""))
+        if r.returncode and not ok_fail:
+            raise SystemExit(f"railway {cmd[0]} failed for {svc}")
+        return r
+
+    print(f"[{svc}] the prediction-book seal AND the allocator's daily cut")
+    print(f"  the key pairs go up as REFERENCES, never as values: "
+          f"{sorted(fleet.seal_authority_key_references())}")
+    print(f"  {fleet.SEAL_AUTHORITY_ROLE}'s own pair is NOT touched -- it is already a "
+          f"literal on this service and overwriting it with a template that might "
+          f"not resolve would cost the whole fleet its sealed book.")
+    run("service", svc)
+    # NO `volume add`: the authority has no volume on purpose, which is why
+    # scripts/allocator_venue.py re-derives the curves from the venue each day.
+    sets = []
+    for k, v in env.items():
+        sets += ["--set", f"{k}={v}"]
+    run("variables", "--service", svc, "--skip-deploys", *sets)
+    r = run("variables", "--service", svc, "--json", ok_fail=True)
+    try:
+        live_vars = json.loads(r.stdout or "{}")
+    except json.JSONDecodeError:
+        live_vars = {}
+    stale = [k for k, v in env.items()
+             if not k.endswith("_KEY_ID") and not k.endswith("_SECRET_KEY")
+             and k not in fleet.SECRETS and str(live_vars.get(k)) != str(v)]
+    for k in stale:
+        run("variables", "--service", svc, "--skip-deploys", "--set", f"{k}={env[k]}")
+    if stale:
+        print(f"  re-set {len(stale)} variable(s) that did not take on the bulk call: {stale}")
+    print("  NOT VERIFIED BY READ-BACK, and it cannot be: the four key-pair "
+          "references resolve server-side, so the only proof they took is the "
+          "first `SEAL AUTHORITY ALLOCATED` line after the next close.")
+    if up:
+        run("up", "--service", svc, "-d")
+
+
 def overlap() -> None:
     """Which names is the fleet holding in more than one account, and how?
 
@@ -197,11 +274,17 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--plan", action="store_true")
     ap.add_argument("--env-template", action="store_true")
-    ap.add_argument("--railway", default=None, help="role or 'all'")
+    ap.add_argument("--railway", default=None,
+                    help="role, 'all', or 'seal-authority' (the seventh service: it seals the "
+                         "prediction book and, since chunk 13c, runs the allocator after the close)")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--check-all", action="store_true")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--deploy", default=None, help="role or 'all': create the Railway service, volume and variables (keys read from .env)")
+    ap.add_argument("--deploy", default=None,
+                    help="role, 'all', or 'seal-authority': create the Railway service, volume and "
+                         "variables (keys read from .env). 'seal-authority' takes NO volume and its "
+                         "five key pairs go up as cross-service REFERENCES, never as values; it is "
+                         "not included in 'all'.")
     ap.add_argument("--up", action="store_true", help="with --deploy: also `railway up -d` (starts the LIVE loop)")
     ap.add_argument("--overlap", action="store_true",
                     help="the FLEET's real cross-book overlap: which names more than one account holds, "
@@ -215,16 +298,31 @@ def main() -> int:
     if args.env_template:
         print(fleet.env_template())
     if args.railway:
-        roles = list(fleet.FLEET) if args.railway == "all" else [args.railway]
-        for r in roles:
-            print(f"# ---- {r} ({fleet.FLEET[r].tier}) ----")
-            print(fleet.railway_commands(fleet.FLEET[r]))
+        if args.railway == fleet.SEAL_AUTHORITY_SERVICE:
+            print(f"# ---- {fleet.SEAL_AUTHORITY_SERVICE} (no mandate, no volume) ----")
+            print("# the five allocated roles' key pairs as Railway cross-service")
+            print("# REFERENCES -- resolved server-side, never a value in this output:")
+            for k, v in fleet.seal_authority_key_references().items():
+                print(f"#   {k}={v}")
+            print(fleet.seal_authority_commands())
             print()
+        else:
+            roles = list(fleet.FLEET) if args.railway == "all" else [args.railway]
+            for r in roles:
+                print(f"# ---- {r} ({fleet.FLEET[r].tier}) ----")
+                print(fleet.railway_commands(fleet.FLEET[r]))
+                print()
     if args.deploy:
         config.load_env()
-        roles = list(fleet.FLEET) if args.deploy == "all" else [args.deploy]
-        for r in roles:
-            deploy(r, up=args.up)
+        if args.deploy == fleet.SEAL_AUTHORITY_SERVICE:
+            # DELIBERATELY NOT PART OF `--deploy all`: the authority has no
+            # mandate and no volume, and a loop deploy and an authority deploy
+            # fail in different ways. It is named, or it is not deployed.
+            deploy_seal_authority(up=args.up)
+        else:
+            roles = list(fleet.FLEET) if args.deploy == "all" else [args.deploy]
+            for r in roles:
+                deploy(r, up=args.up)
     if args.check or args.check_all:
         config.load_env()
         roles = list(fleet.FLEET) if args.check_all else [config.role()]

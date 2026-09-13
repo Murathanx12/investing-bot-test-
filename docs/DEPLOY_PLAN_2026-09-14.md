@@ -1,4 +1,4 @@
-# DEPLOY PLAN — Monday 2026-09-14, chunk 13b
+# DEPLOY PLAN — Monday 2026-09-14, chunks 13b + 13c
 
 **Written by the Opus build agent, 2026-09-13. Fable checks it; Murat runs the
 lines.** Nothing in chunk 13b has been deployed and nothing has been pushed.
@@ -9,9 +9,13 @@ Two things change on Monday and one thing does not:
 
 1. **hack3's ENGINE becomes Book F** (calendar seasonality). Its sizing, stop,
    horizon and worst case are untouched.
-2. **The allocator begins.** From Monday every allocated book carries a
-   `--gross-scale` it did not carry before. On day one every scale is **1.00**,
-   so the fleet's exposure is exactly what it is today.
+2. **The allocator begins, and it now runs where the keys are.** From Monday
+   every allocated book carries a `--gross-scale` it did not carry before, and
+   from Monday's close the `seal-authority` service computes that number daily
+   and serves it to the loops over the artery that already delivers the sealed
+   book (chunk 13c; §4 and §6.1). On day one every scale is **1.00**, so the
+   fleet's exposure is exactly what it is today; the first scale that can MOVE
+   on a drawdown is the first close at which a book is 5% below its own peak.
 3. **hack2 is not touched.** Its loop is already down and its account went to
    lane D on Murat's 2026-09-13 12:05 HKT decision. No command below names it.
 
@@ -98,11 +102,13 @@ promising it in prose.
   `cp -rn /app/seed/. /app/state/`, so the file lands on the volume at
   `/app/state/engines/` where `alpha/brains/seasonality_f.py` looks first, and
   the repo copy at `/app/docs/seed/engines/` is the fallback.
-- It does **not** go through `scripts/seal_authority.py`. That service serves
-  `state/predictions/` over HTTP and nothing else
-  (`scripts/prediction_book_sync.py` is its only consumer), so **no
-  seal-authority redeploy is required by this chunk.** Redeploying it would be
-  harmless and would change nothing.
+- It does **not** go through `scripts/seal_authority.py`. The **Book F engine
+  file** is an image artefact and nothing about it needs that service.
+  (**Amended by chunk 13c:** the sentence that stood here — "no seal-authority
+  redeploy is required" — was true of chunk 13b and is false of 13c. The
+  authority now serves a SECOND artefact, `state/allocator/<day>.json`, and
+  **its redeploy is step 1a of §5.** The engine file's own delivery is
+  unchanged.)
 - **`cp -rn` NEVER OVERWRITES.** A *new* month's file is a new name and arrives
   normally. A *corrected* file for a month already on the volume does **not**
   arrive, and the stale copy keeps winning silently because it verifies against
@@ -136,17 +142,50 @@ complete date blocks yet and the return signal may not move a live book's size
 before it does (`TRIAL-DRAFT-ALLOCATOR-v0` §6.2). Twins both at 0 over 0
 sessions; verdict clock **TOO EARLY, 60 sessions to the decision**.
 
-**The daily run from Monday** (not registered — registering a scheduled task is
-an attended act; and the machine's clock is UTC+8 while the venue closes 16:00
-ET, so compute ET before trusting the hour):
+**The daily run from Monday — IN THE SEAL AUTHORITY, not on this machine**
+(chunk 13c, 2026-09-13; §4b below is the check that forced it and is kept as
+history). The `schtasks` line this section used to carry is **withdrawn**: 17:15
+on a UTC+8 machine is 05:15 ET, before the session, and the laptop holds no role
+keys at all.
 
-    schtasks /Create /TN "aegis-allocator" /SC WEEKLY /D MON,TUE,WED,THU,FRI ^
-      /ST 17:15 /TR "cmd /c cd /d C:\Users\mrthn\aegis-alpha-terminal && ^
-      python -m scripts.allocator --run >> state\allocator\run.log 2>&1"
+The authority is the only process Railway can hand all five key pairs to without
+a value being typed anywhere: `${{aat-loop-hack1.AAT_HACK1_KEY_ID}}` is a
+cross-service reference and Railway resolves it server-side inside one project
+(https://docs.railway.com/guides/variables). So:
 
-It runs **here**, not on Railway: reading six accounts needs six key pairs, and
-`--deploy` gives each service exactly one role's keys and its own volume, so no
-Railway service could read the fleet or write into the loops' state.
+    scripts/seal_authority.py   maintainer thread
+      1. ensure_today()         the sealed prediction book, as before
+      2. ensure_allocator()     NEW -- weekday, out of session, >= 16:30 ET:
+                                  read the five equity CURVES from the venue
+                                  (GET /v2/account/portfolio/history, re-derived
+                                  every day because this service has NO volume),
+                                  run alpha.allocator, write
+                                  state/allocator/<day>.json with a
+                                  content_sha256, and serve it at
+                                  /allocator/<day>.json and /allocator/latest.json
+
+    scripts/allocator_sync.py   in every loop's cycle, beside the seal sync:
+                                  fetch /allocator/latest.json, verify the hash,
+                                  install it, and hand the role's gross to the
+                                  pass through the existing --gross-scale path
+
+**The freshness rule, because it is the one thing that is easy to get wrong.**
+The authority writes day D's record after 16:30 ET on D, so all through D+1's
+session the newest record on earth is D — that is CURRENT, not stale. Freshness
+is measured against *the day whose close has most recently passed*. Older than
+that is **STALE**: the book keeps that budget, floored at the deploy-time flag,
+and says so. A record dated later than the last closed session is **refused**.
+There is no path that returns a silent 1.00.
+
+**A role whose account number differs from `anchor.json`'s is refused by name**
+and drops out of that day's marks — an Alpaca "reset" is delete-and-recreate and
+rotates the keys, and every other piece of state here is keyed by ROLE.
+
+The anchor itself still ships in the image (`docs/seed/allocator/anchor.json`),
+unchanged: it is the deploy-time equity every curve starts from and it is not
+recomputed. `python -m scripts.allocator --run` on a laptop with the six pairs
+in `.env` still works and is still the way to inspect the arithmetic by hand;
+it is simply no longer how the fleet is fed.
 
 ## 4b. FABLE'S CHECK, 2026-09-13 16:40 HKT — what Monday's deploy does and does not carry
 
@@ -158,7 +197,16 @@ Run from `C:\Users\mrthn\aegis-alpha-terminal` with the repo **pushed** (the
 deploy stamps `AAT_BUILD_COMMIT` and marks a dirty tree as `+dirty`).
 
     # 0. the gate, first — a red suite is not a deploy
-    python run_tests.py                      # expect: 87 suites, ALL PASS
+    python run_tests.py                      # expect: 88 suites, ALL PASS
+
+    # 1a. THE SEAL AUTHORITY, FIRST OF ALL (chunk 13c). It now runs the
+    #     allocator after the close, so it must be up and carrying the four
+    #     key-pair REFERENCES before any loop looks for /allocator/latest.json.
+    #     A loop deployed first simply logs "ALLOCATOR SYNC waiting" and keeps
+    #     its deploy-time budget — which is why this is step 1a and not a
+    #     blocker, but it is still the right order.
+    python -m scripts.fleet --railway seal-authority    # READ IT FIRST: no value, only ${{...}}
+    python -m scripts.fleet --deploy seal-authority --up
 
     # 1. the book whose ENGINE changed, alone, so its logs can be read on their own
     python -m scripts.fleet --deploy hack3 --up
@@ -171,8 +219,13 @@ deploy stamps `AAT_BUILD_COMMIT` and marks a dirty tree as `+dirty`).
 
     # 3. hack2 is NOT deployed. Its loop stays down; its account is lane D's.
 
-hack3 goes first and alone on purpose: it is the only behavioural change, and a
-five-service deploy that goes wrong is five logs to read instead of one.
+hack3 goes first among the LOOPS on purpose: it is the only behavioural change,
+and a five-service deploy that goes wrong is five logs to read instead of one.
+The authority goes before all of them because it is what the five will be
+reading from, and because it is the one service in the list whose key
+variables cannot be verified by read-back (they are references; Railway returns
+the resolved secret, not the template). Its proof is a log line, not a `railway
+variables` grep — see §6.
 
 The variable set each line writes (printed by
 `python -m scripts.fleet --railway hack3`, no deploy):
@@ -195,6 +248,7 @@ not set).
     python -m scripts.fleet --check-all
     python -m scripts.fleet_health
     railway logs --service aat-loop-hack3 | findstr /C:"seasonality" /C:"engine" /C:"REFUS"
+    railway logs --service aat-loop-hack1 | findstr /C:"ALLOCATOR"
 
 What a healthy hack3 log looks like on Monday: the entry pass asks about the
 thirty names in `AAT_LOOP_ARGS`, `seasonality_f` speaks for the first **ten** and
@@ -207,6 +261,56 @@ the container, every symbol is declined with *"no seasonality engine file for
 and hack3 holds what it has. That is the designed failure, not a bug — but it
 means the deploy did not ship `docs/seed/engines/`, so check the image, not the
 brain.
+
+
+### 6.1 THE AUTHORITY, AFTER MONDAY'S CLOSE — the one new thing to read
+
+    railway logs --service seal-authority
+
+Nothing about the allocator appears before **16:30 ET**, and that is correct.
+Until then the only allocator lines are the refusals that name their own reason,
+once per maintainer tick:
+
+    SEAL AUTHORITY allocator 2026-09-14: venue session in progress (11:04 ET); an allocator mark is a CLOSE and this is not one
+    SEAL AUTHORITY allocator 2026-09-14: 16:12 ET is before 16:30 ET; the close has not settled, so today's record is not owed yet
+
+**After 16:30 ET, the line that proves the whole chunk:**
+
+    SEAL AUTHORITY allocator due -- 2026-09-14: after 16:30 ET on a weekday
+    SEAL AUTHORITY ALLOCATED day=2026-09-14 sha=<16 hex> gross={'hack1': 1.0, 'hack3': 1.0, 'hack4': 1.0, 'hack5': 1.0, 'hack6': 1.0} worst_case_usd=<negative>
+
+Five roles in `gross`, and a `sha`. Then, inside each loop within its next
+cycle:
+
+    ALLOCATOR SYNC installed day=2026-09-14 sha=<the same 16 hex> CURRENT (most recent close 2026-09-14) path=/app/state/allocator/2026-09-14.json
+
+The two `sha` values are the same string or the artery is not what it claims.
+
+**The failure to recognise, and it is the one that would make the record
+invisible to a loop:** if the four key-pair references did not resolve — a
+mistyped service name, a variable renamed on a loop service, the reference set
+before the loop service existed — the authority logs
+
+    SEAL AUTHORITY allocator   hack1: NO MARK TODAY -- no credentials: CredentialRefusal: ...
+
+for each unreadable role, and if **all** of them fail:
+
+    SEAL AUTHORITY allocator REFUSED day=2026-09-14: no role's equity could be read; refusing to write a record with five holes in it
+
+**No record is then written, `/allocator/latest.json` still serves the
+2026-09-11 seed record, and every loop reads that as STALE and keeps its
+deploy-time budget.** Nothing breaks, nothing halts, and no order changes — the
+fleet simply runs at the budgets §2 priced, which is exactly the state §4b
+described. That is the silence to watch for: **a green deploy, healthy loops,
+and an allocator that is not allocating.** The cheap check is the single line
+above; if `SEAL AUTHORITY ALLOCATED` has not appeared by 17:00 ET, the
+references did not resolve.
+
+The reason this cannot be checked with `railway variables --service
+seal-authority` is that Railway returns the RESOLVED value of a reference, not
+the template — so the read-back in `--deploy` skips every `_KEY_ID` /
+`_SECRET_KEY` deliberately (it would otherwise re-set them for ever), and the
+log line above is the only honest proof.
 
 ## 7. THE CALENDAR ITEM THIS CREATES
 
@@ -231,7 +335,17 @@ one of them.
   §2's table can be identical to last week's.
 - It does not promote anything on return: every gross budget is 1.00 and the
   first budget that can move on return is 3 complete date blocks away (hack5
-  at 2 sessions a block, hack1 at 5, hack3 and hack6 at 21, hack4 at 42).
+  at 2 sessions a block, hack1 at 5, hack3 and hack6 at 21, hack4 at 42). The
+  DRAWDOWN rule is not waiting for any of that and can fire at the first close.
+- It does not give the seal authority an order path. Its allocator step reads
+  `/v2/account` and `/v2/account/portfolio/history` through a client built with
+  reads only, and `tests_smoke_allocator.py` still pins both allocator files as
+  free of `alpha.broker`, `submit` and `/v2/orders`.
+- It does not attach a volume to `seal-authority`. That is why the five equity
+  curves are re-derived from the venue every day instead of appended: a curve
+  accumulated on a disk that is rebuilt on every boot silently becomes "since
+  the last deploy", and a peak a reboot deleted makes a drawdown look smaller
+  than it is.
 - It claims nothing about Book F. F is **CONDITIONAL** — its falsifiers passed
   and its primary did not clear its declared effect size. It is deployed under
   `PRODUCT_EXPERIMENT` to find out what it does on real fills.

@@ -438,6 +438,84 @@ def env_template() -> str:
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# THE SEAL AUTHORITY (chunk 13c, 2026-09-13)
+#
+# It is NOT in `FLEET`: it has no mandate, no universe, no brains and places no
+# orders, and putting it in the table would give it `--deploy all`, a volume and
+# a `--gross-scale`. It is a seventh service with a variable set of its own.
+# ---------------------------------------------------------------------------
+
+SEAL_AUTHORITY_SERVICE = "seal-authority"
+
+#: The role the authority already runs under, and whose key pair it already
+#: carries as a LITERAL value (`docs/RUNBOOK_2026-09-08_REARM.md` C.0). It seals
+#: and it does not trade. Its own pair is deliberately NOT re-emitted as a
+#: reference below: overwriting a working literal with a template that might not
+#: resolve would trade "the allocator cannot read four accounts" for "the whole
+#: fleet gets no sealed book", which is a much worse day.
+SEAL_AUTHORITY_ROLE = "hack3"
+
+
+def seal_authority_key_references() -> dict[str, str]:
+    """The allocated roles' key pairs, as Railway CROSS-SERVICE REFERENCES.
+
+    Railway resolves `${{SERVICE.VAR}}` server-side inside one project
+    (https://docs.railway.com/guides/variables, "Reference Variables"), so the
+    authority's environment ends up holding all five pairs while no value is
+    ever typed, echoed, logged or committed. The service name is used as-is,
+    which here is `aat-loop-<role>` -- the service that already owns that pair.
+
+    `SEAL_AUTHORITY_ROLE` is excluded: see the constant. Its pair is already on
+    the service as a literal and this must not replace it.
+    """
+    from alpha import allocator as _a
+
+    out: dict[str, str] = {}
+    for role in _a.ROLES:
+        if role == SEAL_AUTHORITY_ROLE:
+            continue
+        pre = f"AAT_{role.upper()}"
+        for suffix in ("KEY_ID", "SECRET_KEY"):
+            out[f"{pre}_{suffix}"] = f"${{{{aat-loop-{role}.{pre}_{suffix}}}}}"
+    return out
+
+
+def seal_authority_env() -> dict[str, str]:
+    """Every variable `--deploy seal-authority` writes, and only those.
+
+    NO `AAT_LOOP_*`, no `--gross-scale`, no mandate end: this service has no
+    mandate, and `docs/RUNBOOK_2026-09-08_REARM.md` C.1(2) records that giving
+    it loop variables is how a non-trading service inherits a trading one's
+    stale deadline. NO volume either -- the authority rebuilds from the image on
+    every boot on purpose, which is exactly why
+    `scripts/allocator_venue.py` re-derives the curves instead of appending them.
+    """
+    env = {
+        "AAT_TRADING_BASE": COMMON_ENV["AAT_TRADING_BASE"],
+        "AAT_DATA_BASE": COMMON_ENV["AAT_DATA_BASE"],
+        "AAT_STOCK_FEED": COMMON_ENV["AAT_STOCK_FEED"],
+        "AAT_LEDGER_DIR": COMMON_ENV["AAT_LEDGER_DIR"],
+        "AAT_ACCOUNT_ROLE": SEAL_AUTHORITY_ROLE,
+    }
+    env.update(seal_authority_key_references())
+    return env
+
+
+def seal_authority_commands() -> str:
+    """What `--deploy seal-authority` does, as the lines a person could run."""
+    svc = SEAL_AUTHORITY_SERVICE
+    sets = " ".join(f'--set "{k}={v}"' for k, v in seal_authority_env().items())
+    secrets = " ".join(f'--set "{k}=${k}"' for k in SECRETS)
+    return "\n".join([
+        f"railway service {svc}",
+        f"# NO `railway volume add` -- the authority has no volume, by design.",
+        f"railway variables --service {svc} --skip-deploys {sets} {secrets}",
+        f"railway up --service {svc} -d",
+        f"railway logs --service {svc}",
+    ])
+
+
 def railway_commands(m: Mandate) -> str:
     svc = f"aat-loop-{m.role}"
     sets = " ".join(f'--set "{k}={v}"' for k, v in env_for(m).items())
