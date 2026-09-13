@@ -265,6 +265,11 @@ def main() -> int:
                    help="cap --news-universe at the N highest-ranked news names")
     p.add_argument("--field-leader", type=float, default=None,
                    help="estimated podium return, e.g. 0.25 for +25%%")
+    p.add_argument("--gross-scale", type=float, default=None,
+                   help="the ALLOCATOR's gross budget for this book, in [0,1]. It can only "
+                        "REDUCE `sizing.gross_cap`; a value above 1 is clamped, because "
+                        "leverage is not on the table. Set by alpha.fleet.loop_args from "
+                        "state/allocator/<day>.json; absent means the profile's own cap.")
     args = p.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -286,6 +291,13 @@ def main() -> int:
     # role through the ENVIRONMENT, never as a flag. Introduced 2026-08-26 in
     # f741211 while closing audit defect 6; found 2026-09-07 by running the
     # entry pass by hand.
+    if args.gross_scale is not None:
+        # PUBLISHED TO THE ENVIRONMENT, not passed down the call chain: only an
+        # env var reaches a child, and `sizing.gross_cap` is called from the
+        # runner, from `alpha.drivers`, from `alpha.tracker` and from the
+        # leverage lab. Threading a parameter through four call sites would have
+        # left whichever one was forgotten running at full size.
+        os.environ["AAT_GROSS_SCALE"] = f"{float(args.gross_scale):.6f}"
     if args.role:
         os.environ["AAT_ACCOUNT_ROLE"] = args.role.strip().lower()
     client = AlpacaPaper(role=args.role)

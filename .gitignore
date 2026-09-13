@@ -17,3 +17,7 @@ state/dashboard.html
 
 # 2026-08-29: the PIT observation corpus is a regenerable data store (21 MB, 30k rows); receipts live in docs/
 state/corpus/
+
+# 2026-09-13: the allocator curves ARE the evidence (TRIAL-DRAFT-ALLOCATOR-v0).
+# `state/*.jsonl` above would have swallowed them silently.
+!state/allocator/curves/*.jsonl

@@ -129,8 +129,14 @@ def main() -> int:
     p.add_argument("--day", default=None, help="session day override (tests / replay)")
     p.add_argument("--ignore-window", action="store_true",
                    help="ATTENDED ONLY: skip the clock window check. Never set by the loop.")
+    p.add_argument("--gross-scale", type=float, default=None,
+                   help="the ALLOCATOR's gross budget for this book, in [0,1]. Published to "
+                        "AAT_GROSS_SCALE so `sizing.gross_cap` binds on the auction pass too "
+                        "-- a budget that held at 10:01 and not at 09:28 is not a budget.")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+    if args.gross_scale is not None:
+        os.environ["AAT_GROSS_SCALE"] = f"{float(args.gross_scale):.6f}"
     config.load_env()
 
     try:

@@ -315,9 +315,31 @@ def universe_for(m: Mandate) -> list[str] | None:
     return list(m.fixed_symbols)
 
 
+def gross_scale_for(m: Mandate) -> tuple[float | None, str]:
+    """The ALLOCATOR's gross budget for this book, and where it came from.
+
+    `None` for a role the allocator does not allocate to (`hack2` went to lane D
+    on 2026-09-13). For an allocated role this RAISES `AllocatorUnavailable`
+    when no allocator record exists at all -- which stops `--deploy` until
+    `python -m scripts.allocator --anchor` and `--run` have been run, and that is
+    the intended behaviour: a book whose budget nobody has stated must not
+    deploy at 100% by default. A STALE record is used and SAID; only the total
+    absence of one refuses.
+    """
+    from alpha import allocator as _a
+
+    if m.role not in _a.ROLES:
+        return None, f"{m.role} is not an allocated role (lane D); no budget flag emitted"
+    b = _a.budget_for(m.role)
+    return b["scale"], b["note"]
+
+
 def loop_args(m: Mandate) -> list[str]:
     """The `scripts.agent_loop` flags this mandate prescribes (after --expiry/--live)."""
     args = ["--brains", ",".join(m.brains), "--profile", m.profile]
+    scale, _why = gross_scale_for(m)
+    if scale is not None:
+        args += ["--gross-scale", f"{scale:.6f}"]
     # Before `extra_args` and before `--universe`: `--universe` takes nargs="*"
     # and must stay LAST, or argparse folds the following flag into the symbol
     # list on any Python that does not recognise it as an option string.

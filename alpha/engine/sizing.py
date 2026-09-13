@@ -254,9 +254,36 @@ CONVEX_MIN_DTE = 10.0
 CONVEX_MAX_BREAKEVEN_TO_IMPLIED = 1.0
 
 
+def allocator_scale() -> float:
+    """The allocator's gross budget for this book, in [0, 1]. Default 1.0.
+
+    Read from `AAT_GROSS_SCALE`, which `scripts.run_pass` publishes from the
+    `--gross-scale` flag that `alpha.fleet.loop_args` emits from the day's
+    allocator record. CLAMPED to [0, 1]: the allocator's whole asymmetry is that
+    it cuts fast and restores slowly, and it may never hand a book leverage --
+    `tests_smoke_monday` pins the gross cap at <= 1.0 and this must not be the
+    thing that breaks it. An unreadable value is 1.0 and says nothing, because a
+    malformed variable must not silently disarm a book either.
+    """
+    import os
+
+    raw = (os.getenv("AAT_GROSS_SCALE") or "").strip()
+    if not raw:
+        return 1.0
+    try:
+        return max(0.0, min(1.0, float(raw)))
+    except ValueError:
+        return 1.0
+
+
 def gross_cap(risk_profile: str | None) -> float:
     key = (risk_profile or "").strip().lower()
-    return GROSS_NOTIONAL_CAP.get(key, DEFAULT_GROSS_NOTIONAL_CAP)
+    base = GROSS_NOTIONAL_CAP.get(key, DEFAULT_GROSS_NOTIONAL_CAP)
+    # REDUCE-ONLY, and applied HERE rather than at each call site: the runner,
+    # `alpha.drivers.cap_fraction`, `alpha.tracker` and the leverage lab all
+    # read this function, and a budget applied at three of the four would be a
+    # budget that does not bind.
+    return base * allocator_scale()
 
 #: Profiles that put more than half of equity at risk are competition-week
 #: profiles: before kickoff they need `AAT_ALLOW_MAXIMUM=1`.

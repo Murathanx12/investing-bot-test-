@@ -1,0 +1,41 @@
+{
+ "created_utc": "2026-09-13T08:22:04+00:00",
+ "anchor_day": "2026-09-11",
+ "trial": "TRIAL-DRAFT-ALLOCATOR-v0",
+ "licence": "PRODUCT_EXPERIMENT",
+ "contract_hash": "25aadd395acf688d4b7ce9062ab284730f72a2b2c9697a733d8d7ae10cbdacaf",
+ "accounts_were_reset": false,
+ "why_not_reset": "Alpaca's dashboard reset is delete-and-recreate and rotates the API keys; the six roles keep their equity and every curve here starts from it",
+ "books": {
+  "hack1": {
+   "anchor_equity": 93863.0,
+   "anchor_day": "2026-09-11",
+   "account": null,
+   "source": "supplied on the command line"
+  },
+  "hack3": {
+   "anchor_equity": 83342.0,
+   "anchor_day": "2026-09-11",
+   "account": null,
+   "source": "supplied on the command line"
+  },
+  "hack4": {
+   "anchor_equity": 92941.0,
+   "anchor_day": "2026-09-11",
+   "account": null,
+   "source": "supplied on the command line"
+  },
+  "hack5": {
+   "anchor_equity": 95095.0,
+   "anchor_day": "2026-09-11",
+   "account": null,
+   "source": "supplied on the command line"
+  },
+  "hack6": {
+   "anchor_equity": 87591.0,
+   "anchor_day": "2026-09-11",
+   "account": null,
+   "source": "supplied on the command line"
+  }
+ }
+}

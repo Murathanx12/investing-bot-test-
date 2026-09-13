@@ -222,6 +222,10 @@ def main() -> int:
     p.add_argument("--premarket", action="store_true",
                    help="re-enable the pre-open passes (premarket digest + opening auction). "
                         "OFF by default since 2026-09-07; see PREMARKET_PASSES_ENABLED.")
+    p.add_argument("--gross-scale", type=float, default=None,
+                   help="the ALLOCATOR's gross budget for this book, in [0,1]; forwarded to "
+                        "run_pass and open_auction. Emitted by alpha.fleet.loop_args from the "
+                        "day's allocator record; it can only REDUCE the profile's gross cap.")
     p.add_argument("--manage-only", action="store_true",
                    help="LEGACY MODE: run exits, fills, counterfactual and autopsy, but NEVER "
                         "an entry pass. The book can only get smaller. Use for a book that is "
@@ -403,6 +407,12 @@ def _cycle(client, args, last: dict) -> int:
                 extra = ["--expiry", args.expiry]
                 if args.profile:
                     extra += ["--profile", args.profile]
+                # `getattr`, like `manage_only` two blocks down: `_cycle` is
+                # called from the suite with a SimpleNamespace, and a flag that
+                # only exists on the real parser turns a test into an
+                # AttributeError instead of a check.
+                if getattr(args, "gross_scale", None) is not None:
+                    extra += ["--gross-scale", str(args.gross_scale)]
                 _run("scripts.open_auction", *extra, live=args.live)
             elif _style is not None:
                 log.debug("no pre-open pass: %s", _why)
@@ -428,6 +438,8 @@ def _cycle(client, args, last: dict) -> int:
                 extra += ["--shadow", args.shadow]
             if args.profile:
                 extra += ["--profile", args.profile]
+            if getattr(args, "gross_scale", None) is not None:
+                extra += ["--gross-scale", str(args.gross_scale)]
             if args.universe:
                 extra += ["--universe", *args.universe]
             _run("scripts.run_pass", "--expiry", args.expiry, *extra, live=args.live); last["entry"] = now
