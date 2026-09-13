@@ -241,7 +241,7 @@ Run from `C:\Users\mrthn\aegis-alpha-terminal` with the repo **pushed** (the
 deploy stamps `AAT_BUILD_COMMIT` and marks a dirty tree as `+dirty`).
 
     # 0. the gate, first — a red suite is not a deploy
-    python run_tests.py                      # expect: 88 suites, ALL PASS
+    python run_tests.py                      # expect: 89 suites, ALL PASS (measured 2026-09-14 02:20), ALL PASS
 
     # 1a. THE SEAL AUTHORITY, FIRST OF ALL (chunk 13c). It now runs the
     #     allocator after the close, so it must be up and carrying the four
