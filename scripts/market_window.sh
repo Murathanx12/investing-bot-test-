@@ -57,20 +57,18 @@ while true; do
     budget=$((close_s - now_s))
     if [ "$budget" -le 0 ]; then budget=60; fi
     echo "MARKET WINDOW open at $(date -u +%FT%TZ): running the loop for ${budget}s (until ${CLOSE}Z)"
-    # The sealed-book poller (scripts/seal_sync_poll.py) -- formerly a
-    # dashboard-only start command on three services -- runs beside the loop,
-    # inside the window only, and is stopped with it.
-    poller_pid=""
-    if [ -n "${AAT_PREDICTION_BOOK_BASE_URL:-}" ]; then
-      python -m scripts.seal_sync_poll &
-      poller_pid=$!
-    fi
+    # The sealed-book poller (scripts/prediction_book_sync.py, a no-op without
+    # AAT_PREDICTION_BOOK_BASE_URL) -- formerly started by a dashboard-only
+    # start command on three services -- runs beside the loop, inside the
+    # window only, and is stopped with it.
+    python -m scripts.prediction_book_sync &
+    poller_pid=$!
     # shellcheck disable=SC2086  -- AAT_LOOP_ARGS is a flag list by contract.
     timeout -s TERM "$budget" python -m scripts.agent_loop --expiry "${AAT_LOOP_EXPIRY}" --live \
       ${AAT_LOOP_BRAINS:+--brains "$AAT_LOOP_BRAINS"} ${AAT_LOOP_SHADOW:+--shadow "$AAT_LOOP_SHADOW"} \
       ${AAT_LOOP_ARGS:-}
     rc=$?
-    if [ -n "$poller_pid" ]; then kill "$poller_pid" 2>/dev/null; wait "$poller_pid" 2>/dev/null; fi
+    kill "$poller_pid" 2>/dev/null; wait "$poller_pid" 2>/dev/null
     echo "MARKET WINDOW loop exited rc=${rc} at $(date -u +%FT%TZ) (124 = stopped at the window's close)"
     python -c "from alpha import liveness; print('MARKET WINDOW retired heartbeat:', liveness.retire('${ROLE}'))" || true
     # A loop that died INSIDE the window (rc != 124) is restarted by the outer
