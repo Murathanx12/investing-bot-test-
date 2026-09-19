@@ -22,4 +22,9 @@ ENV PYTHONUNBUFFERED=1
 COPY docs/seed/ /app/seed/
 # AAT_LOOP_ARGS carries the flags the runbook prescribes for the role, e.g.
 #   --profile conservative --brains post_event_drift --shadow "" --window-universe
-CMD ["sh", "-c", "mkdir -p /app/state && cp -rn /app/seed/. /app/state/ 2>/dev/null; exec python -m scripts.agent_loop --expiry ${AAT_LOOP_EXPIRY} --live ${AAT_LOOP_BRAINS:+--brains $AAT_LOOP_BRAINS} ${AAT_LOOP_SHADOW:+--shadow $AAT_LOOP_SHADOW} ${AAT_LOOP_ARGS}"]
+# 2026-09-20: the loop runs only inside the market window (Mon-Fri 13:00-22:10Z
+# by default, AAT_WINDOW_OPEN_UTC / AAT_WINDOW_CLOSE_UTC) and this container
+# sleeps as a few-megabyte shell outside it -- Railway bills memory per second
+# and an idle loop held 1.16 GB all night. The loop command inside the wrapper
+# is the old CMD verbatim. See scripts/market_window.sh.
+CMD ["sh", "/app/scripts/market_window.sh"]
