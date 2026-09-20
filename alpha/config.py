@@ -46,19 +46,30 @@ def load_env(path: str | None = None) -> int:
     """
     import pathlib
 
-    target = pathlib.Path(path or pathlib.Path(__file__).resolve().parent.parent / ".env")
-    if not target.exists():
-        return 0
+    here = pathlib.Path(__file__).resolve().parent.parent
+    if path:
+        targets = [pathlib.Path(path)]
+    else:
+        # 2026-09-20, Murat: "why we have multiple envs, make sure we are using
+        # one." The research repo's `.env` (../aegis-finance/.env) is the ONE
+        # file keys are put in; this repo's own `.env` is read first so its
+        # AAT_* names keep winning where both define a key, and the sibling
+        # fills whatever is missing. Railway services never read either file:
+        # their variables are set by hand and verified by hash.
+        targets = [here / ".env", here.parent / "aegis-finance" / ".env"]
     loaded = 0
-    for raw in target.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    for target in targets:
+        if not target.exists():
             continue
-        key, _, value = line.partition("=")
-        key, value = key.strip(), value.strip().strip("'\"")
-        if key and value and key not in os.environ:
-            os.environ[key] = value
-            loaded += 1
+        for raw in target.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key, value = key.strip(), value.strip().strip("'\"")
+            if key and value and key not in os.environ:
+                os.environ[key] = value
+                loaded += 1
     return loaded
 
 
