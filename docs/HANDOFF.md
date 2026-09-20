@@ -5,6 +5,27 @@
 > 4. **The one rule per repo.** *Here (`aegis-alpha-terminal`):* a book fails CLOSED — no sealed book, no trade — and the sealed expression may only be CUT by execution gates, never raised; the ledger hash chain has been broken since 25 Aug and is **never silently repaired**. *There (`../aegis-finance`):* the strategy, canon and research are the authority — read its `docs/INDEX.md` TIER 0 and its single TIER 1 roadmap before proposing anything strategic.
 > 5. Order of operations that actually works: `tracker --backfill-prices` → `prediction_book --seal` → `--publish` → commit/push → `fleet --deploy <role> --up`. Tests ONLY via `python run_tests.py`. Trading truth is `/v2/clock`, never the laptop clock.
 
+## SESSION 2026-09-20 (Fable, 08:30 HKT) -- THREE LOOPS WERE DEAD, NOT ASLEEP; hack2 ANSWERS 401
+
+**RESULTS SCOREBOARD:** five readable books $440,907 (hack1 93,673 · hack3 80,947 ·
+hack4 89,362 · hack5 92,238 · hack6 84,686, `/v2/account` 2026-09-20 00:10Z); hack2
+**HTTP 401** with the key both Railway and `.env` hold -- the key is dead on Alpaca's
+side, Murat regenerates it. RESULT IMPROVEMENT: NONE.
+
+- hack3/4/6 crash-looped since the 09-20 wrapper deploy: `market_window.sh: 37:
+  set: Illegal option -`. Every committed blob is LF; the Windows working tree was
+  CRLF and `railway up` ships the working tree, so dash read `set -u<CR>`. Fixed by
+  `.gitattributes` (`*.sh text eol=lf`, commit `0878516`); hack2/3/4/6 redeployed
+  from an LF tree. **`railway metrics` showing 0 MB is a dead container. The proof
+  of a live supervisor is its first log line `MARKET WINDOW supervisor: role=...`.**
+- hack2 had never received the wrapper (build `382a6c4`); it has it now.
+- `AAT_FRED_API_KEY` rotated on all seven services (Murat flipped the FRED key
+  09-20 07:42 HKT); verified by hash against `.env`, values never printed.
+- Still owed Monday 2026-09-21: `agent_loop` starting inside the 13:00Z window on
+  every loop, and `SEAL AUTHORITY ALLOCATED day=2026-09-21` at 16:30 ET -- no
+  weekday allocator record exists since 09-11.
+- Full night review: `../aegis-finance/docs/research_notes/2026-09-20/review_night_2026-09-19_to_20.md`.
+
 ## SESSION 2026-09-09 → 09-11 (written 2026-09-11 from commits and receipts, not from memory)
 
 **Who wrote this and how.** An Opus build agent in `../aegis-finance`, from this
