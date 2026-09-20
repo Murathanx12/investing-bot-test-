@@ -63,11 +63,66 @@ while true; do
     # window only, and is stopped with it.
     python -m scripts.prediction_book_sync &
     poller_pid=$!
-    # shellcheck disable=SC2086  -- AAT_LOOP_ARGS is a flag list by contract.
-    timeout -s TERM "$budget" python -m scripts.agent_loop --expiry "${AAT_LOOP_EXPIRY}" --live \
-      ${AAT_LOOP_BRAINS:+--brains "$AAT_LOOP_BRAINS"} ${AAT_LOOP_SHADOW:+--shadow "$AAT_LOOP_SHADOW"} \
-      ${AAT_LOOP_ARGS:-}
-    rc=$?
+    if [ "${AAT_LOOP_MODE:-cadence}" = "persistent" ]; then
+      # The old shape: one resident process for the whole window (~1.16 GB
+      # for nine hours). Kept behind AAT_LOOP_MODE=persistent as the rollback.
+      # shellcheck disable=SC2086  -- AAT_LOOP_ARGS is a flag list by contract.
+      timeout -s TERM "$budget" python -m scripts.agent_loop --expiry "${AAT_LOOP_EXPIRY}" --live \
+        ${AAT_LOOP_BRAINS:+--brains "$AAT_LOOP_BRAINS"} ${AAT_LOOP_SHADOW:+--shadow "$AAT_LOOP_SHADOW"} \
+        ${AAT_LOOP_ARGS:-}
+      rc=$?
+    else
+      # CADENCE MODE (2026-09-20, Murat: "only decisions or while market open
+      # in intervals", ceiling $20/month for all of Railway). Railway bills
+      # memory per second, and the loop's memory is pandas + the venue client
+      # whether or not it is deciding anything. So inside the window the
+      # process is started, runs ONE cycle (`--once`: exits, then the entry
+      # pass if due, counterfactuals, beliefs) and exits; between cycles this
+      # shell sleeps at a few megabytes. Every AAT_LOOP_EVERY_MIN minutes
+      # (default 30 -- the loop's own entry cadence) a FULL cycle runs; every
+      # AAT_LOOP_MANAGE_EVERY_MIN minutes (default 10) an exits-only cycle
+      # (`--manage-only`: stops, fills, never a new position) runs between
+      # them, so a stop is checked within ten minutes rather than thirty.
+      # Measured resident time per day falls from ~9 h to ~2 h (a full cycle
+      # is ~6 min median, an exits cycle ~1 min); the fleet's memory bill
+      # falls in the same ratio. The loop's own code is unchanged; `--once`
+      # retires its heartbeat on exit by design (agent_loop.py, 27 Aug), so
+      # liveness is the cadence's log lines below, not a resident beat.
+      full_every=$(( ${AAT_LOOP_EVERY_MIN:-30} * 60 ))
+      manage_every=$(( ${AAT_LOOP_MANAGE_EVERY_MIN:-10} * 60 ))
+      last_full=0
+      rc=0
+      echo "MARKET WINDOW cadence: full cycle every ${full_every}s, exits-only every ${manage_every}s"
+      while :; do
+        t=$(date -u +%s)
+        [ "$t" -ge "$close_s" ] && { rc=124; break; }
+        if [ $(( t - last_full )) -ge "$full_every" ]; then
+          kind="full"; extra=""
+          last_full=$t
+        else
+          kind="exits-only"; extra="--manage-only"
+        fi
+        left=$(( close_s - t )); [ "$left" -le 0 ] && left=60
+        echo "MARKET WINDOW cycle ${kind} at $(date -u +%FT%TZ)"
+        # shellcheck disable=SC2086  -- AAT_LOOP_ARGS is a flag list by contract.
+        timeout -s TERM "$left" python -m scripts.agent_loop --expiry "${AAT_LOOP_EXPIRY}" --live --once $extra \
+          ${AAT_LOOP_BRAINS:+--brains "$AAT_LOOP_BRAINS"} ${AAT_LOOP_SHADOW:+--shadow "$AAT_LOOP_SHADOW"} \
+          ${AAT_LOOP_ARGS:-}
+        crc=$?
+        echo "MARKET WINDOW cycle ${kind} exited rc=${crc} at $(date -u +%FT%TZ)"
+        [ "$crc" -eq 124 ] && { rc=124; break; }
+        t=$(date -u +%s)
+        [ "$t" -ge "$close_s" ] && { rc=124; break; }
+        # Sleep until the next cycle is due (exits-only or full, whichever first),
+        # never past the close.
+        next_full=$(( last_full + full_every ))
+        next_manage=$(( t + manage_every ))
+        next=$next_manage; [ "$next_full" -lt "$next" ] && next=$next_full
+        [ "$next" -gt "$close_s" ] && next=$close_s
+        nap=$(( next - t )); [ "$nap" -lt 5 ] && nap=5
+        sleep "$nap"
+      done
+    fi
     kill "$poller_pid" 2>/dev/null; wait "$poller_pid" 2>/dev/null
     echo "MARKET WINDOW loop exited rc=${rc} at $(date -u +%FT%TZ) (124 = stopped at the window's close)"
     python -c "from alpha import liveness; print('MARKET WINDOW retired heartbeat:', liveness.retire('${ROLE}'))" || true
